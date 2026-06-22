@@ -70,3 +70,42 @@ class SchemaMigrationError(HexawynError):
 
 class EncryptionError(HexawynError):
     """Raised when DuckDB encryption key derivation or decryption fails."""
+
+
+# ── Quota ────────────────────────────────────────────────
+class QuotaExceededError(HexawynError):
+    """
+    Raised when the Free tier monthly investigation limit is reached.
+    Shown to the user with a clear upgrade message in the CLI and Slack.
+
+    Used by:
+    - quota_manager.check_quota() → called by parse_intent LangGraph node
+    - quota_manager.check_slack_quota() → called by Slack alert adapter
+    """
+
+    def __init__(self, used: int, limit: int) -> None:
+        super().__init__(
+            f"You've used {used}/{limit} free investigations this month.\n"
+            f"Quota resets on the 1st of next month.\n"
+            f"Upgrade to Pro for unlimited access: https://hexawyn.com/pro\n"
+            f"Activate your license: hexa license activate <YOUR-KEY>"
+        )
+        self.used = used
+        self.limit = limit
+
+
+class SlackQuotaExceededError(HexawynError):
+    """
+    Raised when the Free tier monthly Slack alert limit is reached.
+    Free tier: 5 Slack alerts/month.
+    Pro tier: unlimited.
+    """
+
+    def __init__(self, used: int, limit: int) -> None:
+        super().__init__(
+            f"You've used {used}/{limit} free Slack alerts this month.\n"
+            f"Quota resets on the 1st of next month.\n"
+            f"Upgrade to Pro for unlimited Slack alerts: https://hexawyn.com/pro"
+        )
+        self.used = used
+        self.limit = limit
