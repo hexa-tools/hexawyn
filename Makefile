@@ -83,7 +83,7 @@ build:
 
 run-mcp:
 	@echo "🚀 Starting MCP server (real cluster)..."
-	docker compose up hexawyn
+	docker compose -f docker/docker-compose.yml up hexawyn
 
 run-cli:
 	@echo "🖥️  Starting CLI Textual (real cluster)..."
@@ -91,15 +91,42 @@ run-cli:
 
 run-demo:
 	@echo "🎭 Starting MCP server in demo mode (no cluster)..."
-	docker compose up hexawyn-demo
+	docker compose -f docker/docker-compose.yml up hexawyn-demo
 
 run-cli-demo:
 	@echo "🎭 Starting CLI in demo mode (no cluster)..."
 	HEXAWYN_DEMO_MODE=true hexa start
 
+# ── Demo — per provider ──────────────────────────────────
+
+.PHONY: run-demo-aws run-demo-azure run-demo-gcp run-demo-openshift run-demo-datadog run-demo-docker
+
+run-demo-aws:  ## Start CLI in AWS EKS demo mode
+	HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=aws_eks poetry run hexa start
+
+run-demo-azure:  ## Start CLI in Azure AKS demo mode
+	HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=azure_aks poetry run hexa start
+
+run-demo-gcp:  ## Start CLI in GCP GKE demo mode
+	HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=gcp_gke poetry run hexa start
+
+run-demo-openshift:  ## Start CLI in OpenShift demo mode
+	HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=openshift poetry run hexa start
+
+run-demo-datadog:  ## Start CLI in Datadog demo mode
+	HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=datadog poetry run hexa start
+
+run-demo-docker:  ## Start MCP server in Docker demo mode (aws_eks)
+	docker run \
+		-e ANTHROPIC_API_KEY=$(ANTHROPIC_API_KEY) \
+		-e HEXAWYN_DEMO_MODE=true \
+		-e HEXAWYN_DEMO_SCENARIO=aws_eks \
+		-p 8000:8000 \
+		hexawyn
+
 stop:
 	@echo "🛑 Stopping all Docker services..."
-	docker compose down
+	docker compose -f docker/docker-compose.yml down
 	@echo "✅ All services stopped"
 
 # ─────────────────────────────────────
@@ -155,10 +182,18 @@ help:
 	@echo "🐳 DOCKER"
 	@echo "  make build                 → Build Docker image"
 	@echo "  make run-mcp               → Start MCP server (real cluster)"
-	@echo "  make run-demo              → Start MCP server in demo mode"
+	@echo "  make run-demo-docker       → Start MCP server in Docker demo"
+	@echo "  make stop                  → Stop all Docker services"
+	@echo ""
+	@echo "🎭 DEMO"
+	@echo "  make run-demo              → Start MCP server in demo mode (compose)"
 	@echo "  make run-cli               → Start CLI Textual (real cluster)"
 	@echo "  make run-cli-demo          → Start CLI in demo mode"
-	@echo "  make stop                  → Stop all Docker services"
+	@echo "  make run-demo-aws          → Start CLI in AWS EKS demo"
+	@echo "  make run-demo-azure        → Start CLI in Azure AKS demo"
+	@echo "  make run-demo-gcp          → Start CLI in GCP GKE demo"
+	@echo "  make run-demo-openshift    → Start CLI in OpenShift demo"
+	@echo "  make run-demo-datadog      → Start CLI in Datadog demo"
 	@echo ""
 	@echo "🧹 MAINTENANCE"
 	@echo "  make clean                 → Remove build artifacts and caches"
