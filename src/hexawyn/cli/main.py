@@ -50,5 +50,10 @@ def setup() -> None:
     app_instance.run()
 
 
+from hexawyn.cli.commands.quota_command import quota  # noqa: E402
+
+app.add_command(quota)
+
+
 if __name__ == "__main__":
     app()
