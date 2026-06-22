@@ -12,6 +12,7 @@ class ParseIntentOutput(TypedDict):
 
 class CheckCacheOutput(TypedDict):
     cache_hit: bool
+    cached_result: str | None
 
 
 class RetrieveContextOutput(TypedDict):
