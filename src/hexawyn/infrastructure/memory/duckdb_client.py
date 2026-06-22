@@ -3,8 +3,14 @@ from typing import TypedDict
 
 import duckdb
 
-from hexawyn.domain.errors import DuckDBUnavailableError
+from hexawyn.domain.errors import DuckDBUnavailableError, EncryptionError
 from hexawyn.domain.models.quota import FREE_HISTORY_DAYS
+from hexawyn.infrastructure.config.kubeconfig_reader import get_kubeconfig_stable_content
+from hexawyn.infrastructure.memory.encryption import (
+    derive_key,
+    is_encryption_disabled,
+    prepare_db,
+)
 
 SQL_DIR = Path(__file__).parent / "sql"
 
@@ -37,10 +43,31 @@ def get_connection() -> duckdb.DuckDBPyConnection:
     """
     Initialize DuckDB, install VSS, create schema, create HNSW index.
     Called once at startup by the MCP server and CLI.
-    Raises DuckDBUnavailableError if anything fails.
+
+    Database encryption is enabled by default. The AES-256-GCM encryption key
+    is derived from the kubeconfig's stable parts (CA certificates + server URLs)
+    using PBKDF2-HMAC-SHA256 with 600k iterations.
+
+    The DB file at ~/.hexawyn/memory.duckdb.enc is encrypted at rest.
+    During the application lifetime, the decrypted memory.duckdb is used.
+    On clean shutdown (atexit), the file is re-encrypted and the plaintext
+    copy is deleted.
+
+    Set HEXAWYN_DISABLE_ENCRYPTION=true to skip encryption (demo/testing only).
+
+    Raises:
+        EncryptionError: if the wrong kubeconfig is used (key mismatch).
+        DuckDBUnavailableError: if DuckDB fails to initialize.
     """
     try:
         HEXAWYN_DIR.mkdir(parents=True, exist_ok=True)
+
+        if not is_encryption_disabled():
+            kubeconfig_content = get_kubeconfig_stable_content()
+            if kubeconfig_content is not None:
+                key = derive_key(kubeconfig_content)
+                prepare_db(key)
+
         conn = duckdb.connect(str(DB_PATH))
 
         conn.execute("INSTALL vss;")
@@ -54,6 +81,8 @@ def get_connection() -> duckdb.DuckDBPyConnection:
 
         return conn
 
+    except EncryptionError:
+        raise
     except Exception as e:
         raise DuckDBUnavailableError(
             f"Failed to initialize DuckDB at {DB_PATH}: {e}",

@@ -1,5 +1,7 @@
 import os
+from pathlib import Path
 
+import yaml
 from kubernetes import client, config
 
 from hexawyn.domain.errors import ClusterUnreachableError
@@ -113,3 +115,48 @@ def validate_connection(
             "context": context_name,
             "error": str(e),
         }
+
+
+def get_kubeconfig_stable_content() -> bytes | None:
+    """
+    Extract stable parts of the kubeconfig for encryption key derivation.
+
+    Reads the CA certificate data and server URLs from all clusters in the
+    kubeconfig file. These parts are stable across token refreshes and
+    uniquely identify the cluster.
+
+    Returns:
+        Bytes of concatenated stable content, or None if no kubeconfig found.
+    """
+    kubeconfig_path = os.environ.get("KUBECONFIG", DEFAULT_KUBECONFIG)
+
+    if not os.path.exists(kubeconfig_path):
+        return None
+
+    try:
+        raw = Path(kubeconfig_path).read_text(encoding="utf-8")
+        config_data = yaml.safe_load(raw)
+
+        if not isinstance(config_data, dict):
+            return raw.encode("utf-8")
+
+        clusters = config_data.get("clusters")
+        if not isinstance(clusters, list):
+            return raw.encode("utf-8")
+
+        stable_parts: list[str] = []
+        for cluster_entry in clusters:
+            if isinstance(cluster_entry, dict):
+                cluster_info = cluster_entry.get("cluster")
+                if isinstance(cluster_info, dict):
+                    server = str(cluster_info.get("server", ""))
+                    ca_data = str(cluster_info.get("certificate-authority-data", ""))
+                    if server or ca_data:
+                        stable_parts.append(f"{server}|{ca_data}")
+
+        if not stable_parts:
+            return raw.encode("utf-8")
+
+        return "@".join(stable_parts).encode("utf-8")
+    except Exception:
+        return None
