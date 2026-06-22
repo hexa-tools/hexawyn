@@ -4,6 +4,7 @@ from typing import TypedDict
 import duckdb
 
 from hexawyn.domain.errors import DuckDBUnavailableError
+from hexawyn.domain.models.quota import FREE_HISTORY_DAYS
 
 SQL_DIR = Path(__file__).parent / "sql"
 
@@ -66,7 +67,7 @@ def search_similar(
     cluster_name: str,
     limit: int = 5,
     min_score: float = 0.80,
-    history_days: int = 90,
+    history_days: int = FREE_HISTORY_DAYS,
     namespace: str | None = None,
     resource_name: str | None = None,
 ) -> list[SimilarInvestigationDict]:
