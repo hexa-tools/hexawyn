@@ -20,7 +20,7 @@ OPENSHIFT_SCENARIO = {
     ],
     "chips": ["TLS cert expiring", "Failed pipeline", "Memory 77%"],
     "slack_message": "Alert: OpenShift — TLS cert expiring in 7 days, pipeline failed. Score 71.",
-    "projects": ["catalog", "orders", "monitoring"],
+    "projects": ["production", "staging", "monitoring"],
     "routes": [
         {"name": "admin-route", "tls": False},
         {"name": "catalog-api-route", "tls": True},
