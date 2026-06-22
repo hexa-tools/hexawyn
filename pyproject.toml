@@ -16,6 +16,37 @@ httpx = "^0.28"
 click = "^8.1"
 langgraph = "^1.2.6"
 
+# Cloud providers (optional)
+boto3 = { version = "^1.35", optional = true }
+botocore = { version = "^1.35", optional = true }
+azure-identity = { version = "^1.17", optional = true }
+azure-mgmt-containerservice = { version = "^33.0", optional = true }
+azure-mgmt-monitor = { version = "^6.0", optional = true }
+azure-monitor-query = { version = "^1.4", optional = true }
+google-cloud-container = { version = "^2.50", optional = true }
+google-cloud-monitoring = { version = "^2.22", optional = true }
+google-cloud-trace = { version = "^1.13", optional = true }
+google-cloud-logging = { version = "^3.11", optional = true }
+google-auth = { version = "^2.35", optional = true }
+openshift = { version = "^0.13", optional = true }
+datadog-api-client = { version = "^2.28", optional = true }
+
+[tool.poetry.extras]
+aws = ["boto3", "botocore"]
+azure = ["azure-identity", "azure-mgmt-containerservice",
+         "azure-mgmt-monitor", "azure-monitor-query"]
+gcp = ["google-cloud-container", "google-cloud-monitoring",
+       "google-cloud-trace", "google-cloud-logging", "google-auth"]
+openshift = ["openshift"]
+datadog = ["datadog-api-client"]
+all = ["boto3", "botocore",
+       "azure-identity", "azure-mgmt-containerservice",
+       "azure-mgmt-monitor", "azure-monitor-query",
+       "google-cloud-container", "google-cloud-monitoring",
+       "google-cloud-trace", "google-cloud-logging", "google-auth",
+       "openshift",
+       "datadog-api-client"]
+
 [tool.poetry.scripts]
 hexa = "hexawyn.cli.main:app"
 
