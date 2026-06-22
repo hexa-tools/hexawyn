@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "hexawyn"
-version = "0.1.0"
+version = "0.1.0b0"
 description = "AI-powered Kubernetes assistant — MCP server for cluster investigation & reliability"
 authors = ["hexawyn team"]
 readme = "README.md"
 packages = [{include = "hexawyn", from = "src"}]
-
+ 
 [tool.poetry.dependencies]
 python = "^3.12"
 fastmcp = "^2.0"
