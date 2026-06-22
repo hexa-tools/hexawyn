@@ -4,9 +4,9 @@ SELECT
     age_days,
     cluster_name,
     namespace,
-    tool_name,
     resource_name,
     resource_kind,
+    tool_name,
     cause,
     solution,
     severity,
@@ -15,6 +15,7 @@ SELECT
         / ln(age_days + 2) AS score
 FROM incidents
 WHERE cluster_name = ?
+  AND timestamp > now() - INTERVAL '<HISTORY_DAYS>' DAY
   AND retained_until > now()
   AND sanitized = false
 ORDER BY score DESC

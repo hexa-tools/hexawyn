@@ -66,6 +66,7 @@ def search_similar(
     cluster_name: str,
     limit: int = 5,
     min_score: float = 0.80,
+    history_days: int = 90,
     namespace: str | None = None,
     resource_name: str | None = None,
 ) -> list[SimilarInvestigationDict]:
@@ -78,6 +79,8 @@ def search_similar(
     embedding_dim = len(embedding)
     sql = _load_sql("search_similar.sql").replace(
         "DOUBLE[?]", f"DOUBLE[{embedding_dim}]"
+    ).replace(
+        "<HISTORY_DAYS>", str(history_days)
     )
 
     params: list[str | int | float | list[float] | None] = [embedding, cluster_name]
@@ -104,9 +107,9 @@ def search_similar(
                     age_days=int(row[2]) if row[2] is not None else 0,
                     cluster_name=str(row[3]) if row[3] else "",
                     namespace=str(row[4]) if row[4] else None,
-                    tool_name=str(row[5]) if row[5] else "",
-                    resource_name=str(row[6]) if row[6] else None,
-                    resource_kind=str(row[7]) if row[7] else None,
+                    resource_name=str(row[5]) if row[5] else None,
+                    resource_kind=str(row[6]) if row[6] else None,
+                    tool_name=str(row[7]) if row[7] else "",
                     cause=str(row[8]) if row[8] else None,
                     solution=str(row[9]) if row[9] else None,
                     severity=str(row[10]) if row[10] else "low",
