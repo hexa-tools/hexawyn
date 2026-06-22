@@ -2,7 +2,13 @@ import os
 
 from fastmcp import FastMCP
 
+from hexawyn.domain.errors import ClusterUnreachableError
 from hexawyn.infrastructure.config.config_manager import get_api_key
+from hexawyn.infrastructure.config.kubeconfig_reader import (
+    get_active_context,
+    load_kubeconfig,
+    validate_connection,
+)
 from hexawyn.infrastructure.memory.duckdb_client import get_connection
 
 # Initialize FastMCP server
@@ -12,12 +18,28 @@ mcp = FastMCP(
     instructions="AI-powered Kubernetes diagnostic agent",
 )
 
+# ── Startup kubeconfig validation ─────────────────────────
+_k8s_api = None
+_cluster_status: dict[str, str] = {"status": "not_initialized"}
+
+try:
+    _k8s_api = load_kubeconfig()
+    active_ctx = get_active_context()
+    context_name = str(active_ctx["name"]) if active_ctx else "unknown"
+    _cluster_status = validate_connection(_k8s_api, context_name)
+except ClusterUnreachableError as e:
+    _cluster_status = {
+        "status": "no_kubeconfig",
+        "error": str(e),
+    }
+    print("[hexawyn] \u26a0\ufe0f  No kubeconfig found — starting in degraded mode")
+
 
 @mcp.tool()
 def health() -> dict[str, str]:
     """
     Health check endpoint — used by Docker, CI, and Marketplace readiness probes.
-    Returns status, version, and DuckDB connectivity.
+    Returns status, version, DuckDB connectivity, API key status, and cluster connectivity.
     """
     db_ok = False
     try:
@@ -34,6 +56,8 @@ def health() -> dict[str, str]:
         "version": "0.1.0b0",
         "duckdb": "connected" if db_ok else "unavailable",
         "api_key": "configured" if api_key_ok else "missing",
+        "cluster": _cluster_status.get("status", "unknown"),
+        "context": _cluster_status.get("context", "none"),
     }
 
 
