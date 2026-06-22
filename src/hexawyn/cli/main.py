@@ -50,9 +50,11 @@ def setup() -> None:
     app_instance.run()
 
 
-from hexawyn.cli.commands.quota_command import quota  # noqa: E402
+from hexawyn.cli.commands.cluster_command import cluster  # noqa: E402, I001
+from hexawyn.cli.commands.quota_command import quota  # noqa: E402, I001
 
 app.add_command(quota)
+app.add_command(cluster)
 
 
 if __name__ == "__main__":
