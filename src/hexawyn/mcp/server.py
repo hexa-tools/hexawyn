@@ -3,6 +3,7 @@ import os
 from fastmcp import FastMCP
 
 from hexawyn.domain.errors import ClusterUnreachableError
+from hexawyn.infrastructure.config.cache_manager import get_cache_stats
 from hexawyn.infrastructure.config.config_manager import get_api_key
 from hexawyn.infrastructure.config.kubeconfig_reader import (
     get_active_context,
@@ -50,6 +51,7 @@ def health() -> dict[str, str]:
         db_ok = False
 
     api_key_ok = get_api_key() is not None
+    cache_stats = get_cache_stats()
 
     return {
         "status": "ok" if db_ok else "degraded",
@@ -58,6 +60,8 @@ def health() -> dict[str, str]:
         "api_key": "configured" if api_key_ok else "missing",
         "cluster": _cluster_status.get("status", "unknown"),
         "context": _cluster_status.get("context", "none"),
+        "cache_l1_size": str(cache_stats["l1_size"]),
+        "cache_l1_ttl": str(cache_stats["l1_ttl_seconds"]),
     }
 
 
