@@ -7,7 +7,13 @@ AZURE_AKS_SCENARIO = {
         {"name": "redis-cache-5a3b7e-kl2m", "status": "Running", "restarts": 0, "namespace": "cache"},
     ],
     "metrics": {"cpu_usage_pct": 34.2, "memory_usage_pct": 41.8, "node_count": 8, "pod_count": 32},
-    "findings": [],
+    "findings": [
+        {
+            "severity": "low",
+            "message": "AKS cluster healthy — no action required",
+            "remediation": "Continue monitoring node pool auto-scaling",
+        },
+    ],
     "chips": ["All pods healthy", "CPU usage 34%", "No critical findings"],
-    "slack_message": "",
+    "slack_message": "Info: AKS prod — all systems healthy. Score 98. No action needed.",
 }

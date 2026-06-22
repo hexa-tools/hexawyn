@@ -105,6 +105,9 @@ class DemoAdapter(K8sPort, MetricsPort, TracesPort, LogsPort):
         raw_chips = cast(list[str], self._data.get("chips", []))
         return raw_chips
 
+    def get_slack_message(self) -> str:
+        return str(self._data.get("slack_message", ""))
+
     def list_projects(self) -> list[dict[str, str]]:
         raw_projects = cast(list[str], self._data.get("projects", []))
         return [{"name": p} for p in raw_projects]
