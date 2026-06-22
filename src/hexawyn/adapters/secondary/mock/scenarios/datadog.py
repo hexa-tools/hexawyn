@@ -2,7 +2,12 @@ DATADOG_SCENARIO = {
     "context": {"name": "prod-eks-datadog", "cluster": "eks-prod", "provider": "aws"},
     "health": {"score": 79, "status": "degraded"},
     "pods": [
-        {"name": "payments-api-7d9f8b-m3ql", "status": "Running", "restarts": 6, "namespace": "payments"},
+        {
+            "name": "payments-api-7d9f8b-m3ql",
+            "status": "Running",
+            "restarts": 6,
+            "namespace": "payments",
+        },
         {"name": "frontend-4c2d9f-xp5j", "status": "Running", "restarts": 1, "namespace": "web"},
     ],
     "metrics": {"cpu_usage_pct": 72.1, "memory_usage_pct": 88.4, "node_count": 10, "pod_count": 42},

@@ -1,5 +1,4 @@
 import pytest
-
 from hexawyn.adapters.secondary.mock.scenarios.aws_eks import AWS_EKS_SCENARIO
 from hexawyn.adapters.secondary.mock.scenarios.azure_aks import AZURE_AKS_SCENARIO
 from hexawyn.adapters.secondary.mock.scenarios.datadog import DATADOG_SCENARIO

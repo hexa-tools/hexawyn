@@ -54,9 +54,7 @@ class TestCheckCacheNode:
             "hexawyn.lang_graph.nodes.check_cache.get_l1",
             return_value=mock_entry,
         ):
-            with patch(
-                "hexawyn.lang_graph.nodes.check_cache.search_similar"
-            ) as mock_l2:
+            with patch("hexawyn.lang_graph.nodes.check_cache.search_similar") as mock_l2:
                 from hexawyn.lang_graph.nodes.check_cache import run
 
                 run(_make_state())
@@ -93,9 +91,7 @@ class TestCheckCacheNode:
                 "hexawyn.lang_graph.nodes.check_cache.search_similar",
                 return_value=mock_l2_result,
             ):
-                with patch(
-                    "hexawyn.lang_graph.nodes.check_cache.set_l1"
-                ) as mock_set_l1:
+                with patch("hexawyn.lang_graph.nodes.check_cache.set_l1") as mock_set_l1:
                     from hexawyn.lang_graph.nodes.check_cache import run
 
                     output = run(_make_state())

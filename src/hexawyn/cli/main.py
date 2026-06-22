@@ -9,18 +9,14 @@ def app() -> None:
 
 
 @app.command()
-@click.option(
-    "--demo", is_flag=True, help="Start in demo mode (no real cluster needed)"
-)
+@click.option("--demo", is_flag=True, help="Start in demo mode (no real cluster needed)")
 @click.option(
     "--scenario",
     default="aws_eks",
     type=click.Choice(["aws_eks", "azure_aks", "gcp_gke", "openshift", "datadog"]),
     help="Demo scenario to use",
 )
-@click.option(
-    "--expert", is_flag=True, help="Expert mode: raw JSON, no suggestion chips"
-)
+@click.option("--expert", is_flag=True, help="Expert mode: raw JSON, no suggestion chips")
 def start(demo: bool, scenario: str, expert: bool) -> None:
     """Start the hexawyn TUI."""
     import os

@@ -1,8 +1,6 @@
-import os
 from unittest.mock import patch
 
 import pytest
-
 from hexawyn.domain.errors import QuotaExceededError
 from hexawyn.domain.models.cluster import ClusterContext
 from hexawyn.domain.models.investigation import InvestigationStatus
@@ -44,9 +42,7 @@ class TestParseIntentQuota:
 
     def test_does_not_check_quota_in_demo_mode(self):
         with patch("os.environ", {"HEXAWYN_DEMO_MODE": "true"}):
-            with patch(
-                "hexawyn.lang_graph.nodes.parse_intent.check_quota"
-            ) as mock_check:
+            with patch("hexawyn.lang_graph.nodes.parse_intent.check_quota") as mock_check:
                 import hexawyn.lang_graph.nodes.parse_intent as pi
 
                 pi.run(_make_state())
@@ -54,9 +50,7 @@ class TestParseIntentQuota:
 
     def test_checks_quota_in_normal_mode(self):
         with patch("os.environ", {"HEXAWYN_DEMO_MODE": "false"}):
-            with patch(
-                "hexawyn.lang_graph.nodes.parse_intent.check_quota"
-            ) as mock_check:
+            with patch("hexawyn.lang_graph.nodes.parse_intent.check_quota") as mock_check:
                 import hexawyn.lang_graph.nodes.parse_intent as pi
 
                 pi.run(_make_state())
@@ -66,9 +60,7 @@ class TestParseIntentQuota:
 class TestStoreMemoryQuota:
     def test_increments_quota_after_successful_investigation(self):
         with patch("os.environ", {"HEXAWYN_DEMO_MODE": "false"}):
-            with patch(
-                "hexawyn.lang_graph.nodes.store_memory.increment_quota"
-            ) as mock_inc:
+            with patch("hexawyn.lang_graph.nodes.store_memory.increment_quota") as mock_inc:
                 import hexawyn.lang_graph.nodes.store_memory as sm
 
                 sm.run(_make_state())
@@ -76,9 +68,7 @@ class TestStoreMemoryQuota:
 
     def test_does_not_increment_quota_in_demo_mode(self):
         with patch("os.environ", {"HEXAWYN_DEMO_MODE": "true"}):
-            with patch(
-                "hexawyn.lang_graph.nodes.store_memory.increment_quota"
-            ) as mock_inc:
+            with patch("hexawyn.lang_graph.nodes.store_memory.increment_quota") as mock_inc:
                 import hexawyn.lang_graph.nodes.store_memory as sm
 
                 sm.run(_make_state())

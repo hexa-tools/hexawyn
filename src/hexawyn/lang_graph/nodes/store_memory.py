@@ -26,11 +26,13 @@ def run(state: AgentState) -> StoreMemoryOutput:
             set_l1(
                 query=state["query"],
                 cluster_name=state["cluster_context"].name,
-                result=json.dumps({
-                    "answer": final_result.answer,
-                    "cause": final_result.cause,
-                    "solution": final_result.solution,
-                }),
+                result=json.dumps(
+                    {
+                        "answer": final_result.answer,
+                        "cause": final_result.cause,
+                        "solution": final_result.solution,
+                    }
+                ),
             )
 
     return StoreMemoryOutput()

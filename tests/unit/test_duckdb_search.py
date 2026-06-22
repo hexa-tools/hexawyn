@@ -58,12 +58,36 @@ class TestSearchSimilarHistoryDays:
 
     def test_filters_by_min_score(self):
         self.mock_conn.execute.return_value.fetchall.return_value = [
-            ("uuid-1", "2026-06-22", 0, "prod-eu", "production",
-             "payments-api", "Pod", "describe_pod",
-             "OOM", "increase limit", "critical", 1.0, 0.95),
-            ("uuid-2", "2026-06-21", 1, "prod-eu", "production",
-             "payments-api", "Pod", "describe_pod",
-             "OOM", "increase limit", "critical", 1.0, 0.60),
+            (
+                "uuid-1",
+                "2026-06-22",
+                0,
+                "prod-eu",
+                "production",
+                "payments-api",
+                "Pod",
+                "describe_pod",
+                "OOM",
+                "increase limit",
+                "critical",
+                1.0,
+                0.95,
+            ),
+            (
+                "uuid-2",
+                "2026-06-21",
+                1,
+                "prod-eu",
+                "production",
+                "payments-api",
+                "Pod",
+                "describe_pod",
+                "OOM",
+                "increase limit",
+                "critical",
+                1.0,
+                0.60,
+            ),
         ]
         results = search_similar(
             conn=self.mock_conn,

@@ -1,8 +1,6 @@
 import os
 from unittest.mock import patch
 
-import pytest
-
 from hexawyn.infrastructure.config.config_manager import (
     get_api_key,
     load_config,
@@ -13,7 +11,10 @@ from hexawyn.infrastructure.config.config_manager import (
 
 class TestLoadConfig:
     def test_returns_empty_dict_when_no_file(self, tmp_path):
-        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", tmp_path / "nonexistent.yaml"):
+        with patch(
+            "hexawyn.infrastructure.config.config_manager.CONFIG_PATH",
+            tmp_path / "nonexistent.yaml",
+        ):
             assert load_config() == {}
 
     def test_loads_existing_config(self, tmp_path):
@@ -50,7 +51,10 @@ class TestGetApiKey:
                 assert get_api_key() == "sk-ant-from-file"
 
     def test_returns_none_when_no_key(self, tmp_path):
-        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", tmp_path / "nonexistent.yaml"):
+        with patch(
+            "hexawyn.infrastructure.config.config_manager.CONFIG_PATH",
+            tmp_path / "nonexistent.yaml",
+        ):
             with patch.dict(os.environ, {}, clear=True):
                 assert get_api_key() is None
 

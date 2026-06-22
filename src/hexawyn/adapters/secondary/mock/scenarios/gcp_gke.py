@@ -2,8 +2,18 @@ GCP_GKE_SCENARIO = {
     "context": {"name": "prod-gke-us-central1", "cluster": "gke-prod", "provider": "gcp"},
     "health": {"score": 84, "status": "degraded"},
     "pods": [
-        {"name": "payments-api-3f7a2b-qw9k", "status": "Running", "restarts": 3, "namespace": "payments"},
-        {"name": "inventory-svc-8b4c1d-zm5l", "status": "Running", "restarts": 0, "namespace": "inventory"},
+        {
+            "name": "payments-api-3f7a2b-qw9k",
+            "status": "Running",
+            "restarts": 3,
+            "namespace": "payments",
+        },
+        {
+            "name": "inventory-svc-8b4c1d-zm5l",
+            "status": "Running",
+            "restarts": 0,
+            "namespace": "inventory",
+        },
     ],
     "metrics": {
         "cpu_usage_pct": 68.3,

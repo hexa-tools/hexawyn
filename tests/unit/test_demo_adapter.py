@@ -1,5 +1,3 @@
-import pytest
-
 from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
 from hexawyn.application.ports.driven.k8s_port import K8sPort
 from hexawyn.application.ports.driven.logs_port import LogsPort

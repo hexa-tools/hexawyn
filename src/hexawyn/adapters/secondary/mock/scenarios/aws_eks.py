@@ -2,7 +2,12 @@ AWS_EKS_SCENARIO = {
     "context": {"name": "prod-eks-us-east-1", "cluster": "eks-prod", "provider": "aws"},
     "health": {"score": 76, "status": "degraded"},
     "pods": [
-        {"name": "payments-api-7d9f8b-m3ql", "status": "CrashLoop", "restarts": 8, "namespace": "payments"},
+        {
+            "name": "payments-api-7d9f8b-m3ql",
+            "status": "CrashLoop",
+            "restarts": 8,
+            "namespace": "payments",
+        },
         {"name": "ml-worker-8b3a1e-hn7k", "status": "Pending", "restarts": 0, "namespace": "ml"},
         {"name": "auth-svc-4c2d9f-xp5j", "status": "Running", "restarts": 1, "namespace": "auth"},
     ],

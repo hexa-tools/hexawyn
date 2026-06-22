@@ -1,4 +1,4 @@
-from hexawyn.domain.models.cache import CacheEntry, CACHE_TTL_SECONDS
+from hexawyn.domain.models.cache import CACHE_TTL_SECONDS, CacheEntry
 
 
 class TestCache:

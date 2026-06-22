@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import UTC
 
 from hexawyn.domain.models.cluster import (
     CloudProvider,
@@ -34,9 +34,7 @@ class TestClusterContext:
 
 class TestClusterScore:
     def test_defaults(self):
-        score = ClusterScore(
-            overall=85, health=ClusterHealth.HEALTHY, cluster_name="prod"
-        )
+        score = ClusterScore(overall=85, health=ClusterHealth.HEALTHY, cluster_name="prod")
         assert score.overall == 85
         assert score.health == ClusterHealth.HEALTHY
         assert score.breakdown == {}
@@ -44,9 +42,7 @@ class TestClusterScore:
         assert score.recommendations == []
 
     def test_timestamp_is_utc(self):
-        score = ClusterScore(
-            overall=50, health=ClusterHealth.DEGRADED, cluster_name="staging"
-        )
+        score = ClusterScore(overall=50, health=ClusterHealth.DEGRADED, cluster_name="staging")
         assert score.timestamp.tzinfo is not None
         assert score.timestamp.tzinfo == UTC
 

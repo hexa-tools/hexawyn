@@ -1,5 +1,4 @@
 import pytest
-
 from hexawyn.infrastructure.config.provider_detector import detect_installed_providers
 
 

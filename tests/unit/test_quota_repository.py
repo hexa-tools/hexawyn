@@ -4,7 +4,6 @@ from hexawyn.domain.models.quota import (
     FREE_MONTHLY_LIMIT,
     FREE_SLACK_LIMIT,
     SlackQuota,
-    UsageQuota,
 )
 from hexawyn.infrastructure.memory.quota_repository import QuotaRepository
 
@@ -39,7 +38,14 @@ class TestQuotaRepository:
 
     def test_get_slack_quota_returns_slack_quota(self):
         self.mock_conn.execute.return_value.fetchone.return_value = (
-            "uuid-123", "2026-06", 10, 50, 3, 5, "2026-06-01", "2026-06-22",
+            "uuid-123",
+            "2026-06",
+            10,
+            50,
+            3,
+            5,
+            "2026-06-01",
+            "2026-06-22",
         )
         quota = self.repo.get_slack_quota(month="2026-06")
         assert isinstance(quota, SlackQuota)

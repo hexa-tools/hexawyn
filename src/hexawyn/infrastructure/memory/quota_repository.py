@@ -31,9 +31,7 @@ class QuotaRepository:
         self._conn = conn
 
     def get_investigation_quota(self, month: str) -> UsageQuota:
-        row = self._conn.execute(
-            _load_sql("get_quota.sql"), [month]
-        ).fetchone()
+        row = self._conn.execute(_load_sql("get_quota.sql"), [month]).fetchone()
 
         if row is None:
             return UsageQuota(month=month, count=0, limit=FREE_MONTHLY_LIMIT)
@@ -45,9 +43,7 @@ class QuotaRepository:
         )
 
     def get_slack_quota(self, month: str) -> SlackQuota:
-        row = self._conn.execute(
-            _load_sql("get_quota.sql"), [month]
-        ).fetchone()
+        row = self._conn.execute(_load_sql("get_quota.sql"), [month]).fetchone()
 
         if row is None:
             return SlackQuota(month=month, count=0, limit=FREE_SLACK_LIMIT)
@@ -59,14 +55,10 @@ class QuotaRepository:
         )
 
     def increment_investigation(self, month: str, limit: int = FREE_MONTHLY_LIMIT) -> None:
-        self._conn.execute(
-            _load_sql("upsert_investigation_quota.sql"), [month, limit]
-        )
+        self._conn.execute(_load_sql("upsert_investigation_quota.sql"), [month, limit])
 
     def increment_slack(self, month: str, limit: int = FREE_SLACK_LIMIT) -> None:
-        self._conn.execute(
-            _load_sql("upsert_slack_quota.sql"), [month, limit]
-        )
+        self._conn.execute(_load_sql("upsert_slack_quota.sql"), [month, limit])
 
     def reset(self, month: str) -> None:
         self._conn.execute(_load_sql("reset_quota.sql"), [month])

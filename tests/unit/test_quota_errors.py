@@ -1,5 +1,4 @@
 import pytest
-
 from hexawyn.domain.errors import HexawynError, QuotaExceededError, SlackQuotaExceededError
 
 

@@ -1,4 +1,4 @@
-from hexawyn.domain.models.quota import UsageQuota, UNLIMITED
+from hexawyn.domain.models.quota import UsageQuota
 
 
 class TestUsageQuota:

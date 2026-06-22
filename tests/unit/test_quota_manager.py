@@ -1,12 +1,9 @@
 from unittest.mock import patch
 
 import pytest
-
 from hexawyn.domain.errors import QuotaExceededError, SlackQuotaExceededError
 from hexawyn.domain.models.quota import (
     FREE_HISTORY_DAYS,
-    FREE_MONTHLY_LIMIT,
-    FREE_SLACK_LIMIT,
     PRO_HISTORY_DAYS,
     UNLIMITED,
     SlackQuota,
@@ -83,9 +80,7 @@ class TestIncrementQuota:
             mock_inc.assert_called_once()
 
     def test_increment_slack_called(self):
-        with patch(
-            "hexawyn.infrastructure.config.quota_manager._increment_slack"
-        ) as mock_inc:
+        with patch("hexawyn.infrastructure.config.quota_manager._increment_slack") as mock_inc:
             from hexawyn.infrastructure.config.quota_manager import increment_slack_quota
 
             increment_slack_quota()

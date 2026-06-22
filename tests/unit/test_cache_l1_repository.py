@@ -1,6 +1,3 @@
-from datetime import datetime
-
-from hexawyn.domain.models.cache import CacheEntry
 from hexawyn.infrastructure.memory.cache_l1_repository import CacheL1Repository
 
 

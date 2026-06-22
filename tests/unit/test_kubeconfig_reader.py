@@ -1,14 +1,13 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
-
-from hexawyn.infrastructure.config.kubeconfig_reader import (
-    load_kubeconfig,
-    list_available_contexts,
-    validate_connection,
-    get_active_context,
-)
 from hexawyn.domain.errors import ClusterUnreachableError
+from hexawyn.infrastructure.config.kubeconfig_reader import (
+    get_active_context,
+    list_available_contexts,
+    load_kubeconfig,
+    validate_connection,
+)
 
 
 class TestLoadKubeconfig:

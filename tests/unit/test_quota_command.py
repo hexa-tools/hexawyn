@@ -1,7 +1,6 @@
 from unittest.mock import patch
 
 from click.testing import CliRunner
-
 from hexawyn.cli.main import app
 from hexawyn.domain.models.quota import UNLIMITED, SlackQuota, UsageQuota
 

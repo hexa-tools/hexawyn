@@ -5,9 +5,7 @@ from hexawyn.infrastructure.config.cache_manager import get_cache_stats
 
 class TestCacheStats:
     def test_returns_l1_size(self):
-        with patch(
-            "hexawyn.infrastructure.config.cache_manager._repository"
-        ) as mock_repo:
+        with patch("hexawyn.infrastructure.config.cache_manager._repository") as mock_repo:
             mock_repo.size.return_value = 5
             stats = get_cache_stats()
             assert stats["l1_size"] == 5

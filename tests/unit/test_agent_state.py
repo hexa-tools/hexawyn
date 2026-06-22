@@ -1,4 +1,4 @@
-from hexawyn.domain.models.cluster import ClusterContext, CloudProvider
+from hexawyn.domain.models.cluster import CloudProvider, ClusterContext
 from hexawyn.domain.models.investigation import InvestigationResult, InvestigationStatus
 from hexawyn.domain.models.semantic import SemanticCheckResult
 from hexawyn.lang_graph.typing.agent_state import AgentState
@@ -35,9 +35,7 @@ class TestAgentState:
             answer="OOMKilled",
             status=InvestigationStatus.COMPLETE,
         )
-        checker = SemanticCheckResult(
-            verdict="PASS", score=0.92, reason="Consistent"
-        )
+        checker = SemanticCheckResult(verdict="PASS", score=0.92, reason="Consistent")
 
         state: AgentState = {
             "query": "Why is pod failing?",

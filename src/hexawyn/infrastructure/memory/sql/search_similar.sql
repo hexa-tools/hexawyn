@@ -11,7 +11,7 @@ SELECT
     solution,
     severity,
     weight,
-    array_cosine_similarity(embedding, ?::DOUBLE[?]) * weight
+    array_cosine_similarity(embedding, ?::FLOAT[?]) * weight
         / ln(age_days + 2) AS score
 FROM incidents
 WHERE cluster_name = ?

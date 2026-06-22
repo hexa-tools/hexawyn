@@ -1,5 +1,3 @@
-import pytest
-
 from hexawyn.domain.models.quota import (
     FREE_HISTORY_DAYS,
     FREE_MONTHLY_LIMIT,

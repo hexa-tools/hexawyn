@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from hexawyn.domain.models.cache import CACHE_TTL_SECONDS, CacheEntry
+from hexawyn.domain.models.cache import CacheEntry
 from hexawyn.infrastructure.memory.cache_l1_repository import CacheL1Repository
 
 

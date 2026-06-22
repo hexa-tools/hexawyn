@@ -78,10 +78,10 @@ def search_similar(
     Explicit columns only — no wildcard select (enforced by hexa_guard.py R8).
     """
     embedding_dim = len(embedding)
-    sql = _load_sql("search_similar.sql").replace(
-        "DOUBLE[?]", f"DOUBLE[{embedding_dim}]"
-    ).replace(
-        "<HISTORY_DAYS>", str(history_days)
+    sql = (
+        _load_sql("search_similar.sql")
+        .replace("FLOAT[?]", f"FLOAT[{embedding_dim}]")
+        .replace("<HISTORY_DAYS>", str(history_days))
     )
 
     params: list[str | int | float | list[float] | None] = [embedding, cluster_name]

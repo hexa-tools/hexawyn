@@ -1,54 +1,57 @@
 # Hexagonal Architecture — Ports & Adapters
 
-High-level view of hexawyn's hexagonal architecture showing how domain logic, application ports, and adapters interact.
+Layers shown from inside out: Domain (zero deps) → Application Ports → Primary Adapters (inbound) → Secondary Adapters (outbound). Arrows show dependency direction. hexa_guard rules R2, R4, R5, R10 annotated.
 
 ```mermaid
-graph TB
-    subgraph "Primary Adapters (Driving)"
-        CLI[CLI Textual TUI]
-        MCP[MCP Server FastMCP]
-        Slack[Slack Chat Adapter]
+flowchart LR
+    subgraph Domain["Domain — zero dependencies"]
+        Models[ClusterContext<br/>InvestigationResult<br/>UsageQuota<br/>CacheEntry]
+        Errors[HexawynError<br/>QuotaExceededError<br/>SlackQuotaExceededError]
     end
 
-    subgraph "Application"
-        subgraph "Ports — Driving"
-            PI[parse_intent use case]
-            HC[health_check use case]
+    subgraph Application["Application"]
+        subgraph PortsIn["Ports — Driving"]
+            PI[parse_intent<br/>use case]
         end
-        subgraph "Services"
+        subgraph PortsOut["Ports — Driven"]
+            K8sP[K8sPort]
+            MetP[MetricsPort]
+            TrcP[TracesPort]
+            LogP[LogsPort]
+        end
+        subgraph Services["Services"]
             QM[QuotaManager]
             AF[AdapterFactory]
-        end
-        subgraph "Ports — Driven"
-            K8s[K8sPort]
-            Metrics[MetricsPort]
-            Traces[TracesPort]
-            Logs[LogsPort]
-            Memory[MemoryPort]
+            cache_manager[cache_manager]
         end
     end
 
-    subgraph "Domain"
-        Models[ClusterContext<br/>InvestigationResult<br/>UsageQuota]
-        Errors[HexawynError<br/>QuotaExceededError]
-        Services[Domain Services]
+    subgraph Primary["Primary Adapters"]
+        CLI[CLI Textual TUI]
+        MCP[MCP Server FastMCP]
+        Slack[SlackChatAdapter]
     end
 
-    subgraph "Secondary Adapters (Driven)"
-        Demo[DemoAdapter mock/]
+    subgraph Secondary["Secondary Adapters"]
         Vanilla[VanillaAdapter]
-        AWS[AWS Adapter EKS]
-        Azure[Azure Adapter AKS]
-        GCP[GCP Adapter GKE]
-        OpenShift[OpenShift Adapter]
-        Datadog[Datadog Adapter]
-        DuckDB[DuckDB memory/]
+        AWS[AWSAdapter<br/>EKS — PRO]
+        Azure[AzureAdapter<br/>AKS — PRO]
+        GCP[GCPAdapter<br/>GKE — PRO]
+        OCP[OpenShiftAdapter — PRO]
+        DD[DatadogAdapter — PRO]
+        Demo[DemoAdapter<br/>mock/]
     end
 
-    subgraph "External"
+    subgraph Infra["Infrastructure"]
+        DuckDB[DuckDB<br/>VSS + quota]
+        Config[config/]
+        Cache[CacheL1<br/>in-memory]
+    end
+
+    subgraph External["External"]
         K8sAPI[Kubernetes API]
-        CloudWatch[CloudWatch]
-        Prometheus[Prometheus]
+        CloudWatch[AWS CloudWatch]
+        Prometheus[GCP Prometheus]
     end
 
     CLI --> PI
@@ -56,34 +59,70 @@ graph TB
     Slack --> PI
 
     PI --> QM
+    QM --> DuckDB
     PI --> AF
 
-    AF --> Demo
     AF --> Vanilla
+    AF --> Demo
     AF --> AWS
     AF --> Azure
     AF --> GCP
-    AF --> OpenShift
-    AF --> Datadog
+    AF --> OCP
+    AF --> DD
 
-    Demo --> K8s
-    Vanilla --> K8s
-    AWS --> K8s
-    AWS --> CloudWatch
-    GCP --> Prometheus
+    Demo --> K8sP
+    Demo --> MetP
+    Demo --> TrcP
+    Demo --> LogP
 
-    K8s --> K8sAPI
+    Vanilla --> K8sP
+    AWS --> K8sP
+    AWS --> MetP
 
-    QM --> DuckDB
+    K8sP --> K8sAPI
+    MetP --> CloudWatch
+    MetP --> Prometheus
 
-    Domain --> Models
-    Domain --> Errors
+    cache_manager --> Cache
+
+    Domain --> Application
 ```
+
+## hexa_guard Rules Enforced
+
+| Rule | Description | Enforced |
+|---|---|---|
+| R1 | No k8s/boto3/fastapi in domain/ or application/ports/ | ✅ `hexa_guard.py` line 92-99 |
+| R2 | No source file without a test | ✅ `hexa_guard.py` lines 112-124 |
+| R4 | Domain imports nothing external | ✅ `hexa_guard.py` lines 154-162 |
+| R5 | Adapters go through ports only (never import domain directly) | ✅ `hexa_guard.py` lines 175-183 |
+| R6 | No try/catch in application/service/ or domain/services/ | ✅ `hexa_guard.py` lines 190-201 |
+| R10 | DemoAdapter only in adapters/secondary/mock/ | ✅ `hexa_guard.py` lines 283-289 |
+| R11 | DEMO_MODE never hardcoded — read from env | ✅ `hexa_guard.py` lines 295-307 |
 
 ## Key Points
 
-- Domain has ZERO external dependencies — pure Python only (enforced by hexa_guard R1)
-- Adapters NEVER import domain directly — always go through application/ports/ (enforced by hexa_guard R5)
-- AdapterFactory selects the right secondary adapter based on cluster name and installed packages
-- DemoAdapter lives in mock/ only — never referenced in production code paths (enforced by hexa_guard R10)
-- All SQL lives in .sql files under infrastructure/memory/sql/ — never inline in Python
+- **Domain** is at the center: pure Python, zero external dependencies. Contains CacheEntry, UsageQuota, ClusterContext
+- **Application ports** define abstractions (K8sPort, MetricsPort, etc.) that secondary adapters implement
+- **AdapterFactory** selects the right secondary adapter: DemoAdapter for demo mode, provider-specific (AWS/Azure/GCP) for real clusters, VanillaAdapter as fallback
+- **hexa_guard.py** enforces all architectural rules at every file write — violations block immediately
+- **Cache L1** is infrastructure: in-memory dict, session-scoped, sub-millisecond response time
+
+## Test Coverage
+
+| Test | File | Status |
+|---|---|---|
+| `test_demo_mode_returns_demo_adapter` | `tests/unit/test_adapter_factory.py` | ✅ |
+| `test_demo_mode_false_does_not_return_demo_adapter` | `tests/unit/test_adapter_factory.py` | ✅ |
+| `test_implements_all_ports` | `tests/unit/test_demo_adapter.py` | ✅ |
+| `test_k8s_port_is_abstract` | `tests/unit/test_ports.py` | ✅ |
+| `test_is_k8s_port` | `tests/unit/test_vanilla_adapter.py` | ✅ |
+
+## Related Files
+
+- `src/hexawyn/domain/` — domain models + errors (zero deps)
+- `src/hexawyn/application/ports/driven/` — K8sPort, MetricsPort, TracesPort, LogsPort
+- `src/hexawyn/adapters/secondary/adapter_factory.py` — build_adapters()
+- `src/hexawyn/adapters/secondary/mock/demo_adapter.py` — DemoAdapter (mock/)
+- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py` — VanillaAdapter fallback
+- `hexa_guard.py` — 11 rules auto-enforced at every file write

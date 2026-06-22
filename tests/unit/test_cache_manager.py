@@ -72,9 +72,7 @@ class TestComputeQueryHash:
 
 class TestGetL1:
     def test_returns_none_when_not_cached(self):
-        with patch(
-            "hexawyn.infrastructure.config.cache_manager._repository"
-        ) as mock_repo:
+        with patch("hexawyn.infrastructure.config.cache_manager._repository") as mock_repo:
             mock_repo.get.return_value = None
             result = get_l1(
                 query="test query",
@@ -88,9 +86,7 @@ class TestGetL1:
             result="OOM detected",
             created_at=datetime.now(),
         )
-        with patch(
-            "hexawyn.infrastructure.config.cache_manager._repository"
-        ) as mock_repo:
+        with patch("hexawyn.infrastructure.config.cache_manager._repository") as mock_repo:
             mock_repo.get.return_value = entry
             result = get_l1(
                 query="why is payments-api crashing?",
@@ -102,9 +98,7 @@ class TestGetL1:
 
 class TestSetL1:
     def test_stores_entry_in_repository(self):
-        with patch(
-            "hexawyn.infrastructure.config.cache_manager._repository"
-        ) as mock_repo:
+        with patch("hexawyn.infrastructure.config.cache_manager._repository") as mock_repo:
             set_l1(
                 query="test query",
                 cluster_name="prod-eu",
@@ -115,8 +109,6 @@ class TestSetL1:
 
 class TestClearL1:
     def test_clears_repository(self):
-        with patch(
-            "hexawyn.infrastructure.config.cache_manager._repository"
-        ) as mock_repo:
+        with patch("hexawyn.infrastructure.config.cache_manager._repository") as mock_repo:
             clear_l1()
             mock_repo.clear.assert_called_once()

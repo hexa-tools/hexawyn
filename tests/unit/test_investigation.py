@@ -41,9 +41,7 @@ class TestInvestigationResult:
         assert result.verified is False
 
     def test_timestamp_is_utc(self):
-        result = InvestigationResult(
-            query="q", answer="a", status=InvestigationStatus.PENDING
-        )
+        result = InvestigationResult(query="q", answer="a", status=InvestigationStatus.PENDING)
         assert result.timestamp.tzinfo is not None
         assert result.timestamp.tzinfo == UTC
 
@@ -66,10 +64,6 @@ class TestInvestigationResult:
         assert result.verified is True
 
     def test_id_is_unique(self):
-        r1 = InvestigationResult(
-            query="a", answer="b", status=InvestigationStatus.RUNNING
-        )
-        r2 = InvestigationResult(
-            query="a", answer="b", status=InvestigationStatus.RUNNING
-        )
+        r1 = InvestigationResult(query="a", answer="b", status=InvestigationStatus.RUNNING)
+        r2 = InvestigationResult(query="a", answer="b", status=InvestigationStatus.RUNNING)
         assert r1.id != r2.id
