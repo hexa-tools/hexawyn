@@ -1,8 +1,20 @@
 from pathlib import Path
+from typing import TypedDict
 
 import duckdb
 
 from hexawyn.domain.errors import DuckDBUnavailableError
+
+
+class SimilarInvestigationDict(TypedDict):
+    id: str
+    cluster_name: str
+    tool_name: str
+    cause: str | None
+    solution: str | None
+    severity: str
+    weight: float
+    score: float
 
 HEXAWYN_DIR = Path.home() / ".hexawyn"
 DB_PATH = HEXAWYN_DIR / "memory.duckdb"
@@ -99,7 +111,7 @@ def search_similar(
     cluster_name: str,
     limit: int = 5,
     min_score: float = 0.80,
-) -> list[dict[str, object]]:
+) -> list[SimilarInvestigationDict]:
     """
     VSS search: find similar past investigations using cosine similarity.
     Uses HNSW index for fast approximate nearest neighbor search.
@@ -129,17 +141,19 @@ def search_similar(
         [cluster_name, limit],
     ).fetchall()
 
-    return [
-        {
-            "id": str(row[0]),
-            "cluster_name": row[1],
-            "tool_name": row[2],
-            "cause": row[3],
-            "solution": row[4],
-            "severity": row[5],
-            "weight": row[6],
-            "score": row[7],
-        }
-        for row in results
-        if row[7] and row[7] >= min_score
-    ]
+    output: list[SimilarInvestigationDict] = []
+    for row in results:
+        if row[7] is not None and row[7] >= min_score:
+            output.append(
+                SimilarInvestigationDict(
+                    id=str(row[0]),
+                    cluster_name=str(row[1]) if row[1] else "",
+                    tool_name=str(row[2]) if row[2] else "",
+                    cause=str(row[3]) if row[3] else None,
+                    solution=str(row[4]) if row[4] else None,
+                    severity=str(row[5]) if row[5] else "low",
+                    weight=float(row[6]) if row[6] else 1.0,
+                    score=float(row[7]),
+                )
+            )
+    return output

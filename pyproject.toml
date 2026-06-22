@@ -14,6 +14,7 @@ kubernetes = "^31.0"
 duckdb = "^1.1"
 httpx = "^0.28"
 click = "^8.1"
+langgraph = "^1.2.6"
 
 [tool.poetry.scripts]
 hexa = "hexawyn.cli.main:app"

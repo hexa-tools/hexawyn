@@ -1,7 +1,7 @@
 class HexawynError(Exception):
     """Base exception for all hexawyn errors."""
 
-    def __init__(self, message: str, context: dict[str, object] | None = None) -> None:
+    def __init__(self, message: str, context: dict[str, str] | None = None) -> None:
         super().__init__(message)
         self.context = context or {}
 

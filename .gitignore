@@ -2,6 +2,8 @@
  
 # DuckDB local memory — user's choice to commit or not
 .hexawyn/
+*.duckdb
+*.duckdb.wal
  
 # Environment variables — NEVER commit
 .env

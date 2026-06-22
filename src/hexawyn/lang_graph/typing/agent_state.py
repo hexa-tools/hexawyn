@@ -14,14 +14,14 @@ class AgentState(TypedDict):
     # ── Intent ─────────────────────────────────────────────
     intent: str  # parsed intent category
     tool_name: str  # MCP tool to call
-    tool_args: dict[str, object]  # arguments for the MCP tool
+    tool_args: dict[str, str]  # arguments for the MCP tool
 
     # ── Cache ──────────────────────────────────────────────
     cache_hit: bool  # True if DuckDB VSS found a match
     cached_result: InvestigationResult | None
 
     # ── Tool output ────────────────────────────────────────
-    tool_output: dict[str, object]  # raw MCP tool response
+    tool_output: dict[str, str]  # raw MCP tool response
 
     # ── LLM ────────────────────────────────────────────────
     llm_response: str  # raw LLM answer
