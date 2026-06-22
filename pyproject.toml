@@ -15,6 +15,9 @@ duckdb = "^1.1"
 httpx = "^0.28"
 click = "^8.1"
 
+[tool.poetry.scripts]
+hexa = "hexawyn.cli.main:app"
+
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"
 pytest-asyncio = "^0.23"
