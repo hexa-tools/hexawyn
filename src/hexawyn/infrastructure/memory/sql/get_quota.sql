@@ -1,6 +1,7 @@
 SELECT
     id,
     month,
+    tier,
     investigation_count,
     investigation_limit,
     slack_count,

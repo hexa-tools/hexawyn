@@ -182,6 +182,7 @@ class TestCacheAndQuotaIntegration:
     @pytest.mark.integration
     def test_cache_hit_does_not_prevent_quota_increment(self, monkeypatch):
         import duckdb
+        from hexawyn.domain.models.quota import LicenseTier, get_investigation_limit
         from hexawyn.infrastructure.config.quota_manager import _get_current_month
         from hexawyn.infrastructure.memory.quota_repository import QuotaRepository
 
@@ -215,9 +216,11 @@ class TestCacheAndQuotaIntegration:
         assert entry is not None
 
         repo = QuotaRepository(conn=conn)
+        tier = LicenseTier.FREE
         repo.increment_investigation(
             month=_get_current_month(),
-            limit=50,
+            tier=tier,
+            limit=get_investigation_limit(tier),
         )
         quota = repo.get_investigation_quota(month=_get_current_month())
         assert quota.count == 1

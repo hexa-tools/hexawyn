@@ -47,12 +47,13 @@ CREATE TABLE IF NOT EXISTS schema_version (
 
 -- Usage quota: tracks monthly investigation and Slack usage
 CREATE TABLE IF NOT EXISTS usage_quota (
-    id                UUID    PRIMARY KEY DEFAULT gen_random_uuid(),
-    month             VARCHAR NOT NULL UNIQUE,
+    id                   UUID    PRIMARY KEY DEFAULT gen_random_uuid(),
+    month                VARCHAR NOT NULL UNIQUE,  -- "2026-06"
+    tier                 VARCHAR NOT NULL DEFAULT 'free',
     investigation_count  INTEGER NOT NULL DEFAULT 0,
     investigation_limit  INTEGER NOT NULL DEFAULT 50,
-    slack_count       INTEGER NOT NULL DEFAULT 0,
-    slack_limit       INTEGER NOT NULL DEFAULT 5,
-    created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+    slack_count          INTEGER NOT NULL DEFAULT 0,
+    slack_limit          INTEGER NOT NULL DEFAULT 5,
+    created_at           TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at           TIMESTAMPTZ NOT NULL DEFAULT now()
 );

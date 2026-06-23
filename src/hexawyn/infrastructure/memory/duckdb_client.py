@@ -4,7 +4,7 @@ from typing import TypedDict
 import duckdb
 
 from hexawyn.domain.errors import DuckDBUnavailableError, EncryptionError
-from hexawyn.domain.models.quota import FREE_HISTORY_DAYS
+from hexawyn.domain.models.quota import FREE_HISTORY_DAYS, UNLIMITED
 from hexawyn.infrastructure.config.kubeconfig_reader import get_kubeconfig_stable_content
 from hexawyn.infrastructure.memory.encryption import (
     derive_key,
@@ -90,30 +90,38 @@ def get_connection() -> duckdb.DuckDBPyConnection:
         ) from e
 
 
+_UNLIMITED_HISTORY_DAYS = 36500  # 100 years — effectively no date filter
+
+
 def search_similar(
     conn: duckdb.DuckDBPyConnection,
     embedding: list[float],
     cluster_name: str,
-    limit: int = 5,
-    min_score: float = 0.80,
     history_days: int = FREE_HISTORY_DAYS,
     namespace: str | None = None,
     resource_name: str | None = None,
+    limit: int = 5,
+    min_score: float = 0.80,
 ) -> list[SimilarInvestigationDict]:
     """
-    VSS search: find similar past investigations using cosine similarity
-    weighted by recency (recent investigations score higher).
+    VSS search with tier-aware history window.
+
+    history_days: 7 (Free) / 30 (Dev) / 90 (Startup) / UNLIMITED=-1 (Scale-up+)
+    UNLIMITED → uses 36500 days proxy (no effective filter).
+
     Uses HNSW index for fast approximate nearest neighbor search.
     Explicit columns only — no wildcard select (enforced by hexa_guard.py R8).
     """
-    embedding_dim = len(embedding)
-    sql = (
-        _load_sql("search_similar.sql")
-        .replace("FLOAT[?]", f"FLOAT[{embedding_dim}]")
-        .replace("<HISTORY_DAYS>", str(history_days))
-    )
+    effective_days = _UNLIMITED_HISTORY_DAYS if history_days == UNLIMITED else history_days
 
-    params: list[str | int | float | list[float] | None] = [embedding, cluster_name]
+    embedding_dim = len(embedding)
+    sql = _load_sql("search_similar.sql").replace("FLOAT[?]", f"FLOAT[{embedding_dim}]")
+
+    params: list[str | int | float | list[float] | None] = [
+        embedding,
+        cluster_name,
+        effective_days,
+    ]
 
     if namespace is not None:
         sql = sql.replace("AND sanitized = false", "AND namespace = ?\n  AND sanitized = false")

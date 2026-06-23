@@ -75,20 +75,21 @@ class EncryptionError(HexawynError):
 # ── Quota ────────────────────────────────────────────────
 class QuotaExceededError(HexawynError):
     """
-    Raised when the Free tier monthly investigation limit is reached.
-    Shown to the user with a clear upgrade message in the CLI and Slack.
-
-    Used by:
-    - quota_manager.check_quota() → called by parse_intent LangGraph node
-    - quota_manager.check_slack_quota() → called by Slack alert adapter
+    Raised when the monthly investigation limit is reached.
+    Limits by tier:
+    - Free    : 50/month
+    - Dev     : 200/month
+    - Startup : 500/month
+    - Scale-up: unlimited
+    - Enterprise: unlimited
     """
 
     def __init__(self, used: int, limit: int) -> None:
         super().__init__(
-            f"You've used {used}/{limit} free investigations this month.\n"
-            f"Quota resets on the 1st of next month.\n"
-            f"Upgrade to Pro for unlimited access: https://hexawyn.com/pro\n"
-            f"Activate your license: hexa license activate <YOUR-KEY>"
+            f"You've used {used}/{limit} investigations this month.\n"
+            f"Resets on the 1st of next month.\n"
+            f"Upgrade your plan: https://hexawyn.com/pricing\n"
+            f"Activate: hexa license activate <YOUR-KEY>"
         )
         self.used = used
         self.limit = limit
@@ -96,16 +97,20 @@ class QuotaExceededError(HexawynError):
 
 class SlackQuotaExceededError(HexawynError):
     """
-    Raised when the Free tier monthly Slack alert limit is reached.
-    Free tier: 5 Slack alerts/month.
-    Pro tier: unlimited.
+    Raised when the monthly Slack alert limit is reached.
+    Limits by tier:
+    - Free    : 5/month
+    - Dev     : 50/month
+    - Startup : unlimited
+    - Scale-up: unlimited
+    - Enterprise: unlimited
     """
 
     def __init__(self, used: int, limit: int) -> None:
         super().__init__(
-            f"You've used {used}/{limit} free Slack alerts this month.\n"
-            f"Quota resets on the 1st of next month.\n"
-            f"Upgrade to Pro for unlimited Slack alerts: https://hexawyn.com/pro"
+            f"You've used {used}/{limit} Slack alerts this month.\n"
+            f"Resets on the 1st of next month.\n"
+            f"Upgrade your plan: https://hexawyn.com/pricing"
         )
         self.used = used
         self.limit = limit

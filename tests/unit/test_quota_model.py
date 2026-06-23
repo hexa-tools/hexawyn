@@ -4,32 +4,96 @@ from hexawyn.domain.models.quota import (
     FREE_SLACK_LIMIT,
     PRO_HISTORY_DAYS,
     UNLIMITED,
+    LicenseTier,
     SlackQuota,
     UsageQuota,
+    get_history_days,
+    get_investigation_limit,
+    get_slack_limit,
 )
 
 
 class TestConstants:
-    def test_free_monthly_limit_is_50(self):
-        assert FREE_MONTHLY_LIMIT == 50
-
-    def test_free_slack_limit_is_5(self):
-        assert FREE_SLACK_LIMIT == 5
-
-    def test_free_history_days_is_7(self):
-        assert FREE_HISTORY_DAYS == 7
-
-    def test_pro_history_days_is_90(self):
-        assert PRO_HISTORY_DAYS == 90
-
     def test_unlimited_is_minus_one(self):
         assert UNLIMITED == -1
 
 
+class TestLicenseTier:
+    def test_has_five_tiers(self):
+        tiers = [
+            LicenseTier.FREE,
+            LicenseTier.DEV,
+            LicenseTier.STARTUP,
+            LicenseTier.SCALE_UP,
+            LicenseTier.ENTERPRISE,
+        ]
+        assert len(tiers) == 5
+
+
+class TestGetInvestigationLimit:
+    def test_free_is_50(self):
+        assert get_investigation_limit(LicenseTier.FREE) == 50
+
+    def test_dev_is_200(self):
+        assert get_investigation_limit(LicenseTier.DEV) == 200
+
+    def test_startup_is_500(self):
+        assert get_investigation_limit(LicenseTier.STARTUP) == 500
+
+    def test_scale_up_is_unlimited(self):
+        assert get_investigation_limit(LicenseTier.SCALE_UP) == UNLIMITED
+
+    def test_enterprise_is_unlimited(self):
+        assert get_investigation_limit(LicenseTier.ENTERPRISE) == UNLIMITED
+
+    def test_backward_compat_free_monthly_limit(self):
+        assert FREE_MONTHLY_LIMIT == 50
+
+
+class TestGetSlackLimit:
+    def test_free_is_5(self):
+        assert get_slack_limit(LicenseTier.FREE) == 5
+
+    def test_dev_is_50(self):
+        assert get_slack_limit(LicenseTier.DEV) == 50
+
+    def test_startup_is_unlimited(self):
+        assert get_slack_limit(LicenseTier.STARTUP) == UNLIMITED
+
+    def test_scale_up_is_unlimited(self):
+        assert get_slack_limit(LicenseTier.SCALE_UP) == UNLIMITED
+
+    def test_backward_compat_free_slack_limit(self):
+        assert FREE_SLACK_LIMIT == 5
+
+
+class TestGetHistoryDays:
+    def test_free_is_7(self):
+        assert get_history_days(LicenseTier.FREE) == 7
+
+    def test_dev_is_30(self):
+        assert get_history_days(LicenseTier.DEV) == 30
+
+    def test_startup_is_90(self):
+        assert get_history_days(LicenseTier.STARTUP) == 90
+
+    def test_scale_up_is_unlimited(self):
+        assert get_history_days(LicenseTier.SCALE_UP) == UNLIMITED
+
+    def test_enterprise_is_unlimited(self):
+        assert get_history_days(LicenseTier.ENTERPRISE) == UNLIMITED
+
+    def test_backward_compat_free_history_days(self):
+        assert FREE_HISTORY_DAYS == 7
+
+    def test_backward_compat_pro_history_days(self):
+        assert PRO_HISTORY_DAYS == 90
+
+
 class TestUsageQuota:
-    def test_default_limit_is_50(self):
+    def test_default_limit_uses_free_tier(self):
         quota = UsageQuota(month="2026-06", count=0)
-        assert quota.limit == FREE_MONTHLY_LIMIT
+        assert quota.limit == 50
 
     def test_remaining_calculation(self):
         quota = UsageQuota(month="2026-06", count=23, limit=50)
@@ -55,7 +119,7 @@ class TestUsageQuota:
         quota = UsageQuota(month="2026-06", count=99999, limit=UNLIMITED)
         assert quota.is_exceeded is False
 
-    def test_remaining_is_unlimited_when_pro(self):
+    def test_remaining_unlimited_when_unlimited(self):
         quota = UsageQuota(month="2026-06", count=99999, limit=UNLIMITED)
         assert quota.remaining == UNLIMITED
 
@@ -73,15 +137,19 @@ class TestUsageQuota:
         assert quota.month[4] == "-"
 
 
-class TestUsageQuotaSlack:
-    def test_slack_quota_default_limit(self):
+class TestSlackQuota:
+    def test_default_limit_uses_free_tier(self):
         quota = SlackQuota(month="2026-06", count=0)
-        assert quota.limit == FREE_SLACK_LIMIT
+        assert quota.limit == 5
 
-    def test_slack_quota_exceeded(self):
+    def test_is_exceeded_at_limit(self):
         quota = SlackQuota(month="2026-06", count=5, limit=5)
         assert quota.is_exceeded is True
 
-    def test_slack_quota_not_exceeded(self):
+    def test_is_not_exceeded_under_limit(self):
         quota = SlackQuota(month="2026-06", count=4, limit=5)
+        assert quota.is_exceeded is False
+
+    def test_startup_unlimited(self):
+        quota = SlackQuota(month="2026-06", count=9999, limit=UNLIMITED)
         assert quota.is_exceeded is False

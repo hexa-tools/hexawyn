@@ -170,6 +170,7 @@ class TestFileEncryption:
         _encrypt_file(key, plain_path, enc_path)
 
         import stat
+
         file_mode = enc_path.stat().st_mode
         assert file_mode & stat.S_IROTH == 0
         assert file_mode & stat.S_IWOTH == 0

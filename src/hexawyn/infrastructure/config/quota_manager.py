@@ -2,20 +2,35 @@ from datetime import UTC, datetime
 
 from hexawyn.domain.errors import QuotaExceededError, SlackQuotaExceededError
 from hexawyn.domain.models.quota import (
-    FREE_HISTORY_DAYS,
-    FREE_MONTHLY_LIMIT,
-    FREE_SLACK_LIMIT,
-    PRO_HISTORY_DAYS,
+    LicenseTier,
     SlackQuota,
     UsageQuota,
+    get_investigation_limit,
+    get_slack_limit,
 )
-from hexawyn.infrastructure.config.license_manager import is_pro
+from hexawyn.domain.models.quota import (
+    get_history_days as _tier_history_days,
+)
 from hexawyn.infrastructure.memory.duckdb_client import get_connection
 from hexawyn.infrastructure.memory.quota_repository import QuotaRepository
 
 
 def _get_current_month() -> str:
     return datetime.now(UTC).strftime("%Y-%m")
+
+
+def _get_current_tier() -> LicenseTier:
+    """
+    Get current license tier from license_manager.
+    Returns LicenseTier.FREE if no valid license found.
+    Import is deferred to avoid circular dependency with license_manager.
+    """
+    try:
+        from hexawyn.infrastructure.config.license_manager import get_license_tier
+
+        return get_license_tier()
+    except ImportError:
+        return LicenseTier.FREE
 
 
 def _get_current_investigation_quota() -> UsageQuota:
@@ -31,27 +46,35 @@ def _get_current_slack_quota() -> SlackQuota:
 
 
 def _increment_investigation() -> None:
+    tier = _get_current_tier()
+    limit = get_investigation_limit(tier)
     conn = get_connection()
     repo = QuotaRepository(conn=conn)
-    repo.increment_investigation(month=_get_current_month(), limit=FREE_MONTHLY_LIMIT)
+    repo.increment_investigation(
+        month=_get_current_month(),
+        tier=tier,
+        limit=limit,
+    )
 
 
 def _increment_slack() -> None:
+    tier = _get_current_tier()
+    limit = get_slack_limit(tier)
     conn = get_connection()
     repo = QuotaRepository(conn=conn)
-    repo.increment_slack(month=_get_current_month(), limit=FREE_SLACK_LIMIT)
+    repo.increment_slack(
+        month=_get_current_month(),
+        tier=tier,
+        limit=limit,
+    )
 
 
 def check_quota() -> None:
     """
-    Check if the user has remaining investigations this month.
-
-    Called by: LangGraph parse_intent node (BEFORE any tool call).
-    Demo mode: caller must skip this — demo never counts against quota.
-
-    Raises:
-        QuotaExceededError: if Free tier limit of 50 investigations/month is reached.
-    Does nothing if Pro tier (unlimited).
+    Check investigation quota before starting LangGraph pipeline.
+    Limits: Free=50 / Dev=200 / Startup=500 / Scale-up=unlimited / Enterprise=unlimited
+    Raises QuotaExceededError if limit reached.
+    Demo mode: caller must skip this.
     """
     quota = _get_current_investigation_quota()
     if quota.is_exceeded:
@@ -60,14 +83,9 @@ def check_quota() -> None:
 
 def check_slack_quota() -> None:
     """
-    Check if the user has remaining Slack alerts this month.
-
-    Called by: Slack alert adapter (BEFORE sending a Slack message).
-    Free tier: 5 Slack alerts/month.
-    Pro tier: unlimited.
-
-    Raises:
-        SlackQuotaExceededError: if Free tier Slack limit is reached.
+    Check Slack alert quota before sending.
+    Limits: Free=5 / Dev=50 / Startup=unlimited / Scale-up=unlimited / Enterprise=unlimited
+    Raises SlackQuotaExceededError if limit reached.
     """
     quota = _get_current_slack_quota()
     if quota.is_exceeded:
@@ -75,53 +93,50 @@ def check_slack_quota() -> None:
 
 
 def increment_quota() -> None:
-    """
-    Increment investigation count after a successful investigation.
-
-    Called by: LangGraph store_memory node (AFTER successful investigation).
-    Demo mode: caller must skip this — demo never counts against quota.
-    """
+    """Increment investigation count after successful investigation.
+    Demo mode: caller must skip."""
     _increment_investigation()
 
 
 def increment_slack_quota() -> None:
-    """
-    Increment Slack alert count after a Slack alert is sent.
-
-    Called by: Slack alert adapter (AFTER successfully sending alert).
-    """
+    """Increment Slack alert count after sending."""
     _increment_slack()
 
 
 def get_history_days() -> int:
     """
-    Returns the number of days of DuckDB history available for VSS search.
-
-    Free tier → 7 days  (users see recent incidents only)
-    Pro tier  → 90 days (full history available)
-
-    Called by: duckdb_client.search_similar() to set the timestamp filter.
+    DuckDB history window for VSS search.
+    Free=7 / Dev=30 / Startup=90 / Scale-up=unlimited / Enterprise=unlimited
     """
-    return PRO_HISTORY_DAYS if is_pro() else FREE_HISTORY_DAYS
+    tier = _get_current_tier()
+    return _tier_history_days(tier)
 
 
 def get_quota_display() -> str:
     """
-    Returns a human-readable quota status for CLI display.
-    Shown after every investigation response in the chat view.
-
+    Display string shown in CLI after each investigation.
     Examples:
-        Free:     "[23/50 free investigations · 27 remaining]"
-        Low:      "[46/50 free investigations · ⚠️ 4 remaining]"
-        Pro:      "[⭐ Pro — unlimited investigations]"
+      Free:     "[23/50 free investigations · 27 remaining]"
+      Dev:      "[45/200 Dev investigations · 155 remaining]"
+      Scale-up: "[⭐ Scale-up — unlimited investigations]"
     """
+    tier = _get_current_tier()
     quota = _get_current_investigation_quota()
 
+    tier_labels: dict[LicenseTier, str] = {
+        LicenseTier.FREE: "free",
+        LicenseTier.DEV: "Dev",
+        LicenseTier.STARTUP: "Startup",
+        LicenseTier.SCALE_UP: "Scale-up",
+        LicenseTier.ENTERPRISE: "Enterprise",
+    }
+    label = tier_labels.get(tier, "free")
+
     if quota.is_unlimited:
-        return "[\u2b50 Pro \u2014 unlimited investigations]"
+        return f"[\u2b50 {label} \u2014 unlimited investigations]"
 
     warning = " \u26a0\ufe0f" if quota.remaining <= 5 else ""
     return (
-        f"[{quota.count}/{quota.limit} free investigations"
+        f"[{quota.count}/{quota.limit} {label} investigations"
         f" \u00b7 {quota.remaining} remaining{warning}]"
     )

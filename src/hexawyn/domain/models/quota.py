@@ -1,59 +1,99 @@
 from dataclasses import dataclass
+from enum import Enum
 
-# ── Constants ─────────────────────────────────────────────
-FREE_MONTHLY_LIMIT = 50  # investigations/month on Free tier
-FREE_SLACK_LIMIT = 5  # Slack alerts/month on Free tier
-FREE_HISTORY_DAYS = 7  # days of DuckDB history on Free tier
-PRO_HISTORY_DAYS = 90  # days of DuckDB history on Pro tier
-UNLIMITED = -1  # sentinel value for Pro tier (no limit)
+UNLIMITED = -1  # sentinel: no limit
+
+
+class LicenseTier(Enum):
+    FREE = "free"
+    DEV = "dev"
+    STARTUP = "startup"
+    SCALE_UP = "scale_up"
+    ENTERPRISE = "enterprise"
+
+
+# ── Investigation limits ───────────────────────────────────
+_INVESTIGATION_LIMITS: dict[LicenseTier, int] = {
+    LicenseTier.FREE: 50,
+    LicenseTier.DEV: 200,
+    LicenseTier.STARTUP: 500,
+    LicenseTier.SCALE_UP: UNLIMITED,
+    LicenseTier.ENTERPRISE: UNLIMITED,
+}
+
+# ── Slack alert limits ─────────────────────────────────────
+_SLACK_LIMITS: dict[LicenseTier, int] = {
+    LicenseTier.FREE: 5,
+    LicenseTier.DEV: 50,
+    LicenseTier.STARTUP: UNLIMITED,
+    LicenseTier.SCALE_UP: UNLIMITED,
+    LicenseTier.ENTERPRISE: UNLIMITED,
+}
+
+# ── DuckDB history days ────────────────────────────────────
+_HISTORY_DAYS: dict[LicenseTier, int] = {
+    LicenseTier.FREE: 7,
+    LicenseTier.DEV: 30,
+    LicenseTier.STARTUP: 90,
+    LicenseTier.SCALE_UP: UNLIMITED,
+    LicenseTier.ENTERPRISE: UNLIMITED,
+}
+
+
+def get_investigation_limit(tier: LicenseTier) -> int:
+    return _INVESTIGATION_LIMITS[tier]
+
+
+def get_slack_limit(tier: LicenseTier) -> int:
+    return _SLACK_LIMITS[tier]
+
+
+def get_history_days(tier: LicenseTier) -> int:
+    return _HISTORY_DAYS[tier]
+
+
+# ── Backward-compatible constants ──────────────────────────
+FREE_MONTHLY_LIMIT = get_investigation_limit(LicenseTier.FREE)
+FREE_SLACK_LIMIT = get_slack_limit(LicenseTier.FREE)
+FREE_HISTORY_DAYS = get_history_days(LicenseTier.FREE)
+PRO_HISTORY_DAYS = 90  # kept for backward compat (Startup/Scale-up/Enterprise)
 
 
 @dataclass
 class UsageQuota:
     """
-    Tracks monthly investigation usage for a hexawyn installation.
-    Free tier: 50 investigations/month.
-    Pro tier: unlimited (limit=-1).
-
-    Used by:
-    - quota_manager.check_quota() → raises QuotaExceededError if exceeded
-    - quota_manager.get_quota_display() → shows [23/50 · 27 remaining] in CLI
+    Monthly investigation usage.
+    Limit depends on license tier:
+    Free=50 / Dev=200 / Startup=500 / Scale-up=unlimited / Enterprise=unlimited
     """
 
-    month: str  # "2026-06" — YYYY-MM format
-    count: int  # number of investigations used this month
-    limit: int = FREE_MONTHLY_LIMIT  # 50 Free / -1 Pro
+    month: str
+    count: int
+    limit: int = FREE_MONTHLY_LIMIT
 
     @property
     def remaining(self) -> int:
-        """Remaining investigations this month. Returns UNLIMITED (-1) for Pro."""
         if self.limit == UNLIMITED:
             return UNLIMITED
         return max(0, self.limit - self.count)
 
     @property
     def is_exceeded(self) -> bool:
-        """True if the user has reached their monthly limit."""
         if self.limit == UNLIMITED:
             return False
         return self.count >= self.limit
 
     @property
     def is_unlimited(self) -> bool:
-        """True for Pro tier (limit=-1)."""
         return self.limit == UNLIMITED
 
 
 @dataclass
 class SlackQuota:
     """
-    Tracks monthly Slack alert usage for a hexawyn installation.
-    Free tier: 5 Slack alerts/month.
-    Pro tier: unlimited (limit=-1).
-
-    Used by:
-    - quota_manager.check_slack_quota() → raises SlackQuotaExceededError
-    - Slack alert adapter → checks before sending
+    Monthly Slack alert usage.
+    Limit depends on license tier:
+    Free=5 / Dev=50 / Startup=unlimited / Scale-up=unlimited / Enterprise=unlimited
     """
 
     month: str

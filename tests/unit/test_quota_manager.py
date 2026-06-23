@@ -1,32 +1,30 @@
-from unittest.mock import patch
+import sys
+from unittest.mock import MagicMock, patch
 
 import pytest
 from hexawyn.domain.errors import QuotaExceededError, SlackQuotaExceededError
 from hexawyn.domain.models.quota import (
-    FREE_HISTORY_DAYS,
-    PRO_HISTORY_DAYS,
     UNLIMITED,
+    LicenseTier,
     SlackQuota,
     UsageQuota,
 )
 
 
 class TestCheckQuota:
-    def test_passes_when_under_limit(self):
-        mock_quota = UsageQuota(month="2026-06", count=10, limit=50)
+    def test_passes_when_under_limit(self) -> None:
         with patch(
             "hexawyn.infrastructure.config.quota_manager._get_current_investigation_quota",
-            return_value=mock_quota,
+            return_value=UsageQuota(month="2026-06", count=10, limit=50),
         ):
             from hexawyn.infrastructure.config.quota_manager import check_quota
 
             check_quota()
 
-    def test_raises_when_limit_reached(self):
-        mock_quota = UsageQuota(month="2026-06", count=50, limit=50)
+    def test_raises_when_free_limit_reached(self) -> None:
         with patch(
             "hexawyn.infrastructure.config.quota_manager._get_current_investigation_quota",
-            return_value=mock_quota,
+            return_value=UsageQuota(month="2026-06", count=50, limit=50),
         ):
             from hexawyn.infrastructure.config.quota_manager import check_quota
 
@@ -35,11 +33,21 @@ class TestCheckQuota:
             assert exc_info.value.used == 50
             assert exc_info.value.limit == 50
 
-    def test_passes_when_unlimited(self):
-        mock_quota = UsageQuota(month="2026-06", count=99999, limit=UNLIMITED)
+    def test_raises_when_dev_limit_reached(self) -> None:
         with patch(
             "hexawyn.infrastructure.config.quota_manager._get_current_investigation_quota",
-            return_value=mock_quota,
+            return_value=UsageQuota(month="2026-06", count=200, limit=200),
+        ):
+            from hexawyn.infrastructure.config.quota_manager import check_quota
+
+            with pytest.raises(QuotaExceededError) as exc_info:
+                check_quota()
+            assert exc_info.value.limit == 200
+
+    def test_passes_when_scale_up_unlimited(self) -> None:
+        with patch(
+            "hexawyn.infrastructure.config.quota_manager._get_current_investigation_quota",
+            return_value=UsageQuota(month="2026-06", count=99999, limit=UNLIMITED),
         ):
             from hexawyn.infrastructure.config.quota_manager import check_quota
 
@@ -47,30 +55,39 @@ class TestCheckQuota:
 
 
 class TestCheckSlackQuota:
-    def test_passes_when_under_slack_limit(self):
-        mock_quota = SlackQuota(month="2026-06", count=3, limit=5)
+    def test_raises_when_free_slack_limit_reached(self) -> None:
         with patch(
             "hexawyn.infrastructure.config.quota_manager._get_current_slack_quota",
-            return_value=mock_quota,
-        ):
-            from hexawyn.infrastructure.config.quota_manager import check_slack_quota
-
-            check_slack_quota()
-
-    def test_raises_when_slack_limit_reached(self):
-        mock_quota = SlackQuota(month="2026-06", count=5, limit=5)
-        with patch(
-            "hexawyn.infrastructure.config.quota_manager._get_current_slack_quota",
-            return_value=mock_quota,
+            return_value=SlackQuota(month="2026-06", count=5, limit=5),
         ):
             from hexawyn.infrastructure.config.quota_manager import check_slack_quota
 
             with pytest.raises(SlackQuotaExceededError):
                 check_slack_quota()
 
+    def test_raises_when_dev_slack_limit_reached(self) -> None:
+        with patch(
+            "hexawyn.infrastructure.config.quota_manager._get_current_slack_quota",
+            return_value=SlackQuota(month="2026-06", count=50, limit=50),
+        ):
+            from hexawyn.infrastructure.config.quota_manager import check_slack_quota
+
+            with pytest.raises(SlackQuotaExceededError) as exc_info:
+                check_slack_quota()
+            assert exc_info.value.limit == 50
+
+    def test_passes_when_startup_unlimited(self) -> None:
+        with patch(
+            "hexawyn.infrastructure.config.quota_manager._get_current_slack_quota",
+            return_value=SlackQuota(month="2026-06", count=9999, limit=UNLIMITED),
+        ):
+            from hexawyn.infrastructure.config.quota_manager import check_slack_quota
+
+            check_slack_quota()
+
 
 class TestIncrementQuota:
-    def test_increment_investigation_called(self):
+    def test_increment_investigation_called(self) -> None:
         with patch(
             "hexawyn.infrastructure.config.quota_manager._increment_investigation"
         ) as mock_inc:
@@ -79,7 +96,7 @@ class TestIncrementQuota:
             increment_quota()
             mock_inc.assert_called_once()
 
-    def test_increment_slack_called(self):
+    def test_increment_slack_called(self) -> None:
         with patch("hexawyn.infrastructure.config.quota_manager._increment_slack") as mock_inc:
             from hexawyn.infrastructure.config.quota_manager import increment_slack_quota
 
@@ -88,65 +105,203 @@ class TestIncrementQuota:
 
 
 class TestGetHistoryDays:
-    def test_returns_7_for_free(self):
+    def test_free_returns_7(self) -> None:
         with patch(
-            "hexawyn.infrastructure.config.quota_manager.is_pro",
-            return_value=False,
+            "hexawyn.infrastructure.config.quota_manager._get_current_tier",
+            return_value=LicenseTier.FREE,
         ):
             from hexawyn.infrastructure.config.quota_manager import get_history_days
 
-            assert get_history_days() == FREE_HISTORY_DAYS
+            assert get_history_days() == 7
 
-    def test_returns_90_for_pro(self):
+    def test_dev_returns_30(self) -> None:
         with patch(
-            "hexawyn.infrastructure.config.quota_manager.is_pro",
-            return_value=True,
+            "hexawyn.infrastructure.config.quota_manager._get_current_tier",
+            return_value=LicenseTier.DEV,
         ):
             from hexawyn.infrastructure.config.quota_manager import get_history_days
 
-            assert get_history_days() == PRO_HISTORY_DAYS
+            assert get_history_days() == 30
+
+    def test_startup_returns_90(self) -> None:
+        with patch(
+            "hexawyn.infrastructure.config.quota_manager._get_current_tier",
+            return_value=LicenseTier.STARTUP,
+        ):
+            from hexawyn.infrastructure.config.quota_manager import get_history_days
+
+            assert get_history_days() == 90
+
+    def test_scale_up_returns_unlimited(self) -> None:
+        with patch(
+            "hexawyn.infrastructure.config.quota_manager._get_current_tier",
+            return_value=LicenseTier.SCALE_UP,
+        ):
+            from hexawyn.infrastructure.config.quota_manager import get_history_days
+
+            assert get_history_days() == UNLIMITED
 
 
 class TestGetQuotaDisplay:
-    def test_free_tier_shows_count_and_remaining(self):
-        mock_quota = UsageQuota(month="2026-06", count=23, limit=50)
+    def test_free_shows_count(self) -> None:
         with patch(
             "hexawyn.infrastructure.config.quota_manager._get_current_investigation_quota",
-            return_value=mock_quota,
+            return_value=UsageQuota(month="2026-06", count=23, limit=50),
         ):
-            from hexawyn.infrastructure.config.quota_manager import get_quota_display
+            with patch(
+                "hexawyn.infrastructure.config.quota_manager._get_current_tier",
+                return_value=LicenseTier.FREE,
+            ):
+                from hexawyn.infrastructure.config.quota_manager import get_quota_display
 
-            display = get_quota_display()
-            assert "23" in display
-            assert "50" in display
-            assert "27" in display
+                display = get_quota_display()
+                assert "23" in display
+                assert "50" in display
+                assert "27" in display
 
-    def test_pro_tier_shows_unlimited(self):
-        mock_quota = UsageQuota(month="2026-06", count=9999, limit=UNLIMITED)
+    def test_dev_shows_dev_limits(self) -> None:
         with patch(
             "hexawyn.infrastructure.config.quota_manager._get_current_investigation_quota",
-            return_value=mock_quota,
+            return_value=UsageQuota(month="2026-06", count=45, limit=200),
         ):
-            from hexawyn.infrastructure.config.quota_manager import get_quota_display
+            with patch(
+                "hexawyn.infrastructure.config.quota_manager._get_current_tier",
+                return_value=LicenseTier.DEV,
+            ):
+                from hexawyn.infrastructure.config.quota_manager import get_quota_display
 
-            display = get_quota_display()
-            assert "unlimited" in display.lower()
-            assert "Pro" in display
+                display = get_quota_display()
+                assert "45" in display
+                assert "200" in display
 
-    def test_low_remaining_shows_warning(self):
-        mock_quota = UsageQuota(month="2026-06", count=46, limit=50)
+    def test_scale_up_shows_unlimited(self) -> None:
         with patch(
             "hexawyn.infrastructure.config.quota_manager._get_current_investigation_quota",
-            return_value=mock_quota,
+            return_value=UsageQuota(month="2026-06", count=9999, limit=UNLIMITED),
         ):
-            from hexawyn.infrastructure.config.quota_manager import get_quota_display
+            with patch(
+                "hexawyn.infrastructure.config.quota_manager._get_current_tier",
+                return_value=LicenseTier.SCALE_UP,
+            ):
+                from hexawyn.infrastructure.config.quota_manager import get_quota_display
 
-            display = get_quota_display()
-            assert "4" in display
+                display = get_quota_display()
+                assert "unlimited" in display.lower()
+
+    def test_low_remaining_shows_warning(self) -> None:
+        with patch(
+            "hexawyn.infrastructure.config.quota_manager._get_current_investigation_quota",
+            return_value=UsageQuota(month="2026-06", count=46, limit=50),
+        ):
+            with patch(
+                "hexawyn.infrastructure.config.quota_manager._get_current_tier",
+                return_value=LicenseTier.FREE,
+            ):
+                from hexawyn.infrastructure.config.quota_manager import get_quota_display
+
+                display = get_quota_display()
+                assert "4" in display
+
+
+class TestGetCurrentTier:
+    def test_returns_license_tier_when_manager_available(self) -> None:
+        with patch(
+            "hexawyn.infrastructure.config.license_manager.get_license_tier",
+            return_value=LicenseTier.DEV,
+        ):
+            from hexawyn.infrastructure.config.quota_manager import _get_current_tier
+
+            assert _get_current_tier() == LicenseTier.DEV
+
+    def test_falls_back_to_free_on_import_error(self) -> None:
+        saved = sys.modules.pop("hexawyn.infrastructure.config.license_manager", None)
+        try:
+            import builtins
+
+            original_import = builtins.__import__
+
+            def selective_import(name, *args, **kwargs):
+                if name == "hexawyn.infrastructure.config.license_manager":
+                    raise ImportError("Mocked import failure")
+                return original_import(name, *args, **kwargs)
+
+            with patch("builtins.__import__", side_effect=selective_import):
+                from hexawyn.infrastructure.config.quota_manager import _get_current_tier
+
+                assert _get_current_tier() == LicenseTier.FREE
+        finally:
+            if saved is not None:
+                sys.modules["hexawyn.infrastructure.config.license_manager"] = saved
+
+
+class TestGetCurrentQuotaViaDb:
+    def test_get_current_investigation_quota_via_db(self) -> None:
+        mock_conn = MagicMock()
+        mock_conn.execute.return_value.fetchone.return_value = None
+        with patch(
+            "hexawyn.infrastructure.config.quota_manager.get_connection",
+            return_value=mock_conn,
+        ):
+            from hexawyn.infrastructure.config.quota_manager import (
+                _get_current_investigation_quota,
+            )
+
+            quota = _get_current_investigation_quota()
+            assert isinstance(quota, UsageQuota)
+            assert quota.count == 0
+
+    def test_get_current_slack_quota_via_db(self) -> None:
+        mock_conn = MagicMock()
+        mock_conn.execute.return_value.fetchone.return_value = None
+        with patch(
+            "hexawyn.infrastructure.config.quota_manager.get_connection",
+            return_value=mock_conn,
+        ):
+            from hexawyn.infrastructure.config.quota_manager import _get_current_slack_quota
+
+            quota = _get_current_slack_quota()
+            assert isinstance(quota, SlackQuota)
+            assert quota.count == 0
+
+
+class TestIncrementQuotaViaDb:
+    def test_increment_investigation_via_db(self) -> None:
+        mock_conn = MagicMock()
+        mock_conn.execute.return_value.fetchone.return_value = None
+        with patch(
+            "hexawyn.infrastructure.config.quota_manager.get_connection",
+            return_value=mock_conn,
+        ):
+            with patch(
+                "hexawyn.infrastructure.config.quota_manager._get_current_tier",
+                return_value=LicenseTier.FREE,
+            ):
+                from hexawyn.infrastructure.config.quota_manager import (
+                    _increment_investigation,
+                )
+
+                _increment_investigation()
+                assert mock_conn.execute.called
+
+    def test_increment_slack_via_db(self) -> None:
+        mock_conn = MagicMock()
+        mock_conn.execute.return_value.fetchone.return_value = None
+        with patch(
+            "hexawyn.infrastructure.config.quota_manager.get_connection",
+            return_value=mock_conn,
+        ):
+            with patch(
+                "hexawyn.infrastructure.config.quota_manager._get_current_tier",
+                return_value=LicenseTier.FREE,
+            ):
+                from hexawyn.infrastructure.config.quota_manager import _increment_slack
+
+                _increment_slack()
+                assert mock_conn.execute.called
 
 
 class TestGetCurrentMonth:
-    def test_returns_yyyy_mm_format(self):
+    def test_returns_yyyy_mm_format(self) -> None:
         from hexawyn.infrastructure.config.quota_manager import _get_current_month
 
         month = _get_current_month()
