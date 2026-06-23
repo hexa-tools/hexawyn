@@ -1,7 +1,6 @@
 from abc import ABC
 
 import pytest
-
 from hexawyn.application.ports.driven.k8s_port import K8sPort
 from hexawyn.application.ports.driven.logs_port import LogsPort
 from hexawyn.application.ports.driven.metrics_port import MetricsPort

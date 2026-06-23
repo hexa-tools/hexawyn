@@ -2,8 +2,18 @@ OPENSHIFT_SCENARIO = {
     "context": {"name": "prod-ocp-east", "cluster": "openshift-prod", "provider": "openshift"},
     "health": {"score": 71, "status": "degraded"},
     "pods": [
-        {"name": "catalog-api-2f8d1a-mk3x", "status": "Running", "restarts": 2, "namespace": "catalog"},
-        {"name": "orders-worker-5c9b3e-qp7l", "status": "Running", "restarts": 0, "namespace": "orders"},
+        {
+            "name": "catalog-api-2f8d1a-mk3x",
+            "status": "Running",
+            "restarts": 2,
+            "namespace": "catalog",
+        },
+        {
+            "name": "orders-worker-5c9b3e-qp7l",
+            "status": "Running",
+            "restarts": 0,
+            "namespace": "orders",
+        },
     ],
     "metrics": {"cpu_usage_pct": 61.8, "memory_usage_pct": 77.3, "node_count": 6, "pod_count": 24},
     "findings": [

@@ -12,6 +12,8 @@ fastmcp = "^2.0"
 anthropic = "^0.40"
 kubernetes = "^31.0"
 duckdb = "^1.1"
+cryptography = "^43.0"
+pytz = "^2024.2"
 httpx = "^0.28"
 click = "^8.1"
 langgraph = "^1.2.6"
@@ -88,3 +90,9 @@ omit = ["*/tests/*", "*/__init__.py"]
 [tool.coverage.report]
 fail_under = 80
 show_missing = true
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: requires real DuckDB, uses DemoAdapter",
+    "e2e: requires real cluster and LLM, CI only",
+]

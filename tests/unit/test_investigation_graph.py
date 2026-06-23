@@ -1,5 +1,3 @@
-import pytest
-
 from hexawyn.domain.models.cluster import ClusterContext
 from hexawyn.domain.models.investigation import InvestigationStatus
 from hexawyn.domain.models.semantic import CheckerVerdict, SemanticCheckResult
@@ -63,9 +61,7 @@ class TestRouting:
             _route_after_checker,
         )
 
-        result = SemanticCheckResult(
-            verdict=CheckerVerdict.BLOCKED, score=0.0, reason="blocked"
-        )
+        result = SemanticCheckResult(verdict=CheckerVerdict.BLOCKED, score=0.0, reason="blocked")
         state = make_state(checker_result=result)
         assert _route_after_checker(state) == "format_response"
 
@@ -101,9 +97,7 @@ class TestRouting:
             _route_after_judge,
         )
 
-        result = SemanticCheckResult(
-            verdict=CheckerVerdict.DEGRADED, score=0.5, reason="partial"
-        )
+        result = SemanticCheckResult(verdict=CheckerVerdict.DEGRADED, score=0.5, reason="partial")
         state = make_state(judge_result=result)
         assert _route_after_judge(state) == "format_response"
 

@@ -9,13 +9,13 @@ class TestMCPHealthTool:
         mock_conn = MagicMock()
         mock_conn.execute.return_value.fetchone.return_value = (1,)
 
-        with patch(
-            "hexawyn.mcp.server.get_connection", return_value=mock_conn
-        ), patch(
-            "hexawyn.mcp.server.get_api_key", return_value="sk-ant-fake"
-        ), patch(
-            "hexawyn.mcp.server._cluster_status",
-            {"status": "connected", "context": "prod-eu"},
+        with (
+            patch("hexawyn.mcp.server.get_connection", return_value=mock_conn),
+            patch("hexawyn.mcp.server.get_api_key", return_value="sk-ant-fake"),
+            patch(
+                "hexawyn.mcp.server._cluster_status",
+                {"status": "connected", "context": "prod-eu"},
+            ),
         ):
             from hexawyn.mcp.server import health
 
@@ -28,14 +28,16 @@ class TestMCPHealthTool:
             assert result["context"] == "prod-eu"
 
     def test_health_returns_degraded_when_duckdb_fails(self):
-        with patch(
-            "hexawyn.mcp.server.get_connection",
-            side_effect=Exception("DB down"),
-        ), patch(
-            "hexawyn.mcp.server.get_api_key", return_value="sk-ant-fake"
-        ), patch(
-            "hexawyn.mcp.server._cluster_status",
-            {"status": "connected", "context": "prod-eu"},
+        with (
+            patch(
+                "hexawyn.mcp.server.get_connection",
+                side_effect=Exception("DB down"),
+            ),
+            patch("hexawyn.mcp.server.get_api_key", return_value="sk-ant-fake"),
+            patch(
+                "hexawyn.mcp.server._cluster_status",
+                {"status": "connected", "context": "prod-eu"},
+            ),
         ):
             from hexawyn.mcp.server import health
 
@@ -48,13 +50,13 @@ class TestMCPHealthTool:
         mock_conn = MagicMock()
         mock_conn.execute.return_value.fetchone.return_value = (1,)
 
-        with patch(
-            "hexawyn.mcp.server.get_connection", return_value=mock_conn
-        ), patch(
-            "hexawyn.mcp.server.get_api_key", return_value=None
-        ), patch(
-            "hexawyn.mcp.server._cluster_status",
-            {"status": "no_kubeconfig", "error": "no config found"},
+        with (
+            patch("hexawyn.mcp.server.get_connection", return_value=mock_conn),
+            patch("hexawyn.mcp.server.get_api_key", return_value=None),
+            patch(
+                "hexawyn.mcp.server._cluster_status",
+                {"status": "no_kubeconfig", "error": "no config found"},
+            ),
         ):
             from hexawyn.mcp.server import health
 
@@ -64,14 +66,16 @@ class TestMCPHealthTool:
             assert result["context"] == "none"
 
     def test_health_returns_degraded_when_both_fail(self):
-        with patch(
-            "hexawyn.mcp.server.get_connection",
-            side_effect=Exception("DB down"),
-        ), patch(
-            "hexawyn.mcp.server.get_api_key", return_value=None
-        ), patch(
-            "hexawyn.mcp.server._cluster_status",
-            {"status": "no_kubeconfig"},
+        with (
+            patch(
+                "hexawyn.mcp.server.get_connection",
+                side_effect=Exception("DB down"),
+            ),
+            patch("hexawyn.mcp.server.get_api_key", return_value=None),
+            patch(
+                "hexawyn.mcp.server._cluster_status",
+                {"status": "no_kubeconfig"},
+            ),
         ):
             from hexawyn.mcp.server import health
 
@@ -104,15 +108,19 @@ class TestMCPServerStartupValidation:
         sys.modules.pop("hexawyn.mcp", None)
 
         mock_api = MagicMock()
-        with patch(
-            "hexawyn.infrastructure.config.kubeconfig_reader.load_kubeconfig",
-            return_value=mock_api,
-        ), patch(
-            "hexawyn.infrastructure.config.kubeconfig_reader.get_active_context",
-            return_value={"name": "prod-eu", "context": {"cluster": "cluster-eu"}},
-        ), patch(
-            "hexawyn.infrastructure.config.kubeconfig_reader.validate_connection",
-            return_value={"status": "connected", "context": "prod-eu"},
+        with (
+            patch(
+                "hexawyn.infrastructure.config.kubeconfig_reader.load_kubeconfig",
+                return_value=mock_api,
+            ),
+            patch(
+                "hexawyn.infrastructure.config.kubeconfig_reader.get_active_context",
+                return_value={"name": "prod-eu", "context": {"cluster": "cluster-eu"}},
+            ),
+            patch(
+                "hexawyn.infrastructure.config.kubeconfig_reader.validate_connection",
+                return_value={"status": "connected", "context": "prod-eu"},
+            ),
         ):
             import hexawyn.mcp.server as server_mod
 
@@ -128,8 +136,6 @@ class TestMCPServerInit:
         assert mcp.version is not None
 
     def test_health_tool_is_registered(self):
-        import asyncio
-
         from hexawyn.mcp.server import mcp
 
         tool_names = asyncio.run(mcp.get_tools())

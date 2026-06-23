@@ -70,3 +70,47 @@ class SchemaMigrationError(HexawynError):
 
 class EncryptionError(HexawynError):
     """Raised when DuckDB encryption key derivation or decryption fails."""
+
+
+# ── Quota ────────────────────────────────────────────────
+class QuotaExceededError(HexawynError):
+    """
+    Raised when the monthly investigation limit is reached.
+    Limits by tier:
+    - Free    : 50/month
+    - Dev     : 200/month
+    - Startup : 500/month
+    - Scale-up: unlimited
+    - Enterprise: unlimited
+    """
+
+    def __init__(self, used: int, limit: int) -> None:
+        super().__init__(
+            f"You've used {used}/{limit} investigations this month.\n"
+            f"Resets on the 1st of next month.\n"
+            f"Upgrade your plan: https://hexawyn.com/pricing\n"
+            f"Activate: hexa license activate <YOUR-KEY>"
+        )
+        self.used = used
+        self.limit = limit
+
+
+class SlackQuotaExceededError(HexawynError):
+    """
+    Raised when the monthly Slack alert limit is reached.
+    Limits by tier:
+    - Free    : 5/month
+    - Dev     : 50/month
+    - Startup : unlimited
+    - Scale-up: unlimited
+    - Enterprise: unlimited
+    """
+
+    def __init__(self, used: int, limit: int) -> None:
+        super().__init__(
+            f"You've used {used}/{limit} Slack alerts this month.\n"
+            f"Resets on the 1st of next month.\n"
+            f"Upgrade your plan: https://hexawyn.com/pricing"
+        )
+        self.used = used
+        self.limit = limit

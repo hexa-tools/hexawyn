@@ -4,7 +4,12 @@ AZURE_AKS_SCENARIO = {
     "pods": [
         {"name": "frontend-7b4c8d-mn3k", "status": "Running", "restarts": 0, "namespace": "web"},
         {"name": "api-gateway-2d9f1a-xp5j", "status": "Running", "restarts": 0, "namespace": "api"},
-        {"name": "redis-cache-5a3b7e-kl2m", "status": "Running", "restarts": 0, "namespace": "cache"},
+        {
+            "name": "redis-cache-5a3b7e-kl2m",
+            "status": "Running",
+            "restarts": 0,
+            "namespace": "cache",
+        },
     ],
     "metrics": {"cpu_usage_pct": 34.2, "memory_usage_pct": 41.8, "node_count": 8, "pod_count": 32},
     "findings": [

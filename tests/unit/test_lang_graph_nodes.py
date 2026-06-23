@@ -1,7 +1,5 @@
 from unittest.mock import patch
 
-import pytest
-
 from hexawyn.domain.models.cluster import ClusterContext
 from hexawyn.domain.models.investigation import InvestigationStatus
 from hexawyn.lang_graph.typing.agent_state import AgentState
@@ -42,10 +40,15 @@ class TestParseIntent:
 
 class TestCheckCache:
     def test_run_returns_dict(self):
-        from hexawyn.lang_graph.nodes.check_cache import run
+        with (
+            patch("hexawyn.lang_graph.nodes.check_cache.get_l1", return_value=None),
+            patch("hexawyn.lang_graph.nodes.check_cache.search_similar", return_value=[]),
+        ):
+            from hexawyn.lang_graph.nodes.check_cache import run
 
-        result = run(make_state())
-        assert isinstance(result, dict)
+            result = run(make_state())
+            assert isinstance(result, dict)
+            assert "cache_hit" in result
 
 
 class TestRetrieveContext:

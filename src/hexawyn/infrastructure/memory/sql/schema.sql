@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS incidents (
     severity VARCHAR DEFAULT 'low',
     feedback INTEGER DEFAULT 0,
     weight FLOAT DEFAULT 1.0,
-    embedding DOUBLE[1536],
+    embedding FLOAT[1536],
     sanitized BOOLEAN DEFAULT false
 );
 
@@ -43,4 +43,17 @@ CREATE TABLE IF NOT EXISTS schema_version (
     version INTEGER PRIMARY KEY,
     applied_at TIMESTAMPTZ DEFAULT now(),
     description VARCHAR
+);
+
+-- Usage quota: tracks monthly investigation and Slack usage
+CREATE TABLE IF NOT EXISTS usage_quota (
+    id                   UUID    PRIMARY KEY DEFAULT gen_random_uuid(),
+    month                VARCHAR NOT NULL UNIQUE,  -- "2026-06"
+    tier                 VARCHAR NOT NULL DEFAULT 'free',
+    investigation_count  INTEGER NOT NULL DEFAULT 0,
+    investigation_limit  INTEGER NOT NULL DEFAULT 50,
+    slack_count          INTEGER NOT NULL DEFAULT 0,
+    slack_limit          INTEGER NOT NULL DEFAULT 5,
+    created_at           TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at           TIMESTAMPTZ NOT NULL DEFAULT now()
 );

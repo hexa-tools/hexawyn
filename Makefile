@@ -58,12 +58,22 @@ check:
 #  Tests
 # ─────────────────────────────────────
 
-.PHONY: test coverage
+.PHONY: test test-integration test-all coverage
 
 test:
 	@echo "🧪 Running unit tests..."
 	$(PYTEST) tests/unit/ -v --tb=short
 	@echo "✅ Unit tests passed"
+
+test-integration:
+	@echo "🔬 Running integration tests (real DuckDB, DemoAdapter)..."
+	$(PYTEST) tests/integration/ -v -m integration
+	@echo "✅ Integration tests passed"
+
+test-all:
+	@echo "🧪 Running all tests (unit + integration)..."
+	$(PYTEST) tests/unit/ tests/integration/ -v
+	@echo "✅ All tests passed"
 
 coverage:
 	@echo "📊 Running tests with coverage..."
@@ -177,6 +187,8 @@ help:
 	@echo ""
 	@echo "🧪 TESTS"
 	@echo "  make test                  → Run unit tests"
+	@echo "  make test-integration      → Run integration tests (real DuckDB)"
+	@echo "  make test-all              → Run unit + integration tests"
 	@echo "  make coverage              → Run tests with coverage (≥80%)"
 	@echo ""
 	@echo "🐳 DOCKER"

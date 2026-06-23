@@ -9,18 +9,14 @@ def app() -> None:
 
 
 @app.command()
-@click.option(
-    "--demo", is_flag=True, help="Start in demo mode (no real cluster needed)"
-)
+@click.option("--demo", is_flag=True, help="Start in demo mode (no real cluster needed)")
 @click.option(
     "--scenario",
     default="aws_eks",
     type=click.Choice(["aws_eks", "azure_aks", "gcp_gke", "openshift", "datadog"]),
     help="Demo scenario to use",
 )
-@click.option(
-    "--expert", is_flag=True, help="Expert mode: raw JSON, no suggestion chips"
-)
+@click.option("--expert", is_flag=True, help="Expert mode: raw JSON, no suggestion chips")
 def start(demo: bool, scenario: str, expert: bool) -> None:
     """Start the hexawyn TUI."""
     import os
@@ -48,6 +44,13 @@ def setup() -> None:
 
     app_instance = HexawynApp(force_setup=True)
     app_instance.run()
+
+
+from hexawyn.cli.commands.cluster_command import cluster  # noqa: E402, I001
+from hexawyn.cli.commands.quota_command import quota  # noqa: E402, I001
+
+app.add_command(quota)
+app.add_command(cluster)
 
 
 if __name__ == "__main__":

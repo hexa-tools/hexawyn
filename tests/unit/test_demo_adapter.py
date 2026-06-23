@@ -1,5 +1,3 @@
-import pytest
-
 from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
 from hexawyn.application.ports.driven.k8s_port import K8sPort
 from hexawyn.application.ports.driven.logs_port import LogsPort
@@ -153,6 +151,87 @@ class TestDemoAdapterDatadog:
         assert all(t["p99_ms"] > 500 for t in traces)
 
 
+class TestDemoAdapterClusterContext:
+    def test_get_cluster_context_aws(self):
+        adapter = DemoAdapter(scenario="aws_eks")
+        ctx = adapter.get_cluster_context()
+        assert ctx["name"] == "prod-eks-us-east-1"
+        assert ctx["cluster"] == "eks-prod"
+        assert ctx["provider"] == "aws"
+
+    def test_get_cluster_context_azure(self):
+        adapter = DemoAdapter(scenario="azure_aks")
+        ctx = adapter.get_cluster_context()
+        assert ctx["provider"] == "azure"
+
+    def test_get_cluster_context_gcp(self):
+        adapter = DemoAdapter(scenario="gcp_gke")
+        ctx = adapter.get_cluster_context()
+        assert ctx["provider"] == "gcp"
+
+    def test_get_cluster_context_openshift(self):
+        adapter = DemoAdapter(scenario="openshift")
+        ctx = adapter.get_cluster_context()
+        assert ctx["provider"] == "openshift"
+
+    def test_get_cluster_context_datadog(self):
+        adapter = DemoAdapter(scenario="datadog")
+        ctx = adapter.get_cluster_context()
+        assert ctx["name"] == "prod-eks-datadog"
+
+
+class TestDemoAdapterSlackMessage:
+    def test_get_slack_message_aws(self):
+        adapter = DemoAdapter(scenario="aws_eks")
+        msg = adapter.get_slack_message()
+        assert "EKS" in msg
+        assert "OOM" in msg
+
+    def test_get_slack_message_azure(self):
+        adapter = DemoAdapter(scenario="azure_aks")
+        msg = adapter.get_slack_message()
+        assert "AKS" in msg
+        assert "healthy" in msg.lower()
+
+    def test_get_slack_message_gcp(self):
+        adapter = DemoAdapter(scenario="gcp_gke")
+        msg = adapter.get_slack_message()
+        assert "GKE" in msg
+
+    def test_get_slack_message_openshift(self):
+        adapter = DemoAdapter(scenario="openshift")
+        msg = adapter.get_slack_message()
+        assert "OpenShift" in msg
+        assert "TLS" in msg
+
+    def test_get_slack_message_datadog(self):
+        adapter = DemoAdapter(scenario="datadog")
+        msg = adapter.get_slack_message()
+        assert "Datadog" in msg
+        assert "820ms" in msg
+
+
+class TestDemoAdapterSlowTracesEdgeCases:
+    def test_get_slow_traces_fallback_when_service_not_found(self):
+        adapter = DemoAdapter(scenario="datadog")
+        traces = adapter.get_slow_traces(
+            service="nonexistent-service",
+            threshold_ms=100,
+            time_window_minutes=10,
+        )
+        assert len(traces) >= 1
+        assert all(t.get("trace_id", "").startswith("trace-nonexistent") for t in traces)
+
+    def test_get_slow_traces_no_match_but_service_empty_returns_empty(self):
+        adapter = DemoAdapter(scenario="datadog")
+        traces = adapter.get_slow_traces(
+            service="",
+            threshold_ms=10,
+            time_window_minutes=5,
+        )
+        assert len(traces) == 0
+
+
 class TestDemoAdapterLogs:
     def test_search_logs_returns_mock_result(self):
         adapter = DemoAdapter(scenario="aws_eks")
@@ -164,3 +243,53 @@ class TestDemoAdapterLogs:
         assert len(logs) >= 1
         assert "message" in logs[0]
         assert "timestamp" in logs[0]
+
+    def test_search_logs_without_namespace(self):
+        adapter = DemoAdapter(scenario="aws_eks")
+        logs = adapter.search_logs(
+            pattern="error",
+            time_window_minutes=15,
+        )
+        assert len(logs) == 2
+        assert all("timestamp" in entry for entry in logs)
+        assert "namespace all" in logs[0]["message"]
+
+
+class TestDemoAdapterNamespaceFilterEdgeCases:
+    def test_list_pods_namespace_no_match_returns_empty(self):
+        adapter = DemoAdapter(scenario="aws_eks")
+        pods = adapter.list_pods(namespace="nonexistent")
+        assert len(pods) == 0
+
+    def test_list_pods_namespace_filter_ml(self):
+        adapter = DemoAdapter(scenario="aws_eks")
+        pods = adapter.list_pods(namespace="ml")
+        assert len(pods) == 1
+        assert pods[0]["name"] == "ml-worker-8b3a1e-hn7k"
+
+
+class TestDemoAdapterNonScenarioSpecific:
+    def test_list_projects_on_aws_returns_empty(self):
+        adapter = DemoAdapter(scenario="aws_eks")
+        projects = adapter.list_projects()
+        assert projects == []
+
+    def test_list_routes_on_azure_returns_empty(self):
+        adapter = DemoAdapter(scenario="azure_aks")
+        routes = adapter.list_routes()
+        assert routes == []
+
+    def test_list_pipeline_runs_on_gcp_returns_empty(self):
+        adapter = DemoAdapter(scenario="gcp_gke")
+        runs = adapter.list_pipeline_runs()
+        assert runs == []
+
+    def test_get_triggered_monitors_on_vanilla_returns_empty(self):
+        adapter = DemoAdapter(scenario="aws_eks")
+        monitors = adapter.get_triggered_monitors()
+        assert monitors == []
+
+    def test_get_apm_services_on_gcp_returns_empty(self):
+        adapter = DemoAdapter(scenario="gcp_gke")
+        services = adapter.get_apm_services()
+        assert services == []

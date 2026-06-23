@@ -1,10 +1,7 @@
 import duckdb
 import pytest
-
 from hexawyn.domain.errors import DuckDBUnavailableError
 from hexawyn.infrastructure.memory.duckdb_client import (
-    SimilarInvestigationDict,
-    get_connection,
     search_similar,
 )
 
@@ -22,7 +19,7 @@ INCIDENTS_DDL = """
         solution TEXT,
         severity VARCHAR,
         weight FLOAT,
-        embedding DOUBLE[3],
+        embedding FLOAT[3],
         retained_until TIMESTAMPTZ,
         sanitized BOOLEAN
     )
@@ -152,7 +149,9 @@ class TestSearchSimilar:
         conn.execute("INSTALL vss;")
         conn.execute("LOAD vss;")
         conn.execute(INCIDENTS_DDL)
-        _insert_row(conn, cluster_name="prod", namespace="'payments'", resource_name="'payment-api'")
+        _insert_row(
+            conn, cluster_name="prod", namespace="'payments'", resource_name="'payment-api'"
+        )
         _insert_row(conn, cluster_name="prod", namespace="'web'", resource_name="'nginx'")
         results = search_similar(
             conn,

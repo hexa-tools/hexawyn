@@ -25,9 +25,24 @@ SCENARIO_MAP = {
 }
 
 _AUGMENTED_PODS: list[PodInfo] = [
-    {"name": "api-gateway-9f3b2a-kl7m", "status": "Running", "restarts": 0, "namespace": "production"},
-    {"name": "worker-queue-5c8d1e-np4x", "status": "Running", "restarts": 2, "namespace": "production"},
-    {"name": "cache-redis-3a7f9b-hq2w", "status": "Running", "restarts": 1, "namespace": "production"},
+    {
+        "name": "api-gateway-9f3b2a-kl7m",
+        "status": "Running",
+        "restarts": 0,
+        "namespace": "production",
+    },
+    {
+        "name": "worker-queue-5c8d1e-np4x",
+        "status": "Running",
+        "restarts": 2,
+        "namespace": "production",
+    },
+    {
+        "name": "cache-redis-3a7f9b-hq2w",
+        "status": "Running",
+        "restarts": 1,
+        "namespace": "production",
+    },
 ]
 
 
@@ -115,21 +130,21 @@ class DemoAdapter(K8sPort, MetricsPort, TracesPort, LogsPort):
     def list_routes(self) -> list[dict[str, str | bool]]:
         raw_routes = cast(list[dict[str, str | bool]], self._data.get("routes", []))
         return [
-            {"name": str(r.get("name", "")), "tls": bool(r.get("tls", False))}
-            for r in raw_routes
+            {"name": str(r.get("name", "")), "tls": bool(r.get("tls", False))} for r in raw_routes
         ]
 
     def list_pipeline_runs(self) -> list[dict[str, str]]:
         raw_runs = cast(list[dict[str, str]], self._data.get("pipeline_runs", []))
         return [
-            {"name": str(r.get("name", "")), "status": str(r.get("status", ""))}
-            for r in raw_runs
+            {"name": str(r.get("name", "")), "status": str(r.get("status", ""))} for r in raw_runs
         ]
 
     # ── Datadog extras ───────────────────────────────────
 
     def get_triggered_monitors(self) -> list[dict[str, str | int | float]]:
-        raw_monitors = cast(list[dict[str, str | int | float]], self._data.get("triggered_monitors", []))
+        raw_monitors = cast(
+            list[dict[str, str | int | float]], self._data.get("triggered_monitors", [])
+        )
         return [
             {
                 "name": str(m["name"]),
@@ -163,21 +178,31 @@ class DemoAdapter(K8sPort, MetricsPort, TracesPort, LogsPort):
         for s in raw_apm:
             p99 = int(s.get("p99_ms", 0))
             if p99 > threshold_ms and s.get("service") == service:
-                traces.append(cast(SlowTrace, {
-                    "trace_id": f"trace-{service}-mock-001",
-                    "service": service,
-                    "duration_ms": p99,
-                    "is_error": p99 > threshold_ms,
-                    "p99_ms": p99,
-                }))
+                traces.append(
+                    cast(
+                        SlowTrace,
+                        {
+                            "trace_id": f"trace-{service}-mock-001",
+                            "service": service,
+                            "duration_ms": p99,
+                            "is_error": p99 > threshold_ms,
+                            "p99_ms": p99,
+                        },
+                    )
+                )
         if not traces and service:
-            traces.append(cast(SlowTrace, {
-                "trace_id": f"trace-{service}-mock-default",
-                "service": service,
-                "duration_ms": threshold_ms + 100,
-                "is_error": True,
-                "p99_ms": threshold_ms + 100,
-            }))
+            traces.append(
+                cast(
+                    SlowTrace,
+                    {
+                        "trace_id": f"trace-{service}-mock-default",
+                        "service": service,
+                        "duration_ms": threshold_ms + 100,
+                        "is_error": True,
+                        "p99_ms": threshold_ms + 100,
+                    },
+                )
+            )
         return traces
 
     # ── LogsPort ─────────────────────────────────────────
