@@ -2,6 +2,7 @@ from pathlib import Path
 
 import duckdb
 
+from hexawyn.application.ports.driven.quota_port import QuotaStorePort
 from hexawyn.domain.models.quota import (
     LicenseTier,
     SlackQuota,
@@ -17,7 +18,7 @@ def _load_sql(filename: str) -> str:
     return (SQL_DIR / filename).read_text(encoding="utf-8")
 
 
-class QuotaRepository:
+class QuotaRepository(QuotaStorePort):
     """
     Repository for usage quota in DuckDB.
     Handles both investigation quota and Slack alert quota.

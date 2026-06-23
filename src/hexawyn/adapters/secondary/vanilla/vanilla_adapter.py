@@ -1,5 +1,6 @@
 from hexawyn.application.ports.driven.k8s_port import (
     ClusterContext,
+    ClusterHealthPort,
     ClusterMetrics,
     Finding,
     K8sPort,
@@ -7,7 +8,7 @@ from hexawyn.application.ports.driven.k8s_port import (
 )
 
 
-class VanillaAdapter(K8sPort):
+class VanillaAdapter(K8sPort, ClusterHealthPort):
     """Minimal adapter for vanilla Kubernetes — no cloud provider dependencies."""
 
     def __init__(self, cluster_name: str) -> None:
