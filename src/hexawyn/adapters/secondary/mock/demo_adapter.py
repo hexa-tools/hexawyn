@@ -5,8 +5,10 @@ from hexawyn.adapters.secondary.mock.scenarios.azure_aks import AZURE_AKS_SCENAR
 from hexawyn.adapters.secondary.mock.scenarios.datadog import DATADOG_SCENARIO
 from hexawyn.adapters.secondary.mock.scenarios.gcp_gke import GCP_GKE_SCENARIO
 from hexawyn.adapters.secondary.mock.scenarios.openshift import OPENSHIFT_SCENARIO
+from hexawyn.application.ports.driven.datadog_port import DatadogMonitoringPort
 from hexawyn.application.ports.driven.k8s_port import (
     ClusterContext,
+    ClusterHealthPort,
     ClusterMetrics,
     Finding,
     K8sPort,
@@ -14,6 +16,7 @@ from hexawyn.application.ports.driven.k8s_port import (
 )
 from hexawyn.application.ports.driven.logs_port import LogEntry, LogsPort
 from hexawyn.application.ports.driven.metrics_port import MetricsPort
+from hexawyn.application.ports.driven.openshift_port import OpenshiftPort
 from hexawyn.application.ports.driven.traces_port import SlowTrace, TracesPort
 
 SCENARIO_MAP = {
@@ -46,7 +49,15 @@ _AUGMENTED_PODS: list[PodInfo] = [
 ]
 
 
-class DemoAdapter(K8sPort, MetricsPort, TracesPort, LogsPort):
+class DemoAdapter(
+    K8sPort,
+    ClusterHealthPort,
+    MetricsPort,
+    TracesPort,
+    LogsPort,
+    OpenshiftPort,
+    DatadogMonitoringPort,
+):
     """In-memory demo adapter for testing without a real cluster."""
 
     def __init__(self, scenario: str = "aws_eks") -> None:

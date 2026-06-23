@@ -1,7 +1,9 @@
 from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
-from hexawyn.application.ports.driven.k8s_port import K8sPort
+from hexawyn.application.ports.driven.datadog_port import DatadogMonitoringPort
+from hexawyn.application.ports.driven.k8s_port import ClusterHealthPort, K8sPort
 from hexawyn.application.ports.driven.logs_port import LogsPort
 from hexawyn.application.ports.driven.metrics_port import MetricsPort
+from hexawyn.application.ports.driven.openshift_port import OpenshiftPort
 from hexawyn.application.ports.driven.traces_port import TracesPort
 
 
@@ -18,9 +20,12 @@ class TestDemoAdapterInit:
     def test_implements_all_ports(self):
         adapter = DemoAdapter()
         assert isinstance(adapter, K8sPort)
+        assert isinstance(adapter, ClusterHealthPort)
         assert isinstance(adapter, MetricsPort)
         assert isinstance(adapter, TracesPort)
         assert isinstance(adapter, LogsPort)
+        assert isinstance(adapter, OpenshiftPort)
+        assert isinstance(adapter, DatadogMonitoringPort)
 
 
 class TestDemoAdapterAWSEKS:

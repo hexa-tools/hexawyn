@@ -29,7 +29,7 @@ install:
 #  Code quality
 # ─────────────────────────────────────
 
-.PHONY: lint format type-check check
+.PHONY: lint format format-check type-check check
 
 lint:
 	@echo "🔍 Linting Python with ruff..."
@@ -41,6 +41,11 @@ format:
 	$(RUFF) format src/ tests/
 	@echo "✅ Formatting done"
 
+format-check:
+	@echo "📐 Checking Python formatting with ruff..."
+	$(RUFF) format --check src/ tests/
+	@echo "✅ Format check passed"
+
 type-check:
 	@echo "🔎 Running mypy strict type check..."
 	$(MYPY) src/hexawyn/
@@ -50,6 +55,7 @@ check:
 	@echo "🔍 Running all quality checks..."
 	@echo ""
 	@$(MAKE) lint
+	@$(MAKE) format-check
 	@$(MAKE) type-check
 	@echo ""
 	@echo "✅ All checks passed"
@@ -181,8 +187,9 @@ help:
 	@echo "🧪 CODE QUALITY"
 	@echo "  make lint                  → Lint Python with ruff"
 	@echo "  make format                → Auto-format Python with ruff"
+	@echo "  make format-check          → Check formatting with ruff"
 	@echo "  make type-check            → Strict mypy type check"
-	@echo "  make check                 → Run lint + type-check"
+	@echo "  make check                 → Run lint + format-check + type-check"
 	@echo "  make guard                 → Run hexa_guard.py rules"
 	@echo ""
 	@echo "🧪 TESTS"

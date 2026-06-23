@@ -1,12 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import TypedDict
 
-
-class ClusterMetrics(TypedDict):
-    cpu_usage_pct: float
-    memory_usage_pct: float
-    node_count: int
-    pod_count: int
+from hexawyn.application.ports.driven.k8s_port import ClusterMetrics
 
 
 class MetricsPort(ABC):

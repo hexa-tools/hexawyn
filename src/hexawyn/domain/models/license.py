@@ -1,21 +1,15 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
-from hexawyn.domain.models.quota import LicenseTier
-
 
 @dataclass
 class LicenseKey:
     """
     A signed license key that unlocks a specific tier.
-
-    Fields:
-        tier: the LicenseTier this key activates
-        expires_at: expiration date (UTC). None = perpetual.
-        licensee: email or company name this key was issued to
+    Kept for backward compatibility with existing callers.
     """
 
-    tier: LicenseTier
+    tier: str
     expires_at: datetime | None
     licensee: str
 
@@ -28,3 +22,33 @@ class LicenseKey:
     @property
     def is_valid(self) -> bool:
         return not self.is_expired
+
+
+@dataclass
+class LicenseClaims:
+    """Claims contained in the JWT signed by the license server."""
+
+    sub: str
+    plan: str
+    clusters_max: int
+    users_max: int
+    investigations_monthly: int
+    history_days: int
+    providers: list[str]
+    exp: int
+    iat: int
+
+    @classmethod
+    def free(cls) -> "LicenseClaims":
+        """Default claims when no license is present (Free tier)."""
+        return cls(
+            sub="anonymous",
+            plan="free",
+            clusters_max=1,
+            users_max=1,
+            investigations_monthly=50,
+            history_days=7,
+            providers=["vanilla"],
+            exp=9999999999,
+            iat=0,
+        )

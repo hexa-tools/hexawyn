@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 
+from hexawyn.application.ports.driven.quota_port import QuotaStorePort
 from hexawyn.domain.errors import QuotaExceededError, SlackQuotaExceededError
 from hexawyn.domain.models.quota import (
     LicenseTier,
@@ -11,8 +12,25 @@ from hexawyn.domain.models.quota import (
 from hexawyn.domain.models.quota import (
     get_history_days as _tier_history_days,
 )
-from hexawyn.infrastructure.memory.duckdb_client import get_connection
-from hexawyn.infrastructure.memory.quota_repository import QuotaRepository
+
+_store: QuotaStorePort | None = None
+
+
+def _get_store() -> QuotaStorePort:
+    """Lazily initialize the quota store (defaults to DuckDB-backed QuotaRepository)."""
+    global _store
+    if _store is None:
+        from hexawyn.infrastructure.memory.duckdb_client import get_connection
+        from hexawyn.infrastructure.memory.quota_repository import QuotaRepository
+
+        _store = QuotaRepository(conn=get_connection())
+    return _store
+
+
+def inject_quota_store(store: QuotaStorePort) -> None:
+    """Inject a custom QuotaStorePort implementation (for testing)."""
+    global _store
+    _store = store
 
 
 def _get_current_month() -> str:
@@ -34,23 +52,17 @@ def _get_current_tier() -> LicenseTier:
 
 
 def _get_current_investigation_quota() -> UsageQuota:
-    conn = get_connection()
-    repo = QuotaRepository(conn=conn)
-    return repo.get_investigation_quota(month=_get_current_month())
+    return _get_store().get_investigation_quota(month=_get_current_month())
 
 
 def _get_current_slack_quota() -> SlackQuota:
-    conn = get_connection()
-    repo = QuotaRepository(conn=conn)
-    return repo.get_slack_quota(month=_get_current_month())
+    return _get_store().get_slack_quota(month=_get_current_month())
 
 
 def _increment_investigation() -> None:
     tier = _get_current_tier()
     limit = get_investigation_limit(tier)
-    conn = get_connection()
-    repo = QuotaRepository(conn=conn)
-    repo.increment_investigation(
+    _get_store().increment_investigation(
         month=_get_current_month(),
         tier=tier,
         limit=limit,
@@ -60,9 +72,7 @@ def _increment_investigation() -> None:
 def _increment_slack() -> None:
     tier = _get_current_tier()
     limit = get_slack_limit(tier)
-    conn = get_connection()
-    repo = QuotaRepository(conn=conn)
-    repo.increment_slack(
+    _get_store().increment_slack(
         month=_get_current_month(),
         tier=tier,
         limit=limit,

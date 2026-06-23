@@ -41,6 +41,14 @@ class K8sPort(ABC):
         """Get cluster-level resource utilization metrics."""
 
     @abstractmethod
+    def get_cluster_context(self) -> ClusterContext:
+        """Get current cluster context metadata."""
+
+
+class ClusterHealthPort(ABC):
+    """Port for cluster health and findings — separated from K8sPort per ISP."""
+
+    @abstractmethod
     def get_findings(self) -> list[Finding]:
         """Get list of findings with severity, message, remediation."""
 
@@ -51,7 +59,3 @@ class K8sPort(ABC):
     @abstractmethod
     def get_health_status(self) -> str:
         """Get cluster health status: healthy | degraded | critical."""
-
-    @abstractmethod
-    def get_cluster_context(self) -> ClusterContext:
-        """Get current cluster context metadata."""

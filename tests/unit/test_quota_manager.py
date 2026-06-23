@@ -236,11 +236,13 @@ class TestGetCurrentTier:
 
 class TestGetCurrentQuotaViaDb:
     def test_get_current_investigation_quota_via_db(self) -> None:
-        mock_conn = MagicMock()
-        mock_conn.execute.return_value.fetchone.return_value = None
+        mock_store = MagicMock()
+        mock_store.get_investigation_quota.return_value = UsageQuota(
+            month="2026-06", count=0, limit=50
+        )
         with patch(
-            "hexawyn.infrastructure.config.quota_manager.get_connection",
-            return_value=mock_conn,
+            "hexawyn.infrastructure.config.quota_manager._get_store",
+            return_value=mock_store,
         ):
             from hexawyn.infrastructure.config.quota_manager import (
                 _get_current_investigation_quota,
@@ -249,15 +251,18 @@ class TestGetCurrentQuotaViaDb:
             quota = _get_current_investigation_quota()
             assert isinstance(quota, UsageQuota)
             assert quota.count == 0
+            mock_store.get_investigation_quota.assert_called_once()
 
     def test_get_current_slack_quota_via_db(self) -> None:
-        mock_conn = MagicMock()
-        mock_conn.execute.return_value.fetchone.return_value = None
+        mock_store = MagicMock()
+        mock_store.get_slack_quota.return_value = SlackQuota(month="2026-06", count=0, limit=5)
         with patch(
-            "hexawyn.infrastructure.config.quota_manager.get_connection",
-            return_value=mock_conn,
+            "hexawyn.infrastructure.config.quota_manager._get_store",
+            return_value=mock_store,
         ):
-            from hexawyn.infrastructure.config.quota_manager import _get_current_slack_quota
+            from hexawyn.infrastructure.config.quota_manager import (
+                _get_current_slack_quota,
+            )
 
             quota = _get_current_slack_quota()
             assert isinstance(quota, SlackQuota)
@@ -266,11 +271,10 @@ class TestGetCurrentQuotaViaDb:
 
 class TestIncrementQuotaViaDb:
     def test_increment_investigation_via_db(self) -> None:
-        mock_conn = MagicMock()
-        mock_conn.execute.return_value.fetchone.return_value = None
+        mock_store = MagicMock()
         with patch(
-            "hexawyn.infrastructure.config.quota_manager.get_connection",
-            return_value=mock_conn,
+            "hexawyn.infrastructure.config.quota_manager._get_store",
+            return_value=mock_store,
         ):
             with patch(
                 "hexawyn.infrastructure.config.quota_manager._get_current_tier",
@@ -281,23 +285,37 @@ class TestIncrementQuotaViaDb:
                 )
 
                 _increment_investigation()
-                assert mock_conn.execute.called
+                mock_store.increment_investigation.assert_called_once()
 
     def test_increment_slack_via_db(self) -> None:
-        mock_conn = MagicMock()
-        mock_conn.execute.return_value.fetchone.return_value = None
+        mock_store = MagicMock()
         with patch(
-            "hexawyn.infrastructure.config.quota_manager.get_connection",
-            return_value=mock_conn,
+            "hexawyn.infrastructure.config.quota_manager._get_store",
+            return_value=mock_store,
         ):
             with patch(
                 "hexawyn.infrastructure.config.quota_manager._get_current_tier",
                 return_value=LicenseTier.FREE,
             ):
-                from hexawyn.infrastructure.config.quota_manager import _increment_slack
+                from hexawyn.infrastructure.config.quota_manager import (
+                    _increment_slack,
+                )
 
                 _increment_slack()
-                assert mock_conn.execute.called
+                mock_store.increment_slack.assert_called_once()
+
+
+class TestQuotaStoreInjection:
+    def test_inject_quota_store_overrides_default(self) -> None:
+        from hexawyn.infrastructure.config.quota_manager import (
+            _get_store,
+            inject_quota_store,
+        )
+
+        mock_store = MagicMock()
+        inject_quota_store(mock_store)
+        assert _get_store() is mock_store
+        inject_quota_store(None)  # type: ignore[arg-type] — reset for other tests
 
 
 class TestGetCurrentMonth:
