@@ -49,6 +49,22 @@ class TestLoadKubeconfig:
                 with pytest.raises(ClusterUnreachableError):
                     load_kubeconfig()
 
+    def test_raises_cluster_unreachable_when_kubeconfig_is_invalid(self):
+        with patch.dict("os.environ", {"KUBECONFIG": "/empty/config"}):
+            with patch("os.path.exists", return_value=True):
+                with patch(
+                    "kubernetes.config.load_kube_config",
+                    side_effect=Exception("Invalid kube-config. /empty/config file is empty"),
+                ):
+                    with pytest.raises(ClusterUnreachableError) as error:
+                        load_kubeconfig()
+
+        assert "Unable to load kubeconfig" in str(error.value)
+        assert error.value.context == {
+            "kubeconfig_path": "/empty/config",
+            "error": "Invalid kube-config. /empty/config file is empty",
+        }
+
 
 class TestListAvailableContexts:
     def test_returns_all_contexts(self):

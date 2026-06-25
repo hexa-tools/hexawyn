@@ -72,7 +72,7 @@ test:
 	@echo "✅ Unit tests passed"
 
 test-integration:
-	@echo "🔬 Running integration tests (real DuckDB, DemoAdapter)..."
+	@echo "🔬 Running integration tests (real DuckDB, demo adapter)..."
 	$(PYTEST) tests/integration/ -v -m integration
 	@echo "✅ Integration tests passed"
 
@@ -102,8 +102,8 @@ run-mcp:
 	docker compose -f docker/docker-compose.yml up hexawyn
 
 run-cli:
-	@echo "🖥️  Starting CLI Textual (real cluster)..."
-	hexa start
+	@echo "🖥️  Starting CLI Textual against your kubeconfig..."
+	HEXAWYN_DEMO_MODE=false $(POETRY) run hexa start
 
 run-demo:
 	@echo "🎭 Starting MCP server in demo mode (no cluster)..."
@@ -111,30 +111,31 @@ run-demo:
 
 run-cli-demo:
 	@echo "🎭 Starting CLI in demo mode (no cluster)..."
-	HEXAWYN_DEMO_MODE=true hexa start
+	HEXAWYN_DISABLE_ENCRYPTION=true HEXAWYN_DEMO_MODE=true $(POETRY) run hexa start
 
 # ── Demo — per provider ──────────────────────────────────
 
 .PHONY: run-demo-aws run-demo-azure run-demo-gcp run-demo-openshift run-demo-datadog run-demo-docker
 
 run-demo-aws:  ## Start CLI in AWS EKS demo mode
-	HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=aws_eks poetry run hexa start
+	HEXAWYN_DISABLE_ENCRYPTION=true HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=aws_eks $(POETRY) run hexa start
 
 run-demo-azure:  ## Start CLI in Azure AKS demo mode
-	HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=azure_aks poetry run hexa start
+	HEXAWYN_DISABLE_ENCRYPTION=true HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=azure_aks $(POETRY) run hexa start
 
 run-demo-gcp:  ## Start CLI in GCP GKE demo mode
-	HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=gcp_gke poetry run hexa start
+	HEXAWYN_DISABLE_ENCRYPTION=true HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=gcp_gke $(POETRY) run hexa start
 
 run-demo-openshift:  ## Start CLI in OpenShift demo mode
-	HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=openshift poetry run hexa start
+	HEXAWYN_DISABLE_ENCRYPTION=true HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=openshift $(POETRY) run hexa start
 
 run-demo-datadog:  ## Start CLI in Datadog demo mode
-	HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=datadog poetry run hexa start
+	HEXAWYN_DISABLE_ENCRYPTION=true HEXAWYN_DEMO_MODE=true HEXAWYN_DEMO_SCENARIO=datadog $(POETRY) run hexa start
 
 run-demo-docker:  ## Start MCP server in Docker demo mode (aws_eks)
 	docker run \
 		-e ANTHROPIC_API_KEY=$(ANTHROPIC_API_KEY) \
+		-e HEXAWYN_DISABLE_ENCRYPTION=true \
 		-e HEXAWYN_DEMO_MODE=true \
 		-e HEXAWYN_DEMO_SCENARIO=aws_eks \
 		-p 8000:8000 \
@@ -155,6 +156,33 @@ guard:
 	@echo "🛡️  Running hexa_guard..."
 	$(PYTHON) hexa_guard.py
 	@echo "✅ Guard rules validated"
+
+# ─────────────────────────────────────
+#  DuckDB
+# ─────────────────────────────────────
+
+.PHONY: db-size db-purge db-purge-dry db-purge-old db-clean
+
+db-size:
+	@echo "📊 DuckDB file size..."
+	@$(POETRY) run hexa db size
+
+db-purge:
+	@echo "🧹 Purging expired incidents..."
+	@$(POETRY) run hexa db purge
+
+db-purge-dry:
+	@echo "🔍 Dry run — preview expired incidents to delete..."
+	@$(POETRY) run hexa db purge --dry-run
+
+db-purge-old:
+	@echo "🧹 Purging incidents older than $(DAYS) days..."
+	@$(POETRY) run hexa db purge --older-than $(if $(DAYS),$(DAYS),90)
+
+db-clean:
+	@echo "💣 Deleting DuckDB database..."
+	@rm -f ~/.hexawyn/memory.duckdb ~/.hexawyn/memory.duckdb.enc
+	@echo "✅ DuckDB database deleted"
 
 # ─────────────────────────────────────
 #  Clean
@@ -216,6 +244,13 @@ help:
 	@echo ""
 	@echo "🧹 MAINTENANCE"
 	@echo "  make clean                 → Remove build artifacts and caches"
+	@echo ""
+	@echo "🗄️  DUCKDB"
+	@echo "  make db-size               → Show DuckDB file size"
+	@echo "  make db-purge              → Purge expired incidents"
+	@echo "  make db-purge-dry          → Preview what would be purged (dry run)"
+	@echo "  make db-purge-old DAYS=90  → Purge older than N days (default 90)"
+	@echo "  make db-clean              → Delete DuckDB file entirely"
 	@echo ""
 	@echo "══════════════════════════════════════════"
 	@echo ""

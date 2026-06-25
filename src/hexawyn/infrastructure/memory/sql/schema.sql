@@ -45,6 +45,24 @@ CREATE TABLE IF NOT EXISTS schema_version (
     description VARCHAR
 );
 
+-- Cost audits: namespace-level cost snapshots (DuckDB local)
+CREATE TABLE IF NOT EXISTS cost_audits (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    namespace TEXT NOT NULL,
+    pod_count INTEGER DEFAULT 0,
+    total_cost DECIMAL(12,2),
+    total_waste DECIMAL(12,2),
+    waste_percent DECIMAL(5,2),
+    savings_right_sizing DECIMAL(12,2),
+    savings_spot DECIMAL(12,2),
+    savings_total DECIMAL(12,2),
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    details JSON DEFAULT '{}'::json
+);
+
+CREATE INDEX IF NOT EXISTS idx_cost_audits_namespace ON cost_audits(namespace);
+CREATE INDEX IF NOT EXISTS idx_cost_audits_timestamp ON cost_audits(timestamp);
+
 -- Usage quota: tracks monthly investigation and Slack usage
 CREATE TABLE IF NOT EXISTS usage_quota (
     id                   UUID    PRIMARY KEY DEFAULT gen_random_uuid(),

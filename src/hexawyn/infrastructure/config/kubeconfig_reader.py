@@ -30,8 +30,18 @@ def load_kubeconfig(context: str | None = None) -> client.CoreV1Api:
     """
     kubeconfig_path = os.environ.get("KUBECONFIG", DEFAULT_KUBECONFIG)
 
-    if os.path.exists(kubeconfig_path):
-        config.load_kube_config(config_file=kubeconfig_path, context=context)
+    valid_paths = [
+        p for p in kubeconfig_path.split(os.pathsep) if os.path.isfile(p) and os.path.getsize(p) > 0
+    ]
+    if valid_paths:
+        merged_path = os.pathsep.join(valid_paths)
+        try:
+            config.load_kube_config(config_file=merged_path, context=context)
+        except Exception as exc:
+            raise ClusterUnreachableError(
+                "Unable to load kubeconfig.",
+                context={"kubeconfig_path": merged_path, "error": str(exc)},
+            ) from exc
         active = get_active_context()
         if active:
             context_data = active.get("context", {})
@@ -130,11 +140,14 @@ def get_kubeconfig_stable_content() -> bytes | None:
     """
     kubeconfig_path = os.environ.get("KUBECONFIG", DEFAULT_KUBECONFIG)
 
-    if not os.path.exists(kubeconfig_path):
+    valid_paths = [
+        p for p in kubeconfig_path.split(os.pathsep) if os.path.isfile(p) and os.path.getsize(p) > 0
+    ]
+    if not valid_paths:
         return None
 
     try:
-        raw = Path(kubeconfig_path).read_text(encoding="utf-8")
+        raw = Path(valid_paths[0]).read_text(encoding="utf-8")
         config_data = yaml.safe_load(raw)
 
         if not isinstance(config_data, dict):

@@ -1,0 +1,137 @@
+from unittest.mock import MagicMock, patch
+
+import httpx
+from hexawyn.adapters.secondary.runtime_client import RuntimeClient
+
+
+def _mock_response(status_code: int, json_data: dict[str, object]) -> MagicMock:
+    resp = MagicMock(spec=httpx.Response)
+    resp.status_code = status_code
+    resp.json.return_value = json_data
+    resp.raise_for_status = MagicMock()
+    if status_code >= 400:
+        resp.raise_for_status.side_effect = httpx.HTTPStatusError(
+            "error", request=MagicMock(), response=resp
+        )
+    return resp
+
+
+class TestRuntimeClient:
+    def test_post_investigation_returns_job_id(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.post.return_value = _mock_response(200, {"job_id": "job-abc-123"})
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+            job_id = client.post_investigation(
+                query="why is payments-api crashing?",
+                cluster_name="prod-eu",
+                provider="vanilla",
+            )
+
+        assert job_id == "job-abc-123"
+        mock_client.post.assert_called_once()
+        request_body = mock_client.post.call_args[1]["json"]
+        assert request_body["query"] == "why is payments-api crashing?"
+        assert request_body["cluster_name"] == "prod-eu"
+        assert request_body["provider"] == "vanilla"
+
+    def test_get_investigation_returns_raw_response(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.get.return_value = _mock_response(
+            200,
+            {
+                "job_id": "job-abc-123",
+                "status": "completed",
+                "result": {"answer": "OOMKilled", "status": "complete"},
+            },
+        )
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+            data = client.get_investigation("job-abc-123")
+
+        assert data["status"] == "completed"
+        assert data["result"] is not None
+
+    def test_poll_investigation_waits_for_completed(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        call_count = [0]
+
+        def mock_get(*args: object, **kwargs: object) -> MagicMock:
+            call_count[0] += 1
+            if call_count[0] < 3:
+                return _mock_response(
+                    200,
+                    {"job_id": "job-1", "status": "running", "result": None},
+                )
+            return _mock_response(
+                200,
+                {
+                    "job_id": "job-1",
+                    "status": "completed",
+                    "result": {"answer": "done", "status": "complete"},
+                },
+            )
+
+        mock_client.get.side_effect = mock_get
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+            result = client.poll_investigation("job-1", timeout=10.0, interval=0.01)
+
+        assert result["status"] == "completed"
+        assert call_count[0] == 3
+
+    def test_poll_investigation_returns_failed_status(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.get.return_value = _mock_response(
+            200,
+            {
+                "job_id": "job-1",
+                "status": "failed",
+                "result": {"error": "cluster unreachable"},
+            },
+        )
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+            result = client.poll_investigation("job-1", timeout=5.0, interval=0.01)
+
+        assert result["status"] == "failed"
+
+    def test_poll_investigation_timeout_returns_last_status(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.get.return_value = _mock_response(
+            200,
+            {"job_id": "job-1", "status": "running", "result": None},
+        )
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+            result = client.poll_investigation("job-1", timeout=0.05, interval=0.01)
+
+        assert result["status"] == "running"
+
+    def test_client_closes_httpx_on_context_exit(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+            client.close()
+
+        mock_client.close.assert_called_once()
+
+    def test_post_investigation_http_error_propagates(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.post.side_effect = httpx.ConnectError("connection refused")
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+
+            try:
+                client.post_investigation("test", "cluster", "vanilla")
+            except httpx.ConnectError as exc:
+                assert "connection refused" in str(exc)
+            else:
+                assert False, "Expected ConnectError"

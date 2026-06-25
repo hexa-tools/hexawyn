@@ -1,3 +1,4 @@
+import datetime
 from pathlib import Path
 from typing import TypedDict
 
@@ -13,6 +14,8 @@ from hexawyn.infrastructure.memory.encryption import (
 )
 
 SQL_DIR = Path(__file__).parent / "sql"
+
+_DB_SIZE_WARNING_THRESHOLD: int = 1_073_741_824
 
 
 def _load_sql(filename: str) -> str:
@@ -156,3 +159,42 @@ def search_similar(
                 )
             )
     return output
+
+
+def get_db_size_bytes(db_path: Path | None = None) -> int:
+    target = db_path if db_path is not None else DB_PATH
+    if not target.exists():
+        return 0
+    return target.stat().st_size
+
+
+def is_db_over_threshold(
+    db_path: Path | None = None,
+    threshold_bytes: int | None = None,
+) -> bool:
+    threshold = threshold_bytes if threshold_bytes is not None else _DB_SIZE_WARNING_THRESHOLD
+    return get_db_size_bytes(db_path) > threshold
+
+
+def purge_expired_incidents(conn: duckdb.DuckDBPyConnection) -> int:
+    before = conn.execute(_load_sql("count_incidents.sql")).fetchone()
+    conn.execute(_load_sql("purge_expired.sql"))
+    after = conn.execute(_load_sql("count_incidents.sql")).fetchone()
+    before_count: int = before[0] if before else 0
+    after_count: int = after[0] if after else 0
+    return before_count - after_count
+
+
+def purge_older_than(
+    conn: duckdb.DuckDBPyConnection,
+    days: int,
+    cutoff: datetime.datetime | None = None,
+) -> int:
+    if cutoff is None:
+        cutoff = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=days)
+    before = conn.execute(_load_sql("count_incidents.sql")).fetchone()
+    conn.execute(_load_sql("purge_older_than.sql"), [cutoff.isoformat()])
+    after = conn.execute(_load_sql("count_incidents.sql")).fetchone()
+    before_count: int = before[0] if before else 0
+    after_count: int = after[0] if after else 0
+    return before_count - after_count

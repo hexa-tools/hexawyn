@@ -19,7 +19,7 @@ class TestMCPHealthTool:
         ):
             from hexawyn.mcp.server import health
 
-            result = health.fn()
+            result = health()
             assert result["status"] == "ok"
             assert result["duckdb"] == "connected"
             assert result["api_key"] == "configured"
@@ -41,7 +41,7 @@ class TestMCPHealthTool:
         ):
             from hexawyn.mcp.server import health
 
-            result = health.fn()
+            result = health()
             assert result["status"] == "degraded"
             assert result["duckdb"] == "unavailable"
             assert result["cluster"] == "connected"
@@ -60,7 +60,7 @@ class TestMCPHealthTool:
         ):
             from hexawyn.mcp.server import health
 
-            result = health.fn()
+            result = health()
             assert result["api_key"] == "missing"
             assert result["cluster"] == "no_kubeconfig"
             assert result["context"] == "none"
@@ -79,7 +79,7 @@ class TestMCPHealthTool:
         ):
             from hexawyn.mcp.server import health
 
-            result = health.fn()
+            result = health()
             assert result["status"] == "degraded"
             assert result["duckdb"] == "unavailable"
             assert result["api_key"] == "missing"
@@ -138,5 +138,6 @@ class TestMCPServerInit:
     def test_health_tool_is_registered(self):
         from hexawyn.mcp.server import mcp
 
-        tool_names = asyncio.run(mcp.get_tools())
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = [tool.name for tool in tools]
         assert "health" in tool_names
