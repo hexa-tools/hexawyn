@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.ports.driven.k8s_port import K8sPort
@@ -256,3 +256,83 @@ class TestVanillaAdapter:
         assert adapter.get_findings() == []
         assert adapter.get_health_score() == 100
         assert adapter.get_health_status() == "healthy"
+
+
+class TestVanillaAdapterConfigIsolation:
+    """Tests that catch the wrong-cluster bug.
+
+    If VanillaAdapter calls load_kubeconfig() more than once, or if the cached
+    CoreV1Api uses the global kubernetes Configuration, background calls to
+    config.load_kube_config() for another context will silently switch which
+    cluster list_pods() talks to.
+
+    Regression: CLI was fetching pods from kind-hexawyn (127.0.0.1:33831)
+    instead of hetzner-preprod because _validate_connection() was changing the
+    global config between the panel refresh and the investigation call.
+    """
+
+    def test_api_client_initialized_once_reused_on_cache_expiry(self) -> None:
+        """load_kubeconfig must be called exactly once per VanillaAdapter instance.
+
+        If called again after cache expiry, it would pick up the current global
+        kubernetes config (which may have been changed to a different context by
+        a background task such as _validate_connection or startup_status).
+        """
+        mock_api = MagicMock()
+        mock_api.list_pod_for_all_namespaces.return_value = MagicMock(items=[])
+        mock_api.list_node.return_value = MagicMock(items=[])
+
+        with patch(
+            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.load_kubeconfig",
+            return_value=mock_api,
+        ) as mock_load_kubeconfig:
+            adapter = VanillaAdapter("hetzner-preprod")
+
+            # First call initialises _api via load_kubeconfig
+            adapter.list_pods()
+            assert mock_load_kubeconfig.call_count == 1
+            mock_load_kubeconfig.assert_called_with(context="hetzner-preprod")
+
+            # Expire the pod cache to force a real K8s call
+            adapter._pod_cache = None
+            adapter._pod_cache_updated_at = 0.0
+
+            # Second call must reuse the same _api — NOT call load_kubeconfig again
+            adapter.list_pods()
+            assert mock_load_kubeconfig.call_count == 1, (
+                "load_kubeconfig() was called more than once. If the global K8s config "
+                "changed between the two calls (e.g. background _validate_connection), "
+                "the second call would create a CoreV1Api for the wrong cluster."
+            )
+
+    def test_list_pods_uses_correct_context_not_global_default(self) -> None:
+        """VanillaAdapter must pass the cluster name as context to load_kubeconfig.
+
+        Passing context=None would use the global current-context, which may point
+        to a different cluster than the one the user selected.
+        """
+        mock_api = MagicMock()
+        mock_api.list_pod_for_all_namespaces.return_value = MagicMock(items=[])
+
+        with patch(
+            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.load_kubeconfig",
+            return_value=mock_api,
+        ) as mock_load_kubeconfig:
+            adapter = VanillaAdapter("hetzner-preprod")
+            adapter.list_pods()
+
+        mock_load_kubeconfig.assert_called_once_with(context="hetzner-preprod")
+
+    def test_unknown_cluster_uses_active_context_not_fixed_name(self) -> None:
+        """For 'unknown' clusters the active context is used (context=None)."""
+        mock_api = MagicMock()
+        mock_api.list_pod_for_all_namespaces.return_value = MagicMock(items=[])
+
+        with patch(
+            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.load_kubeconfig",
+            return_value=mock_api,
+        ) as mock_load_kubeconfig:
+            adapter = VanillaAdapter("unknown")
+            adapter.list_pods()
+
+        mock_load_kubeconfig.assert_called_once_with(context=None)

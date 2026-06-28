@@ -4,16 +4,6 @@ from typing import Any
 from hexawyn.application.ports.driven.runtime_port import InvestigationOutput
 from hexawyn.application.service.runtime_adapter import get_runtime
 
-POD_KEYWORDS = ("pod", "pods")
-DEBUG_KEYWORDS = (
-    "debug",
-    "crashloop",
-    "crash",
-    "oom",
-)
-LOG_KEYWORDS = ("log", "logs")
-PENDING_KEYWORDS = ("pending",)
-
 
 @dataclass
 class CommandResult:
@@ -196,27 +186,4 @@ def route_command(text: str, adapter: Any) -> CommandResult:
             lines=[("Type a command or click a suggestion.", "dim")],
         )
 
-    if any(k in normalized for k in DEBUG_KEYWORDS):
-        return _debug_pod(adapter, normalized)
-
-    if any(k in normalized for k in PENDING_KEYWORDS):
-        return _explain_pending(adapter)
-
-    if any(k in normalized for k in LOG_KEYWORDS):
-        return _show_logs(adapter, normalized)
-
-    if any(k in normalized for k in POD_KEYWORDS):
-        return _list_pods(adapter)
-
-    # Fallback: try to find a matching pod before giving up
-    pods = adapter.list_pods()
-    if _find_pod(normalized, pods):
-        return _debug_pod(adapter, normalized)
-
-    return CommandResult(
-        kind="unknown",
-        lines=[
-            (f'I don\'t understand "{text}".', "red"),
-            ('Try: "list pods", "debug <service>", "logs <service>".', "dim"),
-        ],
-    )
+    return _investigate(adapter, normalized)

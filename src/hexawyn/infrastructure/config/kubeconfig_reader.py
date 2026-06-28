@@ -36,7 +36,12 @@ def load_kubeconfig(context: str | None = None) -> client.CoreV1Api:
     if valid_paths:
         merged_path = os.pathsep.join(valid_paths)
         try:
-            config.load_kube_config(config_file=merged_path, context=context)
+            cfg = client.Configuration()
+            config.load_kube_config(
+                config_file=merged_path,
+                context=context,
+                client_configuration=cfg,
+            )
         except Exception as exc:
             raise ClusterUnreachableError(
                 "Unable to load kubeconfig.",
@@ -54,6 +59,7 @@ def load_kubeconfig(context: str | None = None) -> client.CoreV1Api:
         try:
             config.load_incluster_config()
             print("[hexawyn] Running in-cluster mode (ServiceAccount)")
+            return client.CoreV1Api()
         except Exception as e:
             raise ClusterUnreachableError(
                 "No kubeconfig found and not running in-cluster. "
@@ -61,7 +67,8 @@ def load_kubeconfig(context: str | None = None) -> client.CoreV1Api:
                 context={"kubeconfig_path": kubeconfig_path, "error": str(e)},
             ) from e
 
-    return client.CoreV1Api()
+    api_client = client.ApiClient(configuration=cfg)
+    return client.CoreV1Api(api_client=api_client)
 
 
 def list_available_contexts() -> list[dict[str, str]]:

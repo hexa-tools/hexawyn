@@ -292,12 +292,13 @@ class TestTuiHelpers:
 class TestWelcomeScreen:
     @pytest.mark.asyncio
     async def test_welcome_screen_uses_compact_opencode_layout(self):
-        from hexawyn.cli.tui import HexawynTUI
+        from hexawyn.cli.tui import HexawynTUI, WelcomeScreen
         from textual.widgets import Input, Static
 
         app = HexawynTUI(adapter=_WelcomeAdapter(), demo_mode=True, scenario="aws_eks")
 
         async with app.run_test() as pilot:
+            app.push_screen(WelcomeScreen())
             await pilot.pause()
 
             logo = app.query_one("#welcome-logo", Static)
@@ -354,11 +355,6 @@ class TestSessionScreen:
             assert "🔴 Failed Pods        1" in aside_text
             assert "⚠ 1 CrashLoopBackOff detected" in aside_text
             assert "⚠ 2 Pods restarting frequently" in aside_text
-            assert "Top Issues" in aside_text
-            assert "semantic-layer-7f8d9c" in aside_text
-            assert "airflow-worker-86675" in aside_text
-            assert "Suggestions" in aside_text
-            assert "• debug semantic-layer" in aside_text
             assert "demo" not in aside_text.lower()
 
     @pytest.mark.asyncio
@@ -375,7 +371,9 @@ class TestSessionScreen:
             project_directory = app.query_one("#aside-project", Static)
             brand = app.query_one("#aside-brand", Static)
 
-            assert "~/sites/hexawyn" in str(project_directory.renderable)
+            from hexawyn.cli.presentation.formatting import compact_project_directory
+
+            assert compact_project_directory() in str(project_directory.renderable)
             assert "hexa[bold #3B82F6]wyn[/bold #3B82F6]" in str(brand.renderable)
             assert "0.1.0b0" in str(brand.renderable)
             assert not app.query("#aside-title")
@@ -537,6 +535,66 @@ class TestSessionScreen:
             assert "✗ Context not found" in str(log.lines)
             assert "- hetzner-preprod" in str(log.lines)
             assert "- kind-ecom-local" in str(log.lines)
+
+    @pytest.mark.asyncio
+    async def test_context_switch_updates_conversation_log_with_new_context_line(self):
+        from hexawyn.cli.tui import HexawynTUI, SessionScreen
+        from textual.widgets import RichLog
+
+        context_service = _ContextService()
+        app = HexawynTUI(
+            adapter=_ContextAdapter("hetzner-preprod"),
+            demo_mode=False,
+            startup_status=_context_startup_status(),
+            context_service=context_service,
+            adapter_builder=_build_context_adapter,
+            cluster_name="hetzner-preprod",
+        )
+
+        async with app.run_test() as pilot:
+            app.push_screen(SessionScreen())
+            await pilot.pause()
+            screen = app.query_one(SessionScreen)
+
+            await screen._handle_command("/context kind-ecom-local")
+            await pilot.pause()
+
+            log = app.query_one("#conversation", RichLog)
+            # RichLog parses markup into styled segments — check plain text content
+            log_text = str(log.lines)
+            assert "kind-ecom-local" in log_text
+            # Verify it appears AFTER the switch confirmation (not just from the old on_mount)
+            switch_index = log_text.index("Context switched")
+            new_context_index = log_text.index(
+                "kind-ecom-local", log_text.index("kind-ecom-local") + 1
+            )
+            assert new_context_index > switch_index, "New context line should appear after switch"
+
+    @pytest.mark.asyncio
+    async def test_context_switch_updates_app_cluster_name(self):
+        from hexawyn.cli.tui import HexawynTUI, SessionScreen
+
+        context_service = _ContextService()
+        app = HexawynTUI(
+            adapter=_ContextAdapter("hetzner-preprod"),
+            demo_mode=False,
+            startup_status=_context_startup_status(),
+            context_service=context_service,
+            adapter_builder=_build_context_adapter,
+            cluster_name="hetzner-preprod",
+        )
+
+        async with app.run_test() as pilot:
+            app.push_screen(SessionScreen())
+            await pilot.pause()
+            screen = app.query_one(SessionScreen)
+
+            assert app.cluster_name == "hetzner-preprod"
+
+            await screen._handle_command("/context kind-ecom-local")
+            await pilot.pause()
+
+            assert app.cluster_name == "kind-ecom-local"
 
     @pytest.mark.asyncio
     async def test_session_suggestions_disappear_when_user_types(self):

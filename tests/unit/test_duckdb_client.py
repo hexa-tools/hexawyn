@@ -77,10 +77,14 @@ class TestGetConnection:
 
             original_db = client_mod.DB_PATH
             client_mod.DB_PATH = bad_path
+            import os
+
             try:
+                os.environ["HEXAWYN_DISABLE_ENCRYPTION"] = "true"
                 client_mod.get_connection()
             finally:
                 client_mod.DB_PATH = original_db
+                del os.environ["HEXAWYN_DISABLE_ENCRYPTION"]
 
 
 class TestSearchSimilar:

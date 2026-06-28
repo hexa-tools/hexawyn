@@ -3,7 +3,6 @@
 import dataclasses
 
 import pytest
-
 from hexawyn.domain.models.constants import (
     AES_256_KEY_LENGTH,
     AES_GCM_NONCE_SIZE,

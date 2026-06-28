@@ -14,6 +14,11 @@ MYPY    := $(POETRY) run mypy
 
 DOCKER_IMAGE := hexawyn
 
+ifneq (,$(wildcard .env))
+include .env
+export
+endif
+
 # ─────────────────────────────────────
 #  Dev setup
 # ─────────────────────────────────────
@@ -183,10 +188,6 @@ db-clean:
 	@echo "💣 Deleting DuckDB database..."
 	@rm -f ~/.hexawyn/memory.duckdb ~/.hexawyn/memory.duckdb.enc
 	@echo "✅ DuckDB database deleted"
-
-# ─────────────────────────────────────
-#  Clean
-# ─────────────────────────────────────
 
 .PHONY: clean
 

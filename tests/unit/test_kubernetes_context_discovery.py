@@ -1,5 +1,5 @@
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 from hexawyn.infrastructure.config.kubernetes_context import (
     FileKubernetesDiscoveryService,
@@ -46,7 +46,6 @@ class TestKubernetesContextDiscovery:
         _write_kubeconfig(default_config, "dev", ["dev"])
         service = FileKubernetesDiscoveryService(
             home_path=tmp_path / "home",
-            cwd_path=tmp_path,
             hexawyn_config=HexawynContextConfig(tmp_path / "hexawyn-config.yaml"),
         )
 
@@ -64,7 +63,6 @@ class TestKubernetesContextDiscovery:
         _write_kubeconfig(staging_config, "staging", ["staging"])
         service = FileKubernetesDiscoveryService(
             home_path=tmp_path / "home",
-            cwd_path=tmp_path,
             hexawyn_config=HexawynContextConfig(tmp_path / "hexawyn-config.yaml"),
         )
 
@@ -81,7 +79,6 @@ class TestKubernetesContextDiscovery:
         _write_kubeconfig(default_config, "prod", ["prod", "staging", "dev"])
         service = FileKubernetesDiscoveryService(
             home_path=tmp_path / "home",
-            cwd_path=tmp_path,
             hexawyn_config=HexawynContextConfig(tmp_path / "hexawyn-config.yaml"),
         )
 
@@ -93,25 +90,7 @@ class TestKubernetesContextDiscovery:
         assert current_context is not None
         assert current_context.name == "prod"
 
-    def test_uses_known_local_files_without_recursive_scan(self, tmp_path: Path) -> None:
-        local_config = tmp_path / ".kube" / "config"
-        ignored_config = tmp_path / "nested" / "kubeconfig"
-        local_config.parent.mkdir(parents=True)
-        ignored_config.parent.mkdir(parents=True)
-        _write_kubeconfig(local_config, "local", ["local"])
-        _write_kubeconfig(ignored_config, "ignored", ["ignored"])
-        service = FileKubernetesDiscoveryService(
-            home_path=tmp_path / "home",
-            cwd_path=tmp_path,
-            hexawyn_config=HexawynContextConfig(tmp_path / "hexawyn-config.yaml"),
-        )
-
-        with patch.dict("os.environ", {}, clear=True):
-            contexts = service.discover()
-
-        assert [context.name for context in contexts] == ["local"]
-
-    def test_persisted_default_context_wins_when_it_still_exists(self, tmp_path: Path) -> None:
+    def test_kubernetes_current_context_wins_over_persisted_context(self, tmp_path: Path) -> None:
         default_config = tmp_path / "home" / ".kube" / "config"
         hexawyn_config = tmp_path / "config" / "hexawyn" / "config.yaml"
         default_config.parent.mkdir(parents=True)
@@ -119,7 +98,6 @@ class TestKubernetesContextDiscovery:
         HexawynContextConfig(config_path=hexawyn_config).save_context("staging")
         service = FileKubernetesDiscoveryService(
             home_path=tmp_path / "home",
-            cwd_path=tmp_path,
             hexawyn_config=HexawynContextConfig(config_path=hexawyn_config),
         )
 
@@ -127,7 +105,7 @@ class TestKubernetesContextDiscovery:
             current_context = service.current()
 
         assert current_context is not None
-        assert current_context.name == "staging"
+        assert current_context.name == "prod"
         assert current_context.is_current is True
 
     def test_falls_back_to_kubernetes_current_context_when_persisted_context_is_missing(
@@ -140,7 +118,6 @@ class TestKubernetesContextDiscovery:
         HexawynContextConfig(config_path=hexawyn_config).save_context("deleted")
         service = FileKubernetesDiscoveryService(
             home_path=tmp_path / "home",
-            cwd_path=tmp_path,
             hexawyn_config=HexawynContextConfig(config_path=hexawyn_config),
         )
 
@@ -156,7 +133,6 @@ class TestKubernetesContextDiscovery:
         _write_kubeconfig(default_config, "prod", ["prod"])
         service = FileKubernetesDiscoveryService(
             home_path=tmp_path / "home",
-            cwd_path=tmp_path,
             hexawyn_config=HexawynContextConfig(tmp_path / "hexawyn-config.yaml"),
         )
 
@@ -179,7 +155,6 @@ class TestKubernetesContextDiscovery:
         _write_kubeconfig(env_config, "prod", ["prod"])
         service = FileKubernetesDiscoveryService(
             home_path=tmp_path / "home",
-            cwd_path=tmp_path,
             hexawyn_config=HexawynContextConfig(tmp_path / "hexawyn-config.yaml"),
         )
 
@@ -194,4 +169,6 @@ class TestKubernetesContextDiscovery:
         assert status.connected is True
         assert status.current_context is not None
         assert status.current_context.name == "prod"
-        load_kube_config.assert_called_once_with(config_file=str(env_config), context="prod")
+        load_kube_config.assert_called_once_with(
+            config_file=str(env_config), context="prod", client_configuration=ANY
+        )

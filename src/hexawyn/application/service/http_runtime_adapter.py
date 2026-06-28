@@ -12,19 +12,31 @@ from hexawyn.domain.models.cluster import ClusterContext
 class HttpRuntimeAdapter(RuntimePort):
     def __init__(self, endpoint: str) -> None:
         self._client = RuntimeClient(endpoint=endpoint)
+        self._adapter: Any = None
 
     def close(self) -> None:
         self._client.close()
 
     def set_adapter(self, adapter: Any) -> None:
-        pass
+        self._adapter = adapter
+
+    def _fetch_pods(self) -> list[dict[str, object]]:
+        if self._adapter is None or not hasattr(self._adapter, "list_pods"):
+            return []
+        try:
+            return [dict(p) for p in self._adapter.list_pods()]
+        except Exception:
+            return []
 
     def run_investigation(self, query: str, cluster_context: ClusterContext) -> InvestigationOutput:
         try:
+            provider_raw = getattr(cluster_context, "provider", "vanilla")
+            provider = getattr(provider_raw, "value", str(provider_raw))
             job_id = self._client.post_investigation(
                 query=query,
-                cluster_name=cluster_context.name,
-                provider=cluster_context.provider.value,
+                cluster_name=getattr(cluster_context, "name", "unknown"),
+                provider=provider,
+                pods=self._fetch_pods(),
             )
             response = self._client.poll_investigation(job_id)
             return self._translate_response(response)

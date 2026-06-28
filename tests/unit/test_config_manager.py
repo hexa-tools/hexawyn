@@ -77,9 +77,10 @@ class TestRuntimeMode:
             "hexawyn.infrastructure.config.config_manager.CONFIG_PATH",
             tmp_path / "nonexistent.yaml",
         ):
-            from hexawyn.infrastructure.config.config_manager import get_runtime_mode
+            with patch.dict(os.environ, {}, clear=True):
+                from hexawyn.infrastructure.config.config_manager import get_runtime_mode
 
-            assert get_runtime_mode() == "embedded"
+                assert get_runtime_mode() == "embedded"
 
     def test_reads_configured_mode(self, tmp_path) -> None:  # type: ignore[no-untyped-def]
         config_file = tmp_path / "config.yaml"
@@ -93,19 +94,46 @@ class TestRuntimeMode:
         config_file = tmp_path / "config.yaml"
         config_file.write_text("runtime:\n  mode: invalid\n")
         with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_file):
-            from hexawyn.infrastructure.config.config_manager import get_runtime_mode
+            with patch.dict(os.environ, {}, clear=True):
+                from hexawyn.infrastructure.config.config_manager import get_runtime_mode
 
-            assert get_runtime_mode() == "embedded"
+                assert get_runtime_mode() == "embedded"
 
     def test_remote_mode_with_endpoint(self, tmp_path) -> None:  # type: ignore[no-untyped-def]
         config_file = tmp_path / "config.yaml"
         config_file.write_text("runtime:\n  mode: remote\n  endpoint: http://localhost:8000\n")
         with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_file):
-            from hexawyn.infrastructure.config.config_manager import (
-                get_runtime_endpoint,
-            )
+            with patch.dict(os.environ, {}, clear=True):
+                from hexawyn.infrastructure.config.config_manager import (
+                    get_runtime_endpoint,
+                )
 
-            assert get_runtime_endpoint() == "http://localhost:8000"
+                assert get_runtime_endpoint() == "http://localhost:8000"
+
+    def test_runtime_endpoint_prefers_env_var(self, tmp_path) -> None:  # type: ignore[no-untyped-def]
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("runtime:\n  mode: remote\n  endpoint: http://localhost:8000\n")
+        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_file):
+            with patch.dict(
+                os.environ, {"HEXAWYN_RUNTIME_ENDPOINT": "http://172.18.0.4:30080"}, clear=True
+            ):
+                from hexawyn.infrastructure.config.config_manager import (
+                    get_runtime_endpoint,
+                )
+
+                assert get_runtime_endpoint() == "http://172.18.0.4:30080"
+
+    def test_runtime_endpoint_env_var_enables_remote_mode(self, tmp_path) -> None:  # type: ignore[no-untyped-def]
+        with patch(
+            "hexawyn.infrastructure.config.config_manager.CONFIG_PATH",
+            tmp_path / "nonexistent.yaml",
+        ):
+            with patch.dict(
+                os.environ, {"HEXAWYN_RUNTIME_ENDPOINT": "http://172.18.0.4:30080"}, clear=True
+            ):
+                from hexawyn.infrastructure.config.config_manager import get_runtime_mode
+
+                assert get_runtime_mode() == "remote"
 
 
 class TestGetLLMConfig:

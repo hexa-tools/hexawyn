@@ -4,6 +4,7 @@ from pathlib import Path
 import yaml
 
 CONFIG_PATH = Path.home() / ".hexawyn" / "config.yaml"
+RUNTIME_ENDPOINT_ENV_VAR = "HEXAWYN_RUNTIME_ENDPOINT"
 
 
 def load_config() -> dict[str, object]:
@@ -66,9 +67,11 @@ def save_llm_config(provider: str, base_url: str, api_key: str) -> None:
 
 def get_runtime_mode() -> str:
     """
-    Get the runtime mode from config.yaml.
+    Get the runtime mode from environment or config.yaml.
     Returns "embedded" (default) or "remote".
     """
+    if _get_runtime_endpoint_from_env() is not None:
+        return "remote"
     config = load_config()
     runtime_section = config.get("runtime")
     if not isinstance(runtime_section, dict):
@@ -81,14 +84,24 @@ def get_runtime_mode() -> str:
 
 def get_runtime_endpoint() -> str | None:
     """
-    Get the remote runtime endpoint from config.yaml.
+    Get the remote runtime endpoint from environment or config.yaml.
     Returns None if mode is embedded or endpoint is not configured.
     """
+    env_endpoint = _get_runtime_endpoint_from_env()
+    if env_endpoint is not None:
+        return env_endpoint
     config = load_config()
     runtime_section = config.get("runtime")
     if not isinstance(runtime_section, dict):
         return None
     endpoint = runtime_section.get("endpoint")
     if isinstance(endpoint, str):
+        return endpoint
+    return None
+
+
+def _get_runtime_endpoint_from_env() -> str | None:
+    endpoint = os.environ.get(RUNTIME_ENDPOINT_ENV_VAR)
+    if endpoint:
         return endpoint
     return None

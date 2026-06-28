@@ -12,7 +12,6 @@ from __future__ import annotations
 import os
 
 import pytest
-
 from hexawyn.adapters.secondary.runtime_client import RuntimeClient
 
 CONTROL_PLANE_URL = os.environ.get("CONTROL_PLANE_URL", "http://localhost:8000")

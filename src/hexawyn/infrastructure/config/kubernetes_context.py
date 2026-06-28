@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 import yaml
 from kubernetes import client, config
@@ -84,30 +85,16 @@ class FileKubernetesDiscoveryService(DiscoveryService):
     def __init__(
         self,
         home_path: Path | None = None,
-        cwd_path: Path | None = None,
         hexawyn_config: HexawynContextConfig | None = None,
     ) -> None:
         self._home_path = home_path or Path.home()
-        self._cwd_path = cwd_path or Path.cwd()
         self._hexawyn_config = hexawyn_config or HexawynContextConfig()
 
     def discover(self) -> list[ClusterContext]:
         kubeconfig_paths = self._resolve_kubeconfig_paths()
         current_context_name = self._read_current_context_name(kubeconfig_paths)
         contexts = self._read_contexts(kubeconfig_paths, current_context_name)
-        preferred_context_name = self._valid_preferred_context_name(contexts)
-        if preferred_context_name is None:
-            return contexts
-        return [
-            ClusterContext(
-                name=context.name,
-                cluster=context.cluster,
-                namespace=context.namespace,
-                user=context.user,
-                is_current=context.name == preferred_context_name,
-            )
-            for context in contexts
-        ]
+        return contexts
 
     def current(self) -> ClusterContext | None:
         for context_entry in self.discover():
@@ -128,7 +115,6 @@ class FileKubernetesDiscoveryService(DiscoveryService):
             )
 
         connected, connection_error = self._validate_connection(current_context.name)
-        self._hexawyn_config.save_context(current_context.name)
         return KubernetesStartupStatus(
             contexts=contexts,
             current_context=current_context,
@@ -150,7 +136,7 @@ class FileKubernetesDiscoveryService(DiscoveryService):
                 connection_error="Context not found",
             )
 
-        self._hexawyn_config.save_context(selected_context.name)
+        self._set_kubernetes_current_context(selected_context.name)
         refreshed_contexts = self.discover()
         current_context = self._current_from_contexts(refreshed_contexts)
         connected, connection_error = self._validate_connection(selected_context.name)
@@ -169,15 +155,7 @@ class FileKubernetesDiscoveryService(DiscoveryService):
             return self._existing_paths(Path(path) for path in env_value.split(os.pathsep) if path)
 
         standard_path = self._home_path / ".kube" / "config"
-        if standard_path.exists():
-            return [standard_path]
-
-        return self._existing_paths(
-            [
-                self._cwd_path / "kubeconfig",
-                self._cwd_path / ".kube" / "config",
-            ]
-        )
+        return self._existing_paths([standard_path])
 
     def _existing_paths(self, candidate_paths: Iterable[Path]) -> list[Path]:
         return [path for path in candidate_paths if path.is_file() and path.stat().st_size > 0]
@@ -238,14 +216,40 @@ class FileKubernetesDiscoveryService(DiscoveryService):
             is_current=context_name == current_context_name,
         )
 
-    def _valid_preferred_context_name(self, contexts: list[ClusterContext]) -> str | None:
-        preferred_context_name = self._hexawyn_config.load_preferred_context()
-        if preferred_context_name is None:
-            return None
-        context_names = {context.name for context in contexts}
-        if preferred_context_name in context_names:
-            return preferred_context_name
+    def _set_kubernetes_current_context(self, context_name: str) -> None:
+        kubeconfig_path = self._find_context_kubeconfig_path(context_name)
+        if kubeconfig_path is None:
+            return
+
+        loaded_config: object = yaml.safe_load(kubeconfig_path.read_text(encoding="utf-8"))
+        if not isinstance(loaded_config, dict):
+            return
+
+        kubeconfig_data = cast(dict[object, object], loaded_config)
+        kubeconfig_data["current-context"] = context_name
+        yaml.safe_dump(
+            kubeconfig_data,
+            kubeconfig_path.open("w", encoding="utf-8"),
+            sort_keys=False,
+        )
+
+    def _find_context_kubeconfig_path(self, context_name: str) -> Path | None:
+        for kubeconfig_path in self._resolve_kubeconfig_paths():
+            kubeconfig_data = self._load_yaml_mapping(kubeconfig_path)
+            raw_contexts = kubeconfig_data.get("contexts")
+            if self._has_context(raw_contexts, context_name):
+                return kubeconfig_path
         return None
+
+    def _has_context(self, raw_contexts: object, context_name: str) -> bool:
+        if not isinstance(raw_contexts, list):
+            return False
+        for raw_context in raw_contexts:
+            if not isinstance(raw_context, Mapping):
+                continue
+            if raw_context.get("name") == context_name:
+                return True
+        return False
 
     def _current_from_contexts(self, contexts: list[ClusterContext]) -> ClusterContext | None:
         for context_entry in contexts:
@@ -265,11 +269,14 @@ class FileKubernetesDiscoveryService(DiscoveryService):
 
     def _validate_connection(self, context_name: str) -> tuple[bool, str | None]:
         try:
+            cfg = client.Configuration()
             config.load_kube_config(
                 config_file=self._kubeconfig_loader_path(),
                 context=context_name,
+                client_configuration=cfg,
             )
-            client.VersionApi().get_code()
+            api_client = client.ApiClient(configuration=cfg)
+            client.VersionApi(api_client=api_client).get_code()
             return True, None
         except Exception as exc:
             return False, str(exc)

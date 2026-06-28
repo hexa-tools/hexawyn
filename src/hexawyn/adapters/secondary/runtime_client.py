@@ -14,13 +14,20 @@ class RuntimeClient:
     def close(self) -> None:
         self._client.close()
 
-    def post_investigation(self, query: str, cluster_name: str, provider: str) -> str:
+    def post_investigation(
+        self,
+        query: str,
+        cluster_name: str,
+        provider: str,
+        pods: list[dict[str, object]] | None = None,
+    ) -> str:
         response = self._client.post(
             f"{self._endpoint}/api/v1/investigations",
             json={
                 "query": query,
                 "cluster_name": cluster_name,
                 "provider": provider,
+                "pods": pods or [],
             },
         )
         response.raise_for_status()
@@ -46,7 +53,7 @@ class RuntimeClient:
         while time.monotonic() < deadline:
             status_response = self.get_investigation(job_id)
             current_status = str(status_response.get("status", ""))
-            if current_status in ("completed", "failed"):
+            if current_status in ("completed", "failed", "complete"):
                 return status_response
             time.sleep(interval)
         return status_response
