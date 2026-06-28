@@ -21,5 +21,5 @@ class TestCacheStats:
         ):
             from hexawyn.mcp.server import health
 
-            result = health.fn()
+            result = health()
             assert "cache_l1_size" in result

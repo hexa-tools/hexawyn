@@ -57,7 +57,8 @@ dist/
 AGENTS.md
 .claude/
 hexa_guard.py
-
+.opencode/
+logs/
 # MemPalace per-project files (issue #185)
 mempalace.yaml
 entities.json

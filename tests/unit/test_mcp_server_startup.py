@@ -15,6 +15,6 @@ class TestMCPServerStartup:
     def test_health_includes_cluster_status(self):
         from hexawyn.mcp.server import health
 
-        result = health.fn()
+        result = health()
         assert "cluster" in result
         assert "status" in result

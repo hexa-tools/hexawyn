@@ -1,121 +1,95 @@
-# Full Investigation — Happy Path
+# Full Investigation — Happy Path (RuntimePort Architecture)
 
-User asks a question in the CLI. No cache hit (L1 or L2). Full 9-node LangGraph pipeline runs: quota check → cache miss → tool call → LLM → semantic checker → LLM judge → DuckDB store → quota increment → L1 cache populate → CLI response with chips.
+The user asks a question in the CLI. The CLI calls `get_runtime()` which resolves the RuntimePort implementation based on `config.yaml`. Two modes: **embedded** (stub, local-only) and **remote** (HTTP to hexawyn-control-plane). The remote flow covers: CLI → RuntimeClient → POST /investigations → FastAPI → Valkey → Worker → LangGraph → Ollama → polling → InvestigationResult → CLI.
 
 ```mermaid
 sequenceDiagram
     participant User
     participant CLI
-    participant parse_intent
-    participant QM as QuotaManager
-    participant check_cache
-    participant CacheL1
-    participant DuckDB
-    participant retrieve_context
-    participant execute_tool
-    participant MCP as MCP Tool
-    participant K8s as K8s API
-    participant generate_response
-    participant LLM as LLM (claude-sonnet-4-6)
-    participant semantic_checker
-    participant llm_judge as LLM Judge (claude-haiku-4-5)
-    participant store_memory
-    participant format_response
+    participant Runtime as RuntimePort
+    participant Stub as StubRuntimeAdapter
+    participant HTTP as HttpRuntimeAdapter
+    participant Client as RuntimeClient
+    participant API as FastAPI
+    participant Valkey
+    participant Worker
+    participant Engine as Runtime Engine
+    participant LG as LangGraph
+    participant LLM as Ollama
 
-    User->>CLI: types question
-    CLI->>parse_intent: query
+    User->>CLI: "why is payments-api crashing?"
 
-    Note over parse_intent,QM: [FREE] 50 investigations/month
-    parse_intent->>QM: check_quota()
-    QM->>DuckDB: SELECT investigation_count FROM usage_quota
-    DuckDB-->>QM: count=23, limit=50
-    QM-->>parse_intent: OK
-    parse_intent-->>CLI: intent + tool_name
+    Note over CLI,Runtime: config.yaml → runtime.mode
 
-    CLI->>check_cache: query + embedding
+    alt embedded mode
+        CLI->>Runtime: get_runtime()
+        Runtime->>Stub: StubRuntimeAdapter()
+        CLI->>Stub: run_investigation(query, cluster_context)
+        Stub-->>CLI: "Runtime not available — install hexawyn-control-plane"
+        CLI-->>User: "Runtime unavailable" message
+    else remote mode
+        CLI->>Runtime: get_runtime()
+        Runtime->>HTTP: HttpRuntimeAdapter(endpoint)
+        CLI->>HTTP: run_investigation(query, cluster_context)
+        HTTP->>Client: post_investigation(query, cluster_name, provider)
+        Client->>API: POST /api/v1/investigations
+        API->>Valkey: enqueue job
+        API-->>Client: { job_id: "job-abc-123" }
 
-    Note over check_cache: L1 miss (hash not found)
-    check_cache->>CacheL1: get(hash)
-    CacheL1-->>check_cache: None
+        Note over Client,API: polling loop (1s interval, 60s timeout)
 
-    Note over check_cache,DuckDB: L2 miss (no similar past incident)
-    check_cache->>DuckDB: VSS search (cosine similarity)
-    DuckDB-->>check_cache: no match (score < 0.80)
-    check_cache-->>CLI: cache_hit = false
+        loop until completed or failed
+            Client->>API: GET /api/v1/investigations/job-abc-123
+            API-->>Client: { status: "running" }
+        end
 
-    CLI->>retrieve_context: cluster context
-    retrieve_context-->>CLI: ClusterContext
+        Valkey->>Worker: dequeue job
+        Worker->>Engine: investigate(query, cluster)
+        Engine->>LG: run investigation graph
+        LG->>LLM: POST /api/chat (qwen3:8b)
+        LLM-->>LG: diagnostic response
+        LG->>LLM: POST /api/chat (mistral:7b — judge)
+        LLM-->>LG: judge verdict: PASS (score: 0.92)
+        LG-->>Engine: InvestigationResult
+        Engine-->>Worker: result
+        Worker->>Valkey: store result → job-abc-123
 
-    CLI->>execute_tool: tool_name + args
-    execute_tool->>MCP: call tool
-    MCP->>K8s: kubectl / API call
-    K8s-->>MCP: pod data (CrashLoopBackOff, 8 restarts)
-    MCP-->>execute_tool: tool output
-    execute_tool-->>CLI: raw data
+        Client->>API: GET /api/v1/investigations/job-abc-123
+        API->>Valkey: get job result
+        Valkey-->>API: { status: "completed", result: {...} }
+        API-->>Client: { status: "completed", result: { answer: "...", ... } }
+        Client-->>HTTP: completed
+        HTTP-->>CLI: InvestigationOutput
 
-    CLI->>generate_response: context + tool output
-    generate_response->>LLM: prompt + data
-    LLM-->>generate_response: "payments-api CrashLoopBackOff — OOM: 380Mi used, limit 256Mi"
-    generate_response-->>CLI: llm_response
-
-    CLI->>semantic_checker: llm_response + tool_output
-
-    Note over semantic_checker: deterministic check PASS
-    semantic_checker-->>CLI: verdict = PASS
-
-    CLI->>llm_judge: llm_response + checker result
-
-    Note over llm_judge: semantic check PASS (claude-haiku-4-5)
-    llm_judge-->>CLI: verdict = PASS
-
-    CLI->>store_memory: result + embedding
-
-    Note over store_memory: quota incremented + L1 populated
-    store_memory->>DuckDB: INSERT INTO incidents
-    DuckDB-->>store_memory: stored
-
-    store_memory->>QM: increment_quota()
-    QM->>DuckDB: UPDATE investigation_count = 24
-    DuckDB-->>QM: OK
-
-    store_memory->>CacheL1: set(hash, result)
-    CacheL1-->>store_memory: stored
-
-    store_memory-->>CLI: stored
-
-    CLI->>format_response: result + suggestions
-    format_response-->>CLI: formatted response + 4 chips
-
-    CLI-->>User: response + [24/50 · 26 remaining]
+        CLI-->>User: "OOMKilled — increase memory limit to 512Mi" + [19/50 · 31 remaining]
+    end
 ```
 
 ## Key Points
 
-- Quota is checked BEFORE any investigation starts — if exceeded, the entire pipeline is skipped
-- Cache L1 (in-memory hash) checked first, then L2 (DuckDB VSS cosine >= 0.80)
-- The LLM is only called for response generation (claude-sonnet-4-6) and semantic judging (claude-haiku-4-5)
-- Quota is incremented AND L1 is populated AFTER a successful investigation in store_memory
-- Demo mode bypasses both quota check and quota increment entirely
+- The CLI never imports LangGraph or any LLM library — it only speaks to `RuntimePort`
+- `runtime.mode: embedded` → `StubRuntimeAdapter` (dev, no control-plane needed)
+- `runtime.mode: remote` → `HttpRuntimeAdapter` → `RuntimeClient` (httpx, polling)
+- The control-plane (FastAPI + Valkey + Worker) owns all AI logic including LangGraph
+- The CLI and control-plane evolve independently thanks to the HTTP contract
+- Polling waits for "completed" or "failed" status (60s timeout, 1s interval)
 
 ## Test Coverage
 
 | Test | File | Status |
 |---|---|---|
-| `test_checks_quota_in_normal_mode` | `tests/unit/test_quota_langgraph.py` | ✅ |
-| `test_increments_quota_after_successful_investigation` | `tests/unit/test_quota_langgraph.py` | ✅ |
-| `test_l1_miss_falls_through_to_l2` | `tests/unit/test_check_cache_node.py` | ✅ |
-| `test_both_miss_returns_cache_hit_false` | `tests/unit/test_check_cache_node.py` | ✅ |
-| `test_stores_result_in_l1` | `tests/unit/test_store_memory_cache.py` | ✅ |
-| `test_finds_similar_embedding` | `tests/unit/test_duckdb_client.py` | ✅ |
-| `test_is_not_exceeded_when_under_limit` | `tests/unit/test_quota_model.py` | ✅ |
+| `test_runtime_port_is_abstract` | `tests/unit/test_runtime_port.py` | ✅ |
+| `test_post_investigation_returns_job_id` | `tests/unit/test_runtime_client.py` | ✅ |
+| `test_poll_investigation_waits_for_completed` | `tests/unit/test_runtime_client.py` | ✅ |
+| `test_run_investigation_posts_and_polls` | `tests/unit/test_http_runtime_adapter.py` | ✅ |
+| `test_run_investigation_failed_status` | `tests/unit/test_http_runtime_adapter.py` | ✅ |
+| `test_run_startup_scan_not_supported` | `tests/unit/test_http_runtime_adapter.py` | ✅ |
+| `test_defaults_to_embedded` | `tests/unit/test_config_manager.py` | ✅ |
 
 ## Related Files
 
-- `src/hexawyn/lang_graph/nodes/parse_intent.py` — quota check before investigation
-- `src/hexawyn/lang_graph/nodes/check_cache.py` — L1 + L2 cache check
-- `src/hexawyn/lang_graph/nodes/store_memory.py` — quota increment + L1 store
-- `src/hexawyn/lang_graph/nodes/generate_response.py` — LLM response generation
-- `src/hexawyn/lang_graph/nodes/semantic_checker.py` — deterministic validation
-- `src/hexawyn/lang_graph/nodes/llm_judge.py` — LLM semantic validation
-- `src/hexawyn/infrastructure/config/quota_manager.py` — quota orchestration
-- `src/hexawyn/infrastructure/memory/duckdb_client.py` — VSS search
+- `src/hexawyn/application/ports/driven/runtime_port.py` — RuntimePort ABC + types
+- `src/hexawyn/application/service/runtime_adapter.py` — get_runtime() + StubRuntimeAdapter
+- `src/hexawyn/application/service/http_runtime_adapter.py` — HttpRuntimeAdapter
+- `src/hexawyn/adapters/secondary/runtime_client.py` — RuntimeClient (HTTP + polling)
+- `src/hexawyn/infrastructure/config/config_manager.py` — get_runtime_mode() + get_runtime_endpoint()

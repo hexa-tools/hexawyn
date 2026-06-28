@@ -5,8 +5,19 @@ Layers shown from inside out: Domain (zero deps) → Application Ports → Prima
 ```mermaid
 flowchart LR
     subgraph Domain["Domain — zero dependencies"]
-        Models[ClusterContext<br/>InvestigationResult<br/>UsageQuota<br/>CacheEntry]
-        Errors[HexawynError<br/>QuotaExceededError<br/>SlackQuotaExceededError]
+        direction TB
+        subgraph Models["Models"]
+            ClusterCtx["ClusterContext<br/>InvestigationResult<br/>UsageQuota<br/>CacheEntry<br/>ClassifiedEvent<br/>CertificateInfo"]
+        end
+        subgraph DomainSvcs["Services"]
+            LogAnalysis["log_analysis/<br/>Strategy + AdaptiveLP"]
+            FailureAnalysis["failure_analysis/<br/>RcaScorer"]
+            EventAnalysis["event_analysis/<br/>ProgressiveAnalyzer"]
+            AnomalyDetect["anomaly_detection/<br/>ZScoreDetector"]
+            CertSvc["certificate/<br/>CertificateChecker"]
+        end
+        Errors["HexawynError<br/>QuotaExceededError<br/>SlackQuotaExceededError"]
+        Constants["constants.py<br/>7 frozen dataclasses"]
     end
 
     subgraph Application["Application"]
@@ -102,27 +113,39 @@ flowchart LR
 
 ## Key Points
 
-- **Domain** is at the center: pure Python, zero external dependencies. Contains CacheEntry, UsageQuota, ClusterContext
-- **Application ports** define abstractions (K8sPort, MetricsPort, etc.) that secondary adapters implement
+- **Domain** is at the center: pure Python, zero external dependencies. Contains models (15 files), services (5 packages), errors (17 classes), and constants (7 frozen dataclasses)
+- **Domain services** implement business logic: log analysis strategies, RCA scoring, event classification, anomaly detection, certificate checking — all config-driven via constants.py, no magic numbers
+- **Application ports** define abstractions (K8sPort, MetricsPort, RuntimePort, etc.) that secondary adapters implement
 - **AdapterFactory** selects the right secondary adapter: DemoAdapter for demo mode, provider-specific (AWS/Azure/GCP) for real clusters, VanillaAdapter as fallback
 - **hexa_guard.py** enforces all architectural rules at every file write — violations block immediately
 - **Cache L1** is infrastructure: in-memory dict, session-scoped, sub-millisecond response time
+- **Infrastructure/logging/** provides RotatingFileHandler (10MB/5 backups) + StreamHandler + log_tool_execution decorator
 
 ## Test Coverage
 
 | Test | File | Status |
 |---|---|---|
 | `test_demo_mode_returns_demo_adapter` | `tests/unit/test_adapter_factory.py` | ✅ |
-| `test_demo_mode_false_does_not_return_demo_adapter` | `tests/unit/test_adapter_factory.py` | ✅ |
 | `test_implements_all_ports` | `tests/unit/test_demo_adapter.py` | ✅ |
 | `test_k8s_port_is_abstract` | `tests/unit/test_ports.py` | ✅ |
-| `test_is_k8s_port` | `tests/unit/test_vanilla_adapter.py` | ✅ |
+| `test_supports_large_logs` | `tests/unit/log_analysis/test_strategy.py` | ✅ |
+| `test_max_confidence_when_all_factors_present` | `tests/unit/failure_analysis/test_scorer.py` | ✅ |
+| `test_cascade_detection` | `tests/unit/event_analysis/test_classifier.py` | ✅ |
+| `test_clear_outlier_detected` | `tests/unit/anomaly_detection/test_statistical.py` | ✅ |
+| `test_healthy_certificate` | `tests/unit/certificate/test_checker.py` | ✅ |
+| `test_defaults` | `tests/unit/test_constants.py` | ✅ |
 
 ## Related Files
 
-- `src/hexawyn/domain/` — domain models + errors (zero deps)
-- `src/hexawyn/application/ports/driven/` — K8sPort, MetricsPort, TracesPort, LogsPort
+- `src/hexawyn/domain/models/` — 15 model files + constants.py (7 frozen dataclasses)
+- `src/hexawyn/domain/services/log_analysis/` — Strategy pattern + AdaptiveLogProcessor
+- `src/hexawyn/domain/services/failure_analysis/` — RCA scoring (config-driven)
+- `src/hexawyn/domain/services/event_analysis/` — Progressive disclosure (3 levels)
+- `src/hexawyn/domain/services/anomaly_detection/` — Z-score anomaly detection
+- `src/hexawyn/domain/services/certificate/` — Certificate health checker
+- `src/hexawyn/application/ports/driven/` — K8sPort, MetricsPort, TracesPort, LogsPort, RuntimePort...
 - `src/hexawyn/adapters/secondary/adapter_factory.py` — build_adapters()
 - `src/hexawyn/adapters/secondary/mock/demo_adapter.py` — DemoAdapter (mock/)
 - `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py` — VanillaAdapter fallback
+- `src/hexawyn/infrastructure/logging/tool_decorator.py` — log_tool_execution + RotatingFileHandler
 - `hexa_guard.py` — 11 rules auto-enforced at every file write
