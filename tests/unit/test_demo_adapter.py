@@ -298,3 +298,29 @@ class TestDemoAdapterNonScenarioSpecific:
         adapter = DemoAdapter(scenario="gcp_gke")
         services = adapter.get_apm_services()
         assert services == []
+
+
+class TestDemoAdapterListNamespaces:
+    def test_list_namespaces_returns_list(self) -> None:
+        adapter = DemoAdapter(scenario="aws_eks")
+        namespaces = adapter.list_namespaces()
+        assert isinstance(namespaces, list)
+        assert len(namespaces) > 0
+
+    def test_list_namespaces_items_have_namespace_info_fields(self) -> None:
+        adapter = DemoAdapter(scenario="aws_eks")
+        namespaces = adapter.list_namespaces()
+        for ns in namespaces:
+            assert "name" in ns
+            assert "status" in ns
+            assert "age" in ns
+
+    def test_list_namespaces_azure_aks_returns_data(self) -> None:
+        adapter = DemoAdapter(scenario="azure_aks")
+        namespaces = adapter.list_namespaces()
+        assert len(namespaces) > 0
+
+    def test_list_namespaces_gcp_gke_returns_data(self) -> None:
+        adapter = DemoAdapter(scenario="gcp_gke")
+        namespaces = adapter.list_namespaces()
+        assert len(namespaces) > 0

@@ -12,6 +12,7 @@ from hexawyn.application.ports.driven.k8s_port import (
     ClusterMetrics,
     Finding,
     K8sPort,
+    NamespaceInfo,
     PodInfo,
 )
 from hexawyn.application.ports.driven.logs_port import LogEntry, LogsPort
@@ -81,6 +82,14 @@ class DemoAdapter(
         if namespace:
             return [p for p in all_pods if p["namespace"] == namespace]
         return all_pods
+
+    def list_namespaces(self) -> list[NamespaceInfo]:
+        ages = ["120d", "45d", "3h"]
+        ns_names = sorted({p["namespace"] for p in self.list_pods()})
+        return [
+            {"name": name, "status": "Active", "age": ages[i % len(ages)]}
+            for i, name in enumerate(ns_names)
+        ]
 
     def get_cluster_metrics(self) -> ClusterMetrics:
         scenario_metrics = cast(dict[str, str | int | float], self._data["metrics"])

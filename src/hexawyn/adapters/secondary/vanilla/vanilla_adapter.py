@@ -10,6 +10,7 @@ from hexawyn.application.ports.driven.k8s_port import (
     ClusterMetrics,
     Finding,
     K8sPort,
+    NamespaceInfo,
     PodInfo,
 )
 from hexawyn.infrastructure.config.kubeconfig_reader import load_kubeconfig
@@ -27,6 +28,9 @@ class KubernetesCoreApi(Protocol):
 
     def list_node(self, timeout_seconds: int) -> object:
         """List cluster nodes."""
+
+    def list_namespace(self, timeout_seconds: int) -> object:
+        """List all namespaces."""
 
 
 class KubernetesMetricsApi(Protocol):
@@ -94,6 +98,35 @@ class VanillaAdapter(K8sPort, ClusterHealthPort):
             "provider": self._provider_name(),
             "namespace": "default",
         }
+
+    def list_namespaces(self) -> list[NamespaceInfo]:
+        api = self._api_client()
+        ns_list = api.list_namespace(timeout_seconds=5)
+        return [self._to_namespace_info(ns) for ns in self._items_from(ns_list)]
+
+    def _to_namespace_info(self, ns: object) -> NamespaceInfo:
+        metadata = getattr(ns, "metadata", None)
+        name = self._text_attr(metadata, "name", "unknown")
+        status = self._text_attr(getattr(ns, "status", None), "phase", "Active")
+        age = self._namespace_age(metadata)
+        return {"name": name, "status": status, "age": age}
+
+    def _namespace_age(self, metadata: object) -> str:
+        from datetime import UTC, datetime
+
+        timestamp = getattr(metadata, "creation_timestamp", None)
+        if timestamp is None:
+            return "unknown"
+        now = datetime.now(UTC)
+        delta = now - timestamp
+        days = delta.days
+        if days > 0:
+            return f"{days}d"
+        hours = delta.seconds // 3600
+        if hours > 0:
+            return f"{hours}h"
+        minutes = delta.seconds // 60
+        return f"{minutes}m"
 
     def _provider_name(self) -> str:
         if self._cluster_name.startswith("kind-"):

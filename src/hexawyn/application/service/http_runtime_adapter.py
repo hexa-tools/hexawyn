@@ -73,6 +73,12 @@ class HttpRuntimeAdapter(RuntimePort):
         except Exception:
             pass
 
+    def sync_tools(self, tools_payload: list[dict[str, object]]) -> None:
+        try:
+            self._client.post_tools(tools_payload)
+        except Exception:
+            pass
+
     def run_startup_scan(self, cluster_name: str) -> StartupScanResult:
         return StartupScanResult(
             health_score=0,

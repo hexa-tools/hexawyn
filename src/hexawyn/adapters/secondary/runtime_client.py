@@ -14,6 +14,13 @@ class RuntimeClient:
     def close(self) -> None:
         self._client.close()
 
+    def post_tools(self, tools_payload: list[dict[str, object]]) -> None:
+        response = self._client.post(
+            f"{self._endpoint}/api/v1/tools/sync",
+            json={"tools": tools_payload},
+        )
+        response.raise_for_status()
+
     def check_quota(self) -> dict[str, object]:
         response = self._client.get(f"{self._endpoint}/api/v1/quota")
         response.raise_for_status()

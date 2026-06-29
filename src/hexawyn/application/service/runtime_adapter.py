@@ -41,6 +41,9 @@ class StubRuntimeAdapter(RuntimePort):
     def increment_quota(self) -> None:
         pass
 
+    def sync_tools(self, tools_payload: list[dict[str, object]]) -> None:
+        pass
+
 
 _runtime_instance: RuntimePort | None = None
 
