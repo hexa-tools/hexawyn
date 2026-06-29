@@ -52,6 +52,7 @@ def health() -> dict[str, str]:
 
     api_key_ok = get_api_key() is not None
     cache_stats = get_cache_stats()
+    slack_configured = bool(os.environ.get("HEXAWYN_SLACK_WEBHOOK_URL"))
 
     return {
         "status": "ok" if db_ok else "degraded",
@@ -62,6 +63,7 @@ def health() -> dict[str, str]:
         "context": _cluster_status.get("context", "none"),
         "cache_l1_size": str(cache_stats["l1_size"]),
         "cache_l1_ttl": str(cache_stats["l1_ttl_seconds"]),
+        "slack": "configured" if slack_configured else "not_configured",
     }
 
 

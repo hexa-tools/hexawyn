@@ -64,3 +64,75 @@ def test_investigation_output_keys() -> None:
     assert output["status"] == "complete"
     assert output["suggestions"] == ["Increase memory limit", "Add HPA"]
     assert output["error"] is None
+
+
+def test_runtime_port_has_quota_methods() -> None:
+    assert "check_quota" in RuntimePort.__abstractmethods__
+    assert "increment_quota" in RuntimePort.__abstractmethods__
+
+
+def test_quota_check_result_defaults() -> None:
+    from hexawyn.application.ports.driven.runtime_port import QuotaCheckResult
+
+    result: QuotaCheckResult = {"allowed": True, "used": 0, "limit": 50, "remaining": 50}
+    assert result["allowed"] is True
+    assert result["used"] == 0
+    assert result["limit"] == 50
+    assert result["remaining"] == 50
+
+
+def test_quota_check_result_exceeded() -> None:
+    from hexawyn.application.ports.driven.runtime_port import QuotaCheckResult
+
+    result: QuotaCheckResult = {"allowed": False, "used": 50, "limit": 50, "remaining": 0}
+    assert result["allowed"] is False
+    assert result["used"] == 50
+    assert result["remaining"] == 0
+
+
+class TestStubRuntimeAdapterQuota:
+    def test_check_quota_always_allows(self) -> None:
+        from hexawyn.application.service.runtime_adapter import StubRuntimeAdapter
+
+        stub = StubRuntimeAdapter()
+        result = stub.check_quota()
+        assert result["allowed"] is True
+
+    def test_increment_quota_is_noop(self) -> None:
+        from hexawyn.application.service.runtime_adapter import StubRuntimeAdapter
+
+        stub = StubRuntimeAdapter()
+        stub.increment_quota()  # should not raise
+
+
+class TestHttpRuntimeAdapterQuota:
+    def test_check_quota_delegates_to_client(self) -> None:
+        from unittest.mock import MagicMock
+
+        from hexawyn.application.service.http_runtime_adapter import HttpRuntimeAdapter
+
+        adapter = HttpRuntimeAdapter(endpoint="http://localhost:8000")
+        mock_client = MagicMock()
+        mock_client.check_quota.return_value = {
+            "allowed": True,
+            "used": 5,
+            "limit": 50,
+            "remaining": 45,
+        }
+        adapter._client = mock_client
+
+        result = adapter.check_quota()
+        assert result["allowed"] is True
+        mock_client.check_quota.assert_called_once()
+
+    def test_increment_quota_delegates_to_client(self) -> None:
+        from unittest.mock import MagicMock
+
+        from hexawyn.application.service.http_runtime_adapter import HttpRuntimeAdapter
+
+        adapter = HttpRuntimeAdapter(endpoint="http://localhost:8000")
+        mock_client = MagicMock()
+        adapter._client = mock_client
+
+        adapter.increment_quota()
+        mock_client.increment_quota.assert_called_once()

@@ -11,7 +11,8 @@ from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import Button, Input, RichLog, Static
 
-from hexawyn.cli.command_router import CommandResult, route_command
+from hexawyn.application.use_case.chat_cli.chat_cli_response import ChatCliResponse
+from hexawyn.cli.command_router import route_command
 from hexawyn.cli.presentation.asides import (
     crashloop_finding_count,
     failed_pod_count,
@@ -384,7 +385,7 @@ class SessionScreen(Screen[None]):
         spinner_task = asyncio.create_task(self._show_spinner(log, stages))
 
         loop = asyncio.get_running_loop()
-        result: CommandResult = await loop.run_in_executor(None, route_command, text, app.adapter)
+        result: ChatCliResponse = await loop.run_in_executor(None, route_command, text, app.adapter)
 
         spinner_task.cancel()
         try:
@@ -399,8 +400,8 @@ class SessionScreen(Screen[None]):
             return
 
         self._render_result(log, result)
-        if result.chips:
-            await self._update_chips(result.chips)
+        if result.suggestions:
+            await self._update_chips(result.suggestions)
         self._refresh_aside()
 
     def _is_context_command(self, text: str) -> bool:
@@ -516,7 +517,7 @@ class SessionScreen(Screen[None]):
             else:
                 log.write("")
 
-    def _render_result(self, log: RichLog, result: CommandResult) -> None:
+    def _render_result(self, log: RichLog, result: ChatCliResponse) -> None:
         if result.kind == "pods" and result.pods is not None:
             table = Table(show_header=True, header_style="bold #8a93a6", box=box.SIMPLE)
             table.add_column("NAME")
