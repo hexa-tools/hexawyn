@@ -16,6 +16,7 @@ from hexawyn.domain.errors import (
     ResourceNotFoundError,
     SchemaMigrationError,
     SemanticLayerError,
+    ServiceNotFoundError,
     TracesUnavailableError,
 )
 
@@ -68,6 +69,23 @@ class TestAllExceptions:
     def test_can_be_caught_as_hexawyn_error(self, exc_cls):
         with pytest.raises(HexawynError):
             raise exc_cls("catch me")
+
+
+class TestServiceNotFoundError:
+    def test_inherits_from_hexawyn_error(self) -> None:
+        assert issubclass(ServiceNotFoundError, HexawynError)
+
+    def test_stores_service_name(self) -> None:
+        err = ServiceNotFoundError(service_name="payment-service")
+        assert err.service_name == "payment-service"
+
+    def test_message_contains_service_name(self) -> None:
+        err = ServiceNotFoundError(service_name="payment-service")
+        assert "payment-service" in str(err)
+
+    def test_can_be_caught_as_hexawyn_error(self) -> None:
+        with pytest.raises(HexawynError):
+            raise ServiceNotFoundError(service_name="ghost-svc")
 
 
 class TestPipelineNotFoundError:

@@ -105,6 +105,14 @@ class PipelineNotFoundError(HexawynError):
         self.pipeline_name = pipeline_name
 
 
+class ServiceNotFoundError(HexawynError):
+    """Raised when no PipelineRuns are found for the requested service."""
+
+    def __init__(self, service_name: str) -> None:
+        super().__init__(f"No pipelines found for service '{service_name}'.")
+        self.service_name = service_name
+
+
 class SlackQuotaExceededError(HexawynError):
     """
     Raised when the monthly Slack alert limit is reached.
