@@ -200,6 +200,20 @@ class TestMCPListNamespacesTool:
         tool_names = [tool.name for tool in tools]
         assert "list_pods" in tool_names
 
+    def test_list_task_runs_tool_is_registered(self) -> None:
+        from hexawyn.mcp.server import mcp
+
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = [tool.name for tool in tools]
+        assert "list_task_runs" in tool_names
+
+    def test_build_tekton_adapter_returns_vanilla_adapter(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+        from hexawyn.mcp.server import build_tekton_adapter
+
+        result = build_tekton_adapter()
+        assert isinstance(result, VanillaAdapter)
+
 
 class TestMCPListPodsTool:
     def test_list_pods_returns_pods_for_namespace(self) -> None:
@@ -239,3 +253,58 @@ class TestMCPListPodsTool:
             result = list_pods(namespace="default")
             assert result["error"] == "k8s down"
             assert result["pods"] == []
+
+
+class TestMCPListTaskRunsTool:
+    def test_list_task_runs_returns_task_runs_list(self) -> None:
+        from unittest.mock import MagicMock
+
+        from hexawyn.application.ports.driven.tekton_port import TaskRunInfo, TektonPort
+
+        fake_run: TaskRunInfo = {
+            "name": "build-deploy-clone-repo-abc",
+            "task_ref": "clone-repo",
+            "status": "Succeeded",
+            "start_time": "2024-01-01T10:00:00Z",
+            "duration": "12s",
+            "failing_step": None,
+            "failing_step_error": None,
+        }
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_task_runs.return_value = [fake_run]
+
+        with patch(
+            "hexawyn.mcp.server.build_tekton_adapter",
+            return_value=mock_adapter,
+        ):
+            from hexawyn.mcp.tools.list_task_runs import list_task_runs
+
+            result = list_task_runs(pipeline_name="build-deploy", namespace="ci")
+            assert isinstance(result["task_runs"], list)
+            assert len(result["task_runs"]) == 1
+            assert result["error"] is None
+
+    def test_list_task_runs_returns_error_when_pipeline_not_found(self) -> None:
+        from hexawyn.domain.errors import PipelineNotFoundError
+
+        with patch(
+            "hexawyn.mcp.server.build_tekton_adapter",
+            side_effect=PipelineNotFoundError(pipeline_name="ghost"),
+        ):
+            from hexawyn.mcp.tools.list_task_runs import list_task_runs
+
+            result = list_task_runs(pipeline_name="ghost", namespace="ci")
+            assert result["task_runs"] == []
+            assert result["error"] is not None
+            assert "ghost" in str(result["error"])
+
+    def test_list_task_runs_returns_error_on_cluster_failure(self) -> None:
+        with patch(
+            "hexawyn.mcp.server.build_tekton_adapter",
+            side_effect=Exception("tekton API down"),
+        ):
+            from hexawyn.mcp.tools.list_task_runs import list_task_runs
+
+            result = list_task_runs(pipeline_name="build-deploy", namespace="ci")
+            assert result["task_runs"] == []
+            assert result["error"] == "tekton API down"
