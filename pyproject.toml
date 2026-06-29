@@ -34,6 +34,7 @@ google-auth = { version = "^2.35", optional = true }
 openshift = { version = "^0.13", optional = true }
 datadog-api-client = { version = "^2.28", optional = true }
 openai = "^2.43.0"
+python-dotenv = "^1.2.2"
 
 [tool.poetry.extras]
 aws = ["boto3", "botocore"]

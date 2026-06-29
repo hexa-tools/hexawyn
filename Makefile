@@ -152,6 +152,20 @@ stop:
 	@echo "✅ All services stopped"
 
 # ─────────────────────────────────────
+#  Slack
+# ─────────────────────────────────────
+
+.PHONY: slack-listen slack-listen-http
+
+slack-listen:
+	@echo "🔌 Starting Slack Socket Mode listener (no public URL needed)..."
+	$(POETRY) run hexa slack listen
+
+slack-listen-http:
+	@echo "🔌 Starting Slack HTTP Events API listener (requires public URL)..."
+	$(POETRY) run hexa slack listen --http
+
+# ─────────────────────────────────────
 #  Guard
 # ─────────────────────────────────────
 
@@ -242,6 +256,10 @@ help:
 	@echo "  make run-demo-gcp          → Start CLI in GCP GKE demo"
 	@echo "  make run-demo-openshift    → Start CLI in OpenShift demo"
 	@echo "  make run-demo-datadog      → Start CLI in Datadog demo"
+	@echo ""
+	@echo "💬 SLACK"
+	@echo "  make slack-listen           → Start Slack Socket Mode listener (local, no VPS)"
+	@echo "  make slack-listen-http      → Start Slack HTTP Events API listener (needs public URL)"
 	@echo ""
 	@echo "🧹 MAINTENANCE"
 	@echo "  make clean                 → Remove build artifacts and caches"

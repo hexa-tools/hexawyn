@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock
 
 import pytest
 from hexawyn.adapters.primary.slack.slack_chat_adapter import SlackChatAdapter
@@ -18,16 +18,14 @@ class TestSlackChatIntegration:
 
     @pytest.mark.integration
     def test_quota_exceeded_returns_upgrade_message(self) -> None:
-        adapter = SlackChatAdapter()
-        with patch(
-            "hexawyn.adapters.primary.slack.slack_chat_adapter.run_investigation",
-            side_effect=QuotaExceededError(used=50, limit=50),
-        ):
-            result = adapter.handle_message(
-                query="why is payments-api crashing?",
-                cluster_name="prod-eu",
-                channel_id="C123456",
-            )
+        use_case = MagicMock()
+        use_case.execute.side_effect = QuotaExceededError(used=50, limit=50)
+        adapter = SlackChatAdapter(use_case=use_case)
+        result = adapter.handle_message(
+            query="why is payments-api crashing?",
+            cluster_name="prod-eu",
+            channel_id="C123456",
+        )
         assert "hexawyn.com/pro" in result
         assert "50/50" in result
         assert isinstance(result, str)

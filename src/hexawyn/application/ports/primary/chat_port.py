@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 
 
-class SlackChatPort(ABC):
+class ChatPort(ABC):
     """
-    Primary port for Slack Chat — receives questions from Slack users.
+    Primary port for Chat — receives investigation questions from users (Slack, Teams, etc.).
     Inbound port (like CLI) — feeds the LangGraph investigation pipeline.
 
     Free tier: shares investigation quota with CLI (50/month total).
-    Pro tier: unlimited investigations, enriched Slack blocks response.
+    Pro tier: unlimited investigations, enriched response format.
     """
 
     @abstractmethod
@@ -19,8 +19,8 @@ class SlackChatPort(ABC):
         thread_ts: str | None = None,
     ) -> str:
         """
-        Handle incoming Slack message and run investigation pipeline.
-        Returns formatted response to post back in Slack.
+        Handle incoming chat message and run investigation pipeline.
+        Returns formatted response to post back in the channel.
         Never raises — all errors returned as strings.
         """
 
@@ -33,7 +33,7 @@ class SlackChatPort(ABC):
         is_pro: bool,
     ) -> str:
         """
-        Format investigation result for Slack.
+        Format investigation result for the chat platform.
         Free tier: basic markdown text.
         Pro tier: enriched format with suggestion chips.
         """

@@ -3,6 +3,7 @@ from typing import Any
 from hexawyn.adapters.secondary.runtime_client import RuntimeClient
 from hexawyn.application.ports.driven.runtime_port import (
     InvestigationOutput,
+    QuotaCheckResult,
     RuntimePort,
     StartupScanResult,
 )
@@ -49,6 +50,28 @@ class HttpRuntimeAdapter(RuntimePort):
                 suggestions=[],
                 error=str(exc),
             )
+
+    def check_quota(self) -> QuotaCheckResult:
+        try:
+            raw = self._client.check_quota()
+            allowed_val = raw.get("allowed", True)
+            used_val = raw.get("used", 0)
+            limit_val = raw.get("limit", -1)
+            remaining_val = raw.get("remaining", -1)
+            return QuotaCheckResult(
+                allowed=bool(allowed_val),
+                used=int(str(used_val)) if used_val is not None else 0,
+                limit=int(str(limit_val)) if limit_val is not None else -1,
+                remaining=int(str(remaining_val)) if remaining_val is not None else -1,
+            )
+        except Exception:
+            return QuotaCheckResult(allowed=True, used=0, limit=-1, remaining=-1)
+
+    def increment_quota(self) -> None:
+        try:
+            self._client.increment_quota()
+        except Exception:
+            pass
 
     def run_startup_scan(self, cluster_name: str) -> StartupScanResult:
         return StartupScanResult(

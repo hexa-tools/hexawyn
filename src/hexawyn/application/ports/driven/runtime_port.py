@@ -29,6 +29,13 @@ class InvestigationOutput(TypedDict):
     error: str | None
 
 
+class QuotaCheckResult(TypedDict):
+    allowed: bool
+    used: int
+    limit: int
+    remaining: int
+
+
 # ── Port ────────────────────────────────────────────────────
 
 
@@ -43,3 +50,9 @@ class RuntimePort(ABC):
 
     @abstractmethod
     def run_startup_scan(self, cluster_name: str) -> StartupScanResult: ...
+
+    @abstractmethod
+    def check_quota(self) -> QuotaCheckResult: ...
+
+    @abstractmethod
+    def increment_quota(self) -> None: ...

@@ -14,6 +14,16 @@ class RuntimeClient:
     def close(self) -> None:
         self._client.close()
 
+    def check_quota(self) -> dict[str, object]:
+        response = self._client.get(f"{self._endpoint}/api/v1/quota")
+        response.raise_for_status()
+        data: dict[str, object] = response.json()
+        return data
+
+    def increment_quota(self) -> None:
+        response = self._client.post(f"{self._endpoint}/api/v1/quota/increment")
+        response.raise_for_status()
+
     def post_investigation(
         self,
         query: str,

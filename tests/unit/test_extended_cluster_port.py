@@ -1,17 +1,17 @@
 import pytest
 
 
-class TestOpenshiftPortABC:
-    def test_openshift_port_is_abstract(self) -> None:
-        from hexawyn.application.ports.driven.openshift_port import OpenshiftPort
+class TestExtendedClusterPort:
+    def test_extended_cluster_port_is_abstract(self) -> None:
+        from hexawyn.application.ports.driven.extended_cluster_port import ExtendedClusterPort
 
         with pytest.raises(TypeError):
-            OpenshiftPort()  # type: ignore[abstract]
+            ExtendedClusterPort()  # type: ignore[abstract]
 
     def test_concrete_implementation_works(self) -> None:
-        from hexawyn.application.ports.driven.openshift_port import OpenshiftPort
+        from hexawyn.application.ports.driven.extended_cluster_port import ExtendedClusterPort
 
-        class FakeOpenshift(OpenshiftPort):
+        class FakeExtendedCluster(ExtendedClusterPort):
             def list_projects(self) -> list[dict[str, str]]:
                 return [{"name": "prod"}]
 
@@ -21,6 +21,6 @@ class TestOpenshiftPortABC:
             def list_pipeline_runs(self) -> list[dict[str, str]]:
                 return [{"name": "build", "status": "Succeeded"}]
 
-        adapter = FakeOpenshift()
+        adapter = FakeExtendedCluster()
         assert len(adapter.list_projects()) == 1
         assert adapter.list_routes()[0]["tls"] is True

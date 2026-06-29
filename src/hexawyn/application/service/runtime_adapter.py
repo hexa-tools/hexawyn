@@ -2,6 +2,7 @@ from typing import Any
 
 from hexawyn.application.ports.driven.runtime_port import (
     InvestigationOutput,
+    QuotaCheckResult,
     RuntimePort,
     StartupScanResult,
 )
@@ -33,6 +34,12 @@ class StubRuntimeAdapter(RuntimePort):
             provider_badge="[offline]",
             top_issues=["Runtime unavailable — startup scan requires hexawyn-control-plane"],
         )
+
+    def check_quota(self) -> QuotaCheckResult:
+        return QuotaCheckResult(allowed=True, used=0, limit=-1, remaining=-1)
+
+    def increment_quota(self) -> None:
+        pass
 
 
 _runtime_instance: RuntimePort | None = None

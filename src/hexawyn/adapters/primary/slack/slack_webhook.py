@@ -48,8 +48,23 @@ def _get_active_cluster_name() -> str:
         from hexawyn.infrastructure.config.kubeconfig_reader import get_active_context
 
         ctx = get_active_context()
-        if ctx is None:
-            return "unknown"
-        return str(ctx.get("name", "unknown"))
+        if ctx is not None and ctx.get("name"):
+            return str(ctx.get("name"))
     except Exception:
-        return "unknown"
+        pass
+
+    try:
+        import subprocess
+
+        result = subprocess.run(
+            ["kubectl", "config", "current-context"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
+    except Exception:
+        pass
+
+    return "unknown"

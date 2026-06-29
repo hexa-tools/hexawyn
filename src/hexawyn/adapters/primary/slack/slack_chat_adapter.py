@@ -1,26 +1,21 @@
-from hexawyn.application.ports.primary.slack_chat_port import SlackChatPort
+from hexawyn.application.ports.primary.chat_port import ChatPort
+from hexawyn.application.service.chat_slack_service import ChatSlackService
+from hexawyn.application.use_case.chat_slack.chat_slack_command import ChatSlackCommand
+from hexawyn.application.use_case.chat_slack.chat_slack_use_case import ChatSlackUseCase
 from hexawyn.domain.errors import QuotaExceededError
-from hexawyn.infrastructure.config.license_manager import is_pro
-from hexawyn.infrastructure.config.quota_manager import get_quota_display
 
 
-def run_investigation(query: str, cluster_name: str) -> str:
-    """
-    Stub: runs LangGraph investigation pipeline.
-    TODO (ECA-next): wire to build_investigation_graph().
-    """
-    raise NotImplementedError("ECA-next: wire to LangGraph")
-
-
-class SlackChatAdapter(SlackChatPort):
+class SlackChatAdapter(ChatPort):
     """
     Primary adapter for Slack Chat.
-    Receives Slack messages, feeds them into LangGraph,
-    posts response back in Slack thread.
+    Receives Slack messages, delegates to ChatSlackUseCase, posts response back.
 
-    Quota: shares investigation pool with CLI (50/month Free).
     Never raises — all errors returned as Slack messages.
+    Quota is enforced by ChatSlackService (raises QuotaExceededError).
     """
+
+    def __init__(self, use_case: ChatSlackUseCase | None = None) -> None:
+        self._use_case: ChatSlackUseCase = use_case or ChatSlackService()
 
     def handle_message(
         self,
@@ -30,14 +25,19 @@ class SlackChatAdapter(SlackChatPort):
         thread_ts: str | None = None,
     ) -> str:
         try:
-            answer = run_investigation(query=query, cluster_name=cluster_name)
-            quota = get_quota_display()
-            pro = is_pro()
+            response = self._use_case.execute(
+                ChatSlackCommand(
+                    query=query,
+                    cluster_name=cluster_name,
+                    channel_id=channel_id,
+                    thread_ts=thread_ts,
+                )
+            )
             return self.format_response(
-                answer=answer,
-                quota_display=quota,
-                suggestions=[],
-                is_pro=pro,
+                answer=response.message,
+                quota_display=response.quota_display,
+                suggestions=response.suggestions,
+                is_pro=response.is_pro,
             )
         except QuotaExceededError as exc:
             return (
