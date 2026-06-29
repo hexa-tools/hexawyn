@@ -783,3 +783,279 @@ class TestVanillaAdapterTektonPort:
             result = adapter._crd_api_client()
 
         assert result is mock_crd
+
+
+def _make_pipeline_run(
+    name: str,
+    succeeded: str,
+    reason: str,
+    start_time: str | None = None,
+    completion_time: str | None = None,
+    annotations: dict[str, str] | None = None,
+    labels: dict[str, str] | None = None,
+) -> dict[str, object]:
+    conditions: list[dict[str, object]] = [
+        {"type": "Succeeded", "status": succeeded, "reason": reason, "message": ""}
+    ]
+    status: dict[str, object] = {"conditions": conditions}
+    if start_time:
+        status["startTime"] = start_time
+    if completion_time:
+        status["completionTime"] = completion_time
+    metadata: dict[str, object] = {"name": name}
+    if annotations:
+        metadata["annotations"] = annotations
+    if labels:
+        metadata["labels"] = labels
+    return {"metadata": metadata, "status": status}
+
+
+class TestVanillaAdapterListPipelineRuns:
+    def test_returns_succeeded_run(self) -> None:
+        item = _make_pipeline_run(
+            name="payment-service-run-abc",
+            succeeded="True",
+            reason="Succeeded",
+            start_time="2024-01-15T10:00:00Z",
+            completion_time="2024-01-15T10:04:30Z",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert len(result) == 1
+        assert result[0]["name"] == "payment-service-run-abc"
+        assert result[0]["status"] == "Succeeded"
+        assert result[0]["start_time"] == "2024-01-15T10:00:00Z"
+        assert result[0]["duration"] == "4m30s"
+        assert result[0]["duration_seconds"] == 270
+
+    def test_returns_failed_run(self) -> None:
+        item = _make_pipeline_run(
+            name="payment-service-run-xyz",
+            succeeded="False",
+            reason="Failed",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["status"] == "Failed"
+
+    def test_returns_cancelled_run(self) -> None:
+        item = _make_pipeline_run(
+            name="payment-service-run-cancel",
+            succeeded="False",
+            reason="PipelineRunCancelled",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["status"] == "Cancelled"
+
+    def test_returns_running_run(self) -> None:
+        item = _make_pipeline_run(
+            name="payment-service-run-running",
+            succeeded="Unknown",
+            reason="Running",
+            start_time="2024-01-15T10:00:00Z",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["status"] == "Running"
+        assert result[0]["duration"] is None
+        assert result[0]["duration_seconds"] is None
+
+    def test_triggered_by_from_pac_annotation(self) -> None:
+        item = _make_pipeline_run(
+            name="payment-service-run-abc",
+            succeeded="True",
+            reason="Succeeded",
+            annotations={"pipelinesascode.tekton.dev/sender": "john.doe"},
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["triggered_by"] == "john.doe"
+
+    def test_triggered_by_falls_back_to_event_listener_label(self) -> None:
+        item = _make_pipeline_run(
+            name="payment-service-run-abc",
+            succeeded="True",
+            reason="Succeeded",
+            labels={"triggers.tekton.dev/eventlistener": "github-push"},
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["triggered_by"] == "github-push"
+
+    def test_triggered_by_is_none_when_no_metadata(self) -> None:
+        item = _make_pipeline_run(
+            name="payment-service-run-abc",
+            succeeded="True",
+            reason="Succeeded",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["triggered_by"] is None
+
+    def test_raises_service_not_found_when_empty(self) -> None:
+        from hexawyn.domain.errors import ServiceNotFoundError
+
+        crd_api = _CRDApi([])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        with pytest.raises(ServiceNotFoundError) as exc_info:
+            adapter.list_pipeline_runs("ghost-service", "ci")
+
+        assert exc_info.value.service_name == "ghost-service"
+
+    def test_raises_cluster_unreachable_on_api_error(self) -> None:
+        crd_api = MagicMock()
+        crd_api.list_namespaced_custom_object.side_effect = Exception("connection refused")
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        with pytest.raises(ClusterUnreachableError):
+            adapter.list_pipeline_runs("payment-service", "ci")
+
+    def test_filters_by_pipeline_label(self) -> None:
+        item = _make_pipeline_run(
+            name="payment-service-run-abc",
+            succeeded="True",
+            reason="Succeeded",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert "tekton.dev/pipeline=payment-service" in crd_api.last_label_selector
+
+    def test_duration_exact_minutes(self) -> None:
+        item = _make_pipeline_run(
+            name="payment-service-run-abc",
+            succeeded="True",
+            reason="Succeeded",
+            start_time="2024-01-15T10:00:00Z",
+            completion_time="2024-01-15T10:03:00Z",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["duration"] == "3m"
+        assert result[0]["duration_seconds"] == 180
+
+    def test_duration_under_sixty_seconds(self) -> None:
+        item = _make_pipeline_run(
+            name="payment-service-run-fast",
+            succeeded="True",
+            reason="Succeeded",
+            start_time="2024-01-15T10:00:00Z",
+            completion_time="2024-01-15T10:00:45Z",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["duration"] == "45s"
+        assert result[0]["duration_seconds"] == 45
+
+    def test_invalid_timestamps_yield_none_duration(self) -> None:
+        item: dict[str, object] = {
+            "metadata": {"name": "payment-run-bad"},
+            "status": {
+                "conditions": [
+                    {"type": "Succeeded", "status": "True", "reason": "Succeeded", "message": ""}
+                ],
+                "startTime": "not-a-date",
+                "completionTime": "also-invalid",
+            },
+        }
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["duration"] is None
+        assert result[0]["duration_seconds"] is None
+
+    def test_status_none_returns_not_started(self) -> None:
+        item: dict[str, object] = {
+            "metadata": {"name": "payment-run-no-status"},
+        }
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["status"] == "NotStarted"
+
+    def test_empty_conditions_returns_not_started(self) -> None:
+        item: dict[str, object] = {
+            "metadata": {"name": "payment-run-pending"},
+            "status": {"conditions": []},
+        }
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["status"] == "NotStarted"
+
+    def test_non_mapping_condition_returns_not_started(self) -> None:
+        item: dict[str, object] = {
+            "metadata": {"name": "payment-run-bad-cond"},
+            "status": {"conditions": ["not-a-dict"]},
+        }
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["status"] == "NotStarted"
+
+    def test_unknown_status_non_running_reason_returns_not_started(self) -> None:
+        item = _make_pipeline_run(
+            name="payment-run-pending",
+            succeeded="Unknown",
+            reason="PipelineRunPending",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["status"] == "NotStarted"
+
+    def test_triggered_by_falls_back_to_label_when_annotation_empty(self) -> None:
+        item = _make_pipeline_run(
+            name="payment-run-abc",
+            succeeded="True",
+            reason="Succeeded",
+            annotations={"pipelinesascode.tekton.dev/sender": ""},
+            labels={"triggers.tekton.dev/eventlistener": "github-push"},
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs("payment-service", "ci")
+
+        assert result[0]["triggered_by"] == "github-push"

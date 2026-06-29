@@ -308,3 +308,96 @@ class TestMCPListTaskRunsTool:
             result = list_task_runs(pipeline_name="build-deploy", namespace="ci")
             assert result["task_runs"] == []
             assert result["error"] == "tekton API down"
+
+
+class TestMCPListPipelineRunsTool:
+    def test_list_pipeline_runs_tool_is_registered(self) -> None:
+        from hexawyn.mcp.server import mcp
+
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = [tool.name for tool in tools]
+        assert "list_pipeline_runs" in tool_names
+
+    def test_list_pipeline_runs_returns_runs_and_stats(self) -> None:
+        from unittest.mock import MagicMock
+
+        from hexawyn.application.ports.driven.tekton_port import PipelineRunInfo, TektonPort
+
+        fake_run: PipelineRunInfo = {
+            "name": "payment-service-run-abc",
+            "status": "Succeeded",
+            "start_time": "2024-01-15T10:00:00Z",
+            "duration": "4m30s",
+            "duration_seconds": 270,
+            "triggered_by": "github-push",
+        }
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_pipeline_runs.return_value = [fake_run]
+
+        with patch("hexawyn.mcp.server.build_tekton_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.list_pipeline_runs import list_pipeline_runs
+
+            result = list_pipeline_runs(service_name="payment-service", namespace="ci")
+            assert isinstance(result["runs"], list)
+            assert len(result["runs"]) == 1
+            assert isinstance(result["stats"], dict)
+            assert result["error"] is None
+
+    def test_list_pipeline_runs_returns_error_when_service_not_found(self) -> None:
+        from hexawyn.domain.errors import ServiceNotFoundError
+
+        with patch(
+            "hexawyn.mcp.server.build_tekton_adapter",
+            side_effect=ServiceNotFoundError(service_name="ghost"),
+        ):
+            from hexawyn.mcp.tools.list_pipeline_runs import list_pipeline_runs
+
+            result = list_pipeline_runs(service_name="ghost", namespace="ci")
+            assert result["runs"] == []
+            assert result["error"] is not None
+            assert "ghost" in str(result["error"])
+
+    def test_list_pipeline_runs_returns_error_on_cluster_failure(self) -> None:
+        with patch(
+            "hexawyn.mcp.server.build_tekton_adapter",
+            side_effect=Exception("tekton API down"),
+        ):
+            from hexawyn.mcp.tools.list_pipeline_runs import list_pipeline_runs
+
+            result = list_pipeline_runs(service_name="payment-service", namespace="ci")
+            assert result["runs"] == []
+            assert result["error"] == "tekton API down"
+
+    def test_list_pipeline_runs_includes_outliers_and_note(self) -> None:
+        from unittest.mock import MagicMock
+
+        from hexawyn.application.ports.driven.tekton_port import PipelineRunInfo, TektonPort
+
+        normal = [
+            {
+                "name": f"run-{i}",
+                "status": "Succeeded",
+                "start_time": f"2024-01-{15 - i:02d}T10:00:00Z",
+                "duration": "5m",
+                "duration_seconds": 300,
+                "triggered_by": None,
+            }
+            for i in range(2)
+        ]
+        outlier: PipelineRunInfo = {
+            "name": "run-outlier",
+            "status": "Succeeded",
+            "start_time": "2024-01-10T10:00:00Z",
+            "duration": "22m",
+            "duration_seconds": 1320,
+            "triggered_by": None,
+        }
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_pipeline_runs.return_value = normal + [outlier]
+
+        with patch("hexawyn.mcp.server.build_tekton_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.list_pipeline_runs import list_pipeline_runs
+
+            result = list_pipeline_runs(service_name="payment-service", namespace="ci", limit=10)
+            assert "run-outlier" in result["outliers"]
+            assert result["note"] is not None

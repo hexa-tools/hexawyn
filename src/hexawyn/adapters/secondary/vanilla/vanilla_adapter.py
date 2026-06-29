@@ -13,8 +13,12 @@ from hexawyn.application.ports.driven.k8s_port import (
     NamespaceInfo,
     PodInfo,
 )
-from hexawyn.application.ports.driven.tekton_port import TaskRunInfo, TektonPort
-from hexawyn.domain.errors import ClusterUnreachableError, PipelineNotFoundError
+from hexawyn.application.ports.driven.tekton_port import PipelineRunInfo, TaskRunInfo, TektonPort
+from hexawyn.domain.errors import (
+    ClusterUnreachableError,
+    PipelineNotFoundError,
+    ServiceNotFoundError,
+)
 from hexawyn.infrastructure.config.kubeconfig_reader import load_kubeconfig
 
 _HEALTHY_POD_STATUSES = {"Running", "Succeeded"}
@@ -23,6 +27,7 @@ _POD_CACHE_TTL_SECONDS = 5.0
 _TEKTON_GROUP = "tekton.dev"
 _TEKTON_VERSION = "v1"
 _TEKTON_TASKRUNS_PLURAL = "taskruns"
+_TEKTON_PIPELINERUNS_PLURAL = "pipelineruns"
 
 
 class KubernetesCoreApi(Protocol):
@@ -136,6 +141,104 @@ class VanillaAdapter(K8sPort, ClusterHealthPort, TektonPort):
         if not items:
             raise PipelineNotFoundError(pipeline_name=pipeline_name)
         return [self._to_task_run_info(item) for item in items]
+
+    def list_pipeline_runs(self, service_name: str, namespace: str) -> list[PipelineRunInfo]:
+        raw = self._fetch_pipeline_runs(service_name, namespace)
+        items = self._crd_items(raw)
+        if not items:
+            raise ServiceNotFoundError(service_name=service_name)
+        return [self._to_pipeline_run_info(item) for item in items]
+
+    def _fetch_pipeline_runs(self, service_name: str, namespace: str) -> object:
+        try:
+            return self._crd_api_client().list_namespaced_custom_object(
+                group=_TEKTON_GROUP,
+                version=_TEKTON_VERSION,
+                namespace=namespace,
+                plural=_TEKTON_PIPELINERUNS_PLURAL,
+                label_selector=f"tekton.dev/pipeline={service_name}",
+            )
+        except Exception as exc:
+            raise ClusterUnreachableError(f"Cannot reach Tekton API: {exc}") from exc
+
+    def _to_pipeline_run_info(self, item: Mapping[str, object]) -> PipelineRunInfo:
+        metadata = self._crd_mapping(item.get("metadata"))
+        status = self._crd_mapping(item.get("status"))
+
+        run_status = self._pipeline_run_status(status)
+        start_time = self._crd_optional_str(status, "startTime")
+        completion_time = self._crd_optional_str(status, "completionTime")
+        duration_seconds = self._pipeline_run_duration_seconds(start_time, completion_time)
+
+        return {
+            "name": self._crd_str(metadata, "name", "unknown"),
+            "status": run_status,
+            "start_time": start_time,
+            "duration": self._seconds_to_human(duration_seconds),
+            "duration_seconds": duration_seconds,
+            "triggered_by": self._extract_triggered_by(metadata),
+        }
+
+    def _pipeline_run_status(self, status: Mapping[str, object] | None) -> str:
+        if status is None:
+            return "NotStarted"
+        conditions = status.get("conditions")
+        if not isinstance(conditions, list) or not conditions:
+            return "NotStarted"
+        first = conditions[0]
+        if not isinstance(first, Mapping):
+            return "NotStarted"
+        condition: Mapping[str, object] = first
+        succeeded = self._crd_str(condition, "status", "Unknown")
+        reason = self._crd_str(condition, "reason", "")
+        if succeeded == "True":
+            return "Succeeded"
+        if succeeded == "False":
+            if reason in ("Cancelled", "PipelineRunCancelled"):
+                return "Cancelled"
+            return "Failed"
+        if succeeded == "Unknown" and reason == "Running":
+            return "Running"
+        return "NotStarted"
+
+    def _pipeline_run_duration_seconds(
+        self,
+        start_time: str | None,
+        completion_time: str | None,
+    ) -> int | None:
+        if start_time is None or completion_time is None:
+            return None
+        from datetime import datetime
+
+        try:
+            fmt = "%Y-%m-%dT%H:%M:%SZ"
+            delta = datetime.strptime(completion_time, fmt) - datetime.strptime(start_time, fmt)
+            return max(0, int(delta.total_seconds()))
+        except ValueError:
+            return None
+
+    def _seconds_to_human(self, seconds: int | None) -> str | None:
+        if seconds is None:
+            return None
+        if seconds >= 60:
+            minutes, remaining = divmod(seconds, 60)
+            return f"{minutes}m{remaining}s" if remaining else f"{minutes}m"
+        return f"{seconds}s"
+
+    def _extract_triggered_by(self, metadata: Mapping[str, object] | None) -> str | None:
+        if metadata is None:
+            return None
+        annotations = self._crd_mapping(metadata.get("annotations"))
+        if annotations is not None:
+            sender = self._crd_optional_str(annotations, "pipelinesascode.tekton.dev/sender")
+            if sender:
+                return sender
+        labels = self._crd_mapping(metadata.get("labels"))
+        if labels is not None:
+            listener = self._crd_optional_str(labels, "triggers.tekton.dev/eventlistener")
+            if listener:
+                return listener
+        return None
 
     def _fetch_task_runs(self, pipeline_name: str, namespace: str) -> object:
         try:
