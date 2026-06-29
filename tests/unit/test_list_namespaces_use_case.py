@@ -8,7 +8,9 @@ from hexawyn.application.ports.driving.list_namespaces.list_namespaces_command i
 from hexawyn.application.ports.driving.list_namespaces.list_namespaces_response import (
     ListNamespacesResponse,
 )
-from hexawyn.application.service.list_namespaces_service import ListNamespacesService
+from hexawyn.application.ports.driving.list_namespaces.list_namespaces_service_port import (
+    ListNamespacesServicePort,
+)
 from hexawyn.application.use_case.list_namespaces.list_namespaces_use_case import (
     ListNamespacesUseCase,
 )
@@ -41,41 +43,35 @@ class TestListNamespacesResponse:
         assert resp.namespaces[0]["name"] == "default"
 
 
-class TestListNamespacesUseCase:
+class TestListNamespacesServicePort:
     def test_is_abstract(self) -> None:
         from abc import ABC
 
-        assert issubclass(ListNamespacesUseCase, ABC)
+        assert issubclass(ListNamespacesServicePort, ABC)
 
     def test_cannot_instantiate_directly(self) -> None:
         with pytest.raises(TypeError):
-            ListNamespacesUseCase()  # type: ignore[abstract]
-
-    def test_execute_is_abstract(self) -> None:
-        assert getattr(ListNamespacesUseCase.execute, "__isabstractmethod__", False)
+            ListNamespacesServicePort()  # type: ignore[abstract]
 
 
-class TestListNamespacesService:
-    def test_implements_use_case(self) -> None:
-        service = ListNamespacesService(k8s_port=MagicMock())
-        assert isinstance(service, ListNamespacesUseCase)
-
-    def test_delegates_to_port(self) -> None:
-        k8s = MagicMock()
+class TestListNamespacesUseCase:
+    def test_delegates_to_service_port(self) -> None:
+        fake_service = MagicMock(spec=ListNamespacesServicePort)
         ns = NamespaceInfo(name="default", status="Active", age="30d")
-        k8s.list_namespaces.return_value = [ns]
+        expected = ListNamespacesResponse(namespaces=[ns])
+        fake_service.list_namespaces.return_value = expected
 
-        service = ListNamespacesService(k8s_port=k8s)
-        result = service.execute(ListNamespacesCommand())
+        use_case = ListNamespacesUseCase(service=fake_service)
+        result = use_case.execute(ListNamespacesCommand())
 
-        k8s.list_namespaces.assert_called_once()
         assert result.namespaces == [ns]
+        fake_service.list_namespaces.assert_called_once()
 
     def test_returns_empty_when_no_namespaces(self) -> None:
-        k8s = MagicMock()
-        k8s.list_namespaces.return_value = []
+        fake_service = MagicMock(spec=ListNamespacesServicePort)
+        fake_service.list_namespaces.return_value = ListNamespacesResponse()
 
-        service = ListNamespacesService(k8s_port=k8s)
-        result = service.execute(ListNamespacesCommand())
+        use_case = ListNamespacesUseCase(service=fake_service)
+        result = use_case.execute(ListNamespacesCommand())
 
         assert result.namespaces == []

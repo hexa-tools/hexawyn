@@ -7,6 +7,8 @@ class PodInfo(TypedDict):
     namespace: str
     status: str
     restarts: int
+    age: str
+    node: str
 
 
 class NamespaceInfo(TypedDict):

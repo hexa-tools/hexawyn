@@ -34,18 +34,24 @@ _AUGMENTED_PODS: list[PodInfo] = [
         "status": "Running",
         "restarts": 0,
         "namespace": "production",
+        "age": "120d",
+        "node": "node-prod-1",
     },
     {
         "name": "worker-queue-5c8d1e-np4x",
         "status": "Running",
         "restarts": 2,
         "namespace": "production",
+        "age": "45d",
+        "node": "node-prod-2",
     },
     {
         "name": "cache-redis-3a7f9b-hq2w",
         "status": "Running",
         "restarts": 1,
         "namespace": "production",
+        "age": "3h",
+        "node": "node-prod-1",
     },
 ]
 
@@ -75,6 +81,8 @@ class DemoAdapter(
                 "namespace": str(p.get("namespace", "")),
                 "status": str(p["status"]),
                 "restarts": int(p.get("restarts", 0)),
+                "age": str(p.get("age", "unknown")),
+                "node": str(p.get("node", "unknown")),
             }
             for p in scenario_pods
         ]

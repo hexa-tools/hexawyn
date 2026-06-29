@@ -128,6 +128,9 @@ class VanillaAdapter(K8sPort, ClusterHealthPort):
         minutes = delta.seconds // 60
         return f"{minutes}m"
 
+    def _pod_age(self, metadata: object) -> str:
+        return self._namespace_age(metadata)
+
     def _provider_name(self) -> str:
         if self._cluster_name.startswith("kind-"):
             return "kind"
@@ -163,12 +166,15 @@ class VanillaAdapter(K8sPort, ClusterHealthPort):
 
     def _to_pod_info(self, pod: object) -> PodInfo:
         metadata = getattr(pod, "metadata", None)
+        spec = getattr(pod, "spec", None)
         status = getattr(pod, "status", None)
         return {
             "name": self._text_attr(metadata, "name", "unknown"),
             "namespace": self._text_attr(metadata, "namespace", "default"),
             "status": self._pod_status(status),
             "restarts": self._restart_count(status),
+            "age": self._pod_age(metadata),
+            "node": self._text_attr(spec, "node_name", "unknown"),
         }
 
     def _pod_status(self, status: object) -> str:

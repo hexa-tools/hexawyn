@@ -5,17 +5,17 @@ from hexawyn.application.ports.driving.list_namespaces.list_namespaces_command i
 from hexawyn.application.ports.driving.list_namespaces.list_namespaces_response import (
     ListNamespacesResponse,
 )
-from hexawyn.application.use_case.list_namespaces.list_namespaces_use_case import (
-    ListNamespacesUseCase,
+from hexawyn.application.ports.driving.list_namespaces.list_namespaces_service_port import (
+    ListNamespacesServicePort,
 )
 
 
-class ListNamespacesService(ListNamespacesUseCase):
-    """Concrete implementation — delegates to K8sPort."""
+class ListNamespacesService(ListNamespacesServicePort):
+    """Lists all namespaces and their age from the K8s API."""
 
     def __init__(self, k8s_port: K8sPort) -> None:
         self._k8s = k8s_port
 
-    def execute(self, command: ListNamespacesCommand) -> ListNamespacesResponse:
+    def list_namespaces(self, command: ListNamespacesCommand) -> ListNamespacesResponse:
         namespaces = self._k8s.list_namespaces()
         return ListNamespacesResponse(namespaces=namespaces)

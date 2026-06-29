@@ -16,18 +16,16 @@ if TYPE_CHECKING:
 
 
 def list_namespaces() -> dict[str, object]:
-    """List all Kubernetes namespaces with a quick age overview.
-
-    Returns a dict with:
-    - namespaces: list of {name, status, age}
-    - error: error message if cluster is unreachable (None otherwise)
-    """
-    from hexawyn.application.service.list_namespaces_service import ListNamespacesService
+    """List all Kubernetes namespaces with a quick age overview."""
+    from hexawyn.application.service.list_namespaces_service import (
+        ListNamespacesService,
+    )
     from hexawyn.mcp.server import build_k8s_adapter
 
     try:
         adapter = build_k8s_adapter()
-        use_case: ListNamespacesUseCase = ListNamespacesService(k8s_port=adapter)
+        service = ListNamespacesService(k8s_port=adapter)
+        use_case = ListNamespacesUseCase(service=service)
         response = use_case.execute(ListNamespacesCommand())
         return {"namespaces": list(response.namespaces), "error": None}
     except Exception as exc:
