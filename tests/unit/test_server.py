@@ -192,3 +192,50 @@ class TestMCPListNamespacesTool:
             result = list_namespaces()
             assert result["error"] is not None
             assert result["namespaces"] == []
+
+    def test_list_pods_tool_is_registered(self) -> None:
+        from hexawyn.mcp.server import mcp
+
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = [tool.name for tool in tools]
+        assert "list_pods" in tool_names
+
+
+class TestMCPListPodsTool:
+    def test_list_pods_returns_pods_for_namespace(self) -> None:
+        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+
+        with patch(
+            "hexawyn.mcp.server.build_k8s_adapter",
+            return_value=DemoAdapter(scenario="aws_eks"),
+        ):
+            from hexawyn.mcp.tools.list_pods import list_pods
+
+            result = list_pods(namespace="production")
+            assert isinstance(result, dict)
+            assert "pods" in result
+            assert isinstance(result["pods"], list)
+            assert len(result["pods"]) > 0
+
+    def test_list_pods_empty_namespace(self) -> None:
+        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+
+        with patch(
+            "hexawyn.mcp.server.build_k8s_adapter",
+            return_value=DemoAdapter(scenario="aws_eks"),
+        ):
+            from hexawyn.mcp.tools.list_pods import list_pods
+
+            result = list_pods(namespace="nonexistent")
+            assert result["pods"] == []
+
+    def test_list_pods_handles_error(self) -> None:
+        with patch(
+            "hexawyn.mcp.server.build_k8s_adapter",
+            side_effect=Exception("k8s down"),
+        ):
+            from hexawyn.mcp.tools.list_pods import list_pods
+
+            result = list_pods(namespace="default")
+            assert result["error"] == "k8s down"
+            assert result["pods"] == []

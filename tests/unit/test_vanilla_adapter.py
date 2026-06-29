@@ -24,6 +24,14 @@ class _PodMetadata:
     def __init__(self, name: str, namespace: str) -> None:
         self.name = name
         self.namespace = namespace
+        from datetime import UTC, datetime, timedelta
+
+        self.creation_timestamp = datetime.now(UTC) - timedelta(days=3)
+
+
+class _PodSpec:
+    def __init__(self, node_name: str = "node-1") -> None:
+        self.node_name = node_name
 
 
 class _PodStatus:
@@ -44,8 +52,10 @@ class _Pod:
         phase: str,
         restarts: int,
         waiting_reason: str | None = None,
+        node_name: str = "node-1",
     ) -> None:
         self.metadata = _PodMetadata(name, namespace)
+        self.spec = _PodSpec(node_name)
         self.status = _PodStatus(phase, [_ContainerStatus(restarts, waiting_reason)])
 
 
@@ -153,8 +163,8 @@ class TestVanillaAdapter:
     def test_list_pods_returns_real_kubernetes_pods(self) -> None:
         api = _CoreApi(
             [
-                _Pod("api-7f8d9c", "default", "Running", 1),
-                _Pod("worker-64d8b", "jobs", "Pending", 0),
+                _Pod("api-7f8d9c", "default", "Running", 1, node_name="node-a"),
+                _Pod("worker-64d8b", "jobs", "Pending", 0, node_name="node-b"),
             ]
         )
         adapter = VanillaAdapter("test-cluster", api=api)
@@ -168,12 +178,16 @@ class TestVanillaAdapter:
                 "namespace": "default",
                 "status": "Running",
                 "restarts": 1,
+                "age": "3d",
+                "node": "node-a",
             },
             {
                 "name": "worker-64d8b",
                 "namespace": "jobs",
                 "status": "Pending",
                 "restarts": 0,
+                "age": "3d",
+                "node": "node-b",
             },
         ]
 
