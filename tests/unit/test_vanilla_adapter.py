@@ -1,7 +1,10 @@
 from unittest.mock import MagicMock, patch
 
+import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.ports.driven.k8s_port import K8sPort
+from hexawyn.application.ports.driven.tekton_port import TektonPort
+from hexawyn.domain.errors import ClusterUnreachableError, PipelineNotFoundError
 
 
 class _ContainerStateWaiting:
@@ -433,3 +436,350 @@ class TestVanillaAdapterListNamespaces:
         namespaces = adapter.list_namespaces()
 
         assert namespaces == []
+
+
+class _CRDApi:
+    """Fake KubernetesCRDApi that returns pre-built TaskRun dicts."""
+
+    def __init__(self, items: list[dict[str, object]]) -> None:
+        self._items = items
+        self.last_label_selector: str = ""
+
+    def list_namespaced_custom_object(
+        self,
+        group: str,
+        version: str,
+        namespace: str,
+        plural: str,
+        label_selector: str = "",
+    ) -> dict[str, object]:
+        self.last_label_selector = label_selector
+        return {"items": self._items}
+
+
+def _make_task_run(
+    name: str,
+    task_ref: str,
+    succeeded: str,
+    reason: str,
+    start_time: str | None = None,
+    completion_time: str | None = None,
+    steps: list[dict[str, object]] | None = None,
+) -> dict[str, object]:
+    conditions: list[dict[str, object]] = [
+        {"type": "Succeeded", "status": succeeded, "reason": reason, "message": ""}
+    ]
+    status: dict[str, object] = {"conditions": conditions}
+    if start_time:
+        status["startTime"] = start_time
+    if completion_time:
+        status["completionTime"] = completion_time
+    if steps:
+        status["steps"] = steps
+    return {
+        "metadata": {"name": name, "labels": {"tekton.dev/pipeline": "build-deploy"}},
+        "spec": {"taskRef": {"name": task_ref}},
+        "status": status,
+    }
+
+
+class TestVanillaAdapterTektonPort:
+    def test_implements_tekton_port(self) -> None:
+        adapter = VanillaAdapter("test-cluster")
+        assert isinstance(adapter, TektonPort)
+
+    def test_list_task_runs_returns_succeeded_run(self) -> None:
+        item = _make_task_run(
+            name="build-deploy-clone-repo-abc",
+            task_ref="clone-repo",
+            succeeded="True",
+            reason="Succeeded",
+            start_time="2024-01-01T10:00:00Z",
+            completion_time="2024-01-01T10:00:12Z",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_task_runs("build-deploy", "ci")
+
+        assert len(result) == 1
+        assert result[0]["name"] == "build-deploy-clone-repo-abc"
+        assert result[0]["task_ref"] == "clone-repo"
+        assert result[0]["status"] == "Succeeded"
+        assert result[0]["start_time"] == "2024-01-01T10:00:00Z"
+        assert result[0]["duration"] == "12s"
+        assert result[0]["failing_step"] is None
+
+    def test_list_task_runs_failed_exposes_step_and_error(self) -> None:
+        steps: list[dict[str, object]] = [
+            {
+                "name": "run-tests",
+                "terminated": {"exitCode": 1, "reason": "Error", "message": "exit code 1"},
+            }
+        ]
+        item = _make_task_run(
+            name="build-deploy-unit-tests-xyz",
+            task_ref="unit-tests",
+            succeeded="False",
+            reason="Failed",
+            start_time="2024-01-01T10:00:15Z",
+            completion_time="2024-01-01T10:00:45Z",
+            steps=steps,
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_task_runs("build-deploy", "ci")
+
+        assert result[0]["status"] == "Failed"
+        assert result[0]["failing_step"] == "run-tests"
+        assert result[0]["failing_step_error"] == "exit code 1"
+
+    def test_list_task_runs_timeout_step_shown_as_timeout(self) -> None:
+        steps: list[dict[str, object]] = [
+            {
+                "name": "run-tests",
+                "terminated": {"exitCode": 1, "reason": "DeadlineExceeded", "message": ""},
+            }
+        ]
+        item = _make_task_run(
+            name="build-deploy-unit-tests-timeout",
+            task_ref="unit-tests",
+            succeeded="False",
+            reason="Failed",
+            start_time="2024-01-01T10:00:00Z",
+            steps=steps,
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_task_runs("build-deploy", "ci")
+
+        assert result[0]["failing_step_error"] == "Timeout"
+
+    def test_list_task_runs_running_has_no_duration(self) -> None:
+        item = _make_task_run(
+            name="build-deploy-lint-running",
+            task_ref="lint",
+            succeeded="Unknown",
+            reason="Running",
+            start_time="2024-01-01T10:01:00Z",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_task_runs("build-deploy", "ci")
+
+        assert result[0]["status"] == "Running"
+        assert result[0]["duration"] is None
+
+    def test_list_task_runs_raises_pipeline_not_found_when_empty(self) -> None:
+        crd_api = _CRDApi([])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        with pytest.raises(PipelineNotFoundError) as exc_info:
+            adapter.list_task_runs("ghost-pipeline", "ci")
+
+        assert exc_info.value.pipeline_name == "ghost-pipeline"
+
+    def test_list_task_runs_raises_cluster_unreachable_on_api_error(self) -> None:
+        crd_api = MagicMock()
+        crd_api.list_namespaced_custom_object.side_effect = Exception("connection refused")
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        with pytest.raises(ClusterUnreachableError):
+            adapter.list_task_runs("build-deploy", "ci")
+
+    def test_list_task_runs_filters_by_pipeline_label(self) -> None:
+        item = _make_task_run(
+            name="build-deploy-clone-repo",
+            task_ref="clone-repo",
+            succeeded="True",
+            reason="Succeeded",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        adapter.list_task_runs("build-deploy", "ci")
+
+        assert "tekton.dev/pipeline=build-deploy" in crd_api.last_label_selector
+
+    def test_list_task_runs_duration_minutes(self) -> None:
+        item = _make_task_run(
+            name="build-deploy-build-image",
+            task_ref="build-image",
+            succeeded="True",
+            reason="Succeeded",
+            start_time="2024-01-01T10:00:00Z",
+            completion_time="2024-01-01T10:02:30Z",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_task_runs("build-deploy", "ci")
+
+        assert result[0]["duration"] == "2m30s"
+
+    def test_list_task_runs_duration_exact_minutes(self) -> None:
+        item = _make_task_run(
+            name="build-deploy-build-image",
+            task_ref="build-image",
+            succeeded="True",
+            reason="Succeeded",
+            start_time="2024-01-01T10:00:00Z",
+            completion_time="2024-01-01T10:02:00Z",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_task_runs("build-deploy", "ci")
+
+        assert result[0]["duration"] == "2m"
+
+    def test_list_task_runs_duration_invalid_timestamps_returns_unknown(self) -> None:
+        item: dict[str, object] = {
+            "metadata": {"name": "run-abc", "labels": {}},
+            "spec": {"taskRef": {"name": "build"}},
+            "status": {
+                "conditions": [
+                    {"type": "Succeeded", "status": "True", "reason": "Succeeded", "message": ""}
+                ],
+                "startTime": "not-a-date",
+                "completionTime": "also-not-a-date",
+            },
+        }
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_task_runs("build-deploy", "ci")
+
+        assert result[0]["duration"] == "unknown"
+
+    def test_list_task_runs_status_level_timeout_returns_timeout(self) -> None:
+        item = _make_task_run(
+            name="build-deploy-run-tests-timeout",
+            task_ref="run-tests",
+            succeeded="False",
+            reason="DeadlineExceeded",
+            start_time="2024-01-01T10:00:00Z",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_task_runs("build-deploy", "ci")
+
+        assert result[0]["status"] == "Timeout"
+
+    def test_list_task_runs_missing_spec_yields_unknown_task_ref(self) -> None:
+        item: dict[str, object] = {
+            "metadata": {"name": "run-abc", "labels": {}},
+            "status": {
+                "conditions": [
+                    {"type": "Succeeded", "status": "True", "reason": "Succeeded", "message": ""}
+                ],
+            },
+        }
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_task_runs("build-deploy", "ci")
+
+        assert result[0]["task_ref"] == "unknown"
+
+    def test_list_task_runs_spec_without_task_ref_yields_unknown(self) -> None:
+        item: dict[str, object] = {
+            "metadata": {"name": "run-abc", "labels": {}},
+            "spec": {},
+            "status": {
+                "conditions": [
+                    {"type": "Succeeded", "status": "True", "reason": "Succeeded", "message": ""}
+                ],
+            },
+        }
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_task_runs("build-deploy", "ci")
+
+        assert result[0]["task_ref"] == "unknown"
+
+    def test_list_task_runs_failed_steps_not_list_returns_no_failing_step(self) -> None:
+        item: dict[str, object] = {
+            "metadata": {"name": "run-abc", "labels": {}},
+            "spec": {"taskRef": {"name": "build"}},
+            "status": {
+                "conditions": [
+                    {"type": "Succeeded", "status": "False", "reason": "Failed", "message": ""}
+                ],
+                "steps": "not-a-list",
+            },
+        }
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_task_runs("build-deploy", "ci")
+
+        assert result[0]["failing_step"] is None
+
+    def test_list_task_runs_step_without_terminated_is_skipped(self) -> None:
+        steps: list[dict[str, object]] = [
+            {"name": "setup", "running": {}},
+            {
+                "name": "run-tests",
+                "terminated": {"exitCode": 1, "reason": "Error", "message": "fail"},
+            },
+        ]
+        item = _make_task_run(
+            name="run-abc",
+            task_ref="run-tests",
+            succeeded="False",
+            reason="Failed",
+            steps=steps,
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_task_runs("build-deploy", "ci")
+
+        assert result[0]["failing_step"] == "run-tests"
+
+    def test_list_task_runs_step_error_without_message_uses_exit_code(self) -> None:
+        steps: list[dict[str, object]] = [
+            {"name": "run-tests", "terminated": {"exitCode": 2, "reason": "Error", "message": ""}},
+        ]
+        item = _make_task_run(
+            name="run-abc",
+            task_ref="run-tests",
+            succeeded="False",
+            reason="Failed",
+            steps=steps,
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_task_runs("build-deploy", "ci")
+
+        assert result[0]["failing_step_error"] == "exit code 2"
+
+    def test_list_task_runs_invalid_crd_response_raises_pipeline_not_found(self) -> None:
+        crd_api = MagicMock()
+        crd_api.list_namespaced_custom_object.return_value = "not-a-dict"
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        with pytest.raises(PipelineNotFoundError):
+            adapter.list_task_runs("build-deploy", "ci")
+
+    def test_crd_api_client_creates_custom_objects_api_when_not_injected(self) -> None:
+        from unittest.mock import patch as _patch
+
+        from kubernetes import client as k8s_client
+
+        mock_crd = MagicMock()
+        adapter = VanillaAdapter("test-cluster")
+        with (
+            _patch.object(adapter, "_api_client"),
+            _patch.object(k8s_client, "CustomObjectsApi", return_value=mock_crd),
+        ):
+            result = adapter._crd_api_client()
+
+        assert result is mock_crd

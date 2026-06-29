@@ -95,6 +95,16 @@ class QuotaExceededError(HexawynError):
         self.limit = limit
 
 
+class PipelineNotFoundError(HexawynError):
+    """Raised when the requested pipeline has no TaskRuns in the given namespace."""
+
+    def __init__(self, pipeline_name: str) -> None:
+        super().__init__(
+            f"Pipeline '{pipeline_name}' not found or has no TaskRuns in the requested namespace."
+        )
+        self.pipeline_name = pipeline_name
+
+
 class SlackQuotaExceededError(HexawynError):
     """
     Raised when the monthly Slack alert limit is reached.

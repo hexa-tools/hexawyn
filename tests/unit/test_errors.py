@@ -12,6 +12,7 @@ from hexawyn.domain.errors import (
     InvestigationError,
     MetricsUnavailableError,
     MutationGuardTriggeredError,
+    PipelineNotFoundError,
     ResourceNotFoundError,
     SchemaMigrationError,
     SemanticLayerError,
@@ -67,6 +68,23 @@ class TestAllExceptions:
     def test_can_be_caught_as_hexawyn_error(self, exc_cls):
         with pytest.raises(HexawynError):
             raise exc_cls("catch me")
+
+
+class TestPipelineNotFoundError:
+    def test_inherits_from_hexawyn_error(self) -> None:
+        assert issubclass(PipelineNotFoundError, HexawynError)
+
+    def test_stores_pipeline_name(self) -> None:
+        err = PipelineNotFoundError(pipeline_name="build-deploy")
+        assert err.pipeline_name == "build-deploy"
+
+    def test_message_contains_pipeline_name(self) -> None:
+        err = PipelineNotFoundError(pipeline_name="build-deploy")
+        assert "build-deploy" in str(err)
+
+    def test_can_be_caught_as_hexawyn_error(self) -> None:
+        with pytest.raises(HexawynError):
+            raise PipelineNotFoundError(pipeline_name="ghost")
 
 
 class TestContextPropagation:
