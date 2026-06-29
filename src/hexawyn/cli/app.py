@@ -19,6 +19,20 @@ def _format_size(size_bytes: int) -> str:
     return f"{size_bytes / 1_073_741_824:.1f} GB"
 
 
+def _sync_tools_to_control_plane() -> None:
+    """Discover MCP tools and sync to the control-plane at startup."""
+    try:
+        from hexawyn.adapters.secondary.mcp.mcp_discovery_adapter import MCPDiscoveryAdapter
+        from hexawyn.application.service.runtime_adapter import get_runtime
+
+        discovery = MCPDiscoveryAdapter()
+        registry = discovery.discover()
+        runtime = get_runtime()
+        runtime.sync_tools(registry.to_payload())
+    except Exception:
+        pass
+
+
 _PROVIDERS: dict[str, dict[str, str]] = {
     "1": {
         "name": "DeepSeek",
@@ -105,6 +119,8 @@ class HexawynApp:
             db_size = get_db_size_bytes(DB_PATH)
             if db_size > _DB_SIZE_WARNING_THRESHOLD:
                 extra_chip = f"DB: {_format_size(db_size)} — run 'hexa db purge' to clean old data"
+
+        _sync_tools_to_control_plane()
 
         tui = HexawynTUI(
             adapter=adapter,

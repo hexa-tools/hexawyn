@@ -9,6 +9,12 @@ class PodInfo(TypedDict):
     restarts: int
 
 
+class NamespaceInfo(TypedDict):
+    name: str
+    status: str
+    age: str
+
+
 class ClusterMetrics(TypedDict):
     cpu_usage_pct: float
     memory_usage_pct: float
@@ -35,6 +41,10 @@ class K8sPort(ABC):
     @abstractmethod
     def list_pods(self, namespace: str | None = None) -> list[PodInfo]:
         """List all pods, optionally filtered by namespace."""
+
+    @abstractmethod
+    def list_namespaces(self) -> list[NamespaceInfo]:
+        """List all namespaces with a quick health overview."""
 
     @abstractmethod
     def get_cluster_metrics(self) -> ClusterMetrics:

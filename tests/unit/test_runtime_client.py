@@ -135,3 +135,41 @@ class TestRuntimeClient:
                 assert "connection refused" in str(exc)
             else:
                 assert False, "Expected ConnectError"
+
+
+class TestRuntimeClientPostTools:
+    def test_post_tools_sends_payload(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.post.return_value = _mock_response(200, {})
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+            client.post_tools(
+                [{"name": "health", "description": "Health check", "input_schema": {}}]
+            )
+
+        mock_client.post.assert_called_once()
+        request_body = mock_client.post.call_args[1]["json"]
+        assert request_body["tools"] == [
+            {"name": "health", "description": "Health check", "input_schema": {}}
+        ]
+
+    def test_post_tools_empty_list(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.post.return_value = _mock_response(200, {})
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+            client.post_tools([])
+
+        mock_client.post.assert_called_once()
+
+    def test_post_tools_http_error_propagates(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.post.side_effect = httpx.ConnectError("refused")
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+
+            with __import__("pytest").raises(httpx.ConnectError):
+                client.post_tools([])

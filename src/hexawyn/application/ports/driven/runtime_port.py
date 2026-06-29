@@ -56,3 +56,6 @@ class RuntimePort(ABC):
 
     @abstractmethod
     def increment_quota(self) -> None: ...
+
+    @abstractmethod
+    def sync_tools(self, tools_payload: list[dict[str, object]]) -> None: ...

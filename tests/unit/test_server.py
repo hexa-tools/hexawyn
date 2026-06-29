@@ -141,3 +141,54 @@ class TestMCPServerInit:
         tools = asyncio.run(mcp.list_tools())
         tool_names = [tool.name for tool in tools]
         assert "health" in tool_names
+
+    def test_list_namespaces_tool_is_registered(self) -> None:
+        from hexawyn.mcp.server import mcp
+
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = [tool.name for tool in tools]
+        assert "list_namespaces" in tool_names
+
+
+class TestMCPListNamespacesTool:
+    def test_list_namespaces_returns_dict_with_namespaces_key(self) -> None:
+        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+
+        with patch(
+            "hexawyn.mcp.server.build_k8s_adapter",
+            return_value=DemoAdapter(scenario="aws_eks"),
+        ):
+            from hexawyn.mcp.tools.list_namespaces import list_namespaces
+
+            result = list_namespaces()
+            assert isinstance(result, dict)
+            assert "namespaces" in result
+            assert isinstance(result["namespaces"], list)
+
+    def test_list_namespaces_items_have_expected_fields(self) -> None:
+        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+
+        with patch(
+            "hexawyn.mcp.server.build_k8s_adapter",
+            return_value=DemoAdapter(scenario="aws_eks"),
+        ):
+            from hexawyn.mcp.tools.list_namespaces import list_namespaces
+
+            result = list_namespaces()
+            for ns in result["namespaces"]:
+                assert "name" in ns
+                assert "status" in ns
+                assert "age" in ns
+
+    def test_list_namespaces_handles_no_cluster(self) -> None:
+        from hexawyn.domain.errors import ClusterUnreachableError
+
+        with patch(
+            "hexawyn.mcp.server.build_k8s_adapter",
+            side_effect=ClusterUnreachableError("no kubeconfig"),
+        ):
+            from hexawyn.mcp.tools.list_namespaces import list_namespaces
+
+            result = list_namespaces()
+            assert result["error"] is not None
+            assert result["namespaces"] == []

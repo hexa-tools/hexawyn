@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import os
+from typing import TYPE_CHECKING
 
 from fastmcp import FastMCP
 
@@ -11,6 +14,9 @@ from hexawyn.infrastructure.config.kubeconfig_reader import (
     validate_connection,
 )
 from hexawyn.infrastructure.memory.duckdb_client import get_connection
+
+if TYPE_CHECKING:
+    from hexawyn.application.ports.driven.k8s_port import K8sPort
 
 # Initialize FastMCP server
 mcp = FastMCP(
@@ -34,6 +40,32 @@ except ClusterUnreachableError as e:
         "error": str(e),
     }
     print("[hexawyn] \u26a0\ufe0f  No kubeconfig found — starting in degraded mode")
+
+
+def build_k8s_adapter() -> K8sPort:
+    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+
+    context = context_name if context_name != "unknown" else None
+    return VanillaAdapter(cluster_name=context or "default")
+
+
+def register_tools(server: FastMCP) -> None:
+    """Auto-discover and register all MCP tools from mcp/tools/ modules."""
+    import importlib
+    from pathlib import Path
+
+    tools_dir = Path(__file__).parent / "tools"
+    for module_path in sorted(tools_dir.glob("*.py")):
+        module_name = module_path.stem
+        if module_name.startswith("_"):
+            continue
+        try:
+            mod = importlib.import_module(f"hexawyn.mcp.tools.{module_name}")
+            register_fn = getattr(mod, "register", None)
+            if callable(register_fn):
+                register_fn(server)
+        except Exception:
+            pass
 
 
 @mcp.tool()
@@ -65,6 +97,10 @@ def health() -> dict[str, str]:
         "cache_l1_ttl": str(cache_stats["l1_ttl_seconds"]),
         "slack": "configured" if slack_configured else "not_configured",
     }
+
+
+# ── Register all tools ──────────────────────────────────────
+register_tools(mcp)
 
 
 if __name__ == "__main__":

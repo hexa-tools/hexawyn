@@ -83,12 +83,43 @@ class _NodeList:
         self.items = items
 
 
+class _NamespaceMetadata:
+    def __init__(self, name: str) -> None:
+        self.name = name
+        from datetime import UTC, datetime, timedelta
+
+        self.creation_timestamp = datetime.now(UTC) - timedelta(days=30)
+
+
+class _NamespaceStatus:
+    def __init__(self, phase: str) -> None:
+        self.phase = phase
+
+
+class _Namespace:
+    def __init__(self, name: str, phase: str = "Active") -> None:
+        self.metadata = _NamespaceMetadata(name)
+        self.status = _NamespaceStatus(phase)
+
+
+class _NamespaceList:
+    def __init__(self, items: list[_Namespace]) -> None:
+        self.items = items
+
+
 class _CoreApi:
-    def __init__(self, pods: list[_Pod], nodes: list[_Node] | None = None) -> None:
+    def __init__(
+        self,
+        pods: list[_Pod],
+        nodes: list[_Node] | None = None,
+        namespaces: list[_Namespace] | None = None,
+    ) -> None:
         self.pods = pods
         self.nodes = nodes or []
+        self.namespaces = namespaces or []
         self.requested_namespace: str | None = None
         self.all_namespace_pod_calls = 0
+        self.list_namespace_calls = 0
 
     def list_pod_for_all_namespaces(self, timeout_seconds: int) -> _PodList:
         self.all_namespace_pod_calls += 1
@@ -100,6 +131,10 @@ class _CoreApi:
 
     def list_node(self, timeout_seconds: int) -> _NodeList:
         return _NodeList(self.nodes)
+
+    def list_namespace(self, timeout_seconds: int) -> _NamespaceList:
+        self.list_namespace_calls += 1
+        return _NamespaceList(self.namespaces)
 
 
 class _MetricsApi:
@@ -336,3 +371,51 @@ class TestVanillaAdapterConfigIsolation:
             adapter.list_pods()
 
         mock_load_kubeconfig.assert_called_once_with(context=None)
+
+
+class TestVanillaAdapterListNamespaces:
+    def test_list_namespaces_returns_namespace_info_list(self) -> None:
+        api = _CoreApi(
+            pods=[],
+            namespaces=[
+                _Namespace("default", "Active"),
+                _Namespace("kube-system", "Active"),
+                _Namespace("production", "Active"),
+            ],
+        )
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        namespaces = adapter.list_namespaces()
+
+        assert len(namespaces) == 3
+        for ns in namespaces:
+            assert ns["name"] in ("default", "kube-system", "production")
+            assert ns["status"] == "Active"
+            assert "d" in ns["age"]
+
+    def test_list_namespaces_uses_k8s_api(self) -> None:
+        api = _CoreApi(pods=[], namespaces=[])
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        adapter.list_namespaces()
+
+        assert api.list_namespace_calls == 1
+
+    def test_list_namespaces_terminating_status(self) -> None:
+        api = _CoreApi(
+            pods=[],
+            namespaces=[_Namespace("old-ns", "Terminating")],
+        )
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        namespaces = adapter.list_namespaces()
+
+        assert namespaces[0]["status"] == "Terminating"
+
+    def test_list_namespaces_empty_cluster(self) -> None:
+        api = _CoreApi(pods=[], namespaces=[])
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        namespaces = adapter.list_namespaces()
+
+        assert namespaces == []
