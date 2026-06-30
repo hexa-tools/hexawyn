@@ -17,6 +17,9 @@ from hexawyn.infrastructure.memory.duckdb_client import get_connection
 
 if TYPE_CHECKING:
     from hexawyn.application.ports.driven.cost_forecast_port import CostForecastPort
+    from hexawyn.application.ports.driven.cost_saving_estimation_port import (
+        CostSavingEstimationPort,
+    )
     from hexawyn.application.ports.driven.k8s_port import K8sPort
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
@@ -90,6 +93,14 @@ def build_zombie_detection_adapter() -> ZombieDetectionPort:
 
     context = context_name if context_name != "unknown" else None
     return VanillaAdapter(cluster_name=context or "default")
+
+
+def build_cost_saving_adapter() -> CostSavingEstimationPort:
+    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+
+    context = context_name if context_name != "unknown" else None
+    prometheus_url = os.environ.get("PROMETHEUS_URL", "")
+    return VanillaAdapter(cluster_name=context or "default", prometheus_url=prometheus_url)
 
 
 def register_tools(server: FastMCP) -> None:
