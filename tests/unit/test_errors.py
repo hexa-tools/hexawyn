@@ -17,6 +17,7 @@ from hexawyn.domain.errors import (
     SchemaMigrationError,
     SemanticLayerError,
     ServiceNotFoundError,
+    TektonNotInstalledError,
     TracesUnavailableError,
 )
 
@@ -69,6 +70,19 @@ class TestAllExceptions:
     def test_can_be_caught_as_hexawyn_error(self, exc_cls):
         with pytest.raises(HexawynError):
             raise exc_cls("catch me")
+
+
+class TestTektonNotInstalledError:
+    def test_inherits_from_hexawyn_error(self) -> None:
+        assert issubclass(TektonNotInstalledError, HexawynError)
+
+    def test_message_mentions_tekton(self) -> None:
+        err = TektonNotInstalledError()
+        assert "Tekton" in str(err)
+
+    def test_can_be_caught_as_hexawyn_error(self) -> None:
+        with pytest.raises(HexawynError):
+            raise TektonNotInstalledError()
 
 
 class TestServiceNotFoundError:
