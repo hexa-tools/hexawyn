@@ -1,6 +1,11 @@
 # Use Case 11 — List Pipeline Runs
 
-**Question:** "Show me the last 10 pipeline runs for the payment-service — what is the success rate and average duration?"
+## Sample Questions
+
+- "Show me the last 10 pipeline runs for the payment-service — what is the success rate?"
+- "How often does the checkout pipeline fail?"
+- "What's the average build time for the auth-service?"
+- "Are there any abnormally slow runs in the payment pipeline recently?"
 
 ---
 

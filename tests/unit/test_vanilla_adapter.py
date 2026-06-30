@@ -1194,3 +1194,379 @@ class TestVanillaAdapterListPipelineRunsInNamespace:
         adapter.list_pipeline_runs_in_namespace("tekton", limit=100)
 
         assert crd_api.last_label_selector == ""
+
+
+# ── Helpers for NamespaceWasteAnalysisPort tests ─────────────────
+
+
+def _fake_pod(
+    namespace: str,
+    cpu_request: str | None = "500m",
+    mem_request: str | None = "1Gi",
+) -> MagicMock:
+    pod = MagicMock()
+    pod.metadata.namespace = namespace
+    requests: dict[str, str] = {}
+    if cpu_request:
+        requests["cpu"] = cpu_request
+    if mem_request:
+        requests["memory"] = mem_request
+    container = MagicMock()
+    container.resources.requests = requests if requests else None
+    pod.spec.containers = [container]
+    return pod
+
+
+def _fake_namespace_obj(name: str, age_hours: float = 48.0) -> MagicMock:
+    from datetime import UTC, datetime, timedelta
+
+    ns = MagicMock()
+    ns.metadata.name = name
+    ns.metadata.creation_timestamp = datetime.now(UTC) - timedelta(hours=age_hours)
+    return ns
+
+
+def _fake_core_api(
+    pods: list[MagicMock] | None = None,
+    namespaces: list[MagicMock] | None = None,
+) -> MagicMock:
+    api = MagicMock()
+    pod_list = MagicMock()
+    pod_list.items = pods or []
+    api.list_pod_for_all_namespaces.return_value = pod_list
+    ns_list = MagicMock()
+    ns_list.items = namespaces or []
+    api.list_namespace.return_value = ns_list
+    return api
+
+
+class TestVanillaAdapterNamespaceWastePort:
+    def test_implements_namespace_waste_analysis_port(self) -> None:
+        from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+
+        adapter = VanillaAdapter("test-cluster")
+        assert isinstance(adapter, NamespaceWasteAnalysisPort)
+
+    def test_returns_raw_data_for_each_namespace(self) -> None:
+        pods = [_fake_pod("dev"), _fake_pod("prod")]
+        ns_objs = [_fake_namespace_obj("dev"), _fake_namespace_obj("prod")]
+        api = _fake_core_api(pods=pods, namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        namespaces = {r["namespace"] for r in result}
+        assert "dev" in namespaces
+        assert "prod" in namespaces
+
+    def test_cpu_request_parsed_from_millicores(self) -> None:
+        pods = [_fake_pod("dev", cpu_request="500m", mem_request=None)]
+        ns_objs = [_fake_namespace_obj("dev")]
+        api = _fake_core_api(pods=pods, namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        dev = next(r for r in result if r["namespace"] == "dev")
+        assert dev["cpu_requested_cores"] == pytest.approx(0.5, abs=0.001)
+
+    def test_memory_request_parsed_from_gi(self) -> None:
+        pods = [_fake_pod("dev", cpu_request=None, mem_request="2Gi")]
+        ns_objs = [_fake_namespace_obj("dev")]
+        api = _fake_core_api(pods=pods, namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        dev = next(r for r in result if r["namespace"] == "dev")
+        assert dev["memory_requested_gb"] == pytest.approx(2.0, abs=0.001)
+
+    def test_namespace_age_hours_set(self) -> None:
+        pods = [_fake_pod("dev")]
+        ns_objs = [_fake_namespace_obj("dev", age_hours=12.0)]
+        api = _fake_core_api(pods=pods, namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        dev = next(r for r in result if r["namespace"] == "dev")
+        assert dev["age_hours"] == pytest.approx(12.0, abs=0.1)
+
+    def test_has_resource_requests_true_when_pods_have_requests(self) -> None:
+        pods = [_fake_pod("dev", cpu_request="100m")]
+        ns_objs = [_fake_namespace_obj("dev")]
+        api = _fake_core_api(pods=pods, namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        dev = next(r for r in result if r["namespace"] == "dev")
+        assert dev["has_resource_requests"] is True
+
+    def test_cpu_actual_none_when_no_prometheus_url(self) -> None:
+        pods = [_fake_pod("dev")]
+        ns_objs = [_fake_namespace_obj("dev")]
+        api = _fake_core_api(pods=pods, namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api, prometheus_url="")
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        dev = next(r for r in result if r["namespace"] == "dev")
+        assert dev["cpu_actual_avg_cores"] is None
+        assert dev["memory_actual_avg_gb"] is None
+
+    def test_prometheus_usage_returned_when_configured(self) -> None:
+        pods = [_fake_pod("dev")]
+        ns_objs = [_fake_namespace_obj("dev")]
+        api = _fake_core_api(pods=pods, namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api, prometheus_url="http://prometheus:9090")
+
+        prometheus_response = {
+            "status": "success",
+            "data": {
+                "resultType": "vector",
+                "result": [
+                    {"metric": {"namespace": "dev"}, "value": [1700000000, "0.45"]},
+                ],
+            },
+        }
+
+        with patch("httpx.get") as mock_get:
+            mock_resp = MagicMock()
+            mock_resp.json.return_value = prometheus_response
+            mock_resp.raise_for_status.return_value = None
+            mock_get.return_value = mock_resp
+            result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        dev = next(r for r in result if r["namespace"] == "dev")
+        assert dev["cpu_actual_avg_cores"] == pytest.approx(0.45, abs=0.001)
+
+    def test_raises_prometheus_unavailable_on_http_error(self) -> None:
+        import httpx
+        from hexawyn.domain.errors import PrometheusUnavailableError
+
+        pods = [_fake_pod("dev")]
+        ns_objs = [_fake_namespace_obj("dev")]
+        api = _fake_core_api(pods=pods, namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api, prometheus_url="http://prometheus:9090")
+
+        with patch("httpx.get", side_effect=httpx.HTTPError("unreachable")):
+            with pytest.raises(PrometheusUnavailableError):
+                adapter.get_all_namespace_waste_data(window_days=7)
+
+    def test_raises_cluster_unreachable_when_k8s_fails(self) -> None:
+        api = MagicMock()
+        api.list_namespace.side_effect = Exception("connection refused")
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        with pytest.raises(ClusterUnreachableError):
+            adapter.get_all_namespace_waste_data(window_days=7)
+
+    def test_aggregates_requests_across_multiple_pods_in_same_namespace(self) -> None:
+        pods = [
+            _fake_pod("dev", cpu_request="500m", mem_request=None),
+            _fake_pod("dev", cpu_request="250m", mem_request=None),
+        ]
+        ns_objs = [_fake_namespace_obj("dev")]
+        api = _fake_core_api(pods=pods, namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        dev = next(r for r in result if r["namespace"] == "dev")
+        assert dev["cpu_requested_cores"] == pytest.approx(0.75, abs=0.001)
+
+    def test_namespace_without_metadata_is_skipped(self) -> None:
+        ns_no_meta = MagicMock()
+        ns_no_meta.metadata = None
+        ns_with_meta = _fake_namespace_obj("dev")
+        api = _fake_core_api(pods=[], namespaces=[ns_no_meta, ns_with_meta])
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        namespaces = {r["namespace"] for r in result}
+        assert "dev" in namespaces
+
+    def test_pod_without_namespace_is_skipped(self) -> None:
+        pod = MagicMock()
+        pod.metadata = None
+        ns_obj = _fake_namespace_obj("dev")
+        api = _fake_core_api(pods=[pod], namespaces=[ns_obj])
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        dev = next((r for r in result if r["namespace"] == "dev"), None)
+        assert dev is not None
+        assert dev["cpu_requested_cores"] is None
+
+    def test_raises_cluster_unreachable_when_pod_list_fails(self) -> None:
+        api = MagicMock()
+        api.list_namespace.return_value = MagicMock(items=[_fake_namespace_obj("dev")])
+        api.list_pod_for_all_namespaces.side_effect = Exception("forbidden")
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        with pytest.raises(ClusterUnreachableError):
+            adapter.get_all_namespace_waste_data(window_days=7)
+
+    def test_raises_prometheus_unavailable_on_generic_exception(self) -> None:
+        from hexawyn.domain.errors import PrometheusUnavailableError
+
+        pods = [_fake_pod("dev")]
+        ns_objs = [_fake_namespace_obj("dev")]
+        api = _fake_core_api(pods=pods, namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api, prometheus_url="http://prometheus:9090")
+
+        with patch("httpx.get", side_effect=RuntimeError("unexpected error")):
+            with pytest.raises(PrometheusUnavailableError):
+                adapter.get_all_namespace_waste_data(window_days=7)
+
+    def test_cpu_request_parsed_as_whole_cores(self) -> None:
+        pods = [_fake_pod("dev", cpu_request="2", mem_request=None)]
+        ns_objs = [_fake_namespace_obj("dev")]
+        api = _fake_core_api(pods=pods, namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        dev = next(r for r in result if r["namespace"] == "dev")
+        assert dev["cpu_requested_cores"] == pytest.approx(2.0, abs=0.001)
+
+    def test_memory_request_parsed_from_mi(self) -> None:
+        pods = [_fake_pod("dev", cpu_request=None, mem_request="512Mi")]
+        ns_objs = [_fake_namespace_obj("dev")]
+        api = _fake_core_api(pods=pods, namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        dev = next(r for r in result if r["namespace"] == "dev")
+        assert dev["memory_requested_gb"] == pytest.approx(0.5, abs=0.001)
+
+    def test_memory_request_parsed_from_ki(self) -> None:
+        pods = [_fake_pod("dev", cpu_request=None, mem_request="1048576Ki")]
+        ns_objs = [_fake_namespace_obj("dev")]
+        api = _fake_core_api(pods=pods, namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        dev = next(r for r in result if r["namespace"] == "dev")
+        assert dev["memory_requested_gb"] == pytest.approx(1.0, abs=0.01)
+
+    def test_container_without_resources_contributes_no_request(self) -> None:
+        pod = MagicMock()
+        pod.metadata.namespace = "dev"
+        container = MagicMock()
+        container.resources = None
+        pod.spec.containers = [container]
+        ns_objs = [_fake_namespace_obj("dev")]
+        api = _fake_core_api(pods=[pod], namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        dev = next(r for r in result if r["namespace"] == "dev")
+        assert dev["cpu_requested_cores"] is None
+        assert dev["has_resource_requests"] is False
+
+    def test_pod_without_spec_contributes_no_containers(self) -> None:
+        pod = MagicMock()
+        pod.metadata.namespace = "dev"
+        pod.spec = None
+        ns_objs = [_fake_namespace_obj("dev")]
+        api = _fake_core_api(pods=[pod], namespaces=ns_objs)
+        adapter = VanillaAdapter("test-cluster", api=api)
+
+        result = adapter.get_all_namespace_waste_data(window_days=7)
+
+        dev = next(r for r in result if r["namespace"] == "dev")
+        assert dev["cpu_requested_cores"] is None
+
+
+class TestVanillaAdapterCoreApi:
+    def test_core_api_uses_injected_api(self) -> None:
+        fake_api = MagicMock()
+        adapter = VanillaAdapter("test-cluster", api=fake_api)
+        assert adapter._core_api() is fake_api
+
+    def test_core_api_loads_kubeconfig_when_no_injected_api(self) -> None:
+        fake_core = MagicMock()
+        adapter = VanillaAdapter("test-cluster")
+        with (
+            patch("hexawyn.adapters.secondary.vanilla.vanilla_adapter.load_kubeconfig"),
+            patch("hexawyn.adapters.secondary.vanilla.vanilla_adapter.client") as mock_client,
+        ):
+            mock_client.CoreV1Api.return_value = fake_core
+            result = adapter._core_api()
+        assert result is fake_core
+
+
+class TestContainerRequest:
+    def _call(self, container: object, resource: str) -> object:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _container_request
+
+        return _container_request(container, resource)
+
+    def test_unknown_resource_returns_none(self) -> None:
+        container = MagicMock()
+        container.resources.requests = {"disk": "10Gi"}
+        assert self._call(container, "disk") is None
+
+
+class TestParseMemory:
+    def _call(self, value: str) -> float:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _parse_memory
+
+        return _parse_memory(value)
+
+    def test_raw_bytes_no_suffix(self) -> None:
+        result = self._call("1073741824")
+        assert result == pytest.approx(1.0, abs=0.001)
+
+
+class TestParsePrometheusVector:
+    def _call(self, payload: object) -> dict[str, float]:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _parse_prometheus_vector
+
+        return _parse_prometheus_vector(payload)  # type: ignore[arg-type]
+
+    def test_valid_payload_returns_namespace_values(self) -> None:
+        payload = {
+            "data": {
+                "result": [
+                    {"metric": {"namespace": "dev"}, "value": [0, "0.5"]},
+                ]
+            }
+        }
+        assert self._call(payload) == {"dev": 0.5}
+
+    def test_non_dict_payload_returns_empty(self) -> None:
+        assert self._call("not a dict") == {}
+
+    def test_data_not_dict_returns_empty(self) -> None:
+        assert self._call({"data": "bad"}) == {}
+
+    def test_result_not_list_returns_empty(self) -> None:
+        assert self._call({"data": {"result": "bad"}}) == {}
+
+    def test_entry_not_dict_is_skipped(self) -> None:
+        payload = {"data": {"result": ["not-a-dict"]}}
+        assert self._call(payload) == {}
+
+    def test_metric_not_dict_is_skipped(self) -> None:
+        payload = {"data": {"result": [{"metric": "bad", "value": [0, "1.0"]}]}}
+        assert self._call(payload) == {}
+
+    def test_value_pair_not_list_is_skipped(self) -> None:
+        payload = {"data": {"result": [{"metric": {"namespace": "dev"}, "value": "bad"}]}}
+        assert self._call(payload) == {}
+
+    def test_namespace_not_string_is_skipped(self) -> None:
+        payload = {"data": {"result": [{"metric": {"namespace": 42}, "value": [0, "1.0"]}]}}
+        assert self._call(payload) == {}
+
+    def test_unparseable_value_is_skipped(self) -> None:
+        payload = {"data": {"result": [{"metric": {"namespace": "dev"}, "value": [0, "NaN-bad"]}]}}
+        assert self._call(payload) == {}

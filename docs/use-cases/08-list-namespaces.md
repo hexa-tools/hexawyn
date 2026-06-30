@@ -1,5 +1,14 @@
 # Use Case 5 — List All Namespaces with Age Overview
 
+## Sample Questions
+
+- "List all Kubernetes namespaces in the cluster"
+- "What namespaces exist and how old are they?"
+- "Which namespaces were created recently?"
+- "Show me the full namespace inventory for this cluster"
+
+---
+
 The user asks an AI agent (via MCP) to list all Kubernetes namespaces with their age. The flow goes through: MCP Tool → ListNamespacesUseCase (ABC) → ListNamespacesService → K8sPort (driven port) → VanillaAdapter/DemoAdapter → Kubernetes API. Tools are discovered at CLI startup and synced once to the control-plane (Valkey cache). The PlannerAgent reads tools from cache — not from the investigation payload.
 
 ### Flow 1 — Startup: Tool Discovery + Sync to Control-Plane

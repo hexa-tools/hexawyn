@@ -1,5 +1,14 @@
 # Use Case 12 — List PipelineRuns in Namespace
 
+## Sample Questions
+
+- "What's the current status of all pipelines in the tekton namespace?"
+- "Are there any stuck or failing pipelines in production?"
+- "Show me all failed PipelineRuns in the ci namespace"
+- "Which pipelines have been running for more than an hour?"
+
+---
+
 **Actor:** SRE / On-call engineer  
 **Goal:** Get an operational overview of all PipelineRuns in a given namespace, sorted by urgency (Failed first, then Running, then Succeeded), with stuck detection for Running pipelines that have been running for more than 1 hour.
 

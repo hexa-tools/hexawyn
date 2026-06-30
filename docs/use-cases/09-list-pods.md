@@ -1,5 +1,14 @@
 # Use Case 6 — List Pods in Namespace
 
+## Sample Questions
+
+- "List all pods in the production namespace"
+- "Are there any unhealthy pods in the payment-service namespace?"
+- "Which pods are in CrashLoopBackOff in staging?"
+- "Show me the pod health status for the ci namespace"
+
+---
+
 An AI agent asks to list all pods in a given namespace with health status. The flow goes through: MCP Tool → ListPodsUseCase (ABC) → ListPodsService → K8sPort (driven port) → VanillaAdapter/DemoAdapter → Kubernetes API. Pods are sorted unhealthy first (CrashLoop → Pending → Running), then alphabetically. Tools are auto-discovered at startup and synced to the control-plane.
 
 ### Flow 1 — Happy Path: List Pods in a Namespace
