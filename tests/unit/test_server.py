@@ -401,3 +401,110 @@ class TestMCPListPipelineRunsTool:
             result = list_pipeline_runs(service_name="payment-service", namespace="ci", limit=10)
             assert "run-outlier" in result["outliers"]
             assert result["note"] is not None
+
+
+class TestMCPListPipelineRunsInNamespaceTool:
+    def test_tool_is_registered(self) -> None:
+        from fastmcp import FastMCP
+        from hexawyn.mcp.tools.list_pipeline_runs_in_namespace import register
+
+        mcp = FastMCP("test-server")
+        register(mcp)
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = {t.name for t in tools}
+        assert "list_pipeline_runs_in_namespace" in tool_names
+
+    def test_returns_runs_and_stuck_list(self) -> None:
+        from datetime import UTC, datetime, timedelta
+
+        from hexawyn.application.ports.driven.tekton_port import (
+            NamespacedPipelineRunInfo,
+            TektonPort,
+        )
+
+        stuck_start = (datetime.now(UTC) - timedelta(hours=3)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        runs: list[NamespacedPipelineRunInfo] = [
+            {
+                "name": "deploy-stuck",
+                "status": "Running",
+                "start_time": stuck_start,
+                "duration": None,
+                "duration_seconds": None,
+                "pipeline_ref": "deploy-payment",
+            },
+            {
+                "name": "deploy-ok",
+                "status": "Succeeded",
+                "start_time": "2024-01-15T09:00:00Z",
+                "duration": "4m30s",
+                "duration_seconds": 270,
+                "pipeline_ref": "deploy-auth",
+            },
+        ]
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_pipeline_runs_in_namespace.return_value = runs
+
+        with patch("hexawyn.mcp.server.build_tekton_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.list_pipeline_runs_in_namespace import (
+                list_pipeline_runs_in_namespace,
+            )
+
+            result = list_pipeline_runs_in_namespace(namespace="tekton")
+
+        assert result["error"] is None
+        assert "deploy-stuck" in result["stuck_runs"]
+        assert any(r["name"] == "deploy-stuck" and r["is_stuck"] for r in result["runs"])  # type: ignore[index]
+
+    def test_empty_namespace_returns_note(self) -> None:
+        from hexawyn.application.ports.driven.tekton_port import TektonPort
+
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_pipeline_runs_in_namespace.return_value = []
+
+        with patch("hexawyn.mcp.server.build_tekton_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.list_pipeline_runs_in_namespace import (
+                list_pipeline_runs_in_namespace,
+            )
+
+            result = list_pipeline_runs_in_namespace(namespace="tekton")
+
+        assert result["runs"] == []
+        assert result["note"] is not None
+        assert result["error"] is None
+
+    def test_rbac_error_returns_error_field(self) -> None:
+        from hexawyn.application.ports.driven.tekton_port import TektonPort
+        from hexawyn.domain.errors import InsufficientPermissionsError
+
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_pipeline_runs_in_namespace.side_effect = InsufficientPermissionsError(
+            "forbidden"
+        )
+
+        with patch("hexawyn.mcp.server.build_tekton_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.list_pipeline_runs_in_namespace import (
+                list_pipeline_runs_in_namespace,
+            )
+
+            result = list_pipeline_runs_in_namespace(namespace="tekton")
+
+        assert result["error"] is not None
+        assert "forbidden" in str(result["error"])
+        assert result["runs"] == []
+
+    def test_tekton_not_installed_returns_error_field(self) -> None:
+        from hexawyn.application.ports.driven.tekton_port import TektonPort
+        from hexawyn.domain.errors import TektonNotInstalledError
+
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_pipeline_runs_in_namespace.side_effect = TektonNotInstalledError()
+
+        with patch("hexawyn.mcp.server.build_tekton_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.list_pipeline_runs_in_namespace import (
+                list_pipeline_runs_in_namespace,
+            )
+
+            result = list_pipeline_runs_in_namespace(namespace="tekton")
+
+        assert result["error"] is not None
+        assert "Tekton" in str(result["error"])

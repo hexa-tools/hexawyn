@@ -13,11 +13,18 @@ from hexawyn.application.ports.driven.k8s_port import (
     NamespaceInfo,
     PodInfo,
 )
-from hexawyn.application.ports.driven.tekton_port import PipelineRunInfo, TaskRunInfo, TektonPort
+from hexawyn.application.ports.driven.tekton_port import (
+    NamespacedPipelineRunInfo,
+    PipelineRunInfo,
+    TaskRunInfo,
+    TektonPort,
+)
 from hexawyn.domain.errors import (
     ClusterUnreachableError,
+    InsufficientPermissionsError,
     PipelineNotFoundError,
     ServiceNotFoundError,
+    TektonNotInstalledError,
 )
 from hexawyn.infrastructure.config.kubeconfig_reader import load_kubeconfig
 
@@ -148,6 +155,65 @@ class VanillaAdapter(K8sPort, ClusterHealthPort, TektonPort):
         if not items:
             raise ServiceNotFoundError(service_name=service_name)
         return [self._to_pipeline_run_info(item) for item in items]
+
+    def list_pipeline_runs_in_namespace(
+        self, namespace: str, limit: int
+    ) -> list[NamespacedPipelineRunInfo]:
+        raw = self._fetch_pipeline_runs_in_namespace(namespace)
+        items = self._crd_items(raw)
+        return [self._to_namespaced_pipeline_run_info(item) for item in items]
+
+    def _fetch_pipeline_runs_in_namespace(self, namespace: str) -> object:
+        from kubernetes.client.exceptions import ApiException
+
+        try:
+            return self._crd_api_client().list_namespaced_custom_object(
+                group=_TEKTON_GROUP,
+                version=_TEKTON_VERSION,
+                namespace=namespace,
+                plural=_TEKTON_PIPELINERUNS_PLURAL,
+            )
+        except ApiException as exc:
+            if exc.status == 403:
+                raise InsufficientPermissionsError(
+                    f"Access denied to namespace '{namespace}': {exc.reason}"
+                ) from exc
+            if exc.status == 404:
+                raise TektonNotInstalledError() from exc
+            raise ClusterUnreachableError(f"Cannot reach Tekton API: {exc}") from exc
+        except Exception as exc:
+            raise ClusterUnreachableError(f"Cannot reach Tekton API: {exc}") from exc
+
+    def _to_namespaced_pipeline_run_info(
+        self, item: Mapping[str, object]
+    ) -> NamespacedPipelineRunInfo:
+        metadata = self._crd_mapping(item.get("metadata"))
+        spec = self._crd_mapping(item.get("spec"))
+        status = self._crd_mapping(item.get("status"))
+
+        run_status = self._pipeline_run_status(status)
+        start_time = self._crd_optional_str(status, "startTime")
+        completion_time = self._crd_optional_str(status, "completionTime")
+        duration_seconds = self._pipeline_run_duration_seconds(start_time, completion_time)
+
+        return {
+            "name": self._crd_str(metadata, "name", "unknown"),
+            "status": run_status,
+            "start_time": start_time,
+            "duration": self._seconds_to_human(duration_seconds),
+            "duration_seconds": duration_seconds,
+            "pipeline_ref": self._extract_pipeline_ref(spec),
+        }
+
+    def _extract_pipeline_ref(self, spec: Mapping[str, object] | None) -> str:
+        if spec is None:
+            return "inline"
+        pipeline_ref = self._crd_mapping(spec.get("pipelineRef"))
+        if pipeline_ref is not None:
+            return self._crd_str(pipeline_ref, "name", "inline")
+        if "pipelineSpec" in spec:
+            return "inline"
+        return "unknown"
 
     def _fetch_pipeline_runs(self, service_name: str, namespace: str) -> object:
         try:

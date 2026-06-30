@@ -113,6 +113,13 @@ class ServiceNotFoundError(HexawynError):
         self.service_name = service_name
 
 
+class TektonNotInstalledError(HexawynError):
+    """Raised when Tekton CRDs are not installed in the cluster."""
+
+    def __init__(self) -> None:
+        super().__init__("Tekton is not installed in this cluster. Install Tekton Pipelines first.")
+
+
 class SlackQuotaExceededError(HexawynError):
     """
     Raised when the monthly Slack alert limit is reached.

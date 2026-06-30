@@ -1059,3 +1059,138 @@ class TestVanillaAdapterListPipelineRuns:
         result = adapter.list_pipeline_runs("payment-service", "ci")
 
         assert result[0]["triggered_by"] == "github-push"
+
+
+def _make_namespaced_pipeline_run(
+    name: str,
+    succeeded: str,
+    reason: str,
+    start_time: str | None = None,
+    completion_time: str | None = None,
+    pipeline_ref_name: str | None = "deploy-payment",
+) -> dict[str, object]:
+    conditions: list[dict[str, object]] = [
+        {"type": "Succeeded", "status": succeeded, "reason": reason, "message": ""}
+    ]
+    status: dict[str, object] = {"conditions": conditions}
+    if start_time:
+        status["startTime"] = start_time
+    if completion_time:
+        status["completionTime"] = completion_time
+    spec: dict[str, object] = {}
+    if pipeline_ref_name:
+        spec["pipelineRef"] = {"name": pipeline_ref_name}
+    return {"metadata": {"name": name}, "spec": spec, "status": status}
+
+
+class TestVanillaAdapterListPipelineRunsInNamespace:
+    def test_returns_empty_list_when_no_runs(self) -> None:
+        crd_api = _CRDApi([])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs_in_namespace("tekton", limit=100)
+
+        assert result == []
+
+    def test_returns_all_runs_with_fields(self) -> None:
+        item = _make_namespaced_pipeline_run(
+            name="deploy-payment-v3",
+            succeeded="False",
+            reason="Failed",
+            start_time="2024-01-15T10:00:00Z",
+            completion_time="2024-01-15T10:05:00Z",
+            pipeline_ref_name="deploy-payment",
+        )
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs_in_namespace("tekton", limit=100)
+
+        assert len(result) == 1
+        assert result[0]["name"] == "deploy-payment-v3"
+        assert result[0]["status"] == "Failed"
+        assert result[0]["start_time"] == "2024-01-15T10:00:00Z"
+        assert result[0]["duration"] == "5m"
+        assert result[0]["pipeline_ref"] == "deploy-payment"
+
+    def test_returns_running_and_succeeded_runs(self) -> None:
+        items = [
+            _make_namespaced_pipeline_run("run-running", "Unknown", "Running"),
+            _make_namespaced_pipeline_run("run-ok", "True", "Succeeded"),
+        ]
+        crd_api = _CRDApi(items)
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs_in_namespace("tekton", limit=100)
+
+        statuses = {r["name"]: r["status"] for r in result}
+        assert statuses["run-running"] == "Running"
+        assert statuses["run-ok"] == "Succeeded"
+
+    def test_pipeline_ref_inline_when_no_pipeline_ref(self) -> None:
+        item: dict[str, object] = {
+            "metadata": {"name": "inline-run"},
+            "spec": {"pipelineSpec": {}},
+            "status": {
+                "conditions": [
+                    {"type": "Succeeded", "status": "True", "reason": "Succeeded", "message": ""}
+                ]
+            },
+        }
+        crd_api = _CRDApi([item])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        result = adapter.list_pipeline_runs_in_namespace("tekton", limit=100)
+
+        assert result[0]["pipeline_ref"] == "inline"
+
+    def test_raises_insufficient_permissions_on_403(self) -> None:
+        from hexawyn.domain.errors import InsufficientPermissionsError
+        from kubernetes.client.exceptions import ApiException
+
+        crd_api = MagicMock()
+        exc = ApiException(status=403, reason="Forbidden")
+        crd_api.list_namespaced_custom_object.side_effect = exc
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        with pytest.raises(InsufficientPermissionsError):
+            adapter.list_pipeline_runs_in_namespace("tekton", limit=100)
+
+    def test_raises_tekton_not_installed_on_404(self) -> None:
+        from hexawyn.domain.errors import TektonNotInstalledError
+        from kubernetes.client.exceptions import ApiException
+
+        crd_api = MagicMock()
+        exc = ApiException(status=404, reason="Not Found")
+        crd_api.list_namespaced_custom_object.side_effect = exc
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        with pytest.raises(TektonNotInstalledError):
+            adapter.list_pipeline_runs_in_namespace("tekton", limit=100)
+
+    def test_raises_cluster_unreachable_on_other_api_exception(self) -> None:
+        from kubernetes.client.exceptions import ApiException
+
+        crd_api = MagicMock()
+        exc = ApiException(status=500, reason="Internal Server Error")
+        crd_api.list_namespaced_custom_object.side_effect = exc
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        with pytest.raises(ClusterUnreachableError):
+            adapter.list_pipeline_runs_in_namespace("tekton", limit=100)
+
+    def test_raises_cluster_unreachable_on_generic_exception(self) -> None:
+        crd_api = MagicMock()
+        crd_api.list_namespaced_custom_object.side_effect = Exception("connection refused")
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        with pytest.raises(ClusterUnreachableError):
+            adapter.list_pipeline_runs_in_namespace("tekton", limit=100)
+
+    def test_queries_namespace_without_label_filter(self) -> None:
+        crd_api = _CRDApi([])
+        adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
+
+        adapter.list_pipeline_runs_in_namespace("tekton", limit=100)
+
+        assert crd_api.last_label_selector == ""
