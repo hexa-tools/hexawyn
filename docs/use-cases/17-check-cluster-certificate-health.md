@@ -99,31 +99,45 @@ sequenceDiagram
 
 ---
 
-## Certificate Status Classification
+## Checker Node — Response Quality Validation
 
 ```mermaid
 sequenceDiagram
-    participant Checker as CertificateChecker
-    participant Entry as CertificateEntry
-    participant Report as ClusterCertificateReport
+    participant Tool as MCP Tool
+    participant Gen as generate_response (LLM)
+    participant CK as checker_node
+    participant Mem as store_memory
+    participant Fmt as format_response
 
-    Note over Checker: Input: CertificateInfo(days_remaining=N)<br/>Thresholds: critical_days=7, warning_days=30
+    Tool-->>Gen: ClusterCertificateReport (raw data)
+    Gen-->>CK: LLM-generated summary of certificate health
 
-    alt days_remaining < 0
-        Checker-->>Entry: status = EXPIRED
-    else days_remaining ≤ critical_days (7)
-        Checker-->>Entry: status = CRITICAL
-    else days_remaining ≤ warning_days (30)
-        Checker-->>Entry: status = WARNING
-    else days_remaining > warning_days
-        Checker-->>Entry: status = HEALTHY
+    alt PASS — coherent summary, critical certs highlighted
+        CK->>Mem: store_memory(query, result, cluster)
+        Mem-->>Fmt: stored
+        CK-->>Fmt: status=PASS
+        Fmt-->>User: certificate health summary
+
+    else FAIL (attempt < 3) — missing critical certs or wrong days
+        CK-->>Gen: retry with corrected prompt
+        Note over CK,Gen: retry_count += 1<br/>checker hints: "you missed 2 CRITICAL certs"
+        Gen-->>CK: revised summary
+
+    else FAIL (attempt ≥ 3) — DEGRADED
+        CK-->>Fmt: status=DEGRADED
+        Fmt-->>User: raw report data + "summary generation failed"
+
+    else BLOCKED — mutation detected in response
+        Note over CK: Response contains "delete", "drain", "scale replicas=0"
+        CK-->>Fmt: status=BLOCKED
+        Fmt-->>User: "Operation blocked — read-only tool"
+
+    else FLAG — partial data (skipped namespaces)
+        Note over CK: skipped_namespaces not empty → incomplete scan
+        CK->>Mem: store_memory(with flag metadata)
+        CK-->>Fmt: status=FLAG, caveats=["restricted namespace skipped"]
+        Fmt-->>User: summary + caveat banner
     end
-
-    Entry-->>Report: appended to matching bucket
-
-    Note over Entry: Additional flags per entry:<br/>is_wildcard = CN or SAN starts with "*."<br/>is_orphan = no ingress references this secret<br/>cert_manager_managed = cert-manager annotation present<br/>cert_manager_auto_renewing = CR Ready=False (renewal in flight)
-
-    Note over Report: Each bucket sorted ascending by days_remaining<br/>→ most urgent certs appear first
 ```
 
 ---

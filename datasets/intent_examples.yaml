@@ -1,0 +1,119 @@
+# Intent examples — centralized use case questions for PlannerAgent (BM25 + few-shot)
+#
+# This file is the local copy of hexa-knowledge/datasets/intent_examples.yaml.
+# Keep both in sync at the end of every task (see AGENTS.md §7).
+#
+# Format per entry:
+#   <use_case_snake_case>:
+#     tool: <exact MCP tool name>
+#     questions:
+#       - "..."   # minimum 5 variants, different phrasing styles
+
+list_namespaces:
+  tool: list_namespaces
+  questions:
+    - "List all Kubernetes namespaces in the cluster"
+    - "What namespaces exist and how old are they?"
+    - "Which namespaces were created recently?"
+    - "Show me the full namespace inventory for this cluster"
+    - "How many namespaces do I have and what are their ages?"
+
+list_pods:
+  tool: list_pods
+  questions:
+    - "List all pods in the production namespace"
+    - "Are there any unhealthy pods in the payment-service namespace?"
+    - "Which pods are in CrashLoopBackOff in staging?"
+    - "Show me the pod health status for the ci namespace"
+    - "What is the current state of all pods in my cluster?"
+
+list_task_runs:
+  tool: list_task_runs
+  questions:
+    - "List all TaskRuns for the build-deploy pipeline — which step is failing?"
+    - "What's the status of each step in the payment-service pipeline?"
+    - "Which task step broke the checkout pipeline?"
+    - "Show me the TaskRuns for the ci/deploy-api pipeline"
+    - "Which steps of my pipeline are currently running or failed?"
+
+list_pipeline_runs:
+  tool: list_pipeline_runs
+  questions:
+    - "Show me the last 10 pipeline runs for the payment-service — what is the success rate?"
+    - "How often does the checkout pipeline fail?"
+    - "What's the average build time for the auth-service?"
+    - "Are there any abnormally slow runs in the payment pipeline recently?"
+    - "What is the failure rate of the deploy-api pipeline over the last week?"
+
+list_pipeline_runs_in_namespace:
+  tool: list_pipeline_runs_in_namespace
+  questions:
+    - "What's the current status of all pipelines in the tekton namespace?"
+    - "Are there any stuck or failing pipelines in production?"
+    - "Show me all failed PipelineRuns in the ci namespace"
+    - "Which pipelines have been running for more than an hour?"
+    - "Give me an overview of all pipeline activity in the staging namespace"
+
+detect_over_provisioned_namespaces:
+  tool: detect_over_provisioned_namespaces
+  questions:
+    - "Which namespaces are wasting the most CPU and memory?"
+    - "Where can we reduce resource costs in the cluster?"
+    - "Show me the top 5 over-provisioned namespaces over the last 7 days"
+    - "The dev namespace has 8 CPUs allocated — how much is it actually using?"
+    - "What's our total estimated waste in cores and GB across all namespaces?"
+
+estimate_rightsizing_savings:
+  tool: estimate_rightsizing_savings
+  questions:
+    - "Which of my workloads are over-provisioned and what would I save by rightsizing them?"
+    - "How much money am I wasting on CPU and memory for my Kubernetes deployments?"
+    - "Show me the top 5 rightsizing recommendations ranked by monthly savings."
+    - "My ml-worker pod uses very little CPU — what should I request instead?"
+    - "Are any of my deployments under-provisioned and at risk of OOM kill?"
+
+forecast_cost:
+  tool: forecast_cost
+  questions:
+    - "Combien vais-je dépenser ce mois en tout sur mon cluster Kubernetes ?"
+    - "Est-ce que mon spend accélère par rapport aux semaines précédentes ?"
+    - "Quels sont les 3 namespaces qui coûtent le plus cher ce mois-ci ?"
+    - "Mon budget mensuel est $2,000 — est-ce que je vais le dépasser ?"
+    - "Quelle est la tendance de mon spend Cloud par rapport au mois dernier ?"
+
+detect_zombies:
+  tool: detect_zombies
+  questions:
+    - "Which pods have been running with 0 traffic for the last 24 hours — are there zombie deployments we can safely remove?"
+    - "Can you list all pods that received no network traffic in the last day?"
+    - "Are there any zombie workloads wasting compute resources in my cluster?"
+    - "How much money would I save by removing idle pods from production?"
+    - "Show me pods with zero RPS — flag the ones safe to decommission."
+
+check_cluster_certificate_health:
+  tool: check_cluster_certificate_health
+  questions:
+    - "Which TLS certificates in the cluster are expiring soon?"
+    - "Are any certificates going to expire in the next 7 days?"
+    - "Show me all expired certificates across all namespaces"
+    - "Which TLS secrets are not referenced by any ingress — orphaned certs?"
+    - "Is cert-manager managing the renewal of my production certificates?"
+
+get_pipeline_run_status:
+  tool: get_pipeline_run_status
+  questions:
+    - "What is the current status of all Tekton PipelineRuns in the CI namespace?"
+    - "How many builds succeeded or failed in the last 24 hours?"
+    - "Which pipeline run took the longest to complete today?"
+    - "Show me the most recent failed build and why it failed"
+    - "Are there any stuck or pending pipeline runs in ci?"
+
+global_health_check:
+  tool: global_health_check
+  questions:
+    - "Give me a global health check of the cluster fleet — what is the overall status right now?"
+    - "Which cluster is the least healthy in my fleet?"
+    - "Are all my Kubernetes clusters reachable?"
+    - "What are the critical issues across all clusters?"
+    - "Is the fleet health improving or degrading compared to last week?"
+    - "Show me a breakdown by category — nodes, pods, CPU, certificates — for every cluster."
