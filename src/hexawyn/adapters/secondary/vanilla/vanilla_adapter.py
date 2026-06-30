@@ -4,6 +4,11 @@ from typing import Protocol, cast
 
 from kubernetes import client
 
+from hexawyn.application.ports.driven.cost_forecast_port import (
+    CostForecastPort,
+    DailyCostData,
+    NamespaceCostData,
+)
 from hexawyn.application.ports.driven.k8s_port import (
     ClusterContext,
     ClusterHealthPort,
@@ -114,7 +119,12 @@ _BYTES_TO_MI = 1024.0 * 1024.0
 
 
 class VanillaAdapter(
-    K8sPort, ClusterHealthPort, TektonPort, NamespaceWasteAnalysisPort, RightsizingPort
+    K8sPort,
+    ClusterHealthPort,
+    TektonPort,
+    NamespaceWasteAnalysisPort,
+    RightsizingPort,
+    CostForecastPort,
 ):
     """Minimal adapter for vanilla Kubernetes with no cloud provider dependencies."""
 
@@ -972,6 +982,67 @@ class VanillaAdapter(
             return self._apps_api
         load_kubeconfig()
         return cast(KubernetesAppsApi, client.AppsV1Api())
+
+    # ── CostForecastPort ─────────────────────────────────────
+
+    def get_daily_costs(self, days: int) -> list[DailyCostData]:
+        """Estimate daily cluster cost from K8s resource requests.
+
+        Returns `days` data points all with the same estimated daily rate
+        (Free tier — no real billing history, trend_factor will be 1.0).
+        """
+        try:
+            raw = self._apps_api_client().list_deployment_for_all_namespaces(
+                timeout_seconds=_K8S_TIMEOUT
+            )
+        except Exception as exc:
+            raise ClusterUnreachableError(
+                f"Cannot list deployments for cost forecast: {exc}"
+            ) from exc
+
+        deployments = list(self._items_from(raw))
+        ns_daily_costs = _compute_namespace_daily_costs(deployments)
+        total_daily = sum(ns_daily_costs.values())
+        return _build_daily_cost_entries(ns_daily_costs, total_daily, days)
+
+
+_CPU_COST_PER_CORE_DAY = 21.6 / 30.0  # $21.6/core/month ÷ 30
+_MEM_COST_PER_GIB_DAY = 2.88 / 30.0  # $2.88/GiB/month ÷ 30
+
+
+def _compute_namespace_daily_costs(deployments: list[object]) -> dict[str, float]:
+    """Returns {namespace: daily_cost_usd} from deployment resource requests."""
+    ns_costs: dict[str, float] = {}
+    for dep in deployments:
+        meta = getattr(dep, "metadata", None)
+        namespace = str(getattr(meta, "namespace", "") or "")
+        cpu_cores, mem_mi = _workload_resource_requests(dep)
+        mem_gib = mem_mi / 1024.0
+        daily = cpu_cores * _CPU_COST_PER_CORE_DAY + mem_gib * _MEM_COST_PER_GIB_DAY
+        ns_costs[namespace] = ns_costs.get(namespace, 0.0) + daily
+    return ns_costs
+
+
+def _build_daily_cost_entries(
+    ns_costs: dict[str, float],
+    total_daily: float,
+    days: int,
+) -> list[DailyCostData]:
+    from datetime import date, timedelta
+
+    today = date.today()
+    ns_list: list[NamespaceCostData] = [
+        NamespaceCostData(name=ns, cost_usd=round(cost, 4))
+        for ns, cost in sorted(ns_costs.items(), key=lambda x: x[1], reverse=True)
+    ]
+    return [
+        DailyCostData(
+            date=(today - timedelta(days=days - 1 - i)).strftime("%Y-%m-%d"),
+            total_usd=round(total_daily, 4),
+            namespace_costs=ns_list,
+        )
+        for i in range(days)
+    ]
 
 
 def _workload_resource_requests(workload: object) -> tuple[float, float]:
