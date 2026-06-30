@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.cost_saving_estimation_port import (
         CostSavingEstimationPort,
     )
+    from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
     from hexawyn.application.ports.driven.k8s_port import K8sPort
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
@@ -101,6 +102,13 @@ def build_cost_saving_adapter() -> CostSavingEstimationPort:
     context = context_name if context_name != "unknown" else None
     prometheus_url = os.environ.get("PROMETHEUS_URL", "")
     return VanillaAdapter(cluster_name=context or "default", prometheus_url=prometheus_url)
+
+
+def build_fleet_health_adapter() -> FleetHealthPort:
+    from hexawyn.adapters.secondary.fleet_health_adapter import FleetHealthAdapter
+
+    prometheus_url = os.environ.get("PROMETHEUS_URL", "")
+    return FleetHealthAdapter(prometheus_url=prometheus_url)
 
 
 def register_tools(server: FastMCP) -> None:
