@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
     from hexawyn.application.ports.driven.tekton_port import TektonPort
+    from hexawyn.application.ports.driven.zombie_detection_port import ZombieDetectionPort
 
 # Initialize FastMCP server
 mcp = FastMCP(
@@ -82,6 +83,13 @@ def build_waste_adapter() -> NamespaceWasteAnalysisPort:
     context = context_name if context_name != "unknown" else None
     prometheus_url = os.environ.get("PROMETHEUS_URL", "")
     return VanillaAdapter(cluster_name=context or "default", prometheus_url=prometheus_url)
+
+
+def build_zombie_detection_adapter() -> ZombieDetectionPort:
+    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+
+    context = context_name if context_name != "unknown" else None
+    return VanillaAdapter(cluster_name=context or "default")
 
 
 def register_tools(server: FastMCP) -> None:

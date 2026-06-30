@@ -32,6 +32,10 @@ from hexawyn.application.ports.driven.tekton_port import (
     TaskRunInfo,
     TektonPort,
 )
+from hexawyn.application.ports.driven.zombie_detection_port import (
+    ZombieDetectionPort,
+    ZombiePodData,
+)
 from hexawyn.domain.errors import (
     ClusterUnreachableError,
     InsufficientPermissionsError,
@@ -125,6 +129,7 @@ class VanillaAdapter(
     NamespaceWasteAnalysisPort,
     RightsizingPort,
     CostForecastPort,
+    ZombieDetectionPort,
 ):
     """Minimal adapter for vanilla Kubernetes with no cloud provider dependencies."""
 
@@ -1004,6 +1009,75 @@ class VanillaAdapter(
         ns_daily_costs = _compute_namespace_daily_costs(deployments)
         total_daily = sum(ns_daily_costs.values())
         return _build_daily_cost_entries(ns_daily_costs, total_daily, days)
+
+    # ── ZombieDetectionPort ───────────────────────────────────
+
+    def get_zombie_workloads(self, window_hours: int) -> list[ZombiePodData]:
+        try:
+            raw = self._api_client().list_pod_for_all_namespaces(timeout_seconds=_K8S_TIMEOUT)
+        except Exception as exc:
+            raise ClusterUnreachableError(f"Cannot list pods for zombie detection: {exc}") from exc
+
+        pods_iter = self._items_from(raw)
+        result: list[ZombiePodData] = []
+        for pod in pods_iter:
+            meta = getattr(pod, "metadata", None)
+            pod_name = str(getattr(meta, "name", ""))
+            namespace = str(getattr(meta, "namespace", ""))
+            status = getattr(pod, "status", None)
+            pod_phase = str(getattr(status, "phase", "")) if status else ""
+
+            is_terminating = pod_phase == "Terminating"
+
+            owner_refs = getattr(meta, "owner_references", None) if meta else None
+            is_cronjob = False
+            if isinstance(owner_refs, list):
+                for ref in owner_refs:
+                    if isinstance(ref, object) and hasattr(ref, "kind"):
+                        if getattr(ref, "kind") == "CronJob":
+                            is_cronjob = True
+                            break
+
+            containers = getattr(pod, "spec", None)
+            containers_list = getattr(containers, "containers", []) if containers else []
+            has_sidecar = len(containers_list) > 1
+
+            cpu_cores, memory_gb = _compute_pod_resources(containers_list)
+
+            result.append(
+                ZombiePodData(
+                    pod_name=pod_name,
+                    namespace=namespace,
+                    traffic_rps=0.0,
+                    cpu_cores=cpu_cores,
+                    memory_gb=memory_gb,
+                    age_days=0,
+                    has_service=False,
+                    is_cronjob=is_cronjob,
+                    is_terminating=is_terminating,
+                    has_sidecar=has_sidecar,
+                    sidecar_traffic_rps=0.0,
+                    seven_day_traffic_rps=0.0,
+                )
+            )
+        return result
+
+
+def _compute_pod_resources(containers: list[object]) -> tuple[float, float]:
+    """Returns (cpu_cores, memory_gb) summed across containers."""
+    cpu_total = 0.0
+    mem_total_gb = 0.0
+    for container in containers:
+        resources = getattr(container, "resources", None)
+        requests = getattr(resources, "requests", {}) if resources else {}
+        if isinstance(requests, dict):
+            cpu_raw = requests.get("cpu")
+            mem_raw = requests.get("memory")
+            if cpu_raw is not None:
+                cpu_total += _parse_cpu(str(cpu_raw))
+            if mem_raw is not None:
+                mem_total_gb += _parse_memory(str(mem_raw))
+    return cpu_total, mem_total_gb
 
 
 _CPU_COST_PER_CORE_DAY = 21.6 / 30.0  # $21.6/core/month ÷ 30
