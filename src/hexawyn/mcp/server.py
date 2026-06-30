@@ -18,6 +18,7 @@ from hexawyn.infrastructure.memory.duckdb_client import get_connection
 if TYPE_CHECKING:
     from hexawyn.application.ports.driven.k8s_port import K8sPort
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+    from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
     from hexawyn.application.ports.driven.tekton_port import TektonPort
 
 # Initialize FastMCP server
@@ -52,6 +53,13 @@ def build_k8s_adapter() -> K8sPort:
 
 
 def build_tekton_adapter() -> TektonPort:
+    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+
+    context = context_name if context_name != "unknown" else None
+    return VanillaAdapter(cluster_name=context or "default")
+
+
+def build_rightsizing_adapter() -> RightsizingPort:
     from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     context = context_name if context_name != "unknown" else None

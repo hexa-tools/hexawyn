@@ -69,7 +69,7 @@ check:
 #  Tests
 # ─────────────────────────────────────
 
-.PHONY: test test-integration test-all coverage
+.PHONY: test test-integration test-all coverage update-badge
 
 test:
 	@echo "🧪 Running unit tests..."
@@ -90,6 +90,11 @@ coverage:
 	@echo "📊 Running tests with coverage..."
 	$(PYTEST) tests/unit/ --cov=src/hexawyn --cov-report=term --cov-fail-under=80
 	@echo "✅ Coverage threshold met"
+
+update-badge:
+	@echo "🏷️  Updating test count badge in README.md..."
+	$(PYTHON) scripts/update_test_badge.py
+	@echo "✅ Badge updated"
 
 # ─────────────────────────────────────
 #  Docker
@@ -240,6 +245,7 @@ help:
 	@echo "  make test-integration      → Run integration tests (real DuckDB)"
 	@echo "  make test-all              → Run unit + integration tests"
 	@echo "  make coverage              → Run tests with coverage (≥80%)"
+	@echo "  make update-badge          → Update test count badge in README.md"
 	@echo ""
 	@echo "🐳 DOCKER"
 	@echo "  make build                 → Build Docker image"

@@ -17,6 +17,10 @@ from hexawyn.application.ports.driven.namespace_waste_port import (
     NamespaceRawData,
     NamespaceWasteAnalysisPort,
 )
+from hexawyn.application.ports.driven.rightsizing_port import (
+    RightsizingPort,
+    WorkloadRawData,
+)
 from hexawyn.application.ports.driven.tekton_port import (
     NamespacedPipelineRunInfo,
     PipelineRunInfo,
@@ -54,6 +58,14 @@ class KubernetesCoreApi(Protocol):
 
     def list_namespace(self, timeout_seconds: int) -> object:
         """List all namespaces."""
+
+
+class KubernetesAppsApi(Protocol):
+    def list_deployment_for_all_namespaces(self, timeout_seconds: int) -> object:
+        """List all deployments across namespaces."""
+
+    def list_stateful_set_for_all_namespaces(self, timeout_seconds: int) -> object:
+        """List all stateful sets across namespaces."""
 
 
 class KubernetesMetricsApi(Protocol):
@@ -94,7 +106,16 @@ _MEM_USAGE_QUERY = (
 )
 
 
-class VanillaAdapter(K8sPort, ClusterHealthPort, TektonPort, NamespaceWasteAnalysisPort):
+_METRICS_GROUP = "metrics.k8s.io"
+_METRICS_VERSION = "v1beta1"
+_METRICS_PODS_PLURAL = "pods"
+_NANOCORES_FACTOR = 1_000_000_000.0
+_BYTES_TO_MI = 1024.0 * 1024.0
+
+
+class VanillaAdapter(
+    K8sPort, ClusterHealthPort, TektonPort, NamespaceWasteAnalysisPort, RightsizingPort
+):
     """Minimal adapter for vanilla Kubernetes with no cloud provider dependencies."""
 
     def __init__(
@@ -103,12 +124,14 @@ class VanillaAdapter(K8sPort, ClusterHealthPort, TektonPort, NamespaceWasteAnaly
         api: KubernetesCoreApi | None = None,
         metrics_api: KubernetesMetricsApi | None = None,
         crd_api: KubernetesCRDApi | None = None,
+        apps_api: KubernetesAppsApi | None = None,
         prometheus_url: str = "",
     ) -> None:
         self._cluster_name = cluster_name
         self._api = api
         self._metrics_api = metrics_api
         self._crd_api = crd_api
+        self._apps_api = apps_api
         self._prometheus_url = prometheus_url
         self._pod_cache: list[PodInfo] | None = None
         self._pod_cache_updated_at = 0.0
@@ -862,6 +885,169 @@ class VanillaAdapter(K8sPort, ClusterHealthPort, TektonPort, NamespaceWasteAnaly
             return self._api
         load_kubeconfig()
         return cast(KubernetesCoreApi, client.CoreV1Api())
+
+    # ── RightsizingPort ──────────────────────────────────────────
+
+    def get_workload_rightsizing_data(self) -> list[WorkloadRawData]:
+        deployments = self._fetch_deployments()
+        pod_metrics = self._fetch_pod_metrics_by_workload()
+        return [
+            self._build_workload_raw_data(dep, "Deployment", pod_metrics) for dep in deployments
+        ]
+
+    def _fetch_deployments(self) -> list[object]:
+        try:
+            raw = self._apps_api_client().list_deployment_for_all_namespaces(
+                timeout_seconds=_K8S_TIMEOUT
+            )
+        except Exception as exc:
+            raise ClusterUnreachableError(f"Cannot list deployments: {exc}") from exc
+        return list(self._items_from(raw))
+
+    def _fetch_pod_metrics_by_workload(self) -> dict[str, dict[str, float]]:
+        """Returns {namespace/workload-prefix: {cpu_cores, memory_mi}}."""
+        try:
+            raw = self._metrics_api_client().list_cluster_custom_object(
+                group=_METRICS_GROUP,
+                version=_METRICS_VERSION,
+                plural=_METRICS_PODS_PLURAL,
+            )
+        except Exception:
+            return {}
+
+        result: dict[str, dict[str, float]] = {}
+        items = raw.get("items", []) if isinstance(raw, dict) else []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            meta = item.get("metadata", {})
+            if not isinstance(meta, dict):
+                continue
+            pod_name: str = str(meta.get("name", ""))
+            namespace: str = str(meta.get("namespace", ""))
+            cpu, mem_mi = _sum_container_metrics(item.get("containers", []))
+            workload_key = _workload_key_from_pod_name(pod_name, namespace)
+            if workload_key:
+                existing = result.get(workload_key)
+                if existing is None:
+                    result[workload_key] = {"cpu": cpu, "mem_mi": mem_mi, "count": 1.0}
+                else:
+                    existing["cpu"] += cpu
+                    existing["mem_mi"] += mem_mi
+                    existing["count"] += 1.0
+        return result
+
+    def _build_workload_raw_data(
+        self,
+        workload: object,
+        kind: str,
+        pod_metrics: dict[str, dict[str, float]],
+    ) -> WorkloadRawData:
+        meta = getattr(workload, "metadata", None)
+        name = str(getattr(meta, "name", "") or "")
+        namespace = str(getattr(meta, "namespace", "") or "")
+        cpu_req, mem_req_mi = _workload_resource_requests(workload)
+
+        key = f"{namespace}/{name}"
+        metrics = pod_metrics.get(key)
+        cpu_actual: float | None = None
+        mem_actual_mi: float | None = None
+        if metrics is not None:
+            count = metrics["count"] or 1.0
+            cpu_actual = metrics["cpu"] / count
+            mem_actual_mi = metrics["mem_mi"] / count
+
+        return {
+            "resource_name": name,
+            "namespace": namespace,
+            "kind": kind,
+            "cpu_requested_cores": cpu_req,
+            "memory_requested_mi": mem_req_mi,
+            "cpu_actual_cores": cpu_actual,
+            "memory_actual_mi": mem_actual_mi,
+        }
+
+    def _apps_api_client(self) -> KubernetesAppsApi:
+        if self._apps_api is not None:
+            return self._apps_api
+        load_kubeconfig()
+        return cast(KubernetesAppsApi, client.AppsV1Api())
+
+
+def _workload_resource_requests(workload: object) -> tuple[float, float]:
+    """Returns (cpu_cores, memory_mi) summed across all containers in the pod template."""
+    spec = getattr(workload, "spec", None)
+    template = getattr(spec, "template", None) if spec else None
+    pod_spec = getattr(template, "spec", None) if template else None
+    containers = list(getattr(pod_spec, "containers", None) or []) if pod_spec else []
+    cpu_total = 0.0
+    mem_total_mi = 0.0
+    for container in containers:
+        cpu = _container_request(container, "cpu")
+        mem_gib = _container_request(container, "memory")
+        if cpu is not None:
+            cpu_total += cpu
+        if mem_gib is not None:
+            mem_total_mi += mem_gib * 1024.0
+    return cpu_total, mem_total_mi
+
+
+def _sum_container_metrics(containers: object) -> tuple[float, float]:
+    """Returns (cpu_cores, memory_mi) summed from metrics-server container list."""
+    if not isinstance(containers, list):
+        return 0.0, 0.0
+    cpu_total = 0.0
+    mem_total_mi = 0.0
+    for container in containers:
+        if not isinstance(container, dict):
+            continue
+        usage = container.get("usage", {})
+        if not isinstance(usage, dict):
+            continue
+        cpu_raw = str(usage.get("cpu", "0"))
+        mem_raw = str(usage.get("memory", "0"))
+        cpu_total += _parse_nanocores(cpu_raw)
+        mem_total_mi += _parse_memory_to_mi(mem_raw)
+    return cpu_total, mem_total_mi
+
+
+def _parse_nanocores(value: str) -> float:
+    if value.endswith("n"):
+        return float(value[:-1]) / _NANOCORES_FACTOR
+    if value.endswith("m"):
+        return float(value[:-1]) / _CPU_MILLI_FACTOR
+    return float(value)
+
+
+def _parse_memory_to_mi(value: str) -> float:
+    """Parse K8s memory string to MiB."""
+    for suffix, factor in (
+        ("Ki", 1.0 / 1024.0),
+        ("Mi", 1.0),
+        ("Gi", 1024.0),
+        ("Ti", 1024.0 * 1024.0),
+        ("K", 1000.0 / (1024.0 * 1024.0)),
+        ("M", 1000.0 * 1000.0 / (1024.0 * 1024.0)),
+        ("G", 1000.0 * 1000.0 * 1000.0 / (1024.0 * 1024.0)),
+    ):
+        if value.endswith(suffix):
+            return float(value[: -len(suffix)]) * factor
+    return float(value) / _BYTES_TO_MI
+
+
+def _workload_key_from_pod_name(pod_name: str, namespace: str) -> str | None:
+    """Extracts workload name from pod name using ReplicaSet suffix convention.
+
+    Pod names follow the pattern: {deployment-name}-{rs-hash}-{pod-hash}
+    We strip the last two dash-separated suffixes to get the deployment name.
+    """
+    parts = pod_name.rsplit("-", 2)
+    if len(parts) >= 3:
+        workload_name = parts[0]
+        return f"{namespace}/{workload_name}"
+    if len(parts) == 2:
+        return f"{namespace}/{parts[0]}"
+    return None
 
 
 def _pod_namespace(pod: object) -> str:

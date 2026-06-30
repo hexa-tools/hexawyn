@@ -1570,3 +1570,265 @@ class TestParsePrometheusVector:
     def test_unparseable_value_is_skipped(self) -> None:
         payload = {"data": {"result": [{"metric": {"namespace": "dev"}, "value": [0, "NaN-bad"]}]}}
         assert self._call(payload) == {}
+
+
+def _fake_deployment(
+    name: str,
+    namespace: str,
+    cpu_request: str | None = "500m",
+    mem_request: str | None = "1Gi",
+    replicas: int = 1,
+) -> MagicMock:
+    dep = MagicMock()
+    dep.metadata.name = name
+    dep.metadata.namespace = namespace
+    dep.spec.replicas = replicas
+    container = MagicMock()
+    requests: dict[str, str] = {}
+    if cpu_request:
+        requests["cpu"] = cpu_request
+    if mem_request:
+        requests["memory"] = mem_request
+    container.resources.requests = requests or None
+    dep.spec.template.spec.containers = [container]
+    return dep
+
+
+def _fake_pod_metric(
+    name: str, namespace: str, cpu_nano: str = "400000000", mem_bytes: str = "2147483648"
+) -> dict[str, object]:
+    # Real K8s pod names: {deployment}-{rs-hash}-{pod-hash}
+    # Using realistic format so workload extraction via rsplit("-", 2) works correctly
+    return {
+        "metadata": {"name": f"{name}-7d6b8-x4m2p", "namespace": namespace},
+        "containers": [{"usage": {"cpu": cpu_nano, "memory": mem_bytes}}],
+    }
+
+
+def _fake_apps_api(deployments: list[MagicMock]) -> MagicMock:
+    api = MagicMock()
+    dep_list = MagicMock()
+    dep_list.items = deployments
+    api.list_deployment_for_all_namespaces.return_value = dep_list
+    sts_list = MagicMock()
+    sts_list.items = []
+    api.list_stateful_set_for_all_namespaces.return_value = sts_list
+    return api
+
+
+def _fake_metrics_api(pod_metrics: list[dict[str, object]]) -> MagicMock:
+    api = MagicMock()
+    api.list_cluster_custom_object.return_value = {"items": pod_metrics}
+    return api
+
+
+class TestVanillaAdapterRightsizingPort:
+    def test_implements_rightsizing_port(self) -> None:
+        from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
+
+        assert isinstance(VanillaAdapter("test"), RightsizingPort)
+
+    def test_returns_workload_for_each_deployment(self) -> None:
+        deps = [_fake_deployment("ml-worker", "production")]
+        apps_api = _fake_apps_api(deps)
+        metrics_api = _fake_metrics_api([_fake_pod_metric("ml-worker-abc", "production")])
+        adapter = VanillaAdapter("test", apps_api=apps_api, metrics_api=metrics_api)
+
+        result = adapter.get_workload_rightsizing_data()
+
+        names = {r["resource_name"] for r in result}
+        assert "ml-worker" in names
+
+    def test_cpu_requested_parsed_from_millicores(self) -> None:
+        deps = [_fake_deployment("svc", "ns", cpu_request="2000m", mem_request=None)]
+        apps_api = _fake_apps_api(deps)
+        metrics_api = _fake_metrics_api([])
+        adapter = VanillaAdapter("test", apps_api=apps_api, metrics_api=metrics_api)
+
+        result = adapter.get_workload_rightsizing_data()
+
+        assert result[0]["cpu_requested_cores"] == pytest.approx(2.0, abs=0.001)
+
+    def test_memory_requested_parsed_from_gi(self) -> None:
+        deps = [_fake_deployment("svc", "ns", cpu_request=None, mem_request="4Gi")]
+        apps_api = _fake_apps_api(deps)
+        metrics_api = _fake_metrics_api([])
+        adapter = VanillaAdapter("test", apps_api=apps_api, metrics_api=metrics_api)
+
+        result = adapter.get_workload_rightsizing_data()
+
+        assert result[0]["memory_requested_mi"] == pytest.approx(4096.0, abs=1.0)
+
+    def test_actual_cpu_from_metrics_server(self) -> None:
+        deps = [_fake_deployment("ml-worker", "production")]
+        apps_api = _fake_apps_api(deps)
+        # 400m = 400 millicores = 0.4 cores (metrics-server format)
+        metrics_api = _fake_metrics_api(
+            [_fake_pod_metric("ml-worker", "production", cpu_nano="400m")]
+        )
+        adapter = VanillaAdapter("test", apps_api=apps_api, metrics_api=metrics_api)
+
+        result = adapter.get_workload_rightsizing_data()
+
+        assert result[0]["cpu_actual_cores"] == pytest.approx(0.4, abs=0.001)
+
+    def test_actual_memory_from_metrics_server_in_mi(self) -> None:
+        deps = [_fake_deployment("ml-worker", "production")]
+        apps_api = _fake_apps_api(deps)
+        # 1073741824 bytes = 1024 Mi; pod name = "ml-worker-7d6b8-x4m2p"
+        metrics_api = _fake_metrics_api(
+            [_fake_pod_metric("ml-worker", "production", mem_bytes="1073741824")]
+        )
+        adapter = VanillaAdapter("test", apps_api=apps_api, metrics_api=metrics_api)
+
+        result = adapter.get_workload_rightsizing_data()
+
+        assert result[0]["memory_actual_mi"] == pytest.approx(1024.0, abs=1.0)
+
+    def test_no_metrics_when_metrics_server_unavailable(self) -> None:
+        deps = [_fake_deployment("svc", "ns")]
+        apps_api = _fake_apps_api(deps)
+        metrics_api = _fake_metrics_api([])
+        adapter = VanillaAdapter("test", apps_api=apps_api, metrics_api=metrics_api)
+
+        result = adapter.get_workload_rightsizing_data()
+
+        assert result[0]["cpu_actual_cores"] is None
+        assert result[0]["memory_actual_mi"] is None
+
+    def test_raises_cluster_unreachable_on_k8s_error(self) -> None:
+        apps_api = MagicMock()
+        apps_api.list_deployment_for_all_namespaces.side_effect = Exception("forbidden")
+        adapter = VanillaAdapter("test", apps_api=apps_api)
+
+        with pytest.raises(ClusterUnreachableError):
+            adapter.get_workload_rightsizing_data()
+
+    def test_kind_is_deployment(self) -> None:
+        deps = [_fake_deployment("svc", "ns")]
+        apps_api = _fake_apps_api(deps)
+        adapter = VanillaAdapter("test", apps_api=apps_api, metrics_api=_fake_metrics_api([]))
+
+        result = adapter.get_workload_rightsizing_data()
+
+        assert result[0]["kind"] == "Deployment"
+
+    def test_metrics_api_exception_returns_no_actuals(self) -> None:
+        deps = [_fake_deployment("svc", "ns")]
+        apps_api = _fake_apps_api(deps)
+        metrics_api = MagicMock()
+        metrics_api.list_cluster_custom_object.side_effect = Exception(
+            "metrics-server not installed"
+        )
+        adapter = VanillaAdapter("test", apps_api=apps_api, metrics_api=metrics_api)
+
+        result = adapter.get_workload_rightsizing_data()
+
+        assert result[0]["cpu_actual_cores"] is None
+        assert result[0]["memory_actual_mi"] is None
+
+    def test_non_dict_item_in_metrics_response_is_skipped(self) -> None:
+        deps = [_fake_deployment("svc", "ns")]
+        apps_api = _fake_apps_api(deps)
+        metrics_api = MagicMock()
+        metrics_api.list_cluster_custom_object.return_value = {"items": ["not-a-dict", None]}
+        adapter = VanillaAdapter("test", apps_api=apps_api, metrics_api=metrics_api)
+
+        result = adapter.get_workload_rightsizing_data()
+
+        assert result[0]["cpu_actual_cores"] is None
+
+    def test_non_dict_metadata_in_metrics_item_is_skipped(self) -> None:
+        deps = [_fake_deployment("svc", "ns")]
+        apps_api = _fake_apps_api(deps)
+        metrics_api = MagicMock()
+        metrics_api.list_cluster_custom_object.return_value = {"items": [{"metadata": "bad"}]}
+        adapter = VanillaAdapter("test", apps_api=apps_api, metrics_api=metrics_api)
+
+        result = adapter.get_workload_rightsizing_data()
+
+        assert result[0]["cpu_actual_cores"] is None
+
+    def test_multiple_pods_same_workload_metrics_are_averaged(self) -> None:
+        deps = [_fake_deployment("api", "ns")]
+        apps_api = _fake_apps_api(deps)
+        # Two pods for the same workload: 400m + 800m = 1200m → avg 600m = 0.6 cores
+        pod1 = {
+            "metadata": {"name": "api-7d6b8-pod11", "namespace": "ns"},
+            "containers": [{"usage": {"cpu": "400m", "memory": "0"}}],
+        }
+        pod2 = {
+            "metadata": {"name": "api-7d6b8-pod22", "namespace": "ns"},
+            "containers": [{"usage": {"cpu": "800m", "memory": "0"}}],
+        }
+        metrics_api = MagicMock()
+        metrics_api.list_cluster_custom_object.return_value = {"items": [pod1, pod2]}
+        adapter = VanillaAdapter("test", apps_api=apps_api, metrics_api=metrics_api)
+
+        result = adapter.get_workload_rightsizing_data()
+
+        assert result[0]["cpu_actual_cores"] == pytest.approx(0.6, abs=0.001)
+
+    def test_apps_api_client_loads_kubeconfig_when_no_injected_api(self) -> None:
+        with (
+            patch(
+                "hexawyn.adapters.secondary.vanilla.vanilla_adapter.load_kubeconfig"
+            ) as mock_load,
+            patch(
+                "hexawyn.adapters.secondary.vanilla.vanilla_adapter.client.AppsV1Api"
+            ) as mock_apps,
+        ):
+            adapter = VanillaAdapter("test")
+            adapter._apps_api_client()
+
+        mock_load.assert_called_once()
+        mock_apps.assert_called_once()
+
+    def test_sum_container_metrics_non_list_returns_zero(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _sum_container_metrics
+
+        assert _sum_container_metrics("not-a-list") == (0.0, 0.0)
+
+    def test_sum_container_metrics_non_dict_container_skipped(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _sum_container_metrics
+
+        result = _sum_container_metrics(["not-a-dict", None])
+
+        assert result == (0.0, 0.0)
+
+    def test_sum_container_metrics_non_dict_usage_skipped(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _sum_container_metrics
+
+        result = _sum_container_metrics([{"usage": "bad"}])
+
+        assert result == (0.0, 0.0)
+
+    def test_parse_nanocores_with_n_suffix(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _parse_nanocores
+
+        assert _parse_nanocores("400000000n") == pytest.approx(0.4, abs=0.001)
+
+    def test_parse_memory_to_mi_ki_suffix(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _parse_memory_to_mi
+
+        assert _parse_memory_to_mi("1048576Ki") == pytest.approx(1024.0, abs=0.1)
+
+    def test_parse_memory_to_mi_gi_suffix(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _parse_memory_to_mi
+
+        assert _parse_memory_to_mi("2Gi") == pytest.approx(2048.0, abs=0.1)
+
+    def test_workload_key_from_pod_name_two_parts_returns_prefix(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _workload_key_from_pod_name
+
+        # Pod with only one dash (no RS hash): "svc-abcde"
+        result = _workload_key_from_pod_name("svc-abcde", "ns")
+
+        assert result == "ns/svc"
+
+    def test_workload_key_from_pod_name_no_dash_returns_none(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _workload_key_from_pod_name
+
+        result = _workload_key_from_pod_name("nodash", "ns")
+
+        assert result is None
