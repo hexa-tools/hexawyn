@@ -214,6 +214,30 @@ class TestMCPListNamespacesTool:
         result = build_tekton_adapter()
         assert isinstance(result, VanillaAdapter)
 
+    def test_build_k8s_adapter_returns_vanilla_adapter(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+        from hexawyn.mcp.server import build_k8s_adapter
+
+        result = build_k8s_adapter()
+        assert isinstance(result, VanillaAdapter)
+
+    def test_build_waste_adapter_returns_namespace_waste_analysis_port(self) -> None:
+        from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+        from hexawyn.mcp.server import build_waste_adapter
+
+        result = build_waste_adapter()
+        assert isinstance(result, NamespaceWasteAnalysisPort)
+
+    def test_build_waste_adapter_reads_prometheus_url_from_env(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+        from hexawyn.mcp.server import build_waste_adapter
+
+        with patch.dict("os.environ", {"PROMETHEUS_URL": "http://prom:9090"}):
+            result = build_waste_adapter()
+
+        assert isinstance(result, VanillaAdapter)
+        assert result._prometheus_url == "http://prom:9090"
+
 
 class TestMCPListPodsTool:
     def test_list_pods_returns_pods_for_namespace(self) -> None:
@@ -508,3 +532,105 @@ class TestMCPListPipelineRunsInNamespaceTool:
 
         assert result["error"] is not None
         assert "Tekton" in str(result["error"])
+
+
+class TestMCPDetectOverProvisionedNamespacesTool:
+    def test_tool_is_registered(self) -> None:
+        from hexawyn.mcp.server import mcp
+
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = {t.name for t in tools}
+        assert "detect_over_provisioned_namespaces" in tool_names
+
+    def test_dev_namespace_flagged_over_provisioned(self) -> None:
+        from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+
+        mock_adapter = MagicMock(spec=NamespaceWasteAnalysisPort)
+        mock_adapter.get_all_namespace_waste_data.return_value = [
+            {
+                "namespace": "dev",
+                "cpu_requested_cores": 8.0,
+                "memory_requested_gb": 16.0,
+                "cpu_actual_avg_cores": 0.45,
+                "memory_actual_avg_gb": 1.2,
+                "age_hours": 720.0,
+                "has_resource_requests": True,
+            },
+        ]
+
+        with patch("hexawyn.mcp.server.build_waste_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.detect_over_provisioned_namespaces import (
+                detect_over_provisioned_namespaces,
+            )
+
+            result = detect_over_provisioned_namespaces()
+
+        assert result["error"] is None
+        assert len(result["namespaces"]) == 1
+        ns = result["namespaces"][0]  # type: ignore[index]
+        assert ns["namespace"] == "dev"
+        assert ns["is_over_provisioned"] is True
+        assert result["prometheus_available"] is True
+
+    def test_empty_returns_empty_list_no_error(self) -> None:
+        from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+
+        mock_adapter = MagicMock(spec=NamespaceWasteAnalysisPort)
+        mock_adapter.get_all_namespace_waste_data.return_value = []
+
+        with patch("hexawyn.mcp.server.build_waste_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.detect_over_provisioned_namespaces import (
+                detect_over_provisioned_namespaces,
+            )
+
+            result = detect_over_provisioned_namespaces()
+
+        assert result["namespaces"] == []
+        assert result["error"] is None
+
+    def test_cluster_error_returns_error_field(self) -> None:
+        from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+        from hexawyn.domain.errors import ClusterUnreachableError
+
+        mock_adapter = MagicMock(spec=NamespaceWasteAnalysisPort)
+        mock_adapter.get_all_namespace_waste_data.side_effect = ClusterUnreachableError(
+            "connection refused"
+        )
+
+        with patch("hexawyn.mcp.server.build_waste_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.detect_over_provisioned_namespaces import (
+                detect_over_provisioned_namespaces,
+            )
+
+            result = detect_over_provisioned_namespaces()
+
+        assert result["error"] is not None
+        assert result["namespaces"] == []
+
+    def test_excluded_namespace_in_response(self) -> None:
+        from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+
+        mock_adapter = MagicMock(spec=NamespaceWasteAnalysisPort)
+        mock_adapter.get_all_namespace_waste_data.return_value = [
+            {
+                "namespace": "new-ns",
+                "cpu_requested_cores": 4.0,
+                "memory_requested_gb": 8.0,
+                "cpu_actual_avg_cores": None,
+                "memory_actual_avg_gb": None,
+                "age_hours": 6.0,
+                "has_resource_requests": True,
+            },
+        ]
+
+        with patch("hexawyn.mcp.server.build_waste_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.detect_over_provisioned_namespaces import (
+                detect_over_provisioned_namespaces,
+            )
+
+            result = detect_over_provisioned_namespaces()
+
+        assert result["namespaces"] == []
+        excluded = result["excluded"]  # type: ignore[index]
+        assert len(excluded) == 1
+        assert excluded[0]["namespace"] == "new-ns"

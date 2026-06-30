@@ -1,5 +1,14 @@
 # Use Case 8 — List TaskRuns for a Pipeline
 
+## Sample Questions
+
+- "List all TaskRuns for the build-deploy pipeline — which step is failing?"
+- "What's the status of each step in the payment-service pipeline?"
+- "Which task step broke the checkout pipeline?"
+- "Show me the TaskRuns for the ci/deploy-api pipeline"
+
+---
+
 An AI agent (SRE) asks "List all TaskRuns for the build-deploy pipeline — which task step is failing?". The flow goes through all hexagonal layers: MCP Tool → ListTaskRunsUseCase → ListTaskRunsService → TektonPort (driven port) → VanillaAdapter → Kubernetes CustomObjectsApi (Tekton CRD). TaskRuns are sorted by start time descending; failed runs expose the failing step name and error message.
 
 ### Flow 1 — Happy Path: Pipeline with 3 TaskRuns, 1 Failed

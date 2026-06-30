@@ -113,6 +113,17 @@ class ServiceNotFoundError(HexawynError):
         self.service_name = service_name
 
 
+class PrometheusUnavailableError(HexawynError):
+    """Raised when Prometheus cannot be reached or is not configured."""
+
+    def __init__(self, url: str) -> None:
+        super().__init__(
+            f"Prometheus is unavailable at '{url}'. "
+            "Set PROMETHEUS_URL or ensure Prometheus is reachable."
+        )
+        self.url = url
+
+
 class TektonNotInstalledError(HexawynError):
     """Raised when Tekton CRDs are not installed in the cluster."""
 

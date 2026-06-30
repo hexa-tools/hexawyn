@@ -13,6 +13,10 @@ from hexawyn.application.ports.driven.k8s_port import (
     NamespaceInfo,
     PodInfo,
 )
+from hexawyn.application.ports.driven.namespace_waste_port import (
+    NamespaceRawData,
+    NamespaceWasteAnalysisPort,
+)
 from hexawyn.application.ports.driven.tekton_port import (
     NamespacedPipelineRunInfo,
     PipelineRunInfo,
@@ -23,6 +27,7 @@ from hexawyn.domain.errors import (
     ClusterUnreachableError,
     InsufficientPermissionsError,
     PipelineNotFoundError,
+    PrometheusUnavailableError,
     ServiceNotFoundError,
     TektonNotInstalledError,
 )
@@ -68,7 +73,28 @@ class KubernetesCRDApi(Protocol):
         """List namespace-scoped custom objects."""
 
 
-class VanillaAdapter(K8sPort, ClusterHealthPort, TektonPort):
+_CPU_MILLI_FACTOR = 1000.0
+_MEM_GIB_FACTOR = 1024**3
+_K8S_TIMEOUT = 10
+_PROMETHEUS_QUERY_TIMEOUT = 15.0
+
+_CPU_REQUEST_QUERY = "sum by (namespace) (kube_pod_container_resource_requests{{resource='cpu'}})"
+_MEM_REQUEST_QUERY = (
+    "sum by (namespace) (kube_pod_container_resource_requests{{resource='memory'}})"
+)
+_CPU_USAGE_QUERY = (
+    "avg_over_time("
+    "sum by (namespace) (rate(container_cpu_usage_seconds_total{{container!=''}}[5m]))"
+    "[{window}d:1h])"
+)
+_MEM_USAGE_QUERY = (
+    "avg_over_time("
+    "sum by (namespace) (container_memory_working_set_bytes{{container!=''}})"
+    "[{window}d:1h])"
+)
+
+
+class VanillaAdapter(K8sPort, ClusterHealthPort, TektonPort, NamespaceWasteAnalysisPort):
     """Minimal adapter for vanilla Kubernetes with no cloud provider dependencies."""
 
     def __init__(
@@ -77,11 +103,13 @@ class VanillaAdapter(K8sPort, ClusterHealthPort, TektonPort):
         api: KubernetesCoreApi | None = None,
         metrics_api: KubernetesMetricsApi | None = None,
         crd_api: KubernetesCRDApi | None = None,
+        prometheus_url: str = "",
     ) -> None:
         self._cluster_name = cluster_name
         self._api = api
         self._metrics_api = metrics_api
         self._crd_api = crd_api
+        self._prometheus_url = prometheus_url
         self._pod_cache: list[PodInfo] | None = None
         self._pod_cache_updated_at = 0.0
 
@@ -734,3 +762,175 @@ class VanillaAdapter(K8sPort, ClusterHealthPort, TektonPort):
 
     def _severity_count(self, findings: list[Finding], severity: str) -> int:
         return sum(1 for finding in findings if finding["severity"] == severity)
+
+    # ── NamespaceWasteAnalysisPort ────────────────────────────
+
+    def get_all_namespace_waste_data(self, window_days: int) -> list[NamespaceRawData]:
+        namespace_ages = self._fetch_namespace_ages()
+        cpu_requests = self._fetch_k8s_resource_requests("cpu")
+        mem_requests = self._fetch_k8s_resource_requests("memory")
+        cpu_usage = self._fetch_prometheus_usage(_CPU_USAGE_QUERY.format(window=window_days))
+        mem_usage = self._fetch_prometheus_usage(_MEM_USAGE_QUERY.format(window=window_days))
+
+        all_namespaces = namespace_ages.keys() | cpu_requests.keys() | mem_requests.keys()
+        return [
+            self._build_namespace_raw_data(
+                ns, namespace_ages, cpu_requests, mem_requests, cpu_usage, mem_usage
+            )
+            for ns in sorted(all_namespaces)
+        ]
+
+    def _build_namespace_raw_data(
+        self,
+        namespace: str,
+        ages: dict[str, float],
+        cpu_req: dict[str, float],
+        mem_req: dict[str, float],
+        cpu_usage: dict[str, float],
+        mem_usage: dict[str, float],
+    ) -> NamespaceRawData:
+        cpu_requested = cpu_req.get(namespace)
+        mem_requested = mem_req.get(namespace)
+        return {
+            "namespace": namespace,
+            "cpu_requested_cores": cpu_requested,
+            "memory_requested_gb": mem_requested,
+            "cpu_actual_avg_cores": cpu_usage.get(namespace),
+            "memory_actual_avg_gb": mem_usage.get(namespace),
+            "age_hours": ages.get(namespace, 999.0),
+            "has_resource_requests": cpu_requested is not None or mem_requested is not None,
+        }
+
+    def _fetch_namespace_ages(self) -> dict[str, float]:
+        from datetime import UTC, datetime
+
+        try:
+            raw = self._core_api().list_namespace(timeout_seconds=_K8S_TIMEOUT)
+        except Exception as exc:
+            raise ClusterUnreachableError(f"Cannot list namespaces: {exc}") from exc
+
+        ages: dict[str, float] = {}
+        for item in self._items_from(raw):
+            meta = getattr(item, "metadata", None)
+            if meta is None:
+                continue
+            name = getattr(meta, "name", None) or ""
+            creation = getattr(meta, "creation_timestamp", None)
+            if name and creation:
+                elapsed = (datetime.now(UTC) - creation).total_seconds()
+                ages[name] = elapsed / 3600.0
+        return ages
+
+    def _fetch_k8s_resource_requests(self, resource: str) -> dict[str, float]:
+        try:
+            raw = self._core_api().list_pod_for_all_namespaces(timeout_seconds=_K8S_TIMEOUT)
+        except Exception as exc:
+            raise ClusterUnreachableError(f"Cannot list pods: {exc}") from exc
+
+        totals: dict[str, float] = {}
+        for pod in self._items_from(raw):
+            namespace = _pod_namespace(pod)
+            if not namespace:
+                continue
+            for container in _pod_containers(pod):
+                value = _container_request(container, resource)
+                if value is not None:
+                    totals[namespace] = totals.get(namespace, 0.0) + value
+        return totals
+
+    def _fetch_prometheus_usage(self, query: str) -> dict[str, float]:
+        if not self._prometheus_url:
+            return {}
+        import httpx
+
+        try:
+            resp = httpx.get(
+                f"{self._prometheus_url}/api/v1/query",
+                params={"query": query},
+                timeout=_PROMETHEUS_QUERY_TIMEOUT,
+            )
+            resp.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise PrometheusUnavailableError(self._prometheus_url) from exc
+        except Exception as exc:
+            raise PrometheusUnavailableError(self._prometheus_url) from exc
+
+        return _parse_prometheus_vector(resp.json())
+
+    def _core_api(self) -> KubernetesCoreApi:
+        if self._api is not None:
+            return self._api
+        load_kubeconfig()
+        return cast(KubernetesCoreApi, client.CoreV1Api())
+
+
+def _pod_namespace(pod: object) -> str:
+    meta = getattr(pod, "metadata", None)
+    return str(getattr(meta, "namespace", "") or "") if meta else ""
+
+
+def _pod_containers(pod: object) -> list[object]:
+    spec = getattr(pod, "spec", None)
+    if spec is None:
+        return []
+    return list(getattr(spec, "containers", None) or [])
+
+
+def _container_request(container: object, resource: str) -> float | None:
+    resources = getattr(container, "resources", None)
+    if resources is None:
+        return None
+    requests = getattr(resources, "requests", None)
+    if not isinstance(requests, dict) or resource not in requests:
+        return None
+    raw = requests[resource]
+    if resource == "cpu":
+        return _parse_cpu(str(raw))
+    if resource == "memory":
+        return _parse_memory(str(raw))
+    return None
+
+
+def _parse_cpu(value: str) -> float:
+    if value.endswith("m"):
+        return float(value[:-1]) / _CPU_MILLI_FACTOR
+    return float(value)
+
+
+def _parse_memory(value: str) -> float:
+    for suffix, factor in (
+        ("Gi", 1.0),
+        ("Mi", 1.0 / 1024),
+        ("Ki", 1.0 / (1024**2)),
+        ("G", 1.0 / 1.073741824),
+        ("M", 1.0 / (1.073741824 * 1024)),
+        ("K", 1.0 / (1.073741824 * 1024**2)),
+    ):
+        if value.endswith(suffix):
+            return float(value[: -len(suffix)]) * factor
+    return float(value) / _MEM_GIB_FACTOR
+
+
+def _parse_prometheus_vector(payload: dict[str, object]) -> dict[str, float]:
+    result: dict[str, float] = {}
+    data = payload.get("data") if isinstance(payload, dict) else None
+    if not isinstance(data, dict):
+        return result
+    result_list = data.get("result")
+    if not isinstance(result_list, list):
+        return result
+    for entry in result_list:
+        if not isinstance(entry, dict):
+            continue
+        metric = entry.get("metric")
+        value_pair = entry.get("value")
+        if not isinstance(metric, dict) or not isinstance(value_pair, list):
+            continue
+        namespace = metric.get("namespace")
+        if not isinstance(namespace, str) or len(value_pair) < 2:
+            continue
+        try:
+            result[namespace] = float(str(value_pair[1]))
+        except (ValueError, TypeError):
+            continue
+    return result
