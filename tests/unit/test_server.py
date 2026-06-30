@@ -238,6 +238,14 @@ class TestMCPListNamespacesTool:
         assert isinstance(result, VanillaAdapter)
         assert result._prometheus_url == "http://prom:9090"
 
+    def test_build_rightsizing_adapter_returns_rightsizing_port(self) -> None:
+        from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
+        from hexawyn.mcp.server import build_rightsizing_adapter
+
+        result = build_rightsizing_adapter()
+
+        assert isinstance(result, RightsizingPort)
+
 
 class TestMCPListPodsTool:
     def test_list_pods_returns_pods_for_namespace(self) -> None:
