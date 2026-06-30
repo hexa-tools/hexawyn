@@ -246,6 +246,34 @@ class TestMCPListNamespacesTool:
 
         assert isinstance(result, RightsizingPort)
 
+    def test_build_cost_forecast_adapter_returns_cost_forecast_port(self) -> None:
+        from hexawyn.application.ports.driven.cost_forecast_port import CostForecastPort
+        from hexawyn.mcp.server import build_cost_forecast_adapter
+
+        result = build_cost_forecast_adapter()
+
+        assert isinstance(result, CostForecastPort)
+
+    def test_register_tools_does_not_crash_on_import_error(self) -> None:
+        from pathlib import Path
+        from unittest.mock import patch
+
+        tools_path = Path(__file__).parent.parent.parent / "src" / "hexawyn" / "mcp" / "tools"
+        py_files = list(tools_path.glob("*.py"))
+
+        if not py_files:
+            return
+
+        with patch(
+            "importlib.import_module",
+            side_effect=ImportError("simulated import failure"),
+        ):
+            from fastmcp import FastMCP
+            from hexawyn.mcp.server import register_tools
+
+            test_server = FastMCP("test-register")
+            register_tools(test_server)
+
 
 class TestMCPListPodsTool:
     def test_list_pods_returns_pods_for_namespace(self) -> None:

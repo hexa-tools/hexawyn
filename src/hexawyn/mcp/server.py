@@ -16,6 +16,7 @@ from hexawyn.infrastructure.config.kubeconfig_reader import (
 from hexawyn.infrastructure.memory.duckdb_client import get_connection
 
 if TYPE_CHECKING:
+    from hexawyn.application.ports.driven.cost_forecast_port import CostForecastPort
     from hexawyn.application.ports.driven.k8s_port import K8sPort
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
@@ -31,6 +32,8 @@ mcp = FastMCP(
 # ── Startup kubeconfig validation ─────────────────────────
 _k8s_api = None
 _cluster_status: dict[str, str] = {"status": "not_initialized"}
+
+context_name = "unknown"
 
 try:
     _k8s_api = load_kubeconfig()
@@ -60,6 +63,13 @@ def build_tekton_adapter() -> TektonPort:
 
 
 def build_rightsizing_adapter() -> RightsizingPort:
+    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+
+    context = context_name if context_name != "unknown" else None
+    return VanillaAdapter(cluster_name=context or "default")
+
+
+def build_cost_forecast_adapter() -> CostForecastPort:
     from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     context = context_name if context_name != "unknown" else None
@@ -128,6 +138,6 @@ def health() -> dict[str, str]:
 register_tools(mcp)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     port = int(os.environ.get("HEXAWYN_PORT", "8000"))
     mcp.run(host="0.0.0.0", port=port)
