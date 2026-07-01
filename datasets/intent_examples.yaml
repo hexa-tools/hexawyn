@@ -144,3 +144,12 @@ pipeline_performance_baseline:
     - "Which pipeline runs are outliers — taking more than double the average build time?"
     - "Give me the p50 and p95 durations for each stage of the deploy-api pipeline"
     - "Is the CI pipeline performance improving, stable, or degrading compared to last month?"
+
+run_what_if_simulation:
+  tool: run_what_if_simulation
+  questions:
+    - "What would happen to the cluster if I scale down the auth-service to 1 replica? Simulate the impact on latency, error rate, and dependent services."
+    - "If I double the replicas of payment-service, which downstream services will be affected?"
+    - "Simulate scaling the checkout-service from 3 to 1 — is it safe during peak traffic?"
+    - "Show me the blast radius if I remove the caching layer — which services depend on redis?"
+    - "What's the risk level of reducing api-gateway to 2 replicas given current CPU usage?"
