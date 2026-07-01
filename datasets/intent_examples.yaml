@@ -547,6 +547,17 @@ keda_scaledjob_get:
     - "What is the max replica count for the batch-worker ScaledJob?"
     - "Get the full detail of the nightly-report ScaledJob"
 
+# ── Canary Comparison ────────────────────────────────────────────────────────
+
+canary_comparison:
+  tool: canary_comparison
+  questions:
+    - "Does the canary version of the order service have higher latency or error rate than stable?"
+    - "Is the canary safe to promote based on OTel real-time metrics?"
+    - "Compare p99 latency between canary v2.4 and stable v2.3 for the payments service"
+    - "Should I promote or rollback the current canary of the auth service?"
+    - "What is the error rate delta between the canary and stable deployments?"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
