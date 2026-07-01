@@ -174,3 +174,14 @@ class HistoricalDataWindowExpiredError(HexawynError):
         )
         self.queried_timestamp = queried_timestamp
         self.retention_window = retention_window
+
+
+# ── GitOps ─────────────────────────────────────────────
+class GitOpsEngineNotFoundError(HexawynError):
+    """Raised when no GitOps engine (Flux CD or Argo CD) is detected in the cluster."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            "No GitOps engine detected in this cluster. "
+            "Install Flux CD (https://fluxcd.io) or Argo CD (https://argo-cd.readthedocs.io) first."
+        )

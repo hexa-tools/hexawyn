@@ -221,3 +221,68 @@ query_kubearchive:
     - "Show me which deployments existed in the ci namespace on June 1st"
     - "Were there any pods in CrashLoopBackOff in the production namespace last Tuesday?"
     - "Give me a historical snapshot of all pods in the payment namespace and highlight the failing ones"
+
+# ── GitOps Detection ─────────────────────────────────────────────────────────
+
+gitops_detect:
+  tool: gitops_detect
+  questions:
+    - "Does my cluster use Flux CD or Argo CD?"
+    - "Which GitOps engine is installed in the cluster?"
+    - "Is Flux CD or Argo CD running in my cluster?"
+    - "Detect which GitOps engine is installed and show me the version"
+    - "How many applications are managed by GitOps right now?"
+
+gitops_apps_list:
+  tool: gitops_apps_list
+  questions:
+    - "Which GitOps applications are out-of-sync in my cluster?"
+    - "List all Flux HelmReleases and Kustomizations in the flux-system namespace"
+    - "Show me the status of all my Argo CD applications"
+    - "Are there any GitOps applications currently in error?"
+    - "Which Argo CD applications are currently degraded or missing?"
+
+gitops_app_get:
+  tool: gitops_app_get
+  questions:
+    - "Why is my payments-api app not synced with Git?"
+    - "Get the full status of the payments-api HelmRelease"
+    - "What is the last commit deployed for the auth-service Application?"
+    - "Show me the details of the frontend application in Argo CD"
+    - "Why is my Kustomization failing to reconcile?"
+
+gitops_app_status:
+  tool: gitops_app_status
+  questions:
+    - "What is the sync and health status of the checkout application?"
+    - "Is the payments-service healthy according to Flux?"
+    - "Show me the reconciliation status of the prod-deploy Application"
+    - "When was the last time the staging Kustomization synced?"
+    - "Give me the health and sync status of the auth-api HelmRelease"
+
+gitops_app_sync:
+  tool: gitops_app_sync
+  questions:
+    - "What is the latest commit deployed to my cluster via GitOps?"
+    - "What is the current revision deployed for the api-gateway?"
+    - "When was the last sync of the production HelmRelease?"
+    - "Is the payments-api in sync with the latest Git commit?"
+    - "Show me the deployed revision for the checkout-service"
+
+gitops_sources_list:
+  tool: gitops_sources_list
+  questions:
+    - "List all GitRepositories used by Flux in my cluster"
+    - "What GitOps sources are configured?"
+    - "Which Helm repositories are currently unreachable?"
+    - "Show me all sources in the flux-system namespace and their ready status"
+    - "Are all my GitRepositories healthy and connected?"
+
+gitops_source_get:
+  tool: gitops_source_get
+  questions:
+    - "Why can't my GitRepository connect to GitHub?"
+    - "Get the connection status of the prod-manifests GitRepository"
+    - "What is the URL and last-updated time of the helm-charts HelmRepository?"
+    - "Is the main GitRepository authenticated and ready?"
+    - "What's the error message on the staging HelmRepository?"
