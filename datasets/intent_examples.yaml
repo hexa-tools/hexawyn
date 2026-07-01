@@ -135,3 +135,12 @@ trace_pipeline_run_dag:
     - "Show me the execution DAG for pipeline-run-42, highlight any failed or skipped tasks"
     - "Which TaskRuns ran in parallel vs sequentially in the latest CI pipeline?"
     - "Give me a visual dependency graph of the deploy-staging PipelineRun with timestamps"
+
+pipeline_performance_baseline:
+  tool: pipeline_performance_baseline
+  questions:
+    - "Establish a CI/CD performance baseline for the payment-service pipeline — what is the average build time, test time, and deploy time over the last 30 runs?"
+    - "Has the checkout pipeline been getting slower over the last week? Show me the trend."
+    - "Which pipeline runs are outliers — taking more than double the average build time?"
+    - "Give me the p50 and p95 durations for each stage of the deploy-api pipeline"
+    - "Is the CI pipeline performance improving, stable, or degrading compared to last month?"
