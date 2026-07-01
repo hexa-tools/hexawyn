@@ -56,3 +56,20 @@ class TestTraceEventResult:
         )
         assert result.matching_events == []
         assert "no system events" in result.conclusion.lower()
+
+    def test_eviction_event(self) -> None:
+        events = [
+            K8sEvent(
+                event_type=K8sEventType.EVICTION,
+                pod_name="payment-pod-xyz",
+                timestamp="10:30:01.500",
+                namespace="production",
+                reason="Evicted",
+            ),
+        ]
+        result = TraceEventResult.compute(
+            request=TraceEventCorrelationRequest(trace_id="abc"),
+            events=events,
+            slowest_span=None,
+        )
+        assert "eviction" in result.conclusion.lower()

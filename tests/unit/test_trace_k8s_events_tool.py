@@ -46,3 +46,24 @@ class TestTraceK8sEventsTool:
         ):
             r = trace_k8s_events(trace_id="x")
         assert r["error"] == "boom"
+
+
+class TestBuildTraceEventCorrelationAdapter:
+    def test_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.trace_event_correlation_port import (
+            TraceEventCorrelationPort,
+        )
+        from hexawyn.mcp.server import build_trace_event_correlation_adapter
+
+        assert isinstance(build_trace_event_correlation_adapter(), TraceEventCorrelationPort)
+
+
+class TestRegister:
+    def test_has_register(self) -> None:
+        import importlib
+
+        from fastmcp import FastMCP
+
+        mod = importlib.import_module("hexawyn.mcp.tools.trace_k8s_events")
+        assert callable(getattr(mod, "register"))
+        getattr(mod, "register")(FastMCP("test"))
