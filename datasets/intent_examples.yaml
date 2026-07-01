@@ -624,6 +624,17 @@ trace_log_correlation:
     - "Show me the application errors that happened during the failed payments trace"
     - "What went wrong in the last failed POST /order request — show logs and spans"
 
+# ── Admin Endpoint Security Audit ────────────────────────────────────────────
+
+admin_endpoint_audit:
+  tool: admin_endpoint_audit
+  questions:
+    - "Show me all calls to /admin that failed with a 403"
+    - "Are there unauthorized access attempts on the admin endpoints?"
+    - "Who is repeatedly hitting /admin endpoints with 403 errors?"
+    - "What is the 403 rate on /admin in the last 30 minutes?"
+    - "Flag any IPs that have more than 5 failed admin calls in the last hour"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
