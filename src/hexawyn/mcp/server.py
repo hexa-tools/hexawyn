@@ -53,6 +53,9 @@ if TYPE_CHECKING:
     )
     from hexawyn.application.ports.driven.tekton_port import TektonPort
     from hexawyn.application.ports.driven.topology_snapshot_port import TopologySnapshotPort
+    from hexawyn.application.ports.driven.trace_event_correlation_port import (
+        TraceEventCorrelationPort,
+    )
     from hexawyn.application.ports.driven.trace_log_correlation_port import (
         TraceLogCorrelationPort,
     )
@@ -275,6 +278,14 @@ def build_service_dependency_graph_adapter() -> ServiceDependencyGraphPort:
     )
 
     return OTelDependencyGraphAdapter()
+
+
+def build_trace_event_correlation_adapter() -> TraceEventCorrelationPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_event_adapter import (
+        KubernetesEventAdapter,
+    )
+
+    return KubernetesEventAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
