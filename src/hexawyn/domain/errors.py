@@ -207,3 +207,14 @@ class PolicyEngineNotFoundError(HexawynError):
             "No policy engine detected in this cluster. "
             "Install Kyverno (https://kyverno.io) or OPA Gatekeeper (https://open-policy-agent.github.io/gatekeeper) first."
         )
+
+
+# ── Cert-Manager ───────────────────────────────────────────
+class CertManagerNotFoundError(HexawynError):
+    """Raised when Cert-Manager is not installed in the cluster."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            "Cert-Manager is not installed in this cluster. "
+            "Install it first: https://cert-manager.io/docs/installation/"
+        )

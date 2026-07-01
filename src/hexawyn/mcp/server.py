@@ -16,6 +16,7 @@ from hexawyn.infrastructure.config.kubeconfig_reader import (
 from hexawyn.infrastructure.memory.duckdb_client import get_connection
 
 if TYPE_CHECKING:
+    from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
     from hexawyn.application.ports.driven.cost_forecast_port import CostForecastPort
     from hexawyn.application.ports.driven.cost_saving_estimation_port import (
         CostSavingEstimationPort,
@@ -164,6 +165,14 @@ def build_policy_adapter() -> PolicyPort:
     from hexawyn.adapters.secondary.gitops.policy_detector import PolicyDetector
 
     return PolicyDetector()
+
+
+def build_cert_manager_adapter() -> CertManagerPort:
+    from hexawyn.adapters.secondary.gitops.cert_manager_detector import (
+        CertManagerDetector,
+    )
+
+    return CertManagerDetector()
 
 
 def register_tools(server: FastMCP) -> None:
