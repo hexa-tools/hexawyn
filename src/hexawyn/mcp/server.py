@@ -49,6 +49,9 @@ if TYPE_CHECKING:
     )
     from hexawyn.application.ports.driven.tekton_port import TektonPort
     from hexawyn.application.ports.driven.topology_snapshot_port import TopologySnapshotPort
+    from hexawyn.application.ports.driven.trace_log_correlation_port import (
+        TraceLogCorrelationPort,
+    )
     from hexawyn.application.ports.driven.what_if_simulation_port import (
         WhatIfSimulationPort,
     )
@@ -244,6 +247,14 @@ def build_metric_correlation_adapter() -> MetricCorrelationPort:
     )
 
     return OTelPrometheusCorrelationAdapter()
+
+
+def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:
+    from hexawyn.adapters.secondary.gitops.otel_trace_log_adapter import (
+        OTelTraceLogAdapter,
+    )
+
+    return OTelTraceLogAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
