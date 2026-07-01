@@ -591,6 +591,17 @@ span_bottleneck_analysis:
     - "Analyze DB vs Redis latency from recent traces and tell me which dominates"
     - "What is the slowest DB query and Redis command in the last 30 minutes?"
 
+# ── P99 Latency ─────────────────────────────────────────────────────────────
+
+p99_latency:
+  tool: p99_latency
+  questions:
+    - "What is the 99th percentile latency of the /v1/checkout endpoint over the last 2 hours?"
+    - "Is the checkout API meeting its 500ms SLO for p99 latency?"
+    - "Compute p50, p95, and p99 latency for the search endpoint"
+    - "What is the tail latency of the payments service in the last hour?"
+    - "Show me the SLO compliance status for the /v1/orders endpoint"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:

@@ -31,6 +31,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.k8s_port import K8sPort
     from hexawyn.application.ports.driven.keda_port import KedaPort
     from hexawyn.application.ports.driven.kubernetes_topology_port import KubernetesTopologyPort
+    from hexawyn.application.ports.driven.latency_percentile_port import (
+        LatencyPercentilePort,
+    )
     from hexawyn.application.ports.driven.memory_saturation_port import (
         MemorySaturationPort,
     )
@@ -222,6 +225,14 @@ def build_span_bottleneck_adapter() -> SpanBottleneckPort:
     )
 
     return OTelSpanBreakdownAdapter()
+
+
+def build_latency_percentile_adapter() -> LatencyPercentilePort:
+    from hexawyn.adapters.secondary.gitops.otel_latency_adapter import (
+        OTelPrometheusLatencyAdapter,
+    )
+
+    return OTelPrometheusLatencyAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
