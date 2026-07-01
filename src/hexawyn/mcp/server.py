@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     )
     from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
     from hexawyn.application.ports.driven.cost_forecast_port import CostForecastPort
+    from hexawyn.application.ports.driven.cost_profiling_port import CostProfilingPort
     from hexawyn.application.ports.driven.cost_saving_estimation_port import (
         CostSavingEstimationPort,
     )
@@ -191,6 +192,14 @@ def build_canary_comparison_adapter() -> CanaryComparisonPort:
     )
 
     return OTelCanaryComparisonAdapter()
+
+
+def build_cost_profiling_adapter() -> CostProfilingPort:
+    from hexawyn.adapters.secondary.gitops.otel_cost_profiling_adapter import (
+        OTelCostProfilingAdapter,
+    )
+
+    return OTelCostProfilingAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
