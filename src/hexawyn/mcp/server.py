@@ -21,6 +21,7 @@ if TYPE_CHECKING:
         CostSavingEstimationPort,
     )
     from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
+    from hexawyn.application.ports.driven.gitops_port import GitOpsPort
     from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
     from hexawyn.application.ports.driven.k8s_port import K8sPort
     from hexawyn.application.ports.driven.kubernetes_topology_port import KubernetesTopologyPort
@@ -135,6 +136,12 @@ def build_istio_topology_adapter() -> IstioTopologyPort:
     from hexawyn.adapters.secondary.istio_topology_adapter import IstioTopologyAdapter
 
     return IstioTopologyAdapter()
+
+
+def build_gitops_adapter() -> GitOpsPort:
+    from hexawyn.adapters.secondary.gitops.gitops_detector import GitOpsDetector
+
+    return GitOpsDetector()
 
 
 def build_topology_snapshot_adapter() -> TopologySnapshotPort:

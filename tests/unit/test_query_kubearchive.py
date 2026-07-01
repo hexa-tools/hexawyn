@@ -123,3 +123,25 @@ class TestQueryKubeArchiveTool:
 
         assert result["error"] is None
         assert result["comparison"] is not None
+
+    def test_build_k8s_adapter_failure(self) -> None:
+        with (
+            patch(
+                "hexawyn.mcp.server.build_k8s_adapter",
+                side_effect=RuntimeError("k8s unreachable"),
+            ),
+            patch(
+                "hexawyn.adapters.secondary.kubearchive_http_adapter.KubeArchiveHTTPAdapter"
+            ) as mock_ka_class,
+        ):
+            mock_ka_class.return_value = MagicMock()
+
+            result = query_kubearchive(
+                namespace="payment",
+                resource_type="pods",
+                timestamp="2026-06-09T10:00:00Z",
+            )
+
+        assert result["error"] is not None
+        assert "k8s unreachable" in str(result["error"])
+        assert result["pods"] == []
