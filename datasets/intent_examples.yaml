@@ -208,3 +208,16 @@ live_dependency_mapping:
     - "How much would it cost us in downtime if auth-service failed — how many services depend on it?"
     - "List all single points of failure in the checkout namespace based on current service topology."
     - "Are there any circular dependencies between our microservices?"
+
+# ── KubeArchive Historical State ────────────────────────────────────────────
+
+query_kubearchive:
+  tool: query_kubearchive
+  questions:
+    - "Query KubeArchive for the historical state of all pods in the payment namespace from last Tuesday — what was the pod count and which ones were restarting?"
+    - "What was the state of pods in production at 2026-06-09T10:00:00Z and which ones were crashing?"
+    - "How many pods were running in staging last Monday and how does that compare to today?"
+    - "Compare the pods in the payment namespace now vs last week — what was added and what was removed?"
+    - "Show me which deployments existed in the ci namespace on June 1st"
+    - "Were there any pods in CrashLoopBackOff in the production namespace last Tuesday?"
+    - "Give me a historical snapshot of all pods in the payment namespace and highlight the failing ones"

@@ -150,3 +150,27 @@ class SlackQuotaExceededError(HexawynError):
         )
         self.used = used
         self.limit = limit
+
+
+# ── KubeArchive ───────────────────────────────────────────
+class KubeArchiveUnavailableError(HexawynError):
+    """Raised when KubeArchive is not installed or unreachable in the cluster."""
+
+    def __init__(self, context: dict[str, str] | None = None) -> None:
+        super().__init__(
+            "KubeArchive is not available in this cluster. "
+            "Install KubeArchive first: https://kubearchive.org/docs/installation",
+            context=context,
+        )
+
+
+class HistoricalDataWindowExpiredError(HexawynError):
+    """Raised when the requested timestamp predates KubeArchive's data retention window."""
+
+    def __init__(self, queried_timestamp: str, retention_window: str) -> None:
+        super().__init__(
+            f"Requested timestamp {queried_timestamp} is outside the retention window ({retention_window}). "
+            "KubeArchive only retains data within the configured retention period."
+        )
+        self.queried_timestamp = queried_timestamp
+        self.retention_window = retention_window
