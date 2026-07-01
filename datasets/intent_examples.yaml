@@ -390,6 +390,80 @@ policy_audit:
     - "Give me a security compliance report for the entire cluster"
     - "How many resources are non-compliant per namespace?"
 
+# ── Cert-Manager ─────────────────────────────────────────────────────────────
+
+certs_detect:
+  tool: certs_detect
+  questions:
+    - "Is Cert-Manager installed in my cluster?"
+    - "How many certificates are expiring soon?"
+    - "Detect Cert-Manager and show me the certificate counts"
+    - "Are there any failed certificates in the cluster?"
+    - "What is the Cert-Manager version and namespace?"
+
+certs_list:
+  tool: certs_list
+  questions:
+    - "What is the status of all my Cert-Manager certificates?"
+    - "List all TLS certificates with their expiration dates"
+    - "Show me which certificates will expire in the next 30 days"
+    - "Are all my Let's Encrypt certificates valid?"
+    - "Which certificates are currently not ready or failed?"
+
+certs_get:
+  tool: certs_get
+  questions:
+    - "Show me the details of the payments-api TLS certificate"
+    - "When does the production wildcard certificate expire?"
+    - "Is the staging certificate auto-renewing?"
+    - "What is the issuer type for the frontend certificate?"
+    - "Get the full status of the auth-service certificate"
+
+certs_status_explain:
+  tool: certs_status_explain
+  questions:
+    - "Why was the payments-api certificate not renewed?"
+    - "Explain why this TLS certificate is in failed status"
+    - "What is causing the certificate to not be ready?"
+    - "Why is my Let's Encrypt certificate stuck in issuing?"
+    - "What should I do to fix the renewal failure?"
+
+certs_issuers_list:
+  tool: certs_issuers_list
+  questions:
+    - "List all Certificate Issuers and ClusterIssuers"
+    - "What Let's Encrypt issuers are configured?"
+    - "Show me all issuers and their readiness status"
+    - "Are there any self-signed or Vault issuers in my cluster?"
+    - "Which ClusterIssuers are available cluster-wide?"
+
+certs_issuer_get:
+  tool: certs_issuer_get
+  questions:
+    - "Show me the Let's Encrypt production issuer configuration"
+    - "Is the staging ClusterIssuer ready and connected?"
+    - "What ACME server is my issuer pointing to?"
+    - "Why is the Vault issuer not ready?"
+    - "Get the detail of the self-signed issuer"
+
+certs_challenges_list:
+  tool: certs_challenges_list
+  questions:
+    - "Are there any failed ACME challenges in my cluster?"
+    - "Show me all pending ACME DNS-01 challenges"
+    - "Which domains have errored HTTP-01 challenges?"
+    - "List all ACME challenges in the production namespace"
+    - "Why is my DNS challenge stuck in pending?"
+
+certs_requests_list:
+  tool: certs_requests_list
+  questions:
+    - "Show me recent CertificateRequests in my cluster"
+    - "Are there any pending certificate requests?"
+    - "List all CertificateRequests in the production namespace"
+    - "What is the status of the latest cert request for staging?"
+    - "Are any certificate requests failing repeatedly?"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
