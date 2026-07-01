@@ -464,6 +464,89 @@ certs_requests_list:
     - "What is the status of the latest cert request for staging?"
     - "Are any certificate requests failing repeatedly?"
 
+# ── KEDA Autoscaling ─────────────────────────────────────────────────────────
+
+keda_detect:
+  tool: keda_detect
+  questions:
+    - "Is KEDA installed in my cluster and what version?"
+    - "How many ScaledObjects are configured across all namespaces?"
+    - "Detect KEDA and show me the ScaledObject counts"
+    - "Are there any ScaledObjects in error state?"
+    - "Which namespaces have KEDA ScaledObjects managed?"
+
+keda_scaledobjects_list:
+  tool: keda_scaledobjects_list
+  questions:
+    - "List all KEDA ScaledObjects in my cluster"
+    - "What ScaledObjects are configured in the production namespace?"
+    - "Show me all ScaledObjects with their current phase"
+    - "Which workloads are configured for KEDA autoscaling?"
+    - "List all ScaledObjects sorted by status"
+
+keda_scaledobject_get:
+  tool: keda_scaledobject_get
+  questions:
+    - "Why is my payments-consumer ScaledObject not scaling?"
+    - "Get the full detail of the auth-service ScaledObject with triggers"
+    - "What is the cooldown period for the checkout-worker?"
+    - "Show me the HPA status managed by KEDA for the email-service"
+    - "Why is my ScaledObject in fallback mode?"
+
+keda_scaledobject_status:
+  tool: keda_scaledobject_status
+  questions:
+    - "Is the payments-consumer currently scaling or in cooldown?"
+    - "What is the current vs target replica count for the auth-service?"
+    - "When was the last scale event for the checkout-worker?"
+    - "Is the data-processor scaled to zero right now?"
+    - "Show me the real-time scaling status of the email-consumer"
+
+keda_scaledobject_triggers:
+  tool: keda_scaledobject_triggers
+  questions:
+    - "What triggers are configured on the payments-consumer ScaledObject?"
+    - "Show me all triggers for the auth-service with their auth status"
+    - "Are there any Kafka triggers with authentication errors?"
+    - "List the trigger types and metadata for the checkout-worker"
+    - "Which triggers on the data-processor are failing auth?"
+
+keda_triggerauth_list:
+  tool: keda_triggerauth_list
+  questions:
+    - "List all KEDA TriggerAuthentications in my cluster"
+    - "Show me all ClusterTriggerAuthentications"
+    - "Are there any TriggerAuth objects using pod identity?"
+    - "Which secrets are referenced by KEDA trigger auths?"
+    - "List all KEDA auth configurations with their status"
+
+keda_triggerauth_get:
+  tool: keda_triggerauth_get
+  questions:
+    - "Get the detail of the kafka-auth TriggerAuthentication"
+    - "What authentication type does the prometheus-auth use?"
+    - "Is the production TriggerAuthentication ready?"
+    - "Show me which secrets the keda-auth references (without values)"
+    - "What pod identity provider does the cluster trigger auth use?"
+
+keda_scaledjobs_list:
+  tool: keda_scaledjobs_list
+  questions:
+    - "List all KEDA ScaledJobs in my cluster"
+    - "What ScaledJobs are configured in the data namespace?"
+    - "Show me all ScaledJobs with their execution counts"
+    - "Are there any failed ScaledJobs?"
+    - "List ScaledJobs by success rate"
+
+keda_scaledjob_get:
+  tool: keda_scaledjob_get
+  questions:
+    - "Did my batch-processing ScaledJob run successfully last night?"
+    - "How many times has the data-ingestion ScaledJob succeeded vs failed?"
+    - "When was the last execution of the cleanup ScaledJob?"
+    - "What is the max replica count for the batch-worker ScaledJob?"
+    - "Get the full detail of the nightly-report ScaledJob"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:

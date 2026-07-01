@@ -218,3 +218,14 @@ class CertManagerNotFoundError(HexawynError):
             "Cert-Manager is not installed in this cluster. "
             "Install it first: https://cert-manager.io/docs/installation/"
         )
+
+
+# ── KEDA ───────────────────────────────────────────────────
+class KedaNotFoundError(HexawynError):
+    """Raised when KEDA is not installed in the cluster."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            "KEDA is not installed in this cluster. "
+            "Install it first: https://keda.sh/docs/deploy/"
+        )
