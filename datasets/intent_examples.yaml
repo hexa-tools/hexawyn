@@ -558,6 +558,17 @@ canary_comparison:
     - "Should I promote or rollback the current canary of the auth service?"
     - "What is the error rate delta between the canary and stable deployments?"
 
+# ── Cost Profiling ───────────────────────────────────────────────────────────
+
+cost_profiling:
+  tool: cost_profiling
+  questions:
+    - "Which endpoint consumes the most CPU resources per request?"
+    - "What are the top 5 most CPU-intensive endpoints in my cluster?"
+    - "Identify optimisation candidates based on CPU cost profiling"
+    - "Which endpoints have high frequency combined with high CPU cost?"
+    - "Rank my HTTP endpoints by total CPU consumption over the last hour"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
