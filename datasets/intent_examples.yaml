@@ -569,6 +569,17 @@ cost_profiling:
     - "Which endpoints have high frequency combined with high CPU cost?"
     - "Rank my HTTP endpoints by total CPU consumption over the last hour"
 
+# ── Memory Saturation ────────────────────────────────────────────────────────
+
+memory_saturation:
+  tool: memory_saturation
+  questions:
+    - "Which pod is going to saturate its memory in the next 30 minutes?"
+    - "Predict which pods are at risk of OOM before the hour"
+    - "Why is the checkout pod consuming so much memory?"
+    - "Show me pods with growing memory trends and their projected saturation time"
+    - "Are any pods about to hit their memory limit in production?"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
