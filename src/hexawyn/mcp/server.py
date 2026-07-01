@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.gitops_port import GitOpsPort
     from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
     from hexawyn.application.ports.driven.k8s_port import K8sPort
+    from hexawyn.application.ports.driven.keda_port import KedaPort
     from hexawyn.application.ports.driven.kubernetes_topology_port import KubernetesTopologyPort
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
     from hexawyn.application.ports.driven.policy_port import PolicyPort
@@ -173,6 +174,12 @@ def build_cert_manager_adapter() -> CertManagerPort:
     )
 
     return CertManagerDetector()
+
+
+def build_keda_adapter() -> KedaPort:
+    from hexawyn.adapters.secondary.gitops.keda_detector import KedaDetector
+
+    return KedaDetector()
 
 
 def register_tools(server: FastMCP) -> None:
