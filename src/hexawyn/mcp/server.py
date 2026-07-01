@@ -37,6 +37,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.memory_saturation_port import (
         MemorySaturationPort,
     )
+    from hexawyn.application.ports.driven.metric_correlation_port import (
+        MetricCorrelationPort,
+    )
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
     from hexawyn.application.ports.driven.policy_port import PolicyPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
@@ -233,6 +236,14 @@ def build_latency_percentile_adapter() -> LatencyPercentilePort:
     )
 
     return OTelPrometheusLatencyAdapter()
+
+
+def build_metric_correlation_adapter() -> MetricCorrelationPort:
+    from hexawyn.adapters.secondary.gitops.otel_correlation_adapter import (
+        OTelPrometheusCorrelationAdapter,
+    )
+
+    return OTelPrometheusCorrelationAdapter()
 
 
 def register_tools(server: FastMCP) -> None:

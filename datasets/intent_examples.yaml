@@ -602,6 +602,17 @@ p99_latency:
     - "What is the tail latency of the payments service in the last hour?"
     - "Show me the SLO compliance status for the /v1/orders endpoint"
 
+# ── Metric Correlation ───────────────────────────────────────────────────────
+
+metric_correlation:
+  tool: metric_correlation
+  questions:
+    - "Is the spike in 5xx errors on api-gateway correlated with latency on auth-service?"
+    - "Are payment-service errors caused by database slowness?"
+    - "Correlate the latency spike on auth-service with the gateway error spike"
+    - "Is there a causal relationship between checkout errors and Redis latency?"
+    - "Overlay 5xx rate and p99 latency for the last 30 minutes"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
