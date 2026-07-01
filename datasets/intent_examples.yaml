@@ -635,6 +635,17 @@ admin_endpoint_audit:
     - "What is the 403 rate on /admin in the last 30 minutes?"
     - "Flag any IPs that have more than 5 failed admin calls in the last hour"
 
+# ── Service Dependency Graph ─────────────────────────────────────────────────
+
+service_dependency_graph:
+  tool: service_dependency_graph
+  questions:
+    - "Draw the dependency graph between services for the last hour"
+    - "Show me the runtime service interactions derived from OTel traces"
+    - "What is the call graph between my microservices?"
+    - "Which service calls which based on actual trace data?"
+    - "Build a dependency map from spans showing caller-callee relationships"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
