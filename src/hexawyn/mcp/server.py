@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.kubernetes_topology_port import KubernetesTopologyPort
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
+    from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
     from hexawyn.application.ports.driven.tekton_port import TektonPort
     from hexawyn.application.ports.driven.topology_snapshot_port import TopologySnapshotPort
     from hexawyn.application.ports.driven.what_if_simulation_port import (
@@ -150,6 +151,12 @@ def build_topology_snapshot_adapter() -> TopologySnapshotPort:
     )
 
     return TopologySnapshotRepository(conn=get_connection())
+
+
+def build_rollouts_adapter() -> RolloutsPort:
+    from hexawyn.adapters.secondary.gitops.argo_rollouts_detector import ArgoRolloutsDetector
+
+    return ArgoRolloutsDetector()
 
 
 def register_tools(server: FastMCP) -> None:
