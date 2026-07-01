@@ -25,6 +25,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
     from hexawyn.application.ports.driven.tekton_port import TektonPort
+    from hexawyn.application.ports.driven.what_if_simulation_port import (
+        WhatIfSimulationPort,
+    )
     from hexawyn.application.ports.driven.zombie_detection_port import ZombieDetectionPort
 
 # Initialize FastMCP server
@@ -68,6 +71,13 @@ def build_tekton_adapter() -> TektonPort:
 
 
 def build_rightsizing_adapter() -> RightsizingPort:
+    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+
+    context = context_name if context_name != "unknown" else None
+    return VanillaAdapter(cluster_name=context or "default")
+
+
+def build_what_if_simulation_adapter() -> WhatIfSimulationPort:
     from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     context = context_name if context_name != "unknown" else None

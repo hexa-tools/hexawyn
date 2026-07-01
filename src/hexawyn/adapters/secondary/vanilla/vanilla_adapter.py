@@ -36,6 +36,12 @@ from hexawyn.application.ports.driven.tekton_port import (
     TaskRunInfo,
     TektonPort,
 )
+from hexawyn.application.ports.driven.what_if_simulation_port import (
+    DependentServiceData,
+    HPAData,
+    PDBData,
+    WhatIfSimulationPort,
+)
 from hexawyn.application.ports.driven.zombie_detection_port import (
     ZombieDetectionPort,
     ZombiePodData,
@@ -152,6 +158,7 @@ class VanillaAdapter(
     CostForecastPort,
     ZombieDetectionPort,
     CostSavingEstimationPort,
+    WhatIfSimulationPort,
 ):
     """Minimal adapter for vanilla Kubernetes with no cloud provider dependencies."""
 
@@ -1191,6 +1198,103 @@ class VanillaAdapter(
             )
         except Exception:
             pass  # non-critical — history storage failure must not break the use case
+
+    # ── WhatIfSimulationPort ──────────────────────────────────
+
+    def get_current_replicas(self, namespace: str, service_name: str) -> int:
+        try:
+            raw = self._apps_api_client().list_deployment_for_all_namespaces(
+                timeout_seconds=_K8S_TIMEOUT
+            )
+        except Exception:
+            return 0
+        for dep in self._items_from(raw):
+            meta = getattr(dep, "metadata", None)
+            ns = str(getattr(meta, "namespace", ""))
+            name = str(getattr(meta, "name", ""))
+            if ns == namespace and name == service_name:
+                spec = getattr(dep, "spec", None)
+                return int(getattr(spec, "replicas", 0) or 0)
+        return 0
+
+    def get_current_cpu_utilization(self, namespace: str, service_name: str) -> float:
+        if not self._prometheus_url:
+            return 0.0
+        import httpx
+
+        query = (
+            f'sum(rate(container_cpu_usage_seconds_total{{namespace="{namespace}",'
+            f'pod=~"{service_name}-.*"}}[5m])) / '
+            f'sum(kube_pod_container_resource_requests{{resource="cpu",'
+            f'namespace="{namespace}",pod=~"{service_name}-.*"}}) * 100'
+        )
+        try:
+            resp = httpx.get(
+                f"{self._prometheus_url}/api/v1/query",
+                params={"query": query},
+                timeout=_PROMETHEUS_QUERY_TIMEOUT,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            results = data.get("data", {}).get("result", [])
+            if results and isinstance(results, list):
+                value = results[0].get("value", [None, "0"])
+                if len(value) >= 2:
+                    return float(value[1])
+        except Exception:
+            pass
+        return 0.0
+
+    def get_pdb_info(self, namespace: str, service_name: str) -> PDBData | None:
+        try:
+            api_client = self._api_client()
+            raw = getattr(api_client, "list_namespaced_pod_disruption_budget", None)
+            if raw is None:
+                return None
+            item_list = raw(namespace, timeout_seconds=_K8S_TIMEOUT)
+        except Exception:
+            return None
+        for item in self._items_from(item_list):
+            meta = getattr(item, "metadata", None)
+            name = str(getattr(meta, "name", ""))
+            if service_name in name:
+                spec = getattr(item, "spec", None)
+                min_available = getattr(spec, "min_available", None) if spec else None
+                return {
+                    "min_available": int(min_available)
+                    if isinstance(min_available, int | str) and str(min_available).isdigit()
+                    else None
+                }
+        return None
+
+    def get_hpa_info(self, namespace: str, service_name: str) -> HPAData | None:
+        try:
+            auto_api = cast(object, client.AutoscalingV2Api())
+            raw = getattr(auto_api, "list_namespaced_horizontal_pod_autoscaler")(
+                namespace, timeout_seconds=_K8S_TIMEOUT
+            )
+        except Exception:
+            return None
+        for item in self._items_from(raw):
+            meta = getattr(item, "metadata", None)
+            name = str(getattr(meta, "name", ""))
+            if service_name in name:
+                spec = getattr(item, "spec", None)
+                status = getattr(item, "status", None)
+                return {
+                    "min_replicas": int(getattr(spec, "min_replicas", 1) or 1),
+                    "max_replicas": int(getattr(spec, "max_replicas", 1) or 1),
+                    "current_replicas": int(getattr(status, "current_replicas", 0) or 0),
+                }
+        return None
+
+    def get_service_topology(
+        self, namespace: str, service_name: str
+    ) -> dict[str, list[DependentServiceData]]:
+        return {}
+
+    def get_dependency_graph(self, namespace: str) -> dict[str, list[str]]:
+        return {}
 
 
 def _compute_pod_resources(containers: list[object]) -> tuple[float, float]:
