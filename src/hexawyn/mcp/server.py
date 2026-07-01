@@ -21,10 +21,13 @@ if TYPE_CHECKING:
         CostSavingEstimationPort,
     )
     from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
+    from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
     from hexawyn.application.ports.driven.k8s_port import K8sPort
+    from hexawyn.application.ports.driven.kubernetes_topology_port import KubernetesTopologyPort
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
     from hexawyn.application.ports.driven.tekton_port import TektonPort
+    from hexawyn.application.ports.driven.topology_snapshot_port import TopologySnapshotPort
     from hexawyn.application.ports.driven.what_if_simulation_port import (
         WhatIfSimulationPort,
     )
@@ -119,6 +122,27 @@ def build_fleet_health_adapter() -> FleetHealthPort:
 
     prometheus_url = os.environ.get("PROMETHEUS_URL", "")
     return FleetHealthAdapter(prometheus_url=prometheus_url)
+
+
+def build_kubernetes_topology_adapter() -> KubernetesTopologyPort:
+    from hexawyn.adapters.secondary.kubernetes_topology_adapter import KubernetesTopologyAdapter
+
+    context = context_name if context_name != "unknown" else None
+    return KubernetesTopologyAdapter(cluster_name=context or "default")
+
+
+def build_istio_topology_adapter() -> IstioTopologyPort:
+    from hexawyn.adapters.secondary.istio_topology_adapter import IstioTopologyAdapter
+
+    return IstioTopologyAdapter()
+
+
+def build_topology_snapshot_adapter() -> TopologySnapshotPort:
+    from hexawyn.infrastructure.memory.topology_snapshot_repository import (
+        TopologySnapshotRepository,
+    )
+
+    return TopologySnapshotRepository(conn=get_connection())
 
 
 def register_tools(server: FastMCP) -> None:
