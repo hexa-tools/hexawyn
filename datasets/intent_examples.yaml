@@ -333,3 +333,142 @@ analysis_runs_list:
     - "List all AnalysisRuns associated with the checkout rollout"
     - "Has the automated analysis passed for the production canary?"
     - "Show me all failed AnalysisRuns with their error messages"
+
+# ── Policy Engines ───────────────────────────────────────────────────────────
+
+policy_detect:
+  tool: policy_detect
+  questions:
+    - "Does my cluster use Kyverno or OPA Gatekeeper?"
+    - "Which policy engine is installed in my cluster?"
+    - "Are there any policy violations in my cluster right now?"
+    - "How many enforce vs audit policies do I have?"
+    - "Detect the policy engine and show me the violation counts"
+
+policy_list:
+  tool: policy_list
+  questions:
+    - "List all Kyverno policies in my cluster"
+    - "Which policies are in enforce mode vs audit mode?"
+    - "Show me all ClusterPolicies with their violation counts"
+    - "What policies are blocking deployments using root containers?"
+    - "List all Gatekeeper constraints and their readiness status"
+
+policy_get:
+  tool: policy_get
+  questions:
+    - "Show me the details of the require-run-as-non-root policy"
+    - "How many rules does the deny-latest-tag ClusterPolicy have?"
+    - "Is the restrict-image-registries Gatekeeper constraint ready?"
+    - "What is the description and action of this policy?"
+    - "Get the full configuration of the production security policy"
+
+policy_violations_list:
+  tool: policy_violations_list
+  questions:
+    - "What policy violations exist in the production namespace?"
+    - "Are there any non-compliant resources in my cluster?"
+    - "Show me all violations with HIGH severity"
+    - "Which deployments are violating the no-root policy?"
+    - "List all policy violations in the default namespace"
+
+policy_explain_denial:
+  tool: policy_explain_denial
+  questions:
+    - "Why was my deployment denied by Kyverno?"
+    - "Explain why my pod was rejected by the policy engine"
+    - "What do I need to change to pass the security policy?"
+    - "My nginx deployment was blocked — what rule did it violate?"
+    - "Give me the fix suggestion for the denied resource in production"
+
+policy_audit:
+  tool: policy_audit
+  questions:
+    - "Run a compliance audit across all namespaces"
+    - "Which namespaces have the most policy violations?"
+    - "Is the production namespace compliant with all policies?"
+    - "Give me a security compliance report for the entire cluster"
+    - "How many resources are non-compliant per namespace?"
+
+# ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
+
+keda_detect:
+  tool: keda_detect
+  questions:
+    - "Is KEDA installed in my cluster and what version?"
+    - "How many ScaledObjects does KEDA manage across all namespaces?"
+    - "Detect KEDA and show me the managed namespaces"
+    - "Are there any ScaledObjects in error right now?"
+    - "How many ScaledJobs and ScaledObjects are configured via KEDA?"
+
+keda_scaledobjects_list:
+  tool: keda_scaledobjects_list
+  questions:
+    - "What KEDA ScaledObjects are configured across my cluster?"
+    - "List all ScaledObjects with their triggers and HPA status"
+    - "Show me which workloads are configured for KEDA autoscaling"
+    - "How many ScaledObjects manage our production vs staging clusters?"
+    - "List all KEDA ScaledObjects in the payments namespace"
+
+keda_scaledobject_get:
+  tool: keda_scaledobject_get
+  questions:
+    - "Why isn't my ScaledObject payments-consumer scaling even though the Kafka queue is full?"
+    - "Get the full detail of the auth-service ScaledObject with all triggers"
+    - "What triggers are configured on the order-processor ScaledObject?"
+    - "Show me the cooldown and fallback config for the checkout ScaledObject"
+    - "What workload does the api-worker ScaledObject control?"
+
+keda_scaledobject_status:
+  tool: keda_scaledobject_status
+  questions:
+    - "What's the status of the HPA managed by KEDA for auth-service?"
+    - "Is the payments-consumer currently scaling or in cooldown?"
+    - "What are the current vs target replicas for the checkout ScaledObject?"
+    - "When was the last time the notification-worker scaled?"
+    - "Show me the real-time HPA status for the production ScaledObject"
+
+keda_scaledobject_triggers:
+  tool: keda_scaledobject_triggers
+  questions:
+    - "What triggers are configured on my payments-consumer ScaledObject and are they authenticated?"
+    - "Are there any KEDA triggers with broken authentication?"
+    - "List all Kafka triggers with their auth status on the production ScaledObject"
+    - "Which Prometheus queries are used by KEDA triggers in my cluster?"
+    - "Show me the cron schedule for all KEDA cron triggers"
+
+keda_trigger_auth_list:
+  tool: keda_trigger_auth_list
+  questions:
+    - "List all KEDA TriggerAuthentications in my cluster"
+    - "Which ClusterTriggerAuthentications are configured and for what providers?"
+    - "Are there any TriggerAuthentications referencing missing secrets?"
+    - "Show me all KEDA auth configs using AWS IRSA vs Azure Workload Identity"
+    - "Which namespaces have TriggerAuthentications for KEDA?"
+
+keda_trigger_auth_get:
+  tool: keda_trigger_auth_get
+  questions:
+    - "How is the Kafka trigger authenticated — via secret or pod identity?"
+    - "Get the details of the kafka-auth TriggerAuthentication"
+    - "What secrets does the prometheus-trigger-auth reference?"
+    - "Is the production TriggerAuthentication using the right cloud provider identity?"
+    - "Show me the auth configuration for the RabbitMQ trigger"
+
+keda_scaledjobs_list:
+  tool: keda_scaledjobs_list
+  questions:
+    - "What KEDA ScaledJobs are configured in my cluster?"
+    - "Did my ScaledJob batch-processing run successfully last night?"
+    - "Are there any ScaledJobs currently in error?"
+    - "List all ScaledJobs with their execution counters and last run time"
+    - "Which ScaledJobs are paused vs active?"
+
+keda_scaledjob_get:
+  tool: keda_scaledjob_get
+  questions:
+    - "Get the detail of the data-ingestion ScaledJob with its triggers"
+    - "How many times has the nightly-batch ScaledJob failed vs succeeded?"
+    - "What is the cooldown and max replica count for the image-processor ScaledJob?"
+    - "When was the last time the cleanup-job ScaledJob executed?"
+    - "Why is the report-generator ScaledJob in error?"

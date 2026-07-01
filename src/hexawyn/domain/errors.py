@@ -196,3 +196,14 @@ class ArgoRolloutsNotFoundError(HexawynError):
             "Argo Rollouts is not installed in this cluster. "
             "Install it first: https://argo-rollouts.readthedocs.io/en/stable/installation/"
         )
+
+
+# ── Policy Engines ────────────────────────────────────────
+class PolicyEngineNotFoundError(HexawynError):
+    """Raised when no policy engine (Kyverno or OPA/Gatekeeper) is detected."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            "No policy engine detected in this cluster. "
+            "Install Kyverno (https://kyverno.io) or OPA Gatekeeper (https://open-policy-agent.github.io/gatekeeper) first."
+        )
