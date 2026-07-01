@@ -670,3 +670,32 @@ class TestMCPDetectOverProvisionedNamespacesTool:
         excluded = result["excluded"]  # type: ignore[index]
         assert len(excluded) == 1
         assert excluded[0]["namespace"] == "new-ns"
+
+
+class TestMCPTopologyAdapterFactories:
+    def test_build_kubernetes_topology_adapter_returns_kubernetes_topology_port(self) -> None:
+        from hexawyn.application.ports.driven.kubernetes_topology_port import (
+            KubernetesTopologyPort,
+        )
+        from hexawyn.mcp.server import build_kubernetes_topology_adapter
+
+        result = build_kubernetes_topology_adapter()
+
+        assert isinstance(result, KubernetesTopologyPort)
+
+    def test_build_istio_topology_adapter_returns_istio_topology_port(self) -> None:
+        from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
+        from hexawyn.mcp.server import build_istio_topology_adapter
+
+        result = build_istio_topology_adapter()
+
+        assert isinstance(result, IstioTopologyPort)
+
+    def test_build_topology_snapshot_adapter_returns_topology_snapshot_port(self) -> None:
+        from hexawyn.application.ports.driven.topology_snapshot_port import TopologySnapshotPort
+        from hexawyn.mcp.server import build_topology_snapshot_adapter
+
+        with patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()):
+            result = build_topology_snapshot_adapter()
+
+        assert isinstance(result, TopologySnapshotPort)
