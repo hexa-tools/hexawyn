@@ -16,6 +16,9 @@ from hexawyn.infrastructure.config.kubeconfig_reader import (
 from hexawyn.infrastructure.memory.duckdb_client import get_connection
 
 if TYPE_CHECKING:
+    from hexawyn.application.ports.driven.canary_comparison_port import (
+        CanaryComparisonPort,
+    )
     from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
     from hexawyn.application.ports.driven.cost_forecast_port import CostForecastPort
     from hexawyn.application.ports.driven.cost_saving_estimation_port import (
@@ -180,6 +183,14 @@ def build_keda_adapter() -> KedaPort:
     from hexawyn.adapters.secondary.gitops.keda_detector import KedaDetector
 
     return KedaDetector()
+
+
+def build_canary_comparison_adapter() -> CanaryComparisonPort:
+    from hexawyn.adapters.secondary.gitops.otel_canary_comparison_adapter import (
+        OTelCanaryComparisonAdapter,
+    )
+
+    return OTelCanaryComparisonAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
