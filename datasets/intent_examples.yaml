@@ -126,3 +126,12 @@ check_resource_constraints:
     - "Which pods are at risk of being OOMKilled in the staging namespace?"
     - "Are there any pods running without resource limits configured?"
     - "Give me a resource pressure report for all containers in production, sorted by risk"
+
+trace_pipeline_run_dag:
+  tool: trace_pipeline_run_dag
+  questions:
+    - "Trace the full execution path of PipelineRun deploy-checkout-v5 — show me the complete DAG of TaskRuns with their start times, durations, and dependencies."
+    - "What is the critical path for the payment-service pipeline — which tasks are the bottleneck?"
+    - "Show me the execution DAG for pipeline-run-42, highlight any failed or skipped tasks"
+    - "Which TaskRuns ran in parallel vs sequentially in the latest CI pipeline?"
+    - "Give me a visual dependency graph of the deploy-staging PipelineRun with timestamps"
