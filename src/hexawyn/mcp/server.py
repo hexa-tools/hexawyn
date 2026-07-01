@@ -31,6 +31,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.k8s_port import K8sPort
     from hexawyn.application.ports.driven.keda_port import KedaPort
     from hexawyn.application.ports.driven.kubernetes_topology_port import KubernetesTopologyPort
+    from hexawyn.application.ports.driven.memory_saturation_port import (
+        MemorySaturationPort,
+    )
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
     from hexawyn.application.ports.driven.policy_port import PolicyPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
@@ -200,6 +203,14 @@ def build_cost_profiling_adapter() -> CostProfilingPort:
     )
 
     return OTelCostProfilingAdapter()
+
+
+def build_memory_saturation_adapter() -> MemorySaturationPort:
+    from hexawyn.adapters.secondary.gitops.prometheus_memory_adapter import (
+        PrometheusMemoryAdapter,
+    )
+
+    return PrometheusMemoryAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
