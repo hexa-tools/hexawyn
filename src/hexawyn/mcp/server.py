@@ -38,6 +38,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.policy_port import PolicyPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
     from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
+    from hexawyn.application.ports.driven.span_bottleneck_port import (
+        SpanBottleneckPort,
+    )
     from hexawyn.application.ports.driven.tekton_port import TektonPort
     from hexawyn.application.ports.driven.topology_snapshot_port import TopologySnapshotPort
     from hexawyn.application.ports.driven.what_if_simulation_port import (
@@ -211,6 +214,14 @@ def build_memory_saturation_adapter() -> MemorySaturationPort:
     )
 
     return PrometheusMemoryAdapter()
+
+
+def build_span_bottleneck_adapter() -> SpanBottleneckPort:
+    from hexawyn.adapters.secondary.gitops.otel_span_breakdown_adapter import (
+        OTelSpanBreakdownAdapter,
+    )
+
+    return OTelSpanBreakdownAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
