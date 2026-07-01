@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.policy_port import PolicyPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
     from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
+    from hexawyn.application.ports.driven.security_audit_port import SecurityAuditPort
     from hexawyn.application.ports.driven.span_bottleneck_port import (
         SpanBottleneckPort,
     )
@@ -255,6 +256,14 @@ def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:
     )
 
     return OTelTraceLogAdapter()
+
+
+def build_security_audit_adapter() -> SecurityAuditPort:
+    from hexawyn.adapters.secondary.gitops.otel_security_audit_adapter import (
+        OTelSecurityAuditAdapter,
+    )
+
+    return OTelSecurityAuditAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
