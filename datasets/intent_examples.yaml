@@ -646,6 +646,17 @@ service_dependency_graph:
     - "Which service calls which based on actual trace data?"
     - "Build a dependency map from spans showing caller-callee relationships"
 
+# ── Trace K8s Events ─────────────────────────────────────────────────────────
+
+trace_k8s_events:
+  tool: trace_k8s_events
+  questions:
+    - "Show me all system events (OOM, restart, eviction) during this slow trace"
+    - "Were there any OOMKilled or eviction events during trace slow-trace-789?"
+    - "Correlate k8s events with the slowest span in this trace"
+    - "Did infrastructure events cause the performance degradation in this trace?"
+    - "List all OOMKilled, restart, and eviction events in the trace time window"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
