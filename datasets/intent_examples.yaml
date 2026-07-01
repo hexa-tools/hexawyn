@@ -613,6 +613,17 @@ metric_correlation:
     - "Is there a causal relationship between checkout errors and Redis latency?"
     - "Overlay 5xx rate and p99 latency for the last 30 minutes"
 
+# ── Trace-Log Correlation ────────────────────────────────────────────────────
+
+trace_log_correlation:
+  tool: trace_log_correlation
+  questions:
+    - "What are the error logs associated with the failed trace for POST /order?"
+    - "Find the error logs for the most recent failed checkout request"
+    - "Correlate the failed trace abc-def-123 with the application error logs"
+    - "Show me the application errors that happened during the failed payments trace"
+    - "What went wrong in the last failed POST /order request — show logs and spans"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
