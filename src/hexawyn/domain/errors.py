@@ -185,3 +185,14 @@ class GitOpsEngineNotFoundError(HexawynError):
             "No GitOps engine detected in this cluster. "
             "Install Flux CD (https://fluxcd.io) or Argo CD (https://argo-cd.readthedocs.io) first."
         )
+
+
+# ── Argo Rollouts ──────────────────────────────────────────
+class ArgoRolloutsNotFoundError(HexawynError):
+    """Raised when Argo Rollouts is not installed in the cluster."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            "Argo Rollouts is not installed in this cluster. "
+            "Install it first: https://argo-rollouts.readthedocs.io/en/stable/installation/"
+        )

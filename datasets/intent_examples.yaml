@@ -286,3 +286,50 @@ gitops_source_get:
     - "What is the URL and last-updated time of the helm-charts HelmRepository?"
     - "Is the main GitRepository authenticated and ready?"
     - "What's the error message on the staging HelmRepository?"
+
+# ── Argo Rollouts ────────────────────────────────────────────────────────────
+
+rollouts_detect:
+  tool: rollouts_detect
+  questions:
+    - "Is Argo Rollouts installed in my cluster?"
+    - "How many rollouts are currently in progress?"
+    - "Detect Argo Rollouts and show me the version and rollout counts"
+    - "Are there any degraded or paused rollouts right now?"
+    - "What is the rollout status across all namespaces?"
+
+rollouts_list:
+  tool: rollouts_list
+  questions:
+    - "List all Argo Rollouts in my cluster with their current phase"
+    - "Are there any rollouts in progress right now?"
+    - "Show me all canary rollouts in the production namespace"
+    - "Which rollouts are currently paused or degraded?"
+    - "List all blue-green rollouts with their stable and canary images"
+
+rollout_get:
+  tool: rollout_get
+  questions:
+    - "Why is my canary rollout for payments-api blocked?"
+    - "Get the full status of the auth-service rollout with step details"
+    - "What is the current canary weight for the checkout rollout?"
+    - "Show me the AnalysisRun linked to the production rollout"
+    - "What is the current image being rolled out for the frontend service?"
+
+rollout_status:
+  tool: rollout_status
+  questions:
+    - "Is my payments-api canary rollout healthy?"
+    - "What step is the checkout rollout on and what is the canary weight?"
+    - "Why is the auth-service rollout paused?"
+    - "Should I promote or abort the current rollout of the api-gateway?"
+    - "Show me the real-time status of the production deployment rollout"
+
+analysis_runs_list:
+  tool: analysis_runs_list
+  questions:
+    - "Are there any AnalysisRuns failing for my rollouts?"
+    - "Which metrics failed in the payments-api analysis?"
+    - "List all AnalysisRuns associated with the checkout rollout"
+    - "Has the automated analysis passed for the production canary?"
+    - "Show me all failed AnalysisRuns with their error messages"
