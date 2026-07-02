@@ -734,6 +734,17 @@ error_attribution:
     - "Is there a Pareto culprit for the production gateway errors?"
     - "Attribute gateway 5xx errors to originating services"
 
+# ── SLO Breach Prediction ────────────────────────────────────────────────────
+
+slo_breach_prediction:
+  tool: slo_breach_prediction
+  questions:
+    - "Which services are at risk of violating their latency SLO in the next hour?"
+    - "Will any service breach its p99 SLO within the next 60 minutes?"
+    - "Predict which services need attention before they breach their SLO"
+    - "Is the auth-service trending toward an SLO violation?"
+    - "Show me services with degrading p99 latency and projected breach times"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:

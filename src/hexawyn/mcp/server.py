@@ -60,6 +60,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.service_dependency_graph_port import (
         ServiceDependencyGraphPort,
     )
+    from hexawyn.application.ports.driven.slo_breach_prediction_port import (
+        SLOBreachPredictionPort,
+    )
     from hexawyn.application.ports.driven.slow_trace_search_port import (
         SlowTraceSearchPort,
     )
@@ -359,6 +362,14 @@ def build_error_attribution_adapter() -> ErrorAttributionPort:
     )
 
     return OTelErrorAttributionAdapter()
+
+
+def build_slo_breach_prediction_adapter() -> SLOBreachPredictionPort:
+    from hexawyn.adapters.secondary.gitops.otel_slo_prediction_adapter import (
+        OTelSLOPredictionAdapter,
+    )
+
+    return OTelSLOPredictionAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
