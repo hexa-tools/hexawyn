@@ -52,6 +52,19 @@ class TestAnalyzePodLogsHybridStrategy:
         result = analyze_pod_logs(request, lines)
 
         assert result.strategy_used == "hybrid"
+
+    def test_hybrid_strategy_propagates_token_reduction_metrics(self) -> None:
+        """ECA-15: pattern extraction + summarization metrics reach AnalyzePodLogsResult."""
+        lines = [
+            _line("Error: connection refused to redis:6379", level="ERROR") for _ in range(5000)
+        ]
+        request = AnalyzePodLogsRequest(pod_name="mid-pod", namespace="prod")
+
+        result = analyze_pod_logs(request, lines)
+
+        assert result.strategy_used == "hybrid"
+        assert result.token_reduction_percentage > 90.0
+        assert result.degraded is False
         assert result.total_lines == 5000
 
 

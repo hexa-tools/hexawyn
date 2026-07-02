@@ -37,6 +37,8 @@ class AnalyzePodLogsResponse:
     summary: str = ""
     restarts_detected: bool = False
     sanitized_binary: bool = False
+    token_reduction_percentage: float = 0.0
+    degraded: bool = False
     patterns: list[LogPatternDict] = field(default_factory=list)
     connection_timeouts: list[ConnectionIssueDict] = field(default_factory=list)
     connection_refused: list[ConnectionIssueDict] = field(default_factory=list)

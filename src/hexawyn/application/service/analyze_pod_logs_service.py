@@ -49,6 +49,8 @@ def _to_response(result: AnalyzePodLogsResult) -> AnalyzePodLogsResponse:
         summary=result.summary,
         restarts_detected=result.restarts_detected,
         sanitized_binary=result.sanitized_binary,
+        token_reduction_percentage=result.token_reduction_percentage,
+        degraded=result.degraded,
         patterns=[
             LogPatternDict(pattern=p.pattern, count=p.count, confidence=p.confidence)
             for p in result.patterns

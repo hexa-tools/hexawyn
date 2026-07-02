@@ -70,3 +70,5 @@ class AnalyzePodLogsResult:
     restarts_detected: bool = False
     runs: list[PodRunSummary] = field(default_factory=list)
     sanitized_binary: bool = False
+    token_reduction_percentage: float = 0.0
+    degraded: bool = False

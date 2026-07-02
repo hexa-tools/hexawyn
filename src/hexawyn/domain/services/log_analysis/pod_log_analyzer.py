@@ -60,6 +60,8 @@ def analyze_pod_logs(
             restarts_detected=restarts_detected,
             runs=runs,
             sanitized_binary=sanitized_binary,
+            token_reduction_percentage=analysis.token_reduction_percentage,
+            degraded=analysis.degraded,
         )
 
     patterns = [
@@ -87,6 +89,8 @@ def analyze_pod_logs(
         restarts_detected=restarts_detected,
         runs=runs,
         sanitized_binary=sanitized_binary,
+        token_reduction_percentage=analysis.token_reduction_percentage,
+        degraded=analysis.degraded,
     )
 
 

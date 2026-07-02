@@ -2,7 +2,11 @@
 
 import dataclasses
 
-from hexawyn.domain.models.log import LogAnalysisContext, LogAnalysisResult
+from hexawyn.domain.models.log import (
+    LogAnalysisContext,
+    LogAnalysisResult,
+    PatternClassification,
+)
 
 
 class TestLogAnalysisContext:
@@ -42,6 +46,8 @@ class TestLogAnalysisResult:
         assert result.severity == ""
         assert result.confidence == 0.0
         assert result.strategy_used == ""
+        assert result.token_reduction_percentage == 0.0
+        assert result.degraded is False
 
     def test_full_result(self) -> None:
         result = LogAnalysisResult(
@@ -58,3 +64,29 @@ class TestLogAnalysisResult:
 
     def test_is_dataclass(self) -> None:
         assert dataclasses.is_dataclass(LogAnalysisResult)
+
+    def test_hybrid_result_with_reduction_metrics(self) -> None:
+        result = LogAnalysisResult(
+            summary="Recurring connection refused pattern detected 45 times.",
+            patterns=["connection refused"],
+            strategy_used="hybrid",
+            token_reduction_percentage=95.0,
+            degraded=False,
+        )
+        assert result.token_reduction_percentage == 95.0
+        assert result.degraded is False
+
+
+class TestPatternClassification:
+    def test_fields(self) -> None:
+        classification = PatternClassification(
+            pattern="connection refused",
+            count=45,
+            sample_line="upstream connect error: connection refused",
+        )
+        assert classification.pattern == "connection refused"
+        assert classification.count == 45
+        assert "refused" in classification.sample_line
+
+    def test_is_dataclass(self) -> None:
+        assert dataclasses.is_dataclass(PatternClassification)

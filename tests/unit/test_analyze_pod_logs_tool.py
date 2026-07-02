@@ -32,6 +32,29 @@ class TestAnalyzePodLogsTool:
         assert result["strategy_used"] == "smart_summary"
         assert len(result["connection_refused"]) == 1
 
+    def test_returns_hybrid_reduction_metrics(self) -> None:
+        from hexawyn.mcp.tools.analyze_pod_logs import analyze_pod_logs
+
+        with patch("hexawyn.mcp.server.build_pod_logs_adapter") as build:
+            adapter = MagicMock(spec=PodLogsPort)
+            adapter.fetch_logs.return_value = [
+                PodLogLine(
+                    timestamp="T1",
+                    level="ERROR",
+                    message="connection refused to redis:6379",
+                    run_index=0,
+                    is_json=False,
+                )
+                for _ in range(5000)
+            ]
+            build.return_value = adapter
+
+            result = analyze_pod_logs(pod_name="mid-pod", namespace="prod")
+
+        assert result["strategy_used"] == "hybrid"
+        assert result["token_reduction_percentage"] > 90.0
+        assert result["degraded"] is False
+
     def test_handles_error(self) -> None:
         from hexawyn.mcp.tools.analyze_pod_logs import analyze_pod_logs
 
