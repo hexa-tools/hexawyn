@@ -745,6 +745,17 @@ slo_breach_prediction:
     - "Is the auth-service trending toward an SLO violation?"
     - "Show me services with degrading p99 latency and projected breach times"
 
+# ── TLS Certificate Diagnosis ────────────────────────────────────────────────
+
+tls_certificate_diagnosis:
+  tool: tls_certificate_diagnosis
+  questions:
+    - "Investigate the TLS certificate on the payment-service ingress"
+    - "Is the ingress certificate expired, misconfigured, or using a deprecated cipher?"
+    - "Check the TLS certificate validity and SANs for the production ingress"
+    - "Why is the checkout ingress returning SSL handshake errors?"
+    - "Diagnose the certificate on ingress auth-service"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
