@@ -789,6 +789,17 @@ etcd_logs:
     - "Retrieve etcd error logs from the last 30 minutes"
     - "Has there been any etcd leader election instability recently?"
 
+# ── Analyze Pod Logs ─────────────────────────────────────────────────────────
+
+analyze_pod_logs:
+  tool: analyze_pod_logs
+  questions:
+    - "Analyze the logs of pod api-gateway-7f9b in the last 30 minutes — are there recurring error patterns or connection timeouts?"
+    - "Are there any connection refused errors in the payment-service pod logs?"
+    - "Why does checkout-api keep throwing errors — check its logs for the last hour"
+    - "How many errors and warnings has the auth-service pod logged recently?"
+    - "Can you spot any recurring failure patterns in the worker pod's logs?"
+
 # ── Pipeline For Service ─────────────────────────────────────────────────────
 
 pipeline_for_service:
