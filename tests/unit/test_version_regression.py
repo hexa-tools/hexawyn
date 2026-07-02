@@ -96,3 +96,22 @@ class TestVersionComparisonResult:
         )
         assert len(result.flags) == 1
         assert result.flags[0].metric == "error_rate"
+
+    def test_zero_baseline_delta(self) -> None:
+        baseline = VersionMetrics(
+            version="v1.0", p50_ms=0.0, p95_ms=0.0, p99_ms=0.0, error_rate_pct=0.0, request_count=0
+        )
+        current = VersionMetrics(
+            version="v1.1",
+            p50_ms=10.0,
+            p95_ms=20.0,
+            p99_ms=30.0,
+            error_rate_pct=0.1,
+            request_count=100,
+        )
+        result = VersionComparisonResult.compute(
+            request=VersionComparisonRequest(service_name="new-svc"),
+            baseline=baseline,
+            current=current,
+        )
+        assert result.p99_delta_pct == 0.0

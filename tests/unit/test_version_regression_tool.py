@@ -43,3 +43,24 @@ class TestVersionRegressionTool:
         ):
             r = version_regression(service_name="x")
         assert r["error"] == "boom"
+
+
+class TestBuildVersionRegressionAdapter:
+    def test_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.version_regression_port import (
+            VersionRegressionPort,
+        )
+        from hexawyn.mcp.server import build_version_regression_adapter
+
+        assert isinstance(build_version_regression_adapter(), VersionRegressionPort)
+
+
+class TestRegister:
+    def test_has_register(self) -> None:
+        import importlib
+
+        from fastmcp import FastMCP
+
+        mod = importlib.import_module("hexawyn.mcp.tools.version_regression")
+        assert callable(getattr(mod, "register"))
+        getattr(mod, "register")(FastMCP("test"))
