@@ -60,6 +60,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.pipeline_run_logs_port import (
         PipelineRunLogsPort,
     )
+    from hexawyn.application.ports.driven.pod_logs_port import PodLogsPort
     from hexawyn.application.ports.driven.policy_port import PolicyPort
     from hexawyn.application.ports.driven.redundant_call_detection_port import (
         RedundantCallDetectionPort,
@@ -413,6 +414,14 @@ def build_etcd_logs_adapter() -> ETCDLogsPort:
     )
 
     return KubernetesETCDLogsAdapter()
+
+
+def build_pod_logs_adapter() -> PodLogsPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_pod_logs_adapter import (
+        KubernetesPodLogsAdapter,
+    )
+
+    return KubernetesPodLogsAdapter()
 
 
 def build_pipeline_for_service_adapter() -> PipelineForServicePort:
