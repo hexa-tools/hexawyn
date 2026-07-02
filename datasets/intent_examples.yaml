@@ -789,6 +789,17 @@ etcd_logs:
     - "Retrieve etcd error logs from the last 30 minutes"
     - "Has there been any etcd leader election instability recently?"
 
+# ── Pipeline For Service ─────────────────────────────────────────────────────
+
+pipeline_for_service:
+  tool: pipeline_for_service
+  questions:
+    - "Find the pipeline responsible for deploying the checkout service"
+    - "Which repository and branch does the payment-service pipeline use?"
+    - "What pipeline builds the auth-service and what is its trigger?"
+    - "Are there multiple pipelines for the order service?"
+    - "Show me the last run status of the deployment pipeline for checkout"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
