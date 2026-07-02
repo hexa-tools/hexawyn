@@ -25,6 +25,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.cost_saving_estimation_port import (
         CostSavingEstimationPort,
     )
+    from hexawyn.application.ports.driven.deployment_latency_comparison_port import (
+        DeploymentLatencyComparisonPort,
+    )
     from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
     from hexawyn.application.ports.driven.gitops_port import GitOpsPort
     from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
@@ -304,6 +307,14 @@ def build_slow_trace_search_adapter() -> SlowTraceSearchPort:
     )
 
     return OTelPodTraceAdapter()
+
+
+def build_deployment_latency_comparison_adapter() -> DeploymentLatencyComparisonPort:
+    from hexawyn.adapters.secondary.gitops.otel_deployment_comparison_adapter import (
+        OTelDeploymentComparisonAdapter,
+    )
+
+    return OTelDeploymentComparisonAdapter()
 
 
 def register_tools(server: FastMCP) -> None:

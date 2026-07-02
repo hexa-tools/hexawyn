@@ -679,6 +679,17 @@ slowest_traces:
     - "Find the worst-performing traces for the checkout pod this hour"
     - "List the longest running spans for pod frontend-deploy"
 
+# ── Deployment Latency ───────────────────────────────────────────────────────
+
+deployment_latency:
+  tool: deployment_latency
+  questions:
+    - "Is the latency of payment-service increasing since the last deployment?"
+    - "Did the latest deployment introduce a performance regression?"
+    - "Compare service latency before and after the deployment 3 hours ago"
+    - "Is there a p99 regression after the rollout?"
+    - "Should we rollback based on the latency delta after deployment?"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
