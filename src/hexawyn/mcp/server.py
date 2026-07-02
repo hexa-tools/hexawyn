@@ -20,6 +20,9 @@ if TYPE_CHECKING:
         CanaryComparisonPort,
     )
     from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
+    from hexawyn.application.ports.driven.compliance_audit_port import (
+        ComplianceAuditPort,
+    )
     from hexawyn.application.ports.driven.cost_forecast_port import CostForecastPort
     from hexawyn.application.ports.driven.cost_profiling_port import CostProfilingPort
     from hexawyn.application.ports.driven.cost_saving_estimation_port import (
@@ -337,6 +340,14 @@ def build_redundant_call_detection_adapter() -> RedundantCallDetectionPort:
     )
 
     return OTelRedundantCallAdapter()
+
+
+def build_compliance_audit_adapter() -> ComplianceAuditPort:
+    from hexawyn.adapters.secondary.gitops.otel_compliance_audit_adapter import (
+        OTelComplianceAuditAdapter,
+    )
+
+    return OTelComplianceAuditAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
