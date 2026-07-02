@@ -66,6 +66,9 @@ if TYPE_CHECKING:
         TraceLogCorrelationPort,
     )
     from hexawyn.application.ports.driven.trace_query_port import TraceQueryPort
+    from hexawyn.application.ports.driven.version_regression_port import (
+        VersionRegressionPort,
+    )
     from hexawyn.application.ports.driven.what_if_simulation_port import (
         WhatIfSimulationPort,
     )
@@ -315,6 +318,14 @@ def build_deployment_latency_comparison_adapter() -> DeploymentLatencyComparison
     )
 
     return OTelDeploymentComparisonAdapter()
+
+
+def build_version_regression_adapter() -> VersionRegressionPort:
+    from hexawyn.adapters.secondary.gitops.otel_version_regression_adapter import (
+        OTelVersionRegressionAdapter,
+    )
+
+    return OTelVersionRegressionAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
