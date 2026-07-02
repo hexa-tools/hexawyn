@@ -723,6 +723,17 @@ sensitive_data_audit:
     - "Show me all requests to sensitive URLs from non-internal services"
     - "Audit access to /user/*/ssn with allowlist filtering"
 
+# ── Error Attribution ────────────────────────────────────────────────────────
+
+error_attribution:
+  tool: error_attribution
+  questions:
+    - "Which downstream service is responsible for 80% of api-gateway errors?"
+    - "Who causes the most errors on the gateway?"
+    - "Rank downstream services by error count on the api-gateway"
+    - "Is there a Pareto culprit for the production gateway errors?"
+    - "Attribute gateway 5xx errors to originating services"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:

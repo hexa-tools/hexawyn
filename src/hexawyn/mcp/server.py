@@ -31,6 +31,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.deployment_latency_comparison_port import (
         DeploymentLatencyComparisonPort,
     )
+    from hexawyn.application.ports.driven.error_attribution_port import (
+        ErrorAttributionPort,
+    )
     from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
     from hexawyn.application.ports.driven.gitops_port import GitOpsPort
     from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
@@ -348,6 +351,14 @@ def build_compliance_audit_adapter() -> ComplianceAuditPort:
     )
 
     return OTelComplianceAuditAdapter()
+
+
+def build_error_attribution_adapter() -> ErrorAttributionPort:
+    from hexawyn.adapters.secondary.gitops.otel_error_attribution_adapter import (
+        OTelErrorAttributionAdapter,
+    )
+
+    return OTelErrorAttributionAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
