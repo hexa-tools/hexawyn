@@ -57,6 +57,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.redundant_call_detection_port import (
         RedundantCallDetectionPort,
     )
+    from hexawyn.application.ports.driven.resource_yaml_port import ResourceYAMLPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
     from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
     from hexawyn.application.ports.driven.security_audit_port import SecurityAuditPort
@@ -381,6 +382,14 @@ def build_certificate_investigation_adapter() -> CertificateInvestigationPort:
     )
 
     return KubernetesCertificateAdapter()
+
+
+def build_resource_yaml_adapter() -> ResourceYAMLPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (
+        KubernetesResourceYAMLAdapter,
+    )
+
+    return KubernetesResourceYAMLAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
