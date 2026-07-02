@@ -690,6 +690,17 @@ deployment_latency:
     - "Is there a p99 regression after the rollout?"
     - "Should we rollback based on the latency delta after deployment?"
 
+# ── Version Regression ───────────────────────────────────────────────────────
+
+version_regression:
+  tool: version_regression
+  questions:
+    - "Have new versions of the recommendation service introduced a regression?"
+    - "Did v1.3 of the checkout service cause a latency regression?"
+    - "Compare p99 and error rate between the latest two versions of auth-service"
+    - "Is the new release of the payment API slower than the previous?"
+    - "Detect if the latest canary version deteriorated from the stable baseline"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
