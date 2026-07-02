@@ -20,6 +20,9 @@ if TYPE_CHECKING:
         CanaryComparisonPort,
     )
     from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
+    from hexawyn.application.ports.driven.certificate_investigation_port import (
+        CertificateInvestigationPort,
+    )
     from hexawyn.application.ports.driven.compliance_audit_port import (
         ComplianceAuditPort,
     )
@@ -370,6 +373,14 @@ def build_slo_breach_prediction_adapter() -> SLOBreachPredictionPort:
     )
 
     return OTelSLOPredictionAdapter()
+
+
+def build_certificate_investigation_adapter() -> CertificateInvestigationPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_certificate_adapter import (
+        KubernetesCertificateAdapter,
+    )
+
+    return KubernetesCertificateAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
