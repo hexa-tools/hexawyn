@@ -668,6 +668,17 @@ latency_diagnostic:
     - "Show me the span breakdown for slow traces on the order service"
     - "What is the bottleneck span causing high latency on the payment API?"
 
+# ── Slowest Traces ───────────────────────────────────────────────────────────
+
+slowest_traces:
+  tool: slowest_traces
+  questions:
+    - "Show me the 5 slowest traces for pod checkout-7d in the last hour"
+    - "What are the slowest requests for the payments pod?"
+    - "Rank the top 5 traces by duration for pod auth-service-abc"
+    - "Find the worst-performing traces for the checkout pod this hour"
+    - "List the longest running spans for pod frontend-deploy"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:

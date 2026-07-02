@@ -48,6 +48,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.service_dependency_graph_port import (
         ServiceDependencyGraphPort,
     )
+    from hexawyn.application.ports.driven.slow_trace_search_port import (
+        SlowTraceSearchPort,
+    )
     from hexawyn.application.ports.driven.span_bottleneck_port import (
         SpanBottleneckPort,
     )
@@ -293,6 +296,14 @@ def build_trace_query_adapter() -> TraceQueryPort:
     from hexawyn.adapters.secondary.gitops.otel_http_adapter import OTelHTTPAdapter
 
     return OTelHTTPAdapter()
+
+
+def build_slow_trace_search_adapter() -> SlowTraceSearchPort:
+    from hexawyn.adapters.secondary.gitops.otel_pod_trace_adapter import (
+        OTelPodTraceAdapter,
+    )
+
+    return OTelPodTraceAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
