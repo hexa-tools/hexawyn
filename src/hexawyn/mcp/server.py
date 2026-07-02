@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.error_attribution_port import (
         ErrorAttributionPort,
     )
+    from hexawyn.application.ports.driven.etcd_logs_port import ETCDLogsPort
     from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
     from hexawyn.application.ports.driven.gitops_port import GitOpsPort
     from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
@@ -401,6 +402,14 @@ def build_pipeline_run_logs_adapter() -> PipelineRunLogsPort:
     )
 
     return KubernetesPipelineRunLogsAdapter()
+
+
+def build_etcd_logs_adapter() -> ETCDLogsPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_etcd_logs_adapter import (
+        KubernetesETCDLogsAdapter,
+    )
+
+    return KubernetesETCDLogsAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
