@@ -54,6 +54,9 @@ if TYPE_CHECKING:
         MetricCorrelationPort,
     )
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+    from hexawyn.application.ports.driven.pipeline_for_service_port import (
+        PipelineForServicePort,
+    )
     from hexawyn.application.ports.driven.pipeline_run_logs_port import (
         PipelineRunLogsPort,
     )
@@ -410,6 +413,14 @@ def build_etcd_logs_adapter() -> ETCDLogsPort:
     )
 
     return KubernetesETCDLogsAdapter()
+
+
+def build_pipeline_for_service_adapter() -> PipelineForServicePort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (
+        KubernetesPipelineForServiceAdapter,
+    )
+
+    return KubernetesPipelineForServiceAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
