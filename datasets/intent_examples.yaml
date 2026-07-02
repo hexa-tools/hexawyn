@@ -756,6 +756,17 @@ tls_certificate_diagnosis:
     - "Why is the checkout ingress returning SSL handshake errors?"
     - "Diagnose the certificate on ingress auth-service"
 
+# ── Resource YAML ────────────────────────────────────────────────────────────
+
+resource_yaml:
+  tool: resource_yaml
+  questions:
+    - "Get the full YAML definition of the deployment order-api in production"
+    - "What are the current resource limits and image version for the auth-service deployment?"
+    - "Show me the ConfigMap definition for the payments service"
+    - "Get the current spec of the checkout-service StatefulSet"
+    - "What is the ingress definition for the frontend app?"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
