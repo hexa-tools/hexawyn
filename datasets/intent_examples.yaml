@@ -712,6 +712,17 @@ redundant_calls:
     - "Show me wasted calls in the payments trace"
     - "Are there N+1 patterns or circular calls in the last trace?"
 
+# ── Sensitive Data Access Audit ──────────────────────────────────────────────
+
+sensitive_data_audit:
+  tool: sensitive_data_audit
+  questions:
+    - "Has any request accessed sensitive data like /user/*/ssn in the last 10 minutes?"
+    - "Who accessed the PII endpoints in the last hour?"
+    - "Flag any external IPs accessing the /admin/pii endpoints"
+    - "Show me all requests to sensitive URLs from non-internal services"
+    - "Audit access to /user/*/ssn with allowlist filtering"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
