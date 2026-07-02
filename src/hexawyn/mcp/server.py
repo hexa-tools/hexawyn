@@ -53,6 +53,9 @@ if TYPE_CHECKING:
         MetricCorrelationPort,
     )
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+    from hexawyn.application.ports.driven.pipeline_run_logs_port import (
+        PipelineRunLogsPort,
+    )
     from hexawyn.application.ports.driven.policy_port import PolicyPort
     from hexawyn.application.ports.driven.redundant_call_detection_port import (
         RedundantCallDetectionPort,
@@ -390,6 +393,14 @@ def build_resource_yaml_adapter() -> ResourceYAMLPort:
     )
 
     return KubernetesResourceYAMLAdapter()
+
+
+def build_pipeline_run_logs_adapter() -> PipelineRunLogsPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_run_logs_adapter import (
+        KubernetesPipelineRunLogsAdapter,
+    )
+
+    return KubernetesPipelineRunLogsAdapter()
 
 
 def register_tools(server: FastMCP) -> None:

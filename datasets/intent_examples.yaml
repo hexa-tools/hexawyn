@@ -767,6 +767,17 @@ resource_yaml:
     - "Get the current spec of the checkout-service StatefulSet"
     - "What is the ingress definition for the frontend app?"
 
+# ── Pipeline Run Logs ────────────────────────────────────────────────────────
+
+pipeline_run_logs:
+  tool: pipeline_run_logs
+  questions:
+    - "Show me the full logs of the failed PipelineRun deploy-payment-v2"
+    - "At which step did the pipeline break and why?"
+    - "Get the error logs for the last failed Tekton pipeline run"
+    - "Show me all step logs for PipelineRun deploy-v3"
+    - "What caused the checkout pipeline to fail — show me the error output"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
