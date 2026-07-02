@@ -1,6 +1,12 @@
 from hexawyn.domain.models.constants import LogAnalysisConstants
 from hexawyn.domain.models.log import LogAnalysisContext, LogAnalysisResult
+from hexawyn.domain.services.log_analysis.analyzer import AdaptiveLogProcessor
+from hexawyn.domain.services.log_analysis.pattern_reducer import (
+    extract_error_patterns,
+    reduce_logs_for_summarization,
+)
 from hexawyn.domain.services.log_analysis.strategy_port import LogAnalysisStrategy
+from hexawyn.domain.services.log_analysis.summarizer import generate_summary
 
 __all__ = [
     "LogAnalysisStrategy",
@@ -11,6 +17,7 @@ __all__ = [
 ]
 
 _log_constants = LogAnalysisConstants()
+_REDUCED_CHUNK_SIZE = 500
 
 
 class SmartSummaryStrategy(LogAnalysisStrategy):
@@ -153,7 +160,17 @@ class StreamingStrategy(LogAnalysisStrategy):
 
 
 class HybridStrategy(LogAnalysisStrategy):
-    """Combines summary and streaming — best for deep investigations."""
+    """Deterministic pattern extraction, then a natural-language summary.
+
+    Concrete HYBRID implementation of LogAnalysisStrategy (ILogAnalysisStrategy,
+    ECA-14). No real LLM call is made anywhere in this repo (see
+    docs/use-cases/58-hybrid-log-analysis.md) — generate_summary() is the
+    isolated, documented seam where a real Anthropic/local-model adapter
+    would plug in later without changing this class's contract.
+    """
+
+    def __init__(self, token_processor: AdaptiveLogProcessor | None = None) -> None:
+        self._token_processor = token_processor or AdaptiveLogProcessor()
 
     def supports(self, context: LogAnalysisContext) -> bool:
         if context.request_type == "investigation":
@@ -169,34 +186,52 @@ class HybridStrategy(LogAnalysisStrategy):
                 strategy_used="hybrid",
             )
 
-        smart = SmartSummaryStrategy()
-        streaming = StreamingStrategy()
+        classifications = extract_error_patterns(logs)
+        reduced_lines = reduce_logs_for_summarization(logs)
+        severity = self._count_severity(logs)
 
-        summary_result = smart.analyze(logs, context)
-        stream_result = streaming.analyze(logs, context)
+        summary, degraded = self._summarize(reduced_lines, severity)
 
-        combined_patterns = list(dict.fromkeys(summary_result.patterns + stream_result.patterns))[
-            :5
-        ]
-
-        combined_recs = list(
-            dict.fromkeys(summary_result.recommendations + stream_result.recommendations)
-        )
-
-        combined_summary = (
-            f"[SUMMARY] {summary_result.summary} " f"[STREAM] {stream_result.summary}"
-        )
-
-        avg_confidence = (summary_result.confidence + stream_result.confidence) / 2
+        patterns = [c.pattern for c in classifications]
+        recommendations = SmartSummaryStrategy._build_recommendations(patterns, severity)
+        total_matches = sum(c.count for c in classifications)
+        confidence = 0.4 if degraded else min(0.95, 0.6 + 0.01 * total_matches)
 
         return LogAnalysisResult(
-            summary=combined_summary,
-            patterns=combined_patterns,
-            recommendations=combined_recs,
-            severity=summary_result.severity,
-            confidence=avg_confidence,
+            summary=summary,
+            patterns=patterns,
+            recommendations=recommendations,
+            severity=severity,
+            confidence=confidence,
             strategy_used="hybrid",
+            token_reduction_percentage=self._token_reduction_percentage(logs, reduced_lines),
+            degraded=degraded,
         )
+
+    def _summarize(self, reduced_lines: list[str], severity: str) -> tuple[str, bool]:
+        reduced_tokens = AdaptiveLogProcessor.estimate_tokens_from_lines(reduced_lines)
+        if self._token_processor.can_process_more(reduced_tokens):
+            return generate_summary(reduced_lines, severity)
+
+        chunks = [
+            reduced_lines[i : i + _REDUCED_CHUNK_SIZE]
+            for i in range(0, len(reduced_lines), _REDUCED_CHUNK_SIZE)
+        ]
+        chunk_summaries: list[str] = []
+        any_degraded = False
+        for chunk in chunks:
+            chunk_summary, chunk_degraded = generate_summary(chunk, severity)
+            chunk_summaries.append(chunk_summary)
+            any_degraded = any_degraded or chunk_degraded
+        return " ".join(chunk_summaries), any_degraded
+
+    @staticmethod
+    def _token_reduction_percentage(logs: list[str], reduced_lines: list[str]) -> float:
+        raw_tokens = AdaptiveLogProcessor.estimate_tokens_from_lines(logs)
+        if raw_tokens == 0:
+            return 0.0
+        reduced_tokens = AdaptiveLogProcessor.estimate_tokens_from_lines(reduced_lines)
+        return max(0.0, (1 - reduced_tokens / raw_tokens) * 100)
 
 
 class StrategySelector:

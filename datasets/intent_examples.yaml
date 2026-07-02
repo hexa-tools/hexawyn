@@ -799,6 +799,9 @@ analyze_pod_logs:
     - "Why does checkout-api keep throwing errors — check its logs for the last hour"
     - "How many errors and warnings has the auth-service pod logged recently?"
     - "Can you spot any recurring failure patterns in the worker pod's logs?"
+    - "Give me a hybrid analysis of the checkout pod logs — combine structured pattern detection with a plain-English summary for the last hour."
+    - "Reduce and summarize the payment-service logs — I don't want to read 3000 raw lines."
+    - "Give me both the raw pattern counts and a natural-language summary for the checkout pod."
 
 # ── Pipeline For Service ─────────────────────────────────────────────────────
 

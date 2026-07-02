@@ -24,3 +24,14 @@ class LogAnalysisResult:
     severity: str = ""
     confidence: float = 0.0
     strategy_used: str = ""
+    token_reduction_percentage: float = 0.0
+    degraded: bool = False
+
+
+@dataclass(frozen=True)
+class PatternClassification:
+    """A single classified, counted log pattern with a representative sample."""
+
+    pattern: str
+    count: int
+    sample_line: str

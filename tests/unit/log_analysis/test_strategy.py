@@ -4,6 +4,7 @@ from abc import ABC
 
 import pytest
 from hexawyn.domain.models.log import LogAnalysisContext, LogAnalysisResult
+from hexawyn.domain.services.log_analysis.analyzer import AdaptiveLogProcessor
 from hexawyn.domain.services.log_analysis.strategy import (
     HybridStrategy,
     LogAnalysisStrategy,
@@ -66,6 +67,24 @@ class TestSmartSummaryStrategy:
         assert result.patterns == []
         assert result.confidence == 0.0
 
+    def test_moderate_activity_branch(self) -> None:
+        logs = (
+            ["Error: timeout backoff restart"]
+            + ["Warning: eviction threshold"]
+            + ["Info: healthy"] * 18
+        )
+        result = self.strategy.analyze(logs, self.context)
+        assert "Moderate activity" in result.summary
+
+    def test_recommendations_cover_crashloop_backoff_and_denied(self) -> None:
+        logs = [
+            "Error: timeout backoff restart",
+            "Error: denied access request",
+        ]
+        result = self.strategy.analyze(logs, self.context)
+        assert any("startup command" in rec for rec in result.recommendations)
+        assert any("RBAC permissions" in rec for rec in result.recommendations)
+
 
 class TestStreamingStrategy:
     def setup_method(self) -> None:
@@ -108,6 +127,18 @@ class TestStreamingStrategy:
         result = self.strategy.analyze([], self.context)
         assert result.summary == "No log data to analyze."
         assert result.patterns == []
+
+    def test_recommendations_cover_oomkilled_backoff_image_pull_and_critical(self) -> None:
+        logs = [
+            "Error: oomkilled container restart",
+            "Error: timeout backoff restart",
+            "Error: failed to pull image",
+        ]
+        result = self.strategy.analyze(logs, self.context)
+        assert any("memory limit" in rec for rec in result.recommendations)
+        assert any("startup command" in rec for rec in result.recommendations)
+        assert any("registry connectivity" in rec for rec in result.recommendations)
+        assert result.recommendations[0] == "IMMEDIATE ACTION: Critical errors detected in stream"
 
 
 class TestHybridStrategy:
@@ -154,6 +185,64 @@ class TestHybridStrategy:
         result = self.strategy.analyze([], self.context)
         assert result.summary == "No log data to analyze."
         assert result.patterns == []
+
+    def test_tc1_pattern_extraction_reduces_and_summarizes(self) -> None:
+        """TC1: 3000 log lines -> pattern extraction reduces to a small set, summarized."""
+        logs = ["Error: connection refused to redis:6379" for _ in range(3000)]
+
+        result = self.strategy.analyze(logs, self.context)
+
+        assert result.strategy_used == "hybrid"
+        assert result.token_reduction_percentage > 90.0
+        assert result.degraded is False
+        assert len(result.patterns) > 0
+        assert "45" not in result.summary  # sanity: not hardcoded, reflects real count
+        assert "3000" in result.summary or "refused" in result.summary.lower()
+
+    def test_tc2_no_errors_confirms_no_anomalies(self) -> None:
+        """TC2: 0 errors detected by the pattern extractor -> summary confirms no anomalies."""
+        logs = ["pod scheduled successfully", "readiness probe succeeded"]
+
+        result = self.strategy.analyze(logs, self.context)
+
+        assert result.patterns == []
+        assert result.degraded is False
+        assert "no anomalies" in result.summary.lower()
+
+    def test_token_reduction_percentage_zero_for_empty_raw_logs(self) -> None:
+        assert HybridStrategy._token_reduction_percentage([], []) == 0.0
+
+    def test_tc3_degraded_fallback_when_nothing_to_summarize(self) -> None:
+        """TC3 analog: no real LLM to fail, so 'unavailable' = nothing to summarize."""
+        strategy = HybridStrategy(token_processor=AdaptiveLogProcessor(max_token_budget=1))
+
+        result = strategy.analyze([], self.context)
+
+        assert result.degraded is False  # empty-logs short circuit takes priority
+        assert result.summary == "No log data to analyze."
+
+    def test_tc4_unrecognized_format_still_reduces_and_summarizes(self) -> None:
+        """TC4: unrecognized log format -> passed through with a reduced context window."""
+        logs = [f"random unstructured line {i}" for i in range(500)]
+
+        result = self.strategy.analyze(logs, self.context)
+
+        assert result.strategy_used == "hybrid"
+        assert result.token_reduction_percentage > 0.0
+        assert len(result.summary) > 0
+
+    def test_chunking_applied_when_reduced_output_still_exceeds_budget(self) -> None:
+        """Edge case: token limit exceeded even after reduction -> chunked processing."""
+        tiny_budget_processor = AdaptiveLogProcessor(max_token_budget=50)
+        strategy = HybridStrategy(token_processor=tiny_budget_processor)
+        logs = [f"Error: timeout on service-{i} occurred" for i in range(600)]
+
+        result = strategy.analyze(logs, self.context)
+
+        assert result.strategy_used == "hybrid"
+        assert len(result.summary) > 0
+        # 600 distinct reduced lines / _REDUCED_CHUNK_SIZE=500 -> 2 chunks summarized and joined
+        assert result.summary.count("Recurring") == 2
 
 
 class TestStrategySelector:

@@ -59,3 +59,23 @@ class TestAnalyzePodLogsService:
 
         assert response.summary == "No anomalies detected"
         assert response.patterns == []
+
+    def test_analyze_propagates_hybrid_reduction_metrics(self) -> None:
+        port = MagicMock(spec=PodLogsPort)
+        port.fetch_logs.return_value = [
+            PodLogLine(
+                timestamp="T1",
+                level="ERROR",
+                message="connection refused to redis:6379",
+                run_index=0,
+                is_json=False,
+            )
+            for _ in range(5000)
+        ]
+        service = AnalyzePodLogsService(port=port)
+
+        response = service.analyze(AnalyzePodLogsCommand(pod_name="mid-pod", namespace="prod"))
+
+        assert response.strategy_used == "hybrid"
+        assert response.token_reduction_percentage > 90.0
+        assert response.degraded is False

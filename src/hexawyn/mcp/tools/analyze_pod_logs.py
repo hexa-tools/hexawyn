@@ -42,6 +42,8 @@ def analyze_pod_logs(
             "summary": r.summary,
             "restarts_detected": r.restarts_detected,
             "sanitized_binary": r.sanitized_binary,
+            "token_reduction_percentage": r.token_reduction_percentage,
+            "degraded": r.degraded,
             "patterns": r.patterns,
             "connection_timeouts": r.connection_timeouts,
             "connection_refused": r.connection_refused,

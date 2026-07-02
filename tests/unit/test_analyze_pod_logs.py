@@ -98,8 +98,25 @@ class TestAnalyzePodLogsResult:
             restarts_detected=False,
             runs=[PodRunSummary(run_index=0, line_count=500, error_count=15, warning_count=2)],
             sanitized_binary=False,
+            token_reduction_percentage=95.0,
+            degraded=False,
         )
         assert result.total_lines == 500
         assert result.error_count == 15
         assert len(result.connection_timeouts) == 1
         assert result.restarts_detected is False
+        assert result.token_reduction_percentage == 95.0
+        assert result.degraded is False
+
+    def test_defaults_for_reduction_metrics(self) -> None:
+        result = AnalyzePodLogsResult(
+            pod_name="p",
+            namespace="ns",
+            time_window_minutes=30,
+            strategy_used="smart_summary",
+            total_lines=0,
+            error_count=0,
+            warning_count=0,
+        )
+        assert result.token_reduction_percentage == 0.0
+        assert result.degraded is False
