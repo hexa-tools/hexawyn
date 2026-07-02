@@ -657,6 +657,17 @@ trace_k8s_events:
     - "Did infrastructure events cause the performance degradation in this trace?"
     - "List all OOMKilled, restart, and eviction events in the trace time window"
 
+# ── Latency Diagnostic ───────────────────────────────────────────────────────
+
+latency_diagnostic:
+  tool: latency_diagnostic
+  questions:
+    - "Why is the payment-api service taking more than 500ms to respond?"
+    - "Identify the root cause of latency spikes on the checkout service"
+    - "Which internal call is causing slow responses on the auth-service?"
+    - "Show me the span breakdown for slow traces on the order service"
+    - "What is the bottleneck span causing high latency on the payment API?"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
