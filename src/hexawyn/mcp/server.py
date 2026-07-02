@@ -45,6 +45,9 @@ if TYPE_CHECKING:
     )
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
     from hexawyn.application.ports.driven.policy_port import PolicyPort
+    from hexawyn.application.ports.driven.redundant_call_detection_port import (
+        RedundantCallDetectionPort,
+    )
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
     from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
     from hexawyn.application.ports.driven.security_audit_port import SecurityAuditPort
@@ -326,6 +329,14 @@ def build_version_regression_adapter() -> VersionRegressionPort:
     )
 
     return OTelVersionRegressionAdapter()
+
+
+def build_redundant_call_detection_adapter() -> RedundantCallDetectionPort:
+    from hexawyn.adapters.secondary.gitops.otel_redundant_call_adapter import (
+        OTelRedundantCallAdapter,
+    )
+
+    return OTelRedundantCallAdapter()
 
 
 def register_tools(server: FastMCP) -> None:

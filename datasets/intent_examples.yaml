@@ -701,6 +701,17 @@ version_regression:
     - "Is the new release of the payment API slower than the previous?"
     - "Detect if the latest canary version deteriorated from the stable baseline"
 
+# ── Redundant Call Detection ─────────────────────────────────────────────────
+
+redundant_calls:
+  tool: redundant_calls
+  questions:
+    - "Are there any redundant or unnecessary calls in the web -> api -> db -> api flow?"
+    - "Does this trace have N+1 query patterns?"
+    - "Detect duplicate DB queries in the checkout flow"
+    - "Show me wasted calls in the payments trace"
+    - "Are there N+1 patterns or circular calls in the last trace?"
+
 # ── KEDA Event-Driven Autoscaling ────────────────────────────────────────────────
 
 keda_detect:
