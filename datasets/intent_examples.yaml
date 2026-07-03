@@ -688,6 +688,17 @@ analyze_critical_namespace_events:
     - "Correlate the critical events in checkout namespace into incidents and suggest runbooks."
     - "Give me the detailed critical-event analysis for payment-namespace with root cause grouping."
 
+# ── Advanced Namespace Event Analytics (6h Storm Detection + Correlation) ────
+
+advanced_namespace_event_analytics:
+  tool: advanced_namespace_event_analytics
+  questions:
+    - "Give me an advanced analytics report of all events in the data-pipeline namespace over the past 6 hours — categorize by severity and highlight correlated incidents."
+    - "Were there any event storms in the checkout namespace today?"
+    - "What are the top recurring event reasons in production over the last 6 hours?"
+    - "Show me the event volume timeline for staging and flag any spikes."
+    - "Are there correlated incidents across multiple pods in data-pipeline right now?"
+
 # ── Latency Diagnostic ───────────────────────────────────────────────────────
 
 latency_diagnostic:

@@ -119,6 +119,17 @@ class NamespaceEventsConstants:
 
 
 @dataclass(frozen=True)
+class AdvancedEventAnalyticsConstants:
+    """Thresholds for the 6h advanced namespace event analytics report (ECA-19/ECA-20)."""
+
+    storm_min_events: int = 50
+    storm_window_seconds: int = 120
+    top_reasons_limit: int = 5
+    sampling_threshold: int = 5000
+    sample_events_per_incident: int = 50
+
+
+@dataclass(frozen=True)
 class SemanticSearchConstants:
     """Thresholds for semantic search and intent classification."""
 
