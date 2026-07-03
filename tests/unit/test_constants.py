@@ -25,6 +25,7 @@ from hexawyn.domain.models.constants import (
     SALT_SIZE,
     VERSION,
     WARNING_FINDING_PENALTY,
+    AdvancedEventAnalyticsConstants,
     EventAnalysisConstants,
     LogAnalysisConstants,
     LogAnomalyDetectionConstants,
@@ -198,6 +199,19 @@ class TestNamespaceEventsConstants:
 
     def test_is_dataclass(self) -> None:
         assert dataclasses.is_dataclass(NamespaceEventsConstants)
+
+
+class TestAdvancedEventAnalyticsConstants:
+    def test_defaults(self) -> None:
+        aeac = AdvancedEventAnalyticsConstants()
+        assert aeac.storm_min_events == 50
+        assert aeac.storm_window_seconds == 120
+        assert aeac.top_reasons_limit == 5
+        assert aeac.sampling_threshold == 5000
+        assert aeac.sample_events_per_incident == 50
+
+    def test_is_dataclass(self) -> None:
+        assert dataclasses.is_dataclass(AdvancedEventAnalyticsConstants)
 
 
 class TestScoringConstants:
