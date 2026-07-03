@@ -27,6 +27,7 @@ from hexawyn.domain.models.constants import (
     WARNING_FINDING_PENALTY,
     EventAnalysisConstants,
     LogAnalysisConstants,
+    LogAnomalyDetectionConstants,
     PodPrioritizationConstants,
     QuotaConstants,
     ScoringConstants,
@@ -170,6 +171,21 @@ class TestEventAnalysisConstants:
 
     def test_is_dataclass(self) -> None:
         assert dataclasses.is_dataclass(EventAnalysisConstants)
+
+
+class TestLogAnomalyDetectionConstants:
+    def test_defaults(self) -> None:
+        lac = LogAnomalyDetectionConstants()
+        assert lac.zscore_threshold == 3.0
+        assert lac.min_lines_for_analysis == 100
+        assert lac.low_confidence_line_window == 10
+        assert lac.isolation_forest_contamination == 0.05
+        assert lac.isolation_forest_random_state == 42
+        assert lac.isolation_forest_min_samples == 10
+        assert lac.isolation_forest_min_score_deviation == 1.5
+
+    def test_is_dataclass(self) -> None:
+        assert dataclasses.is_dataclass(LogAnomalyDetectionConstants)
 
 
 class TestScoringConstants:
