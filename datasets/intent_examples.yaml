@@ -806,6 +806,17 @@ analyze_pod_logs:
     - "Deduplicate the checkout pod logs and show me what actually happened, not 1000 repeated health checks."
     - "Strip out the health-check noise from payment-service logs and show me the real events."
 
+# ── Detect Log Anomalies (Z-Score Volume + Isolation Forest Semantic) ────────
+
+detect_log_anomalies:
+  tool: detect_log_anomalies
+  questions:
+    - "Detect anomalies in the logs of the inventory-service pod over the last 4 hours — are there unusual spikes, silent errors, or statistical outliers?"
+    - "Is there anything statistically abnormal in the checkout-service logs today?"
+    - "Show me any silent failures in payment-service logs that don't have an ERROR keyword but look wrong."
+    - "Are there any log volume spikes in the order-service pod I should worry about?"
+    - "Find outlier log lines in worker-pod's last 2 hours using anomaly detection."
+
 # ── Watch Pod Logs (Real-Time) ────────────────────────────────────────────────
 
 watch_pod_logs:

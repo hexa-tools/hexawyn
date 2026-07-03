@@ -97,6 +97,19 @@ class EventAnalysisConstants:
 
 
 @dataclass(frozen=True)
+class LogAnomalyDetectionConstants:
+    """Thresholds for statistical + ML log anomaly detection (ECA-14)."""
+
+    zscore_threshold: float = 3.0
+    min_lines_for_analysis: int = 100
+    low_confidence_line_window: int = 10
+    isolation_forest_contamination: float = 0.05
+    isolation_forest_random_state: int = 42
+    isolation_forest_min_samples: int = 10
+    isolation_forest_min_score_deviation: float = 1.5
+
+
+@dataclass(frozen=True)
 class SemanticSearchConstants:
     """Thresholds for semantic search and intent classification."""
 
