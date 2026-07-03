@@ -28,6 +28,7 @@ from hexawyn.domain.models.constants import (
     EventAnalysisConstants,
     LogAnalysisConstants,
     LogAnomalyDetectionConstants,
+    NamespaceEventsConstants,
     PodPrioritizationConstants,
     QuotaConstants,
     ScoringConstants,
@@ -186,6 +187,17 @@ class TestLogAnomalyDetectionConstants:
 
     def test_is_dataclass(self) -> None:
         assert dataclasses.is_dataclass(LogAnomalyDetectionConstants)
+
+
+class TestNamespaceEventsConstants:
+    def test_defaults(self) -> None:
+        nec = NamespaceEventsConstants()
+        assert nec.recurring_count_threshold == 5
+        assert nec.top_n_default == 20
+        assert nec.urgency_recent_window_seconds == 60
+
+    def test_is_dataclass(self) -> None:
+        assert dataclasses.is_dataclass(NamespaceEventsConstants)
 
 
 class TestScoringConstants:

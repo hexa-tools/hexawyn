@@ -54,6 +54,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.metric_correlation_port import (
         MetricCorrelationPort,
     )
+    from hexawyn.application.ports.driven.namespace_events_port import NamespaceEventsPort
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
     from hexawyn.application.ports.driven.pipeline_for_service_port import (
         PipelineForServicePort,
@@ -424,6 +425,14 @@ def build_pod_logs_adapter() -> PodLogsPort:
     )
 
     return KubernetesPodLogsAdapter()
+
+
+def build_namespace_events_adapter() -> NamespaceEventsPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_namespace_events_adapter import (
+        KubernetesNamespaceEventsAdapter,
+    )
+
+    return KubernetesNamespaceEventsAdapter()
 
 
 def build_pod_log_watch_adapter() -> PodLogWatchPort:
