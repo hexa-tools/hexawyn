@@ -8,6 +8,7 @@ from hexawyn.domain.services.log_analysis.analyzer import AdaptiveLogProcessor
 from hexawyn.domain.services.log_analysis.strategy import (
     HybridStrategy,
     LogAnalysisStrategy,
+    RealtimeLogWatchStrategy,
     SmartSummaryStrategy,
     StrategySelector,
     StreamingStrategy,
@@ -243,6 +244,57 @@ class TestHybridStrategy:
         assert len(result.summary) > 0
         # 600 distinct reduced lines / _REDUCED_CHUNK_SIZE=500 -> 2 chunks summarized and joined
         assert result.summary.count("Recurring") == 2
+
+
+class TestRealtimeLogWatchStrategy:
+    """ECA-16: concrete ILogAnalysisStrategy for the real-time watch use case.
+
+    Distinct from StreamingStrategy (the >10000-line batch-chunked volume
+    tier) — see docs/use-cases/59-realtime-log-watch.md for the naming
+    disambiguation. This strategy never buffers/watches itself; it
+    summarizes the sampled lines collected after a watch session ends.
+    """
+
+    def setup_method(self) -> None:
+        self.strategy = RealtimeLogWatchStrategy()
+        self.context = LogAnalysisContext(request_type="realtime_watch")
+
+    def test_supports_only_realtime_watch_request_type(self) -> None:
+        assert self.strategy.supports(self.context) is True
+
+    def test_does_not_support_other_request_types(self) -> None:
+        other = LogAnalysisContext(request_type="troubleshooting")
+        assert self.strategy.supports(other) is False
+
+    def test_never_auto_selected_by_strategy_selector(self) -> None:
+        context = LogAnalysisContext(
+            log_size_estimate=80000, request_type="realtime_watch", urgency="critical"
+        )
+        strategy = StrategySelector.select(context)
+        assert not isinstance(strategy, RealtimeLogWatchStrategy)
+
+    def test_analyze_empty_logs_returns_graceful_result(self) -> None:
+        result = self.strategy.analyze([], self.context)
+        assert result.summary == "No log data to analyze."
+        assert result.strategy_used == "realtime_watch"
+
+    def test_analyze_summarizes_sampled_lines_with_pattern(self) -> None:
+        logs = ["Error: OOMKilled memory limit exceeded" for _ in range(3)] + ["pod healthy"]
+
+        result = self.strategy.analyze(logs, self.context)
+
+        assert result.strategy_used == "realtime_watch"
+        assert len(result.patterns) > 0
+        assert "3" in result.summary or "oomkilled" in result.summary.lower()
+
+    def test_analyze_no_patterns_still_produces_summary(self) -> None:
+        logs = ["pod healthy", "readiness probe succeeded"]
+
+        result = self.strategy.analyze(logs, self.context)
+
+        assert result.strategy_used == "realtime_watch"
+        assert len(result.summary) > 0
+        assert result.patterns == []
 
 
 class TestStrategySelector:

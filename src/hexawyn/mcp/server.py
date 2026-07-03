@@ -16,6 +16,7 @@ from hexawyn.infrastructure.config.kubeconfig_reader import (
 from hexawyn.infrastructure.memory.duckdb_client import get_connection
 
 if TYPE_CHECKING:
+    from hexawyn.application.ports.driven.alert_notification_port import AlertNotificationPort
     from hexawyn.application.ports.driven.canary_comparison_port import (
         CanaryComparisonPort,
     )
@@ -60,6 +61,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.pipeline_run_logs_port import (
         PipelineRunLogsPort,
     )
+    from hexawyn.application.ports.driven.pod_log_watch_port import PodLogWatchPort
     from hexawyn.application.ports.driven.pod_logs_port import PodLogsPort
     from hexawyn.application.ports.driven.policy_port import PolicyPort
     from hexawyn.application.ports.driven.redundant_call_detection_port import (
@@ -422,6 +424,20 @@ def build_pod_logs_adapter() -> PodLogsPort:
     )
 
     return KubernetesPodLogsAdapter()
+
+
+def build_pod_log_watch_adapter() -> PodLogWatchPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_pod_log_watch_adapter import (
+        KubernetesPodLogWatchAdapter,
+    )
+
+    return KubernetesPodLogWatchAdapter()
+
+
+def build_alert_notification_adapter() -> AlertNotificationPort:
+    from hexawyn.adapters.secondary.slack.slack_alert_adapter import SlackAlertAdapter
+
+    return SlackAlertAdapter()
 
 
 def build_pipeline_for_service_adapter() -> PipelineForServicePort:

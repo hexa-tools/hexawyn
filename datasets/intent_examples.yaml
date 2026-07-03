@@ -803,6 +803,17 @@ analyze_pod_logs:
     - "Reduce and summarize the payment-service logs — I don't want to read 3000 raw lines."
     - "Give me both the raw pattern counts and a natural-language summary for the checkout pod."
 
+# ── Watch Pod Logs (Real-Time) ────────────────────────────────────────────────
+
+watch_pod_logs:
+  tool: watch_pod_logs
+  questions:
+    - "Stream and analyze in real-time the logs from the payment-service pod — alert me as soon as an OOM or DB connection error appears."
+    - "Watch the checkout pod's logs live and let me know immediately if it panics or runs out of memory."
+    - "Can you tail the worker pod and alert on any database connection failures?"
+    - "Monitor auth-service for OOM kills over the next 5 minutes."
+    - "Live-watch the api-gateway pod logs and notify Slack the moment something critical happens."
+
 # ── Pipeline For Service ─────────────────────────────────────────────────────
 
 pipeline_for_service:
