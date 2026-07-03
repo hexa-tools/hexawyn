@@ -657,6 +657,17 @@ trace_k8s_events:
     - "Did infrastructure events cause the performance degradation in this trace?"
     - "List all OOMKilled, restart, and eviction events in the trace time window"
 
+# ── Namespace Events Triage (Warning/Error, last 15 minutes) ─────────────────
+
+get_namespace_events:
+  tool: get_namespace_events
+  questions:
+    - "Show me all Warning and Error events in the production namespace from the last 15 minutes — which pods are involved?"
+    - "What's going wrong in the checkout namespace right now?"
+    - "Are there any recurring BackOff or OOMKilled events in payment-namespace?"
+    - "List the critical events for the staging namespace in the last quarter hour."
+    - "Which objects in production are throwing repeated warnings I should look at first?"
+
 # ── Latency Diagnostic ───────────────────────────────────────────────────────
 
 latency_diagnostic:

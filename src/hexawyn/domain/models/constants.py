@@ -110,6 +110,15 @@ class LogAnomalyDetectionConstants:
 
 
 @dataclass(frozen=True)
+class NamespaceEventsConstants:
+    """Thresholds for the namespace Warning/Error events triage use case (ECA-5)."""
+
+    recurring_count_threshold: int = 5
+    top_n_default: int = 20
+    urgency_recent_window_seconds: int = 60
+
+
+@dataclass(frozen=True)
 class SemanticSearchConstants:
     """Thresholds for semantic search and intent classification."""
 
