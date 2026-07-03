@@ -138,6 +138,16 @@ class PipelineFailureAnalysisConstants:
 
 
 @dataclass(frozen=True)
+class IncidentTriageConstants:
+    """Thresholds for the incident triage/RCA report (composes ECA-19 events,
+    ECA-14 log analysis, pipeline-failure RCA, and pod status)."""
+
+    default_time_window_minutes: int = 120
+    ntp_drift_threshold_seconds: int = 30
+    max_pods_logs_fetched: int = 5
+
+
+@dataclass(frozen=True)
 class SemanticSearchConstants:
     """Thresholds for semantic search and intent classification."""
 
