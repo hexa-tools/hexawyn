@@ -130,6 +130,14 @@ class AdvancedEventAnalyticsConstants:
 
 
 @dataclass(frozen=True)
+class PipelineFailureAnalysisConstants:
+    """Thresholds for automated pipeline failure RCA (ECA-8/ECA-11)."""
+
+    flaky_test_min_failures: int = 3
+    flaky_test_window_runs: int = 5
+
+
+@dataclass(frozen=True)
 class SemanticSearchConstants:
     """Thresholds for semantic search and intent classification."""
 

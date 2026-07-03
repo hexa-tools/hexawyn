@@ -30,6 +30,7 @@ from hexawyn.domain.models.constants import (
     LogAnalysisConstants,
     LogAnomalyDetectionConstants,
     NamespaceEventsConstants,
+    PipelineFailureAnalysisConstants,
     PodPrioritizationConstants,
     QuotaConstants,
     ScoringConstants,
@@ -212,6 +213,16 @@ class TestAdvancedEventAnalyticsConstants:
 
     def test_is_dataclass(self) -> None:
         assert dataclasses.is_dataclass(AdvancedEventAnalyticsConstants)
+
+
+class TestPipelineFailureAnalysisConstants:
+    def test_defaults(self) -> None:
+        pfac = PipelineFailureAnalysisConstants()
+        assert pfac.flaky_test_min_failures == 3
+        assert pfac.flaky_test_window_runs == 5
+
+    def test_is_dataclass(self) -> None:
+        assert dataclasses.is_dataclass(PipelineFailureAnalysisConstants)
 
 
 class TestScoringConstants:
