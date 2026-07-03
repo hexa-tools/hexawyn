@@ -668,6 +668,26 @@ get_namespace_events:
     - "List the critical events for the staging namespace in the last quarter hour."
     - "Which objects in production are throwing repeated warnings I should look at first?"
 
+# ── Progressive Namespace Event Analysis (Summary + Runbook Correlation) ─────
+
+summarize_namespace_events:
+  tool: summarize_namespace_events
+  questions:
+    - "Give me a quick summary of what's happening in the staging namespace — total events, severity breakdown, top affected pods."
+    - "What's the high-level event overview for production right now?"
+    - "How many events are in checkout namespace and which severities dominate?"
+    - "Give me the event landscape summary for staging before I drill into details."
+    - "Which pods are affected the most by events in the payment namespace?"
+
+analyze_critical_namespace_events:
+  tool: analyze_critical_namespace_events
+  questions:
+    - "Drill into the critical events in the staging namespace with correlated runbook suggestions."
+    - "What are the critical incidents in production and what runbooks apply?"
+    - "Is there a recurring OOMKilling incident in staging, and what's the recommended fix?"
+    - "Correlate the critical events in checkout namespace into incidents and suggest runbooks."
+    - "Give me the detailed critical-event analysis for payment-namespace with root cause grouping."
+
 # ── Latency Diagnostic ───────────────────────────────────────────────────────
 
 latency_diagnostic:
