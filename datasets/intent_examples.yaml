@@ -802,6 +802,9 @@ analyze_pod_logs:
     - "Give me a hybrid analysis of the checkout pod logs — combine structured pattern detection with a plain-English summary for the last hour."
     - "Reduce and summarize the payment-service logs — I don't want to read 3000 raw lines."
     - "Give me both the raw pattern counts and a natural-language summary for the checkout pod."
+    - "Give me a smart summary of the last 2000 log lines from the order-service pod — keep only unique meaningful events and reduce noise."
+    - "Deduplicate the checkout pod logs and show me what actually happened, not 1000 repeated health checks."
+    - "Strip out the health-check noise from payment-service logs and show me the real events."
 
 # ── Watch Pod Logs (Real-Time) ────────────────────────────────────────────────
 

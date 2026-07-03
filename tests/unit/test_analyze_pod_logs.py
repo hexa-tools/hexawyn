@@ -10,6 +10,7 @@ from hexawyn.domain.models.analyze_pod_logs import (
     PodLogLine,
     PodRunSummary,
 )
+from hexawyn.domain.models.log import RankedEvent
 
 
 class TestPodLogLine:
@@ -120,3 +121,18 @@ class TestAnalyzePodLogsResult:
         )
         assert result.token_reduction_percentage == 0.0
         assert result.degraded is False
+        assert result.ranked_events == []
+
+    def test_ranked_events_field(self) -> None:
+        result = AnalyzePodLogsResult(
+            pod_name="p",
+            namespace="ns",
+            time_window_minutes=30,
+            strategy_used="smart_summary",
+            total_lines=1,
+            error_count=1,
+            warning_count=0,
+            ranked_events=[RankedEvent(line="Error: connection refused", count=1, severity="high")],
+        )
+        assert len(result.ranked_events) == 1
+        assert result.ranked_events[0].severity == "high"

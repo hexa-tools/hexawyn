@@ -31,6 +31,8 @@ class TestAnalyzePodLogsTool:
         assert result["total_lines"] == 3
         assert result["strategy_used"] == "smart_summary"
         assert len(result["connection_refused"]) == 1
+        assert len(result["ranked_events"]) == 1
+        assert result["ranked_events"][0]["count"] == 3
 
     def test_returns_hybrid_reduction_metrics(self) -> None:
         from hexawyn.mcp.tools.analyze_pod_logs import analyze_pod_logs

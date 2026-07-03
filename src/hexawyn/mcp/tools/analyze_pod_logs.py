@@ -48,6 +48,7 @@ def analyze_pod_logs(
             "connection_timeouts": r.connection_timeouts,
             "connection_refused": r.connection_refused,
             "runs": r.runs,
+            "ranked_events": r.ranked_events,
             "error": r.error,
         }
     except Exception as exc:

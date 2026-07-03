@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
+from hexawyn.domain.models.log import RankedEvent
+
 ConnectionIssueCategory = Literal["connection_timeout", "connection_refused"]
 
 
@@ -72,3 +74,4 @@ class AnalyzePodLogsResult:
     sanitized_binary: bool = False
     token_reduction_percentage: float = 0.0
     degraded: bool = False
+    ranked_events: list[RankedEvent] = field(default_factory=list)
