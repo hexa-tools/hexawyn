@@ -157,6 +157,13 @@ class MetricsQueryConstants:
 
 
 @dataclass(frozen=True)
+class LabelSearchConstants:
+    """Thresholds for label-selector-based resource search across resource kinds."""
+
+    max_results: int = 500
+
+
+@dataclass(frozen=True)
 class PodAnomalyDetectionConstants:
     """Thresholds for pod metrics anomaly detection vs 7-day baseline
     (Z-score + Isolation Forest dual detection)."""

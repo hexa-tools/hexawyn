@@ -70,6 +70,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.redundant_call_detection_port import (
         RedundantCallDetectionPort,
     )
+    from hexawyn.application.ports.driven.resource_search_port import ResourceSearchPort
     from hexawyn.application.ports.driven.resource_yaml_port import ResourceYAMLPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
     from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
@@ -446,6 +447,14 @@ def build_pod_metrics_baseline_adapter() -> PodMetricsBaselinePort:
     return PrometheusPodMetricsBaselineAdapter(
         metrics_query_port=build_metrics_query_adapter(), k8s_port=build_k8s_adapter()
     )
+
+
+def build_resource_search_adapter() -> ResourceSearchPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_label_search_adapter import (
+        KubernetesLabelSearchAdapter,
+    )
+
+    return KubernetesLabelSearchAdapter()
 
 
 def build_namespace_events_adapter() -> NamespaceEventsPort:
