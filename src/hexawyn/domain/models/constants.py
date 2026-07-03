@@ -148,6 +148,32 @@ class IncidentTriageConstants:
 
 
 @dataclass(frozen=True)
+class MetricsQueryConstants:
+    """Thresholds for PromQL instant/range query execution."""
+
+    max_results: int = 10000
+    default_step: str = "15s"
+    default_timeout_seconds: float = 15.0
+
+
+@dataclass(frozen=True)
+class PodAnomalyDetectionConstants:
+    """Thresholds for pod metrics anomaly detection vs 7-day baseline
+    (Z-score + Isolation Forest dual detection)."""
+
+    zscore_threshold: float = 3.0
+    zscore_high_threshold: float = 4.0
+    zscore_critical_threshold: float = 5.0
+    isolation_forest_contamination: float = 0.05
+    isolation_forest_random_state: int = 42
+    isolation_forest_min_samples: int = 10
+    isolation_forest_min_score_deviation: float = 1.5
+    min_pod_age_hours_for_baseline: float = 24.0
+    default_baseline_window_days: int = 7
+    recent_window_hours: float = 6.0
+
+
+@dataclass(frozen=True)
 class SemanticSearchConstants:
     """Thresholds for semantic search and intent classification."""
 
