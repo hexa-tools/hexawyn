@@ -133,6 +133,15 @@ class PrometheusQueryError(HexawynError):
         self.detail = detail
 
 
+class LabelSelectorError(HexawynError):
+    """Raised when a label selector string is malformed (e.g. missing '=')."""
+
+    def __init__(self, selector: str, detail: str) -> None:
+        super().__init__(f"Invalid label selector '{selector}': {detail}")
+        self.selector = selector
+        self.detail = detail
+
+
 class TektonNotInstalledError(HexawynError):
     """Raised when Tekton CRDs are not installed in the cluster."""
 

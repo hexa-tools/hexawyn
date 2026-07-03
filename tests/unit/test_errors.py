@@ -10,6 +10,7 @@ from hexawyn.domain.errors import (
     InsufficientDataError,
     InsufficientPermissionsError,
     InvestigationError,
+    LabelSelectorError,
     MetricsUnavailableError,
     MutationGuardTriggeredError,
     PipelineNotFoundError,
@@ -137,6 +138,25 @@ class TestPrometheusQueryError:
     def test_can_be_caught_as_hexawyn_error(self) -> None:
         with pytest.raises(HexawynError):
             raise PrometheusQueryError(promql="bad{", detail="parse error")
+
+
+class TestLabelSelectorError:
+    def test_inherits_from_hexawyn_error(self) -> None:
+        assert issubclass(LabelSelectorError, HexawynError)
+
+    def test_stores_selector_and_detail(self) -> None:
+        err = LabelSelectorError(selector="app=", detail="empty value")
+        assert err.selector == "app="
+        assert err.detail == "empty value"
+
+    def test_message_contains_selector_and_detail(self) -> None:
+        err = LabelSelectorError(selector="app=", detail="empty value")
+        assert "app=" in str(err)
+        assert "empty value" in str(err)
+
+    def test_can_be_caught_as_hexawyn_error(self) -> None:
+        with pytest.raises(HexawynError):
+            raise LabelSelectorError(selector="bad", detail="missing '='")
 
 
 class TestContextPropagation:
