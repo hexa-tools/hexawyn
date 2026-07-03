@@ -48,6 +48,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.latency_percentile_port import (
         LatencyPercentilePort,
     )
+    from hexawyn.application.ports.driven.log_search_port import LogSearchPort
     from hexawyn.application.ports.driven.memory_saturation_port import (
         MemorySaturationPort,
     )
@@ -437,6 +438,14 @@ def build_pod_logs_adapter() -> PodLogsPort:
     )
 
     return KubernetesPodLogsAdapter()
+
+
+def build_log_search_adapter() -> LogSearchPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_pod_log_search_adapter import (
+        KubernetesPodLogSearchAdapter,
+    )
+
+    return KubernetesPodLogSearchAdapter()
 
 
 def build_pod_metrics_baseline_adapter() -> PodMetricsBaselinePort:

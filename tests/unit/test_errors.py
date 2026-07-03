@@ -11,6 +11,7 @@ from hexawyn.domain.errors import (
     InsufficientPermissionsError,
     InvestigationError,
     LabelSelectorError,
+    LogPatternError,
     MetricsUnavailableError,
     MutationGuardTriggeredError,
     PipelineNotFoundError,
@@ -157,6 +158,25 @@ class TestLabelSelectorError:
     def test_can_be_caught_as_hexawyn_error(self) -> None:
         with pytest.raises(HexawynError):
             raise LabelSelectorError(selector="bad", detail="missing '='")
+
+
+class TestLogPatternError:
+    def test_inherits_from_hexawyn_error(self) -> None:
+        assert issubclass(LogPatternError, HexawynError)
+
+    def test_stores_pattern_and_detail(self) -> None:
+        err = LogPatternError(pattern="foo(", detail="unbalanced parenthesis")
+        assert err.pattern == "foo("
+        assert err.detail == "unbalanced parenthesis"
+
+    def test_message_contains_pattern_and_detail(self) -> None:
+        err = LogPatternError(pattern="foo(", detail="unbalanced parenthesis")
+        assert "foo(" in str(err)
+        assert "unbalanced parenthesis" in str(err)
+
+    def test_can_be_caught_as_hexawyn_error(self) -> None:
+        with pytest.raises(HexawynError):
+            raise LogPatternError(pattern="bad(", detail="invalid regex")
 
 
 class TestContextPropagation:
