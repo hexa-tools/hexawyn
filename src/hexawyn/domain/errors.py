@@ -142,6 +142,15 @@ class LabelSelectorError(HexawynError):
         self.detail = detail
 
 
+class LogPatternError(HexawynError):
+    """Raised when a log search pattern is invalid (e.g. malformed regex)."""
+
+    def __init__(self, pattern: str, detail: str) -> None:
+        super().__init__(f"Invalid log search pattern '{pattern}': {detail}")
+        self.pattern = pattern
+        self.detail = detail
+
+
 class TektonNotInstalledError(HexawynError):
     """Raised when Tekton CRDs are not installed in the cluster."""
 

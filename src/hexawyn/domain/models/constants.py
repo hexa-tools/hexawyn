@@ -164,6 +164,16 @@ class LabelSearchConstants:
 
 
 @dataclass(frozen=True)
+class LogSearchConstants:
+    """Thresholds for pattern-based pod log search across all namespaces."""
+
+    max_lines_per_pod: int = 5
+    max_tail_lines: int = 5000
+    semantic_similarity_threshold: float = 0.5
+    default_time_window_minutes: int = 60
+
+
+@dataclass(frozen=True)
 class PodAnomalyDetectionConstants:
     """Thresholds for pod metrics anomaly detection vs 7-day baseline
     (Z-score + Isolation Forest dual detection)."""
