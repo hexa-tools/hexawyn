@@ -820,6 +820,17 @@ pipeline_run_logs:
     - "Show me all step logs for PipelineRun deploy-v3"
     - "What caused the checkout pipeline to fail — show me the error output"
 
+# ── Automated Pipeline Failure Root Cause Analysis ───────────────────────────
+
+analyze_failed_pipeline:
+  tool: analyze_failed_pipeline
+  questions:
+    - "The pipeline deploy-payment-v3 failed — what is the root cause? Which task failed, what were the error logs, and was it a flaky test or a real regression?"
+    - "Why did the checkout-service pipeline fail — is this a flaky test or a real bug?"
+    - "Give me a root cause analysis for the failed order-api pipeline with a remediation recommendation."
+    - "Is the payment-gateway pipeline failure infrastructure-related or a code regression?"
+    - "What's the confidence and impact score for the latest deploy-payment-v3 failure?"
+
 # ── ETCD Logs ────────────────────────────────────────────────────────────────
 
 etcd_logs:
