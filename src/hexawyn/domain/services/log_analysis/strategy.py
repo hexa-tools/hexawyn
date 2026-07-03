@@ -13,6 +13,7 @@ __all__ = [
     "SmartSummaryStrategy",
     "StreamingStrategy",
     "HybridStrategy",
+    "RealtimeLogWatchStrategy",
     "StrategySelector",
 ]
 
@@ -232,6 +233,52 @@ class HybridStrategy(LogAnalysisStrategy):
             return 0.0
         reduced_tokens = AdaptiveLogProcessor.estimate_tokens_from_lines(reduced_lines)
         return max(0.0, (1 - reduced_tokens / raw_tokens) * 100)
+
+
+class RealtimeLogWatchStrategy(LogAnalysisStrategy):
+    """Concrete ILogAnalysisStrategy for the real-time pod-log-watch use case (ECA-16).
+
+    Named distinctly from StreamingStrategy (which means the >10000-line
+    batch-chunked volume tier) to avoid colliding with that already-shipped
+    concept — see docs/use-cases/59-realtime-log-watch.md. This class does
+    not itself watch or buffer logs; it summarizes the sampled lines
+    collected by application/service/watch_pod_logs_service.py after a
+    live kubernetes.watch.Watch session ends.
+    """
+
+    def supports(self, context: LogAnalysisContext) -> bool:
+        return context.request_type == "realtime_watch"
+
+    def analyze(self, logs: list[str], context: LogAnalysisContext) -> LogAnalysisResult:
+        if not logs:
+            return LogAnalysisResult(
+                summary="No log data to analyze.",
+                strategy_used="realtime_watch",
+            )
+
+        classifications = extract_error_patterns(logs)
+        severity = self._count_severity(logs)
+        patterns = [c.pattern for c in classifications]
+
+        if classifications:
+            top = classifications[0]
+            summary = (
+                f"Observed {len(logs)} sampled lines; top recurring pattern: "
+                f"'{top.pattern}' ({top.count}x)."
+            )
+            total_matches = sum(c.count for c in classifications)
+            confidence = min(0.95, 0.6 + 0.01 * total_matches)
+        else:
+            summary = f"Observed {len(logs)} sampled lines; no recurring error patterns detected."
+            confidence = 0.6
+
+        return LogAnalysisResult(
+            summary=summary,
+            patterns=patterns,
+            severity=severity,
+            confidence=confidence,
+            strategy_used="realtime_watch",
+        )
 
 
 class StrategySelector:
