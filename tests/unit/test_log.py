@@ -3,9 +3,11 @@
 import dataclasses
 
 from hexawyn.domain.models.log import (
+    DeduplicatedLine,
     LogAnalysisContext,
     LogAnalysisResult,
     PatternClassification,
+    RankedEvent,
 )
 
 
@@ -19,6 +21,8 @@ class TestLogAnalysisContext:
         assert ctx.urgency == "low"
         assert ctx.time_sensitive is False
         assert ctx.follow_up_analysis is False
+        assert ctx.observed_at == ""
+        assert ctx.include_noise is False
 
     def test_critical_troubleshooting(self) -> None:
         ctx = LogAnalysisContext(
@@ -48,6 +52,7 @@ class TestLogAnalysisResult:
         assert result.strategy_used == ""
         assert result.token_reduction_percentage == 0.0
         assert result.degraded is False
+        assert result.ranked_events == []
 
     def test_full_result(self) -> None:
         result = LogAnalysisResult(
@@ -90,3 +95,24 @@ class TestPatternClassification:
 
     def test_is_dataclass(self) -> None:
         assert dataclasses.is_dataclass(PatternClassification)
+
+
+class TestDeduplicatedLine:
+    def test_fields(self) -> None:
+        line = DeduplicatedLine(line="GET /health HTTP/1.1 200", count=1750)
+        assert line.line == "GET /health HTTP/1.1 200"
+        assert line.count == 1750
+
+    def test_is_dataclass(self) -> None:
+        assert dataclasses.is_dataclass(DeduplicatedLine)
+
+
+class TestRankedEvent:
+    def test_fields(self) -> None:
+        event = RankedEvent(line="OOMKilled: memory limit exceeded", count=1, severity="critical")
+        assert event.line == "OOMKilled: memory limit exceeded"
+        assert event.count == 1
+        assert event.severity == "critical"
+
+    def test_is_dataclass(self) -> None:
+        assert dataclasses.is_dataclass(RankedEvent)

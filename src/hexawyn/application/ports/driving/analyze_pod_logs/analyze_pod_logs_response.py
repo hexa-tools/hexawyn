@@ -24,6 +24,12 @@ class PodRunSummaryDict(TypedDict):
     warning_count: int
 
 
+class RankedEventDict(TypedDict):
+    line: str
+    count: int
+    severity: str
+
+
 @dataclass
 class AnalyzePodLogsResponse:
     pod_name: str = ""
@@ -43,4 +49,5 @@ class AnalyzePodLogsResponse:
     connection_timeouts: list[ConnectionIssueDict] = field(default_factory=list)
     connection_refused: list[ConnectionIssueDict] = field(default_factory=list)
     runs: list[PodRunSummaryDict] = field(default_factory=list)
+    ranked_events: list[RankedEventDict] = field(default_factory=list)
     error: str | None = None

@@ -28,6 +28,20 @@ class TestAnalyzePodLogsSmartStrategy:
         assert len(result.connection_refused) == 1
         assert result.connection_refused[0].count == 3
 
+    def test_smart_strategy_propagates_ranked_events(self) -> None:
+        """ECA-17: dedup/noise-filter/severity-rank results reach AnalyzePodLogsResult."""
+        lines = [_line("GET /health HTTP/1.1 200", level="INFO") for _ in range(400)]
+        lines += [_line("connection refused", level="ERROR") for _ in range(3)]
+        request = AnalyzePodLogsRequest(pod_name="api-gateway-7f9b", namespace="prod")
+
+        result = analyze_pod_logs(request, lines)
+
+        assert result.strategy_used == "smart_summary"
+        assert len(result.ranked_events) == 1
+        assert result.ranked_events[0].line == "connection refused"
+        assert result.ranked_events[0].count == 3
+        assert result.token_reduction_percentage > 0.0
+
 
 class TestAnalyzePodLogsStreamingStrategy:
     """TC2: 15000 lines → STREAMING strategy auto-selected, analysis streamed."""

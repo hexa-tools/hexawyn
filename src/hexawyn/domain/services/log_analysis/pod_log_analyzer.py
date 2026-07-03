@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from hexawyn.domain.models.analyze_pod_logs import (
     AnalyzePodLogsRequest,
     AnalyzePodLogsResult,
@@ -37,6 +39,7 @@ def analyze_pod_logs(
         namespace=request.namespace,
         request_type="troubleshooting",
         urgency="medium",
+        observed_at=datetime.now(UTC).isoformat(),
     )
     messages = [line.message for line in log_lines]
     analysis = strategy.analyze(messages, context)
@@ -62,6 +65,7 @@ def analyze_pod_logs(
             sanitized_binary=sanitized_binary,
             token_reduction_percentage=analysis.token_reduction_percentage,
             degraded=analysis.degraded,
+            ranked_events=analysis.ranked_events,
         )
 
     patterns = [
@@ -91,6 +95,7 @@ def analyze_pod_logs(
         sanitized_binary=sanitized_binary,
         token_reduction_percentage=analysis.token_reduction_percentage,
         degraded=analysis.degraded,
+        ranked_events=analysis.ranked_events,
     )
 
 
@@ -112,4 +117,4 @@ def _summarize_runs(log_lines: list[PodLogLine]) -> list[PodRunSummary]:
 
 
 def _count_occurrences(pattern: str, messages: list[str]) -> int:
-    return sum(1 for message in messages if pattern in message.lower())
+    return sum(1 for message in messages if pattern.lower() in message.lower())

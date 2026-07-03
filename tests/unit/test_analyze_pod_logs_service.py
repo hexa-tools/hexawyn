@@ -37,6 +37,8 @@ class TestAnalyzePodLogsService:
         assert len(response.connection_refused) == 1
         assert response.connection_refused[0]["count"] == 3
         assert response.error is None
+        assert len(response.ranked_events) == 1
+        assert response.ranked_events[0]["count"] == 3
 
     def test_analyze_passes_time_window_to_port(self) -> None:
         port = MagicMock(spec=PodLogsPort)

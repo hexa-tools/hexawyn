@@ -9,6 +9,7 @@ from hexawyn.application.ports.driving.analyze_pod_logs.analyze_pod_logs_respons
     ConnectionIssueDict,
     LogPatternDict,
     PodRunSummaryDict,
+    RankedEventDict,
 )
 from hexawyn.application.ports.driving.analyze_pod_logs.analyze_pod_logs_service_port import (
     AnalyzePodLogsServicePort,
@@ -65,6 +66,10 @@ def _to_response(result: AnalyzePodLogsResult) -> AnalyzePodLogsResponse:
                 warning_count=r.warning_count,
             )
             for r in result.runs
+        ],
+        ranked_events=[
+            RankedEventDict(line=e.line, count=e.count, severity=e.severity)
+            for e in result.ranked_events
         ],
     )
 

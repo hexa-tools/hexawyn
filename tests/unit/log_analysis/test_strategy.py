@@ -62,21 +62,6 @@ class TestSmartSummaryStrategy:
         assert len(result.recommendations) > 0
         assert result.confidence >= 0.0
 
-    def test_analyze_empty_logs_returns_graceful_result(self) -> None:
-        result = self.strategy.analyze([], self.context)
-        assert result.summary == "No log data to analyze."
-        assert result.patterns == []
-        assert result.confidence == 0.0
-
-    def test_moderate_activity_branch(self) -> None:
-        logs = (
-            ["Error: timeout backoff restart"]
-            + ["Warning: eviction threshold"]
-            + ["Info: healthy"] * 18
-        )
-        result = self.strategy.analyze(logs, self.context)
-        assert "Moderate activity" in result.summary
-
     def test_recommendations_cover_crashloop_backoff_and_denied(self) -> None:
         logs = [
             "Error: timeout backoff restart",
@@ -85,6 +70,101 @@ class TestSmartSummaryStrategy:
         result = self.strategy.analyze(logs, self.context)
         assert any("startup command" in rec for rec in result.recommendations)
         assert any("RBAC permissions" in rec for rec in result.recommendations)
+
+    def test_tc4_empty_logs_returns_no_logs_available_with_timestamp(self) -> None:
+        """TC4: Empty log output -> returns 'no logs available' with timestamp."""
+        ctx = LogAnalysisContext(observed_at="2024-01-01T00:00:00Z")
+
+        result = self.strategy.analyze([], ctx)
+
+        assert "no logs available" in result.summary.lower()
+        assert "2024-01-01T00:00:00Z" in result.summary
+        assert result.patterns == []
+        assert result.confidence == 0.0
+
+    def test_tc1_dedup_and_noise_filter_reduces_health_check_noise(self) -> None:
+        """TC1: 1800 duplicate health-check logs -> reduced to unique meaningful events."""
+        logs = ["GET /health HTTP/1.1 200" for _ in range(1800)]
+        logs += [f"Error: unique-event-{i} occurred" for i in range(20)]
+
+        result = self.strategy.analyze(logs, self.context)
+
+        assert len(result.ranked_events) == 20
+        assert all("health" not in e.line.lower() for e in result.ranked_events)
+        assert result.token_reduction_percentage >= 90.0
+
+    def test_tc2_all_unique_lines_returns_all_severity_sorted(self) -> None:
+        """TC2: 2000 lines all unique -> returns all 2000 with severity ranking."""
+        logs = ["Error: unique-error-0 occurred"]
+        logs += [f"event-{i} happened" for i in range(1, 2000)]
+
+        result = self.strategy.analyze(logs, self.context)
+
+        assert len(result.ranked_events) == 2000
+        assert result.ranked_events[0].severity == "high"
+        severities = [e.severity for e in result.ranked_events]
+        ranks = [{"critical": 3, "high": 2, "medium": 1, "info": 0}[s] for s in severities]
+        assert ranks == sorted(ranks, reverse=True)
+
+    def test_tc3_mixed_json_derived_and_plain_text_messages(self) -> None:
+        """TC3: Mixed JSON and plain text logs -> both formats handled correctly.
+
+        By the time messages reach the Strategy, JSON has already been
+        flattened into plain message strings by the adapter layer (see
+        KubernetesPodLogsAdapter._parse_message, ECA-14) — this proves
+        both origins dedup/classify identically once here.
+        """
+        logs = [
+            "upstream connect error",  # extracted from a JSON log line
+            "Error: connection refused",  # plain text
+            "upstream connect error",
+        ]
+
+        result = self.strategy.analyze(logs, self.context)
+
+        assert len(result.ranked_events) == 2
+        counts = {e.line: e.count for e in result.ranked_events}
+        assert counts["upstream connect error"] == 2
+        assert counts["Error: connection refused"] == 1
+
+    def test_edge_case_line_repeated_10000_times_shown_once_with_count(self) -> None:
+        """Edge case: log line repeated 10000 times -> shown once with count=10000."""
+        logs = ["Error: connection refused" for _ in range(10000)]
+
+        result = self.strategy.analyze(logs, self.context)
+
+        assert len(result.ranked_events) == 1
+        assert result.ranked_events[0].count == 10000
+
+    def test_edge_case_health_check_filtered_by_default(self) -> None:
+        logs = ["GET /health HTTP/1.1 200" for _ in range(50)] + ["Error: real issue"]
+
+        result = self.strategy.analyze(logs, self.context)
+
+        assert len(result.ranked_events) == 1
+        assert result.ranked_events[0].line == "Error: real issue"
+
+    def test_edge_case_health_check_shown_when_include_noise_true(self) -> None:
+        """Health-check logs filtered out by default, opt-in to show via include_noise."""
+        logs = ["GET /health HTTP/1.1 200" for _ in range(50)] + ["Error: real issue"]
+        ctx = LogAnalysisContext(include_noise=True)
+
+        result = self.strategy.analyze(logs, ctx)
+
+        assert len(result.ranked_events) == 2
+        lines = {e.line for e in result.ranked_events}
+        assert "GET /health HTTP/1.1 200" in lines
+
+    def test_all_noise_leaves_no_meaningful_events(self) -> None:
+        logs = ["GET /health HTTP/1.1 200" for _ in range(50)]
+
+        result = self.strategy.analyze(logs, self.context)
+
+        assert result.ranked_events == []
+        assert "no meaningful events" in result.summary.lower()
+
+    def test_token_reduction_percentage_zero_for_empty_raw_logs(self) -> None:
+        assert SmartSummaryStrategy._token_reduction_percentage([], []) == 0.0
 
 
 class TestStreamingStrategy:

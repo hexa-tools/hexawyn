@@ -1,6 +1,17 @@
 from hexawyn.domain.models.constants import LogAnalysisConstants
-from hexawyn.domain.models.log import LogAnalysisContext, LogAnalysisResult
+from hexawyn.domain.models.log import (
+    DeduplicatedLine,
+    LogAnalysisContext,
+    LogAnalysisResult,
+    RankedEvent,
+)
 from hexawyn.domain.services.log_analysis.analyzer import AdaptiveLogProcessor
+from hexawyn.domain.services.log_analysis.event_severity import (
+    SEVERITY_ORDER,
+    classify_event_severity,
+)
+from hexawyn.domain.services.log_analysis.log_deduplicator import deduplicate_lines
+from hexawyn.domain.services.log_analysis.noise_filter import is_noise
 from hexawyn.domain.services.log_analysis.pattern_reducer import (
     extract_error_patterns,
     reduce_logs_for_summarization,
@@ -22,7 +33,12 @@ _REDUCED_CHUNK_SIZE = 500
 
 
 class SmartSummaryStrategy(LogAnalysisStrategy):
-    """Summarizes log content — best for large logs in monitoring mode."""
+    """Deduplicates, filters noise, and ranks unique events by severity.
+
+    Concrete SMART implementation of LogAnalysisStrategy (ILogAnalysisStrategy,
+    ECA-14). No I/O — deduplication, noise filtering, and severity
+    classification are all pure functions from this package.
+    """
 
     def supports(self, context: LogAnalysisContext) -> bool:
         if context.urgency == "critical" and context.time_sensitive:
@@ -31,35 +47,29 @@ class SmartSummaryStrategy(LogAnalysisStrategy):
 
     def analyze(self, logs: list[str], context: LogAnalysisContext) -> LogAnalysisResult:
         if not logs:
+            observed_at = context.observed_at or "unknown time"
             return LogAnalysisResult(
-                summary="No log data to analyze.",
+                summary=f"No logs available (observed at {observed_at}).",
                 strategy_used="smart_summary",
             )
 
-        error_count = sum(1 for line in logs if "error" in line.lower())
-        warning_count = sum(1 for line in logs if "warning" in line.lower())
-        total_lines = len(logs)
+        deduped = deduplicate_lines(logs)
+        visible = deduped if context.include_noise else [d for d in deduped if not is_noise(d.line)]
 
-        patterns = self._extract_patterns(logs)
+        ranked_events = sorted(
+            (
+                RankedEvent(line=d.line, count=d.count, severity=classify_event_severity(d.line))
+                for d in visible
+            ),
+            key=lambda event: SEVERITY_ORDER[event.severity],
+            reverse=True,
+        )
+
         severity = self._count_severity(logs)
-
-        if error_count == 0 and warning_count == 0:
-            summary = f"Analyzed {total_lines} log lines — no errors or warnings detected."
-            confidence = 0.95
-        elif error_count > total_lines * 0.1:
-            summary = (
-                f"High error rate: {error_count} errors in {total_lines} lines. "
-                f"Top pattern: {patterns[0] if patterns else 'unknown'}."
-            )
-            confidence = 0.85
-        else:
-            summary = (
-                f"Moderate activity: {error_count} errors, {warning_count} warnings "
-                f"in {total_lines} lines."
-            )
-            confidence = 0.80
-
-        recommendations = self._build_recommendations(patterns, severity)
+        patterns = [event.line for event in ranked_events]
+        recommendations = self._build_recommendations([p.lower() for p in patterns], severity)
+        summary, confidence = self._build_summary(logs, deduped, ranked_events)
+        token_reduction_percentage = self._token_reduction_percentage(logs, patterns)
 
         return LogAnalysisResult(
             summary=summary,
@@ -68,7 +78,36 @@ class SmartSummaryStrategy(LogAnalysisStrategy):
             severity=severity,
             confidence=confidence,
             strategy_used="smart_summary",
+            token_reduction_percentage=token_reduction_percentage,
+            ranked_events=ranked_events,
         )
+
+    @staticmethod
+    def _build_summary(
+        logs: list[str], deduped: list[DeduplicatedLine], ranked_events: list[RankedEvent]
+    ) -> tuple[str, float]:
+        if not ranked_events:
+            return (
+                f"Analyzed {len(logs)} log lines — no meaningful events after noise filtering.",
+                0.9,
+            )
+        top = ranked_events[0]
+        filtered_count = len(deduped) - len(ranked_events)
+        noise_note = f" ({filtered_count} filtered as noise)" if filtered_count else ""
+        summary = (
+            f"Reduced {len(logs)} lines to {len(ranked_events)} unique meaningful events"
+            f"{noise_note}. Top: [{top.count}x] {top.severity} — {top.line}"
+        )
+        confidence = min(0.95, 0.6 + 0.02 * len(ranked_events))
+        return summary, confidence
+
+    @staticmethod
+    def _token_reduction_percentage(logs: list[str], reduced_lines: list[str]) -> float:
+        raw_tokens = AdaptiveLogProcessor.estimate_tokens_from_lines(logs)
+        if raw_tokens == 0:
+            return 0.0
+        reduced_tokens = AdaptiveLogProcessor.estimate_tokens_from_lines(reduced_lines)
+        return max(0.0, (1 - reduced_tokens / raw_tokens) * 100)
 
     @staticmethod
     def _build_recommendations(patterns: list[str], severity: str) -> list[str]:
