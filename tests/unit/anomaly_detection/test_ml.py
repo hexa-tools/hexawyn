@@ -74,3 +74,62 @@ class TestIsolationForestAnomalyDetector:
         result = detector.detect(lines)
 
         assert result.anomalies_detected is False
+
+
+class TestDetectSeries:
+    """detect_series — same dual-detection engine, fed raw numeric values instead
+    of text log lines (used by pod-metrics anomaly detection)."""
+
+    def test_single_spike_detected(self) -> None:
+        detector = IsolationForestAnomalyDetector()
+        normal = [200.0 + (i % 3) for i in range(97)]
+        spike = [850.0, 860.0, 870.0]
+        values = normal + spike
+
+        result = detector.detect_series(values)
+
+        assert result.anomalies_detected is True
+        detected_indices = {a["index"] for a in result.anomalies}
+        assert 97 in detected_indices or 98 in detected_indices or 99 in detected_indices
+
+    def test_gradual_drift_tail_detected(self) -> None:
+        """TC2: memory drifts upward over the last 6 points — the tail cluster is
+        numerically distant from the stable baseline bulk, even without a single
+        sharp spike."""
+        detector = IsolationForestAnomalyDetector()
+        stable = [500.0 + (i % 2) for i in range(94)]
+        drift = [700.0, 750.0, 800.0, 850.0, 900.0, 950.0]
+        values = stable + drift
+
+        result = detector.detect_series(values)
+
+        assert result.anomalies_detected is True
+        detected_indices = {a["index"] for a in result.anomalies}
+        assert any(index >= 94 for index in detected_indices)
+
+    def test_uniform_data_returns_no_anomalies(self) -> None:
+        """TC3 / false-positive-rate proof: uniform series → zero anomalies."""
+        detector = IsolationForestAnomalyDetector()
+        values = [200.0 + (i % 3) for i in range(100)]
+
+        result = detector.detect_series(values)
+
+        assert result.anomalies_detected is False
+        assert result.anomaly_count == 0
+
+    def test_insufficient_samples_returns_no_anomalies(self) -> None:
+        detector = IsolationForestAnomalyDetector()
+        result = detector.detect_series([1.0, 2.0])
+        assert result.anomalies_detected is False
+
+    def test_anomaly_entry_has_required_fields(self) -> None:
+        detector = IsolationForestAnomalyDetector()
+        normal = [10.0 for _ in range(97)]
+        outliers = [9000.0, 9100.0, 9200.0]
+        result = detector.detect_series(normal + outliers)
+
+        assert result.anomalies_detected is True
+        anomaly = result.anomalies[0]
+        assert "index" in anomaly
+        assert "value" in anomaly
+        assert "anomaly_score" in anomaly

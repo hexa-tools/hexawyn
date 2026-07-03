@@ -45,14 +45,7 @@ class IsolationForestAnomalyDetector:
             return MLAnomalyDetectionResult()
 
         features = np.array([extract_log_features(line) for line in log_lines])
-        model = IsolationForest(
-            contamination=self.contamination,
-            random_state=self.random_state,
-        )
-        predictions = model.fit_predict(features)
-        scores = model.decision_function(features)
-
-        anomalies = self._select_true_outliers(log_lines, predictions, scores)
+        anomalies = self._run(log_lines, features, item_key="line")
 
         return MLAnomalyDetectionResult(
             anomalies_detected=len(anomalies) > 0,
@@ -60,11 +53,45 @@ class IsolationForestAnomalyDetector:
             anomalies=anomalies,
         )
 
+    def detect_series(self, values: list[float]) -> MLAnomalyDetectionResult:
+        """Same Isolation Forest + deviation-filter engine as `detect`, fed raw
+        numeric values instead of text-derived features — used by pod-metrics
+        anomaly detection to catch both sharp spikes and gradual multi-point
+        drift (a drifting tail is numerically distant from the stable bulk,
+        so it isolates in fewer random splits even without one extreme point).
+        """
+        if len(values) < self.min_samples:
+            return MLAnomalyDetectionResult()
+
+        features = np.array([[value] for value in values])
+        anomalies = self._run(values, features, item_key="value")
+
+        return MLAnomalyDetectionResult(
+            anomalies_detected=len(anomalies) > 0,
+            anomaly_count=len(anomalies),
+            anomalies=anomalies,
+        )
+
+    def _run(
+        self,
+        items: list[str] | list[float],
+        features: np.ndarray,
+        item_key: str,
+    ) -> list[dict[str, float | int | str]]:
+        model = IsolationForest(
+            contamination=self.contamination,
+            random_state=self.random_state,
+        )
+        predictions = model.fit_predict(features)
+        scores = model.decision_function(features)
+        return self._select_true_outliers(items, predictions, scores, item_key)
+
     def _select_true_outliers(
         self,
-        log_lines: list[str],
+        items: list[str] | list[float],
         predictions: np.ndarray,
         scores: np.ndarray,
+        item_key: str,
     ) -> list[dict[str, float | int | str]]:
         """Filters IsolationForest's fixed-contamination predictions.
 
@@ -89,7 +116,7 @@ class IsolationForestAnomalyDetector:
             anomalies.append(
                 {
                     "index": index,
-                    "line": log_lines[index],
+                    item_key: items[index],
                     "anomaly_score": round(float(-score), 4),
                 }
             )

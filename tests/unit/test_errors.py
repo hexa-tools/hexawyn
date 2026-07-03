@@ -13,6 +13,7 @@ from hexawyn.domain.errors import (
     MetricsUnavailableError,
     MutationGuardTriggeredError,
     PipelineNotFoundError,
+    PrometheusQueryError,
     ResourceNotFoundError,
     SchemaMigrationError,
     SemanticLayerError,
@@ -117,6 +118,25 @@ class TestPipelineNotFoundError:
     def test_can_be_caught_as_hexawyn_error(self) -> None:
         with pytest.raises(HexawynError):
             raise PipelineNotFoundError(pipeline_name="ghost")
+
+
+class TestPrometheusQueryError:
+    def test_inherits_from_hexawyn_error(self) -> None:
+        assert issubclass(PrometheusQueryError, HexawynError)
+
+    def test_stores_promql_and_detail(self) -> None:
+        err = PrometheusQueryError(promql="rate(foo[5m]", detail="unexpected end of input")
+        assert err.promql == "rate(foo[5m]"
+        assert err.detail == "unexpected end of input"
+
+    def test_message_contains_promql_and_detail(self) -> None:
+        err = PrometheusQueryError(promql="rate(foo[5m]", detail="unexpected end of input")
+        assert "rate(foo[5m]" in str(err)
+        assert "unexpected end of input" in str(err)
+
+    def test_can_be_caught_as_hexawyn_error(self) -> None:
+        with pytest.raises(HexawynError):
+            raise PrometheusQueryError(promql="bad{", detail="parse error")
 
 
 class TestContextPropagation:

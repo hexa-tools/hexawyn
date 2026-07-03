@@ -124,6 +124,15 @@ class PrometheusUnavailableError(HexawynError):
         self.url = url
 
 
+class PrometheusQueryError(HexawynError):
+    """Raised when Prometheus rejects a query (e.g. a PromQL syntax error, HTTP 400)."""
+
+    def __init__(self, promql: str, detail: str) -> None:
+        super().__init__(f"PromQL query failed: '{promql}' — {detail}")
+        self.promql = promql
+        self.detail = detail
+
+
 class TektonNotInstalledError(HexawynError):
     """Raised when Tekton CRDs are not installed in the cluster."""
 

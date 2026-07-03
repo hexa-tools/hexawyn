@@ -54,6 +54,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.metric_correlation_port import (
         MetricCorrelationPort,
     )
+    from hexawyn.application.ports.driven.metrics_query_port import MetricsQueryPort
     from hexawyn.application.ports.driven.namespace_events_port import NamespaceEventsPort
     from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
     from hexawyn.application.ports.driven.pipeline_for_service_port import (
@@ -64,6 +65,7 @@ if TYPE_CHECKING:
     )
     from hexawyn.application.ports.driven.pod_log_watch_port import PodLogWatchPort
     from hexawyn.application.ports.driven.pod_logs_port import PodLogsPort
+    from hexawyn.application.ports.driven.pod_metrics_baseline_port import PodMetricsBaselinePort
     from hexawyn.application.ports.driven.policy_port import PolicyPort
     from hexawyn.application.ports.driven.redundant_call_detection_port import (
         RedundantCallDetectionPort,
@@ -293,6 +295,15 @@ def build_metric_correlation_adapter() -> MetricCorrelationPort:
     return OTelPrometheusCorrelationAdapter()
 
 
+def build_metrics_query_adapter() -> MetricsQueryPort:
+    from hexawyn.adapters.secondary.gitops.prometheus_http_adapter import PrometheusHTTPAdapter
+
+    prometheus_url = os.environ.get("PROMETHEUS_URL", "")
+    return PrometheusHTTPAdapter(
+        endpoint=prometheus_url, token=os.environ.get("PROMETHEUS_TOKEN") or None
+    )
+
+
 def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:
     from hexawyn.adapters.secondary.gitops.otel_trace_log_adapter import (
         OTelTraceLogAdapter,
@@ -425,6 +436,16 @@ def build_pod_logs_adapter() -> PodLogsPort:
     )
 
     return KubernetesPodLogsAdapter()
+
+
+def build_pod_metrics_baseline_adapter() -> PodMetricsBaselinePort:
+    from hexawyn.adapters.secondary.gitops.prometheus_pod_metrics_baseline_adapter import (
+        PrometheusPodMetricsBaselineAdapter,
+    )
+
+    return PrometheusPodMetricsBaselineAdapter(
+        metrics_query_port=build_metrics_query_adapter(), k8s_port=build_k8s_adapter()
+    )
 
 
 def build_namespace_events_adapter() -> NamespaceEventsPort:
