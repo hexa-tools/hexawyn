@@ -1048,3 +1048,12 @@ cluster_capacity_ceiling_forecast:
     - "How many days until we need to add worker nodes?"
     - "Is our cluster capacity trending up, down, or flat over the last two weeks?"
     - "Did adding that node last week actually change our growth trend?"
+
+cluster_headroom_simulation:
+  tool: cluster_headroom_simulation
+  questions:
+    - "If I deploy 3 new microservices next sprint, each requiring 500m CPU and 512Mi memory, will the cluster handle the load without adding new nodes?"
+    - "Do we have enough headroom to add another 2 replicas of the payment service?"
+    - "Would these proposed workloads fit, or do we need to scale the node pool first?"
+    - "Is memory or CPU going to be the bottleneck if we ship these three services?"
+    - "Can this pod's resource request even fit on any of our current nodes?"

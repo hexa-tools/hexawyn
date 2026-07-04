@@ -284,3 +284,13 @@ class ClusterCapacityForecastConstants:
     max_forecast_horizon_days: int = 365
     trend_window_days: int = 3
     jump_outlier_multiplier: float = 3.0
+
+
+@dataclass(frozen=True)
+class HeadroomSimulationConstants:
+    """Thresholds for cluster headroom simulation of proposed workloads."""
+
+    default_replicas: int = 2
+    tight_utilization_threshold: float = 80.0
+    needs_nodes_utilization_threshold: float = 95.0
+    target_utilization_after_scaling_percent: float = 80.0
