@@ -45,6 +45,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.etcd_logs_port import ETCDLogsPort
     from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
     from hexawyn.application.ports.driven.gitops_port import GitOpsPort
+    from hexawyn.application.ports.driven.headroom_simulation_port import HeadroomSimulationPort
     from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
     from hexawyn.application.ports.driven.k8s_port import K8sPort
     from hexawyn.application.ports.driven.keda_port import KedaPort
@@ -317,6 +318,14 @@ def build_capacity_forecast_adapter() -> CapacityForecastPort:
     )
 
     return KubernetesCapacityForecastAdapter()
+
+
+def build_headroom_simulation_adapter() -> HeadroomSimulationPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_headroom_simulation_adapter import (
+        KubernetesHeadroomSimulationAdapter,
+    )
+
+    return KubernetesHeadroomSimulationAdapter()
 
 
 def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:
