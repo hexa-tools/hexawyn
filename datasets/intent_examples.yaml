@@ -1057,3 +1057,12 @@ cluster_headroom_simulation:
     - "Would these proposed workloads fit, or do we need to scale the node pool first?"
     - "Is memory or CPU going to be the bottleneck if we ship these three services?"
     - "Can this pod's resource request even fit on any of our current nodes?"
+
+hot_node_analysis:
+  tool: hot_node_analysis
+  questions:
+    - "Which nodes are consistently above 80% CPU or memory utilization — are they candidates for vertical scaling or workload redistribution?"
+    - "Is worker-eu-3 actually hot, or was that just a brief spike?"
+    - "If a node is overloaded, which pods should we move first?"
+    - "Do we have enough headroom elsewhere to redistribute load off our busiest node?"
+    - "Are our hot nodes only busy during business hours, or is it constant?"
