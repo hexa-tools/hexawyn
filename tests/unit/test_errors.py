@@ -12,6 +12,7 @@ from hexawyn.domain.errors import (
     InvestigationError,
     LabelSelectorError,
     LogPatternError,
+    ManifestRenderError,
     MetricsUnavailableError,
     MutationGuardTriggeredError,
     PipelineNotFoundError,
@@ -139,6 +140,25 @@ class TestPrometheusQueryError:
     def test_can_be_caught_as_hexawyn_error(self) -> None:
         with pytest.raises(HexawynError):
             raise PrometheusQueryError(promql="bad{", detail="parse error")
+
+
+class TestManifestRenderError:
+    def test_inherits_from_hexawyn_error(self) -> None:
+        assert issubclass(ManifestRenderError, HexawynError)
+
+    def test_stores_source_and_detail(self) -> None:
+        err = ManifestRenderError(source="payment-chart", detail="chart not found")
+        assert err.source == "payment-chart"
+        assert err.detail == "chart not found"
+
+    def test_message_contains_source_and_detail(self) -> None:
+        err = ManifestRenderError(source="payment-chart", detail="chart not found")
+        assert "payment-chart" in str(err)
+        assert "chart not found" in str(err)
+
+    def test_can_be_caught_as_hexawyn_error(self) -> None:
+        with pytest.raises(HexawynError):
+            raise ManifestRenderError(source="payment-chart", detail="chart not found")
 
 
 class TestLabelSelectorError:

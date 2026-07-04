@@ -4735,4 +4735,4 @@ openshift = ["openshift"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "5096f63db90af217358825db0d081b40a8cd3dde1c30cc619c68e6b8bedb82d6"
+content-hash = "098d745040b8f7108b70d3657c1b0d747662a2a14028ef1717c5f0f462ea59fd"
