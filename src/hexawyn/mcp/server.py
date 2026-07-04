@@ -16,6 +16,9 @@ from hexawyn.infrastructure.config.kubeconfig_reader import (
 from hexawyn.infrastructure.memory.duckdb_client import get_connection
 
 if TYPE_CHECKING:
+    from hexawyn.application.ports.driven.adaptive_investigation_port import (
+        AdaptiveInvestigationPort,
+    )
     from hexawyn.application.ports.driven.alert_notification_port import AlertNotificationPort
     from hexawyn.application.ports.driven.canary_comparison_port import (
         CanaryComparisonPort,
@@ -481,6 +484,14 @@ def build_namespace_overview_adapter() -> NamespaceOverviewPort:
     )
 
     return KubernetesNamespaceAdapter()
+
+
+def build_adaptive_investigation_adapter() -> AdaptiveInvestigationPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_adaptive_investigation_adapter import (
+        KubernetesAdaptiveInvestigationAdapter,
+    )
+
+    return KubernetesAdaptiveInvestigationAdapter()
 
 
 def build_pod_log_watch_adapter() -> PodLogWatchPort:
