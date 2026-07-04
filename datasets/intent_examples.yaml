@@ -1039,3 +1039,12 @@ adaptive_namespace_investigation:
     - "Give me a triage pass on staging: overview, top offenders, and what I should do about it."
     - "Investigate payment with depth=1 — just tell me the single worst thing."
     - "Why is auth degraded, and is it OOM, a bad deploy, or something else?"
+
+cluster_capacity_ceiling_forecast:
+  tool: cluster_capacity_ceiling_forecast
+  questions:
+    - "At the current resource consumption growth rate, when will the cluster run out of node capacity — in days or weeks?"
+    - "Is the cluster CPU or memory going to run out first?"
+    - "How many days until we need to add worker nodes?"
+    - "Is our cluster capacity trending up, down, or flat over the last two weeks?"
+    - "Did adding that node last week actually change our growth trend?"

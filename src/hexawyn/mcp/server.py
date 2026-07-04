@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.canary_comparison_port import (
         CanaryComparisonPort,
     )
+    from hexawyn.application.ports.driven.capacity_forecast_port import CapacityForecastPort
     from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
     from hexawyn.application.ports.driven.certificate_investigation_port import (
         CertificateInvestigationPort,
@@ -308,6 +309,14 @@ def build_metrics_query_adapter() -> MetricsQueryPort:
     return PrometheusHTTPAdapter(
         endpoint=prometheus_url, token=os.environ.get("PROMETHEUS_TOKEN") or None
     )
+
+
+def build_capacity_forecast_adapter() -> CapacityForecastPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_capacity_forecast_adapter import (
+        KubernetesCapacityForecastAdapter,
+    )
+
+    return KubernetesCapacityForecastAdapter()
 
 
 def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:
