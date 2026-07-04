@@ -174,6 +174,14 @@ class LogSearchConstants:
 
 
 @dataclass(frozen=True)
+class NamespaceOverviewConstants:
+    """Thresholds for the conservative (token-budgeted) namespace overview."""
+
+    default_max_tokens: int = 2000
+    chars_per_token_divisor: float = 4.0
+
+
+@dataclass(frozen=True)
 class PodAnomalyDetectionConstants:
     """Thresholds for pod metrics anomaly detection vs 7-day baseline
     (Z-score + Isolation Forest dual detection)."""
