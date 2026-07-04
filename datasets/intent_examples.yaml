@@ -974,3 +974,59 @@ keda_scaledjob_get:
     - "What is the cooldown and max replica count for the image-processor ScaledJob?"
     - "When was the last time the cleanup-job ScaledJob executed?"
     - "Why is the report-generator ScaledJob in error?"
+
+# ── Incident Triage & Diagnostics ─────────────────────────────────────────
+
+generate_incident_triage_report:
+  tool: generate_incident_triage_report
+  questions:
+    - "Generate a full automated triage and RCA report for the incident on the payment namespace in the last 2 hours — include timeline, impact, root cause, and remediation steps."
+    - "What caused the outage in checkout-service over the last hour, and how long did it take to recover?"
+    - "Give me a post-mortem-ready report for the payment namespace I can paste into Confluence."
+    - "Is this a single root cause or multiple concurrent failures — and which is most likely?"
+    - "Did the payment-namespace incident spread to any other namespaces?"
+
+prometheus_query:
+  tool: prometheus_query
+  questions:
+    - "What is the current CPU usage rate for all pods in the payment namespace over the last 5 minutes? Query Prometheus for container_cpu_usage_seconds_total."
+    - "Run `up` against Prometheus and tell me which targets are down."
+    - "Give me the memory usage series for the checkout-service pod over the last hour."
+    - "Is Prometheus even reachable right now?"
+    - "What's `rate(http_requests_total{status=~\"5..\"}[5m])` currently showing for the auth-service?"
+
+detect_pod_anomalies:
+  tool: detect_pod_anomalies
+  questions:
+    - "Detect anomalies across all pods in production — which ones show unusual CPU spikes, memory patterns, or error rate deviations vs baseline?"
+    - "Is payment-api using more CPU than usual right now?"
+    - "Any pods in production drifting toward a memory leak over the last few hours?"
+    - "Give me a ranked list of anomalous pods in the checkout namespace, worst first."
+    - "Which pods don't have enough history yet to even compare against a baseline?"
+
+search_resources_by_labels:
+  tool: search_resources_by_labels
+  questions:
+    - "Find all pods labeled app=payment and env=production across all namespaces — what is their current status?"
+    - "Which services and pods match app=checkout in the production namespace?"
+    - "Is anything labeled app.kubernetes.io/name=payment unhealthy right now?"
+    - "Show me every resource with version=1.2.3 across the cluster."
+    - "Are there any configmaps or deployments labeled team=platform anywhere?"
+
+semantic_log_search:
+  tool: semantic_log_search
+  questions:
+    - "Search across all pod logs for the pattern 'connection refused to postgres' in the last hour — which services are affected?"
+    - "Grep every pod in the checkout namespace for 'OOMKilled' in the last 15 minutes."
+    - "Is any service logging 'context deadline exceeded' right now?"
+    - "Find pods matching the regex `timeout.*retry` across all namespaces."
+    - "Which pods and services show connection errors to redis in the last 6 hours?"
+
+conservative_namespace_overview:
+  tool: conservative_namespace_overview
+  questions:
+    - "Give me a conservative overview of the staging namespace — total pods, services, deployments, and any obvious health issues, without flooding the context with raw data."
+    - "Is the payment namespace healthy right now?"
+    - "What's broken in production, in one line?"
+    - "Give me a quick health check on checkout, capped to 500 tokens."
+    - "Does staging exist, and if so, is anything degraded?"
