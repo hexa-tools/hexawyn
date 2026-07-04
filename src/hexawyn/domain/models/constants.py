@@ -273,3 +273,14 @@ class AdaptiveInvestigationConstants:
     default_depth: int = 3
     max_events_per_resource: int = 5
     max_log_lines_per_resource: int = 20
+
+
+@dataclass(frozen=True)
+class ClusterCapacityForecastConstants:
+    """Thresholds for cluster capacity ceiling forecasting."""
+
+    default_window_days: int = 14
+    min_medium_confidence_days: int = 7
+    max_forecast_horizon_days: int = 365
+    trend_window_days: int = 3
+    jump_outlier_multiplier: float = 3.0
