@@ -46,6 +46,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
     from hexawyn.application.ports.driven.gitops_port import GitOpsPort
     from hexawyn.application.ports.driven.headroom_simulation_port import HeadroomSimulationPort
+    from hexawyn.application.ports.driven.hot_node_analysis_port import HotNodeAnalysisPort
     from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
     from hexawyn.application.ports.driven.k8s_port import K8sPort
     from hexawyn.application.ports.driven.keda_port import KedaPort
@@ -326,6 +327,14 @@ def build_headroom_simulation_adapter() -> HeadroomSimulationPort:
     )
 
     return KubernetesHeadroomSimulationAdapter()
+
+
+def build_node_analysis_adapter() -> HotNodeAnalysisPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_node_analysis_adapter import (
+        KubernetesNodeAnalysisAdapter,
+    )
+
+    return KubernetesNodeAnalysisAdapter()
 
 
 def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:

@@ -294,3 +294,17 @@ class HeadroomSimulationConstants:
     tight_utilization_threshold: float = 80.0
     needs_nodes_utilization_threshold: float = 95.0
     target_utilization_after_scaling_percent: float = 80.0
+
+
+@dataclass(frozen=True)
+class HotNodeAnalysisConstants:
+    """Thresholds for hot-node detection, redistribution, and scaling recommendations."""
+
+    default_window_hours: int = 24
+    hot_threshold_percent: float = 80.0
+    hot_duration_percent: float = 50.0
+    top_consumers_count: int = 3
+    business_hours_start: int = 9
+    business_hours_end: int = 18
+    business_hours_match_ratio: float = 0.8
+    single_dominant_pod_ratio: float = 0.6
