@@ -264,3 +264,12 @@ class PodPrioritizationConstants:
     other_status_score: int = 25
     restart_weight: int = 10
     max_restart_bonus: int = 30
+
+
+@dataclass(frozen=True)
+class AdaptiveInvestigationConstants:
+    """Thresholds for adaptive namespace investigation drill-down."""
+
+    default_depth: int = 3
+    max_events_per_resource: int = 5
+    max_log_lines_per_resource: int = 20

@@ -1030,3 +1030,12 @@ conservative_namespace_overview:
     - "What's broken in production, in one line?"
     - "Give me a quick health check on checkout, capped to 500 tokens."
     - "Does staging exist, and if so, is anything degraded?"
+
+adaptive_namespace_investigation:
+  tool: adaptive_namespace_investigation
+  questions:
+    - "The production namespace is having issues — adaptively investigate it: start with a health summary, then automatically drill into the most critical failing resources."
+    - "Something's wrong in checkout — figure out what, without me telling you which pod to look at."
+    - "Give me a triage pass on staging: overview, top offenders, and what I should do about it."
+    - "Investigate payment with depth=1 — just tell me the single worst thing."
+    - "Why is auth degraded, and is it OOM, a bad deploy, or something else?"
