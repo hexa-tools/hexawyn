@@ -308,3 +308,14 @@ class HotNodeAnalysisConstants:
     business_hours_end: int = 18
     business_hours_match_ratio: float = 0.8
     single_dominant_pod_ratio: float = 0.6
+
+
+@dataclass(frozen=True)
+class ConfigurationDriftConstants:
+    """Thresholds and well-known keys for Helm/Kustomize drift detection."""
+
+    helm_command_timeout_seconds: float = 30.0
+    kustomize_command_timeout_seconds: float = 15.0
+    helm_managed_by_label_key: str = "app.kubernetes.io/managed-by"
+    helm_managed_by_label_value: str = "Helm"
+    helm_release_annotation_key: str = "meta.helm.sh/release-name"

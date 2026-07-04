@@ -256,3 +256,34 @@ class KedaNotFoundError(HexawynError):
             "KEDA is not installed in this cluster. "
             "Install it first: https://keda.sh/docs/deploy/"
         )
+
+
+# ── Configuration Drift Detection ───────────────────────────
+class HelmNotFoundError(HexawynError):
+    """Raised when the `helm` CLI binary is not installed/on PATH."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            "helm is not installed or not on PATH. Install it first: https://helm.sh/docs/intro/install/"
+        )
+
+
+class KustomizeNotFoundError(HexawynError):
+    """Raised when the `kustomize` CLI binary is not installed/on PATH."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            "kustomize is not installed or not on PATH. "
+            "Install it first: https://kubectl.docs.kubernetes.io/installation/kustomize/"
+        )
+
+
+class ManifestRenderError(HexawynError):
+    """Raised when rendering a Helm release or Kustomize overlay genuinely
+    fails (malformed chart/path/YAML, command error) — distinct from
+    "release doesn't exist", which is a normal `source_exists() -> False`."""
+
+    def __init__(self, source: str, detail: str) -> None:
+        super().__init__(f"Failed to render manifests for {source!r}: {detail}")
+        self.source = source
+        self.detail = detail
