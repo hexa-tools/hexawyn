@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     )
     from hexawyn.application.ports.driven.etcd_logs_port import ETCDLogsPort
     from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
+    from hexawyn.application.ports.driven.gitops_drift_audit_port import GitOpsDriftAuditPort
     from hexawyn.application.ports.driven.gitops_port import GitOpsPort
     from hexawyn.application.ports.driven.headroom_simulation_port import HeadroomSimulationPort
     from hexawyn.application.ports.driven.hot_node_analysis_port import HotNodeAnalysisPort
@@ -335,6 +336,14 @@ def build_node_analysis_adapter() -> HotNodeAnalysisPort:
     )
 
     return KubernetesNodeAnalysisAdapter()
+
+
+def build_audit_log_adapter() -> GitOpsDriftAuditPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_audit_log_adapter import (
+        KubernetesAuditLogAdapter,
+    )
+
+    return KubernetesAuditLogAdapter()
 
 
 def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:

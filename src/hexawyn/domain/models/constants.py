@@ -308,3 +308,22 @@ class HotNodeAnalysisConstants:
     business_hours_end: int = 18
     business_hours_match_ratio: float = 0.8
     single_dominant_pod_ratio: float = 0.6
+
+
+@dataclass(frozen=True)
+class ManualChangeDetectionConstants:
+    """GitOps-controller allow-list and sensitivity keywords for detecting
+    manual ConfigMap/Secret changes made outside GitOps."""
+
+    default_window_days: int = 7
+    gitops_controllers: tuple[str, ...] = (
+        "argocd-application-controller",
+        "flux-kustomize-controller",
+    )
+    sensitive_configmap_keywords: tuple[str, ...] = (
+        "rbac",
+        "role",
+        "tls",
+        "cert",
+        "certificate",
+    )
