@@ -1075,3 +1075,12 @@ configuration_drift_detection:
     - "Is the checkout-config ConfigMap still in sync with what's in the chart?"
     - "Are there any resources left over from a Helm release that no longer exists?"
     - "Which drifted resources are actually critical, not just cosmetic?"
+
+manual_change_outside_gitops_detection:
+  tool: detect_manual_changes_outside_gitops
+  questions:
+    - "Which ConfigMaps or Secrets were manually modified outside of GitOps in the last 7 days — who changed them and when?"
+    - "Did anyone edit the payment-service Secret directly instead of going through Git?"
+    - "Are all of our recent ConfigMap changes coming from ArgoCD, or is someone bypassing GitOps?"
+    - "Which changes in the last 3 days were made by a real person versus a CI pipeline?"
+    - "Is our audit logging even configured, or are we flying blind on manual changes?"

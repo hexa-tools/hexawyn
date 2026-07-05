@@ -319,3 +319,22 @@ class ConfigurationDriftConstants:
     helm_managed_by_label_key: str = "app.kubernetes.io/managed-by"
     helm_managed_by_label_value: str = "Helm"
     helm_release_annotation_key: str = "meta.helm.sh/release-name"
+
+
+@dataclass(frozen=True)
+class ManualChangeDetectionConstants:
+    """GitOps-controller allow-list and sensitivity keywords for detecting
+    manual ConfigMap/Secret changes made outside GitOps."""
+
+    default_window_days: int = 7
+    gitops_controllers: tuple[str, ...] = (
+        "argocd-application-controller",
+        "flux-kustomize-controller",
+    )
+    sensitive_configmap_keywords: tuple[str, ...] = (
+        "rbac",
+        "role",
+        "tls",
+        "cert",
+        "certificate",
+    )
