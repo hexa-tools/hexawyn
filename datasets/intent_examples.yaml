@@ -1093,3 +1093,13 @@ container_image_drift_detection:
     - "Are any of our mutable image tags actually pointing to different bytes than what we deployed?"
     - "Which containers are out of sync because of a tag change versus a digest change?"
     - "Ignore anything still pinned to latest — what's genuinely drifted?"
+
+service_account_rbac_audit:
+  tool: audit_rbac_permissions
+  questions:
+    - "Which service accounts have cluster-admin or overly broad permissions they don't actually need — what is the minimal required RBAC for each?"
+    - "Is any service account in production bound to cluster-admin that shouldn't be?"
+    - "Show me every service account with wildcard verbs or access to all resources."
+    - "Which service accounts have permissions they've never actually used, based on the audit log?"
+    - "How much blast radius would we cut by tightening our over-privileged service accounts?"
+    - "Are there any service accounts with no bindings at all — just dead weight in the cluster?"
