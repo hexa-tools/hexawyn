@@ -60,6 +60,10 @@ if TYPE_CHECKING:
         HotNodeAnalysisPort,
     )
     from hexawyn.application.ports.driven.image_drift_port import ImageDriftPort
+    from hexawyn.application.ports.driven.image_inventory_port import ImageInventoryPort
+    from hexawyn.application.ports.driven.image_vulnerability_scan_port import (
+        ImageVulnerabilityScanPort,
+    )
     from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
     from hexawyn.application.ports.driven.k8s_port import K8sPort
     from hexawyn.application.ports.driven.keda_port import KedaPort
@@ -429,6 +433,20 @@ def build_pod_security_adapter() -> PodSecurityContextAuditPort:
     )
 
     return KubernetesPodSecurityAdapter()
+
+
+def build_image_inventory_adapter() -> ImageInventoryPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_image_inventory_adapter import (
+        KubernetesImageInventoryAdapter,
+    )
+
+    return KubernetesImageInventoryAdapter()
+
+
+def build_image_vulnerability_scan_adapter() -> ImageVulnerabilityScanPort:
+    from hexawyn.adapters.secondary.gitops.trivy_cve_scan_adapter import TrivyCVEScanAdapter
+
+    return TrivyCVEScanAdapter()
 
 
 def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:
