@@ -338,3 +338,24 @@ class ManualChangeDetectionConstants:
         "cert",
         "certificate",
     )
+
+
+@dataclass(frozen=True)
+class RBACAuditConstants:
+    """Thresholds and well-known names for the Service Account RBAC audit."""
+
+    cluster_admin_role_name: str = "cluster-admin"
+    system_namespace: str = "kube-system"
+    wildcard: str = "*"
+    default_audit_window_days: int = 30
+    narrow_breadth_resource_limit: int = 1
+    narrow_breadth_verb_limit: int = 2
+    cluster_scoped_resources: tuple[str, ...] = (
+        "nodes",
+        "namespaces",
+        "persistentvolumes",
+        "clusterroles",
+        "clusterrolebindings",
+        "storageclasses",
+        "customresourcedefinitions",
+    )

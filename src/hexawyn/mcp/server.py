@@ -19,11 +19,15 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.adaptive_investigation_port import (
         AdaptiveInvestigationPort,
     )
-    from hexawyn.application.ports.driven.alert_notification_port import AlertNotificationPort
+    from hexawyn.application.ports.driven.alert_notification_port import (
+        AlertNotificationPort,
+    )
     from hexawyn.application.ports.driven.canary_comparison_port import (
         CanaryComparisonPort,
     )
-    from hexawyn.application.ports.driven.capacity_forecast_port import CapacityForecastPort
+    from hexawyn.application.ports.driven.capacity_forecast_port import (
+        CapacityForecastPort,
+    )
     from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
     from hexawyn.application.ports.driven.certificate_investigation_port import (
         CertificateInvestigationPort,
@@ -45,15 +49,23 @@ if TYPE_CHECKING:
     )
     from hexawyn.application.ports.driven.etcd_logs_port import ETCDLogsPort
     from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
-    from hexawyn.application.ports.driven.gitops_drift_audit_port import GitOpsDriftAuditPort
+    from hexawyn.application.ports.driven.gitops_drift_audit_port import (
+        GitOpsDriftAuditPort,
+    )
     from hexawyn.application.ports.driven.gitops_port import GitOpsPort
-    from hexawyn.application.ports.driven.headroom_simulation_port import HeadroomSimulationPort
-    from hexawyn.application.ports.driven.hot_node_analysis_port import HotNodeAnalysisPort
+    from hexawyn.application.ports.driven.headroom_simulation_port import (
+        HeadroomSimulationPort,
+    )
+    from hexawyn.application.ports.driven.hot_node_analysis_port import (
+        HotNodeAnalysisPort,
+    )
     from hexawyn.application.ports.driven.image_drift_port import ImageDriftPort
     from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
     from hexawyn.application.ports.driven.k8s_port import K8sPort
     from hexawyn.application.ports.driven.keda_port import KedaPort
-    from hexawyn.application.ports.driven.kubernetes_topology_port import KubernetesTopologyPort
+    from hexawyn.application.ports.driven.kubernetes_topology_port import (
+        KubernetesTopologyPort,
+    )
     from hexawyn.application.ports.driven.latency_percentile_port import (
         LatencyPercentilePort,
     )
@@ -66,9 +78,15 @@ if TYPE_CHECKING:
         MetricCorrelationPort,
     )
     from hexawyn.application.ports.driven.metrics_query_port import MetricsQueryPort
-    from hexawyn.application.ports.driven.namespace_events_port import NamespaceEventsPort
-    from hexawyn.application.ports.driven.namespace_overview_port import NamespaceOverviewPort
-    from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+    from hexawyn.application.ports.driven.namespace_events_port import (
+        NamespaceEventsPort,
+    )
+    from hexawyn.application.ports.driven.namespace_overview_port import (
+        NamespaceOverviewPort,
+    )
+    from hexawyn.application.ports.driven.namespace_waste_port import (
+        NamespaceWasteAnalysisPort,
+    )
     from hexawyn.application.ports.driven.pipeline_for_service_port import (
         PipelineForServicePort,
     )
@@ -77,8 +95,13 @@ if TYPE_CHECKING:
     )
     from hexawyn.application.ports.driven.pod_log_watch_port import PodLogWatchPort
     from hexawyn.application.ports.driven.pod_logs_port import PodLogsPort
-    from hexawyn.application.ports.driven.pod_metrics_baseline_port import PodMetricsBaselinePort
+    from hexawyn.application.ports.driven.pod_metrics_baseline_port import (
+        PodMetricsBaselinePort,
+    )
     from hexawyn.application.ports.driven.policy_port import PolicyPort
+    from hexawyn.application.ports.driven.rbac_security_audit_port import (
+        RBACSecurityAuditPort,
+    )
     from hexawyn.application.ports.driven.redundant_call_detection_port import (
         RedundantCallDetectionPort,
     )
@@ -100,7 +123,9 @@ if TYPE_CHECKING:
         SpanBottleneckPort,
     )
     from hexawyn.application.ports.driven.tekton_port import TektonPort
-    from hexawyn.application.ports.driven.topology_snapshot_port import TopologySnapshotPort
+    from hexawyn.application.ports.driven.topology_snapshot_port import (
+        TopologySnapshotPort,
+    )
     from hexawyn.application.ports.driven.trace_event_correlation_port import (
         TraceEventCorrelationPort,
     )
@@ -114,7 +139,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.what_if_simulation_port import (
         WhatIfSimulationPort,
     )
-    from hexawyn.application.ports.driven.zombie_detection_port import ZombieDetectionPort
+    from hexawyn.application.ports.driven.zombie_detection_port import (
+        ZombieDetectionPort,
+    )
 
 # Initialize FastMCP server
 mcp = FastMCP(
@@ -208,7 +235,9 @@ def build_fleet_health_adapter() -> FleetHealthPort:
 
 
 def build_kubernetes_topology_adapter() -> KubernetesTopologyPort:
-    from hexawyn.adapters.secondary.kubernetes_topology_adapter import KubernetesTopologyAdapter
+    from hexawyn.adapters.secondary.kubernetes_topology_adapter import (
+        KubernetesTopologyAdapter,
+    )
 
     context = context_name if context_name != "unknown" else None
     return KubernetesTopologyAdapter(cluster_name=context or "default")
@@ -235,7 +264,9 @@ def build_topology_snapshot_adapter() -> TopologySnapshotPort:
 
 
 def build_rollouts_adapter() -> RolloutsPort:
-    from hexawyn.adapters.secondary.gitops.argo_rollouts_detector import ArgoRolloutsDetector
+    from hexawyn.adapters.secondary.gitops.argo_rollouts_detector import (
+        ArgoRolloutsDetector,
+    )
 
     return ArgoRolloutsDetector()
 
@@ -309,7 +340,9 @@ def build_metric_correlation_adapter() -> MetricCorrelationPort:
 
 
 def build_metrics_query_adapter() -> MetricsQueryPort:
-    from hexawyn.adapters.secondary.gitops.prometheus_http_adapter import PrometheusHTTPAdapter
+    from hexawyn.adapters.secondary.gitops.prometheus_http_adapter import (
+        PrometheusHTTPAdapter,
+    )
 
     prometheus_url = os.environ.get("PROMETHEUS_URL", "")
     return PrometheusHTTPAdapter(
@@ -348,7 +381,9 @@ def build_helm_drift_adapter() -> DriftDetectionPort:
 
 
 def build_kustomize_drift_adapter() -> DriftDetectionPort:
-    from hexawyn.adapters.secondary.gitops.kustomize_drift_adapter import KustomizeDriftAdapter
+    from hexawyn.adapters.secondary.gitops.kustomize_drift_adapter import (
+        KustomizeDriftAdapter,
+    )
 
     return KustomizeDriftAdapter()
 
@@ -375,6 +410,14 @@ def build_image_drift_adapter() -> ImageDriftPort:
     )
 
     return KubernetesImageDriftAdapter()
+
+
+def build_rbac_audit_adapter() -> RBACSecurityAuditPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_rbac_adapter import (
+        KubernetesRBACAdapter,
+    )
+
+    return KubernetesRBACAdapter()
 
 
 def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:
