@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.deployment_latency_comparison_port import (
         DeploymentLatencyComparisonPort,
     )
+    from hexawyn.application.ports.driven.drift_detection_port import DriftDetectionPort
     from hexawyn.application.ports.driven.error_attribution_port import (
         ErrorAttributionPort,
     )
@@ -55,6 +56,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.latency_percentile_port import (
         LatencyPercentilePort,
     )
+    from hexawyn.application.ports.driven.live_resource_port import LiveResourcePort
     from hexawyn.application.ports.driven.log_search_port import LogSearchPort
     from hexawyn.application.ports.driven.memory_saturation_port import (
         MemorySaturationPort,
@@ -336,6 +338,26 @@ def build_node_analysis_adapter() -> HotNodeAnalysisPort:
     )
 
     return KubernetesNodeAnalysisAdapter()
+
+
+def build_helm_drift_adapter() -> DriftDetectionPort:
+    from hexawyn.adapters.secondary.gitops.helm_drift_adapter import HelmDriftAdapter
+
+    return HelmDriftAdapter()
+
+
+def build_kustomize_drift_adapter() -> DriftDetectionPort:
+    from hexawyn.adapters.secondary.gitops.kustomize_drift_adapter import KustomizeDriftAdapter
+
+    return KustomizeDriftAdapter()
+
+
+def build_live_resource_adapter() -> LiveResourcePort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_live_resource_adapter import (
+        KubernetesLiveResourceAdapter,
+    )
+
+    return KubernetesLiveResourceAdapter()
 
 
 def build_audit_log_adapter() -> GitOpsDriftAuditPort:

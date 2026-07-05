@@ -1067,6 +1067,15 @@ hot_node_analysis:
     - "Do we have enough headroom elsewhere to redistribute load off our busiest node?"
     - "Are our hot nodes only busy during business hours, or is it constant?"
 
+configuration_drift_detection:
+  tool: configuration_drift_detection
+  questions:
+    - "Has any resource configuration drifted from its Helm or Kustomize desired state — which live resources differ from what is declared in Git?"
+    - "Did someone manually patch the payment-service deployment after it was deployed by Helm?"
+    - "Is the checkout-config ConfigMap still in sync with what's in the chart?"
+    - "Are there any resources left over from a Helm release that no longer exists?"
+    - "Which drifted resources are actually critical, not just cosmetic?"
+
 manual_change_outside_gitops_detection:
   tool: detect_manual_changes_outside_gitops
   questions:
