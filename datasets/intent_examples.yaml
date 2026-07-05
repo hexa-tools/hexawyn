@@ -1084,3 +1084,12 @@ manual_change_outside_gitops_detection:
     - "Are all of our recent ConfigMap changes coming from ArgoCD, or is someone bypassing GitOps?"
     - "Which changes in the last 3 days were made by a real person versus a CI pipeline?"
     - "Is our audit logging even configured, or are we flying blind on manual changes?"
+
+container_image_drift_detection:
+  tool: detect_container_image_drift
+  questions:
+    - "Show me all deployments running a container image that differs from what is declared in the Git repository — which ones are out of sync?"
+    - "Is payment-service running the Helm-declared image, or has someone deployed a hotfix directly?"
+    - "Are any of our mutable image tags actually pointing to different bytes than what we deployed?"
+    - "Which containers are out of sync because of a tag change versus a digest change?"
+    - "Ignore anything still pinned to latest — what's genuinely drifted?"
