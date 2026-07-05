@@ -1113,3 +1113,13 @@ pod_security_standards_audit:
     - "Do any of our containers add dangerous capabilities like SYS_ADMIN or NET_ADMIN?"
     - "Which namespaces enforce the restricted Pod Security Standard, and are any pods there actually violating it?"
     - "Ignore node-exporter and kube-proxy — what real Pod Security violations do we have?"
+
+container_image_vulnerability_scanning:
+  tool: scan_container_vulnerabilities
+  questions:
+    - "Which containers are using deprecated or known-vulnerable base images — which CVEs affect our current running workloads?"
+    - "Does payment:v1.2 have any Critical CVEs, and is there a fix version available?"
+    - "Are we running any images with an end-of-life base image like ubuntu:18.04 or python:3.8-slim?"
+    - "Which Critical CVEs in production should we patch first?"
+    - "How many of our running images are actually affected by known vulnerabilities?"
+    - "Are any of our images running on a mutable latest tag we can't pin a scan to?"

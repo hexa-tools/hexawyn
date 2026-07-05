@@ -386,3 +386,22 @@ class PodSecurityConstants:
         "filebeat",
         "datadog",
     )
+
+
+@dataclass(frozen=True)
+class ImageVulnerabilityConstants:
+    """Production-namespace weighting and known-EOL-base-image allow-list
+    for the container image CVE scanning audit."""
+
+    production_namespace: str = "production"
+    known_eol_base_images: tuple[str, ...] = (
+        "ubuntu:18.04",
+        "ubuntu:16.04",
+        "python:3.8-slim",
+        "python:2.7",
+        "node:12",
+        "node:10",
+        "debian:9",
+        "centos:7",
+        "alpine:3.9",
+    )
