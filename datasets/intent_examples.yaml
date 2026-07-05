@@ -1123,3 +1123,13 @@ container_image_vulnerability_scanning:
     - "Which Critical CVEs in production should we patch first?"
     - "How many of our running images are actually affected by known vulnerabilities?"
     - "Are any of our images running on a mutable latest tag we can't pin a scan to?"
+
+secret_rotation_audit:
+  tool: audit_secret_rotation
+  questions:
+    - "Show me all Kubernetes Secrets that haven't been rotated in more than 90 days — which services are using them and what is the rotation risk?"
+    - "Is our production db-password secret overdue for rotation, and which deployments depend on it?"
+    - "Which stale secrets are safe to delete because nothing actually references them anymore?"
+    - "Are any of our TLS certificates overdue for rotation, or are they managed by cert-manager?"
+    - "Give me a prioritized checklist of secrets to rotate first, ranked by urgency."
+    - "Which namespaces are exempt from our secret rotation policy?"

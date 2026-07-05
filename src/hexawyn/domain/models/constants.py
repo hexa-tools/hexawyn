@@ -405,3 +405,26 @@ class ImageVulnerabilityConstants:
         "centos:7",
         "alpine:3.9",
     )
+
+
+@dataclass(frozen=True)
+class SecretRotationConstants:
+    """Deterministic key fragments used to classify rotation risk, and
+    well-known external-management annotation keys for the Secret rotation
+    audit."""
+
+    default_rotation_threshold_days: int = 90
+    critical_secret_types: tuple[str, ...] = ("kubernetes.io/tls",)
+    critical_key_fragments: tuple[str, ...] = (
+        "PASSWORD",
+        "API_KEY",
+        "DATABASE_URL",
+        "DB_PASSWORD",
+        "SECRET_KEY",
+        "PRIVATE_KEY",
+        "CREDENTIALS",
+    )
+    medium_key_fragments: tuple[str, ...] = ("TOKEN",)
+    external_secrets_annotation_key: str = "externalsecrets.io/secret-store"
+    cert_manager_annotation_key: str = "cert-manager.io/certificate-name"
+    rotation_exempt_namespace_annotation_key: str = "hexawyn.io/secret-rotation-exempt"

@@ -116,6 +116,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.resource_yaml_port import ResourceYAMLPort
     from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
     from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
+    from hexawyn.application.ports.driven.secret_rotation_audit_port import (
+        SecretRotationAuditPort,
+    )
     from hexawyn.application.ports.driven.security_audit_port import SecurityAuditPort
     from hexawyn.application.ports.driven.service_dependency_graph_port import (
         ServiceDependencyGraphPort,
@@ -447,6 +450,14 @@ def build_image_vulnerability_scan_adapter() -> ImageVulnerabilityScanPort:
     from hexawyn.adapters.secondary.gitops.trivy_cve_scan_adapter import TrivyCVEScanAdapter
 
     return TrivyCVEScanAdapter()
+
+
+def build_secret_rotation_audit_adapter() -> SecretRotationAuditPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_secret_audit_adapter import (
+        KubernetesSecretAuditAdapter,
+    )
+
+    return KubernetesSecretAuditAdapter()
 
 
 def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:
