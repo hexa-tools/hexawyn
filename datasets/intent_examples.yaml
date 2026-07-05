@@ -1103,3 +1103,13 @@ service_account_rbac_audit:
     - "Which service accounts have permissions they've never actually used, based on the audit log?"
     - "How much blast radius would we cut by tightening our over-privileged service accounts?"
     - "Are there any service accounts with no bindings at all — just dead weight in the cluster?"
+
+pod_security_standards_audit:
+  tool: detect_privileged_pods
+  questions:
+    - "Are there pods running as root or with privileged security context that shouldn't be — which workloads violate the Pod Security Standards?"
+    - "Is any container in production running privileged: true?"
+    - "Which pods are missing a runAsNonRoot setting and would default to running as root?"
+    - "Do any of our containers add dangerous capabilities like SYS_ADMIN or NET_ADMIN?"
+    - "Which namespaces enforce the restricted Pod Security Standard, and are any pods there actually violating it?"
+    - "Ignore node-exporter and kube-proxy — what real Pod Security violations do we have?"

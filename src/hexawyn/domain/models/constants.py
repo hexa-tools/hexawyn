@@ -359,3 +359,30 @@ class RBACAuditConstants:
         "storageclasses",
         "customresourcedefinitions",
     )
+
+
+@dataclass(frozen=True)
+class PodSecurityConstants:
+    """Deterministic capability severity tiers and known-system-DaemonSet
+    allow-list for the Pod Security Standards audit."""
+
+    high_severity_capabilities: tuple[str, ...] = (
+        "SYS_ADMIN",
+        "NET_ADMIN",
+        "SYS_PTRACE",
+        "SYS_MODULE",
+        "SYS_RAWIO",
+        "DAC_READ_SEARCH",
+        "ALL",
+    )
+    known_system_daemonset_name_fragments: tuple[str, ...] = (
+        "node-exporter",
+        "kube-proxy",
+        "calico",
+        "cilium",
+        "aws-node",
+        "kube-flannel",
+        "fluentd",
+        "filebeat",
+        "datadog",
+    )

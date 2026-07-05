@@ -98,6 +98,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.pod_metrics_baseline_port import (
         PodMetricsBaselinePort,
     )
+    from hexawyn.application.ports.driven.pod_security_context_audit_port import (
+        PodSecurityContextAuditPort,
+    )
     from hexawyn.application.ports.driven.policy_port import PolicyPort
     from hexawyn.application.ports.driven.rbac_security_audit_port import (
         RBACSecurityAuditPort,
@@ -418,6 +421,14 @@ def build_rbac_audit_adapter() -> RBACSecurityAuditPort:
     )
 
     return KubernetesRBACAdapter()
+
+
+def build_pod_security_adapter() -> PodSecurityContextAuditPort:
+    from hexawyn.adapters.secondary.gitops.kubernetes_pod_security_adapter import (
+        KubernetesPodSecurityAdapter,
+    )
+
+    return KubernetesPodSecurityAdapter()
 
 
 def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:
