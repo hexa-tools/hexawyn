@@ -428,3 +428,11 @@ class SecretRotationConstants:
     external_secrets_annotation_key: str = "externalsecrets.io/secret-store"
     cert_manager_annotation_key: str = "cert-manager.io/certificate-name"
     rotation_exempt_namespace_annotation_key: str = "hexawyn.io/secret-rotation-exempt"
+
+
+@dataclass(frozen=True)
+class NetworkPolicyConstants:
+    """Well-known system namespaces excluded from the East-West network
+    segmentation audit."""
+
+    system_namespaces: tuple[str, ...] = ("kube-system", "kube-public", "kube-node-lease")

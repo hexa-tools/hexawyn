@@ -91,6 +91,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.namespace_waste_port import (
         NamespaceWasteAnalysisPort,
     )
+    from hexawyn.application.ports.driven.network_policy_audit_port import (
+        NetworkPolicyAuditPort,
+    )
     from hexawyn.application.ports.driven.pipeline_for_service_port import (
         PipelineForServicePort,
     )
@@ -458,6 +461,14 @@ def build_secret_rotation_audit_adapter() -> SecretRotationAuditPort:
     )
 
     return KubernetesSecretAuditAdapter()
+
+
+def build_network_policy_audit_adapter() -> NetworkPolicyAuditPort:
+    from hexawyn.adapters.secondary.kubernetes_network_policy_adapter import (
+        KubernetesNetworkPolicyAdapter,
+    )
+
+    return KubernetesNetworkPolicyAdapter()
 
 
 def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:

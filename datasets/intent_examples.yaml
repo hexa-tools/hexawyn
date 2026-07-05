@@ -1133,3 +1133,13 @@ secret_rotation_audit:
     - "Are any of our TLS certificates overdue for rotation, or are they managed by cert-manager?"
     - "Give me a prioritized checklist of secrets to rotate first, ranked by urgency."
     - "Which namespaces are exempt from our secret rotation policy?"
+
+network_segmentation_gap_detection:
+  tool: detect_network_segmentation_gaps
+  questions:
+    - "Are there pods that can communicate with each other without any network policy restriction — which namespaces are fully open to east-west traffic?"
+    - "Which of our namespaces have zero NetworkPolicies at all?"
+    - "Is the dev namespace still fully open, or did someone add a default-deny policy?"
+    - "Which namespaces have ingress restrictions but no egress restrictions?"
+    - "Give me a prioritized list of namespaces that need a default-deny NetworkPolicy."
+    - "Does Calico or Istio already provide segmentation we're not seeing in vanilla NetworkPolicies?"
