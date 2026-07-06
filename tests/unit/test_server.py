@@ -711,3 +711,11 @@ class TestMCPTopologyAdapterFactories:
         result = build_cross_namespace_traffic_adapter()
 
         assert isinstance(result, CrossNamespaceTrafficPort)
+
+    def test_build_probe_audit_adapter_returns_probe_audit_port(self) -> None:
+        from hexawyn.application.ports.driven.probe_audit_port import ProbeAuditPort
+        from hexawyn.mcp.server import build_probe_audit_adapter
+
+        result = build_probe_audit_adapter()
+
+        assert isinstance(result, ProbeAuditPort)
