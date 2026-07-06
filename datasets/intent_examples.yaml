@@ -1243,3 +1243,13 @@ compute_mttr_trend:
     - "Which were the 3 slowest incidents to resolve and what were their root causes?"
     - "Are we meeting the industry standard of P1 < 30min and P2 < 2h MTTR?"
     - "How effective have our on-call process improvements been — measure MTTR trend."
+
+detect_recurring_incidents:
+  tool: detect_recurring_incidents
+  questions:
+    - "Which services have the most recurring incidents — where should we invest next sprint?"
+    - "Show me the top 10 services by incident frequency over the last 30 days."
+    - "Which services have the same root cause happening repeatedly — flag recurring patterns."
+    - "Where should we prioritize tech debt investment based on incident recurrence?"
+    - "Are there any services with the same incident type repeated more than 3 times?"
+    - "Give me incident frequency rankings with root cause analysis for sprint planning."

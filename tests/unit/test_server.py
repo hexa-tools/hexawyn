@@ -805,3 +805,15 @@ class TestMCPTopologyAdapterFactories:
         result = build_mttr_trend_adapter()
 
         assert isinstance(result, MTTRTrendPort)
+
+    def test_build_recurring_incident_adapter_returns_recurring_incident_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.recurring_incident_port import (
+            RecurringIncidentPort,
+        )
+        from hexawyn.mcp.server import build_recurring_incident_adapter
+
+        result = build_recurring_incident_adapter()
+
+        assert isinstance(result, RecurringIncidentPort)

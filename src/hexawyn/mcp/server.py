@@ -130,6 +130,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.rbac_security_audit_port import (
         RBACSecurityAuditPort,
     )
+    from hexawyn.application.ports.driven.recurring_incident_port import (
+        RecurringIncidentPort,
+    )
     from hexawyn.application.ports.driven.redundant_call_detection_port import (
         RedundantCallDetectionPort,
     )
@@ -785,6 +788,14 @@ def build_mttr_trend_adapter() -> MTTRTrendPort:
     )
 
     return MTTRTrendAdapter()
+
+
+def build_recurring_incident_adapter() -> RecurringIncidentPort:
+    from hexawyn.adapters.secondary.gitops.recurring_incident_adapter import (
+        RecurringIncidentAdapter,
+    )
+
+    return RecurringIncidentAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
