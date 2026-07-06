@@ -1253,3 +1253,13 @@ detect_recurring_incidents:
     - "Where should we prioritize tech debt investment based on incident recurrence?"
     - "Are there any services with the same incident type repeated more than 3 times?"
     - "Give me incident frequency rankings with root cause analysis for sprint planning."
+
+audit_tls_compliance:
+  tool: audit_tls_compliance
+  questions:
+    - "Which services are running without TLS or with expired certificates right now?"
+    - "Are there any services with certificates expiring in the next 30 days?"
+    - "Show me all production services with no TLS configured — high risk security exposure."
+    - "Which self-signed certificates are in use across the cluster?"
+    - "Give me a TLS compliance audit report ranked by severity."
+    - "Are any services running behind a proxy that handles TLS termination instead?"

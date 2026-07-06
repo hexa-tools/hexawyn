@@ -817,3 +817,13 @@ class TestMCPTopologyAdapterFactories:
         result = build_recurring_incident_adapter()
 
         assert isinstance(result, RecurringIncidentPort)
+
+    def test_build_tls_compliance_adapter_returns_tls_compliance_port(self) -> None:
+        from hexawyn.application.ports.driven.tls_compliance_port import (
+            TLSCompliancePort,
+        )
+        from hexawyn.mcp.server import build_tls_compliance_adapter
+
+        result = build_tls_compliance_adapter()
+
+        assert isinstance(result, TLSCompliancePort)

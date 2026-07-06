@@ -159,6 +159,9 @@ if TYPE_CHECKING:
     )
     from hexawyn.application.ports.driven.team_cost_port import TeamCostPort
     from hexawyn.application.ports.driven.tekton_port import TektonPort
+    from hexawyn.application.ports.driven.tls_compliance_port import (
+        TLSCompliancePort,
+    )
     from hexawyn.application.ports.driven.topology_snapshot_port import (
         TopologySnapshotPort,
     )
@@ -796,6 +799,14 @@ def build_recurring_incident_adapter() -> RecurringIncidentPort:
     )
 
     return RecurringIncidentAdapter()
+
+
+def build_tls_compliance_adapter() -> TLSCompliancePort:
+    from hexawyn.adapters.secondary.gitops.tls_compliance_adapter import (
+        TLSComplianceAdapter,
+    )
+
+    return TLSComplianceAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
