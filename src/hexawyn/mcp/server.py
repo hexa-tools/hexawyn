@@ -48,6 +48,9 @@ if TYPE_CHECKING:
         ErrorAttributionPort,
     )
     from hexawyn.application.ports.driven.etcd_logs_port import ETCDLogsPort
+    from hexawyn.application.ports.driven.external_exposure_audit_port import (
+        ExternalExposureAuditPort,
+    )
     from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
     from hexawyn.application.ports.driven.gitops_drift_audit_port import (
         GitOpsDriftAuditPort,
@@ -469,6 +472,14 @@ def build_network_policy_audit_adapter() -> NetworkPolicyAuditPort:
     )
 
     return KubernetesNetworkPolicyAdapter()
+
+
+def build_external_exposure_audit_adapter() -> ExternalExposureAuditPort:
+    from hexawyn.adapters.secondary.kubernetes_external_exposure_adapter import (
+        KubernetesExternalExposureAdapter,
+    )
+
+    return KubernetesExternalExposureAdapter()
 
 
 def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:

@@ -1143,3 +1143,13 @@ network_segmentation_gap_detection:
     - "Which namespaces have ingress restrictions but no egress restrictions?"
     - "Give me a prioritized list of namespaces that need a default-deny NetworkPolicy."
     - "Does Calico or Istio already provide segmentation we're not seeing in vanilla NetworkPolicies?"
+
+unintended_external_exposure_detection:
+  tool: detect_unintended_external_exposure
+  questions:
+    - "Which services are exposed externally via LoadBalancer or NodePort but shouldn't be — are there any unintended public-facing endpoints?"
+    - "Are any of our databases accidentally exposed to the internet through a LoadBalancer service?"
+    - "List all LoadBalancer and NodePort services that are not in the approved allowlist."
+    - "Do we have any pending LoadBalancer services that will soon be publicly accessible?"
+    - "Which internal services — database, cache, metrics — are currently reachable from outside the cluster?"
+    - "Show me every externally exposed service and tell me if it's intentional or not."
