@@ -50,6 +50,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.error_attribution_port import (
         ErrorAttributionPort,
     )
+    from hexawyn.application.ports.driven.error_budget_port import ErrorBudgetPort
     from hexawyn.application.ports.driven.etcd_logs_port import ETCDLogsPort
     from hexawyn.application.ports.driven.external_exposure_audit_port import (
         ExternalExposureAuditPort,
@@ -705,6 +706,14 @@ def build_probe_audit_adapter() -> ProbeAuditPort:
 
     context = context_name if context_name != "unknown" else None
     return VanillaAdapter(cluster_name=context or "default")
+
+
+def build_error_budget_adapter() -> ErrorBudgetPort:
+    from hexawyn.adapters.secondary.gitops.prometheus_error_budget_adapter import (
+        PrometheusErrorBudgetAdapter,
+    )
+
+    return PrometheusErrorBudgetAdapter(metrics_query_port=build_metrics_query_adapter())
 
 
 def register_tools(server: FastMCP) -> None:
