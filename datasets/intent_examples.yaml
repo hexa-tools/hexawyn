@@ -1233,3 +1233,13 @@ compute_monthly_incident_report:
     - "Are incidents increasing or decreasing compared to the previous month?"
     - "What is the total downtime per severity level for July 2026?"
     - "Give me the monthly operational health summary for the board report."
+
+compute_mttr_trend:
+  tool: compute_mttr_trend
+  questions:
+    - "What is our Mean Time To Recovery (MTTR) trend over the last 3 months?"
+    - "Is our MTTR improving or degrading compared to last quarter?"
+    - "Show me the P1 and P2 MTTR for the last 3 months with benchmark comparison."
+    - "Which were the 3 slowest incidents to resolve and what were their root causes?"
+    - "Are we meeting the industry standard of P1 < 30min and P2 < 2h MTTR?"
+    - "How effective have our on-call process improvements been — measure MTTR trend."

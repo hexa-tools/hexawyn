@@ -98,6 +98,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.monthly_incident_port import (
         MonthlyIncidentPort,
     )
+    from hexawyn.application.ports.driven.mttr_trend_port import MTTRTrendPort
     from hexawyn.application.ports.driven.namespace_events_port import (
         NamespaceEventsPort,
     )
@@ -776,6 +777,14 @@ def build_monthly_incident_adapter() -> MonthlyIncidentPort:
     )
 
     return MonthlyIncidentAdapter()
+
+
+def build_mttr_trend_adapter() -> MTTRTrendPort:
+    from hexawyn.adapters.secondary.gitops.mttr_trend_adapter import (
+        MTTRTrendAdapter,
+    )
+
+    return MTTRTrendAdapter()
 
 
 def register_tools(server: FastMCP) -> None:

@@ -797,3 +797,11 @@ class TestMCPTopologyAdapterFactories:
         result = build_monthly_incident_adapter()
 
         assert isinstance(result, MonthlyIncidentPort)
+
+    def test_build_mttr_trend_adapter_returns_mttr_trend_port(self) -> None:
+        from hexawyn.application.ports.driven.mttr_trend_port import MTTRTrendPort
+        from hexawyn.mcp.server import build_mttr_trend_adapter
+
+        result = build_mttr_trend_adapter()
+
+        assert isinstance(result, MTTRTrendPort)
