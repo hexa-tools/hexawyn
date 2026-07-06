@@ -157,6 +157,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.version_regression_port import (
         VersionRegressionPort,
     )
+    from hexawyn.application.ports.driven.weekly_reliability_report_port import (
+        WeeklyReliabilityReportPort,
+    )
     from hexawyn.application.ports.driven.what_if_simulation_port import (
         WhatIfSimulationPort,
     )
@@ -714,6 +717,14 @@ def build_error_budget_adapter() -> ErrorBudgetPort:
     )
 
     return PrometheusErrorBudgetAdapter(metrics_query_port=build_metrics_query_adapter())
+
+
+def build_reliability_report_adapter() -> WeeklyReliabilityReportPort:
+    from hexawyn.adapters.secondary.gitops.prometheus_reliability_adapter import (
+        PrometheusReliabilityAdapter,
+    )
+
+    return PrometheusReliabilityAdapter(metrics_query_port=build_metrics_query_adapter())
 
 
 def register_tools(server: FastMCP) -> None:

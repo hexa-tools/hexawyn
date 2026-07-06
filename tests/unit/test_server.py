@@ -731,3 +731,19 @@ class TestMCPTopologyAdapterFactories:
             result = build_error_budget_adapter()
 
         assert isinstance(result, ErrorBudgetPort)
+
+    def test_build_reliability_report_adapter_returns_weekly_reliability_report_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.weekly_reliability_report_port import (
+            WeeklyReliabilityReportPort,
+        )
+        from hexawyn.mcp.server import build_reliability_report_adapter
+
+        with patch(
+            "hexawyn.mcp.server.build_metrics_query_adapter",
+            return_value=MagicMock(),
+        ):
+            result = build_reliability_report_adapter()
+
+        assert isinstance(result, WeeklyReliabilityReportPort)
