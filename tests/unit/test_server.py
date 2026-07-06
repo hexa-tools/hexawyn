@@ -779,3 +779,11 @@ class TestMCPTopologyAdapterFactories:
         result = build_service_cost_adapter()
 
         assert isinstance(result, ServiceCostPort)
+
+    def test_build_team_cost_adapter_returns_team_cost_port(self) -> None:
+        from hexawyn.application.ports.driven.team_cost_port import TeamCostPort
+        from hexawyn.mcp.server import build_team_cost_adapter
+
+        result = build_team_cost_adapter()
+
+        assert isinstance(result, TeamCostPort)
