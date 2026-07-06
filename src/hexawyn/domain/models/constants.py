@@ -436,3 +436,20 @@ class NetworkPolicyConstants:
     segmentation audit."""
 
     system_namespaces: tuple[str, ...] = ("kube-system", "kube-public", "kube-node-lease")
+
+
+@dataclass(frozen=True)
+class ExternalExposureConstants:
+    """Deterministic port-based severity matrix and well-known internal-
+    LoadBalancer annotation keys for the unintended external exposure
+    audit."""
+
+    production_namespace: str = "production"
+    critical_ports: tuple[int, ...] = (5432, 3306, 27017, 6379, 9200, 11211, 2379, 9090)
+    medium_ports: tuple[int, ...] = (80, 443, 3000, 8080, 8443)
+    internal_load_balancer_annotations: tuple[tuple[str, str], ...] = (
+        ("service.beta.kubernetes.io/aws-load-balancer-internal", "true"),
+        ("service.beta.kubernetes.io/azure-load-balancer-internal", "true"),
+        ("networking.gke.io/load-balancer-type", "Internal"),
+        ("cloud.google.com/load-balancer-type", "Internal"),
+    )
