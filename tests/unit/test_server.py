@@ -759,3 +759,15 @@ class TestMCPTopologyAdapterFactories:
         result = build_helm_release_version_adapter()
 
         assert isinstance(result, HelmReleaseVersionPort)
+
+    def test_build_kustomize_patch_analysis_adapter_returns_kustomize_patch_analysis_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.kustomize_patch_analysis_port import (
+            KustomizePatchAnalysisPort,
+        )
+        from hexawyn.mcp.server import build_kustomize_patch_analysis_adapter
+
+        result = build_kustomize_patch_analysis_adapter()
+
+        assert isinstance(result, KustomizePatchAnalysisPort)

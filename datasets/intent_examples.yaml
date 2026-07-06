@@ -1153,3 +1153,53 @@ unintended_external_exposure_detection:
     - "Do we have any pending LoadBalancer services that will soon be publicly accessible?"
     - "Which internal services — database, cache, metrics — are currently reachable from outside the cluster?"
     - "Show me every externally exposed service and tell me if it's intentional or not."
+
+detect_missing_probes:
+  tool: detect_missing_probes
+  questions:
+    - "Which services have no liveness or readiness probes configured — which workloads are flying blind with no health check?"
+    - "Are there any production deployments missing health probes entirely?"
+    - "List all deployments without readiness probes in the production namespace."
+    - "How many critical workloads have no probes at all, and what probe types should I add?"
+    - "Show me pods with misconfigured probe ports that don't match their exposed ports."
+    - "Are our StatefulSets and DaemonSets safe without probes, or should they be flagged?"
+
+compute_slo_error_budget:
+  tool: compute_slo_error_budget
+  questions:
+    - "What is the current error budget burn rate for the payment-service SLO — are we on track to exhaust the error budget before end of month?"
+    - "How much error budget remains for auth-service with an SLO of 99.9%?"
+    - "Is the checkout-service at risk of breaching its 30-day SLO based on the current error rate?"
+    - "Show me the burn rate and time-to-exhaustion for all production services this week."
+    - "Has any service already exhausted its error budget this month?"
+    - "Compare this month's error budget consumption against last month for degraded services."
+
+generate_weekly_reliability_report:
+  tool: generate_weekly_reliability_report
+  questions:
+    - "Generate a weekly reliability report for all production services — include uptime, error rate, p99 latency, SLO compliance, and top 3 incidents."
+    - "How did our services perform this week against their SLOs?"
+    - "Show me a health report with SLO pass/fail for all production services."
+    - "What were the top 3 incidents last week ranked by impact?"
+    - "Give me the weekly reliability summary for stakeholder review."
+    - "Which services failed their SLO this week and what was the root cause?"
+
+detect_outdated_helm_releases:
+  tool: detect_outdated_helm_releases
+  questions:
+    - "Which Helm releases are out of date compared to the latest available chart version — what are the changelogs and breaking changes I need to be aware of?"
+    - "Show me all Helm charts that need a version upgrade with their changelogs."
+    - "Are there any major version updates pending that could break our services?"
+    - "List outdated Helm releases grouped by namespace with their version delta type."
+    - "What breaking changes should I be aware of before upgrading cert-manager to the latest version?"
+    - "Which releases haven't been upgraded in several audit cycles and are chronically outdated?"
+
+detect_kustomize_patch_conflicts:
+  tool: detect_kustomize_patch_conflicts
+  questions:
+    - "Which Kustomize overlays override the same field across multiple patches — are there any conflicting or redundant patches that could cause unexpected behavior?"
+    - "Are any of my Kustomize patches setting the same field to different values in the production overlay?"
+    - "Show me redundant patches in my Kustomize overlays that set values already defined in the base."
+    - "Are there any patch conflicts in overlays/staging that could cause an unexpected deployment configuration?"
+    - "Which patches are targeting resources that don't exist in my base — flag orphan patches."
+    - "List all conflicting fields in the production overlay with the winning value and source patch."
