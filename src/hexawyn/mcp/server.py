@@ -80,6 +80,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.kubernetes_topology_port import (
         KubernetesTopologyPort,
     )
+    from hexawyn.application.ports.driven.kustomize_patch_analysis_port import (
+        KustomizePatchAnalysisPort,
+    )
     from hexawyn.application.ports.driven.latency_percentile_port import (
         LatencyPercentilePort,
     )
@@ -736,6 +739,14 @@ def build_helm_release_version_adapter() -> HelmReleaseVersionPort:
     )
 
     return HelmReleaseVersionAdapter()
+
+
+def build_kustomize_patch_analysis_adapter() -> KustomizePatchAnalysisPort:
+    from hexawyn.adapters.secondary.gitops.kustomize_patch_adapter import (
+        KustomizeCLIPatchAdapter,
+    )
+
+    return KustomizeCLIPatchAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
