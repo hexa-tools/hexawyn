@@ -699,3 +699,15 @@ class TestMCPTopologyAdapterFactories:
             result = build_topology_snapshot_adapter()
 
         assert isinstance(result, TopologySnapshotPort)
+
+    def test_build_cross_namespace_traffic_adapter_returns_cross_namespace_traffic_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.cross_namespace_traffic_port import (
+            CrossNamespaceTrafficPort,
+        )
+        from hexawyn.mcp.server import build_cross_namespace_traffic_adapter
+
+        result = build_cross_namespace_traffic_adapter()
+
+        assert isinstance(result, CrossNamespaceTrafficPort)

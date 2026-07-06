@@ -40,6 +40,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.cost_saving_estimation_port import (
         CostSavingEstimationPort,
     )
+    from hexawyn.application.ports.driven.cross_namespace_traffic_port import (
+        CrossNamespaceTrafficPort,
+    )
     from hexawyn.application.ports.driven.deployment_latency_comparison_port import (
         DeploymentLatencyComparisonPort,
     )
@@ -480,6 +483,14 @@ def build_external_exposure_audit_adapter() -> ExternalExposureAuditPort:
     )
 
     return KubernetesExternalExposureAdapter()
+
+
+def build_cross_namespace_traffic_adapter() -> CrossNamespaceTrafficPort:
+    from hexawyn.adapters.secondary.gitops.otel_cross_namespace_traffic_adapter import (
+        OTelCrossNamespaceTrafficAdapter,
+    )
+
+    return OTelCrossNamespaceTrafficAdapter()
 
 
 def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:
