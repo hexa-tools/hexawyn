@@ -787,3 +787,13 @@ class TestMCPTopologyAdapterFactories:
         result = build_team_cost_adapter()
 
         assert isinstance(result, TeamCostPort)
+
+    def test_build_monthly_incident_adapter_returns_monthly_incident_port(self) -> None:
+        from hexawyn.application.ports.driven.monthly_incident_port import (
+            MonthlyIncidentPort,
+        )
+        from hexawyn.mcp.server import build_monthly_incident_adapter
+
+        result = build_monthly_incident_adapter()
+
+        assert isinstance(result, MonthlyIncidentPort)

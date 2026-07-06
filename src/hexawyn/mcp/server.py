@@ -95,6 +95,9 @@ if TYPE_CHECKING:
         MetricCorrelationPort,
     )
     from hexawyn.application.ports.driven.metrics_query_port import MetricsQueryPort
+    from hexawyn.application.ports.driven.monthly_incident_port import (
+        MonthlyIncidentPort,
+    )
     from hexawyn.application.ports.driven.namespace_events_port import (
         NamespaceEventsPort,
     )
@@ -765,6 +768,14 @@ def build_team_cost_adapter() -> TeamCostPort:
     )
 
     return TeamCostKubernetesAdapter()
+
+
+def build_monthly_incident_adapter() -> MonthlyIncidentPort:
+    from hexawyn.adapters.secondary.gitops.monthly_incident_adapter import (
+        MonthlyIncidentAdapter,
+    )
+
+    return MonthlyIncidentAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
