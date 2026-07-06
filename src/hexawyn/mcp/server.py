@@ -63,6 +63,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.headroom_simulation_port import (
         HeadroomSimulationPort,
     )
+    from hexawyn.application.ports.driven.helm_release_version_port import (
+        HelmReleaseVersionPort,
+    )
     from hexawyn.application.ports.driven.hot_node_analysis_port import (
         HotNodeAnalysisPort,
     )
@@ -725,6 +728,14 @@ def build_reliability_report_adapter() -> WeeklyReliabilityReportPort:
     )
 
     return PrometheusReliabilityAdapter(metrics_query_port=build_metrics_query_adapter())
+
+
+def build_helm_release_version_adapter() -> HelmReleaseVersionPort:
+    from hexawyn.adapters.secondary.gitops.helm_release_version_adapter import (
+        HelmReleaseVersionAdapter,
+    )
+
+    return HelmReleaseVersionAdapter()
 
 
 def register_tools(server: FastMCP) -> None:

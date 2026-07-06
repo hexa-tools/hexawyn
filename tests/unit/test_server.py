@@ -747,3 +747,15 @@ class TestMCPTopologyAdapterFactories:
             result = build_reliability_report_adapter()
 
         assert isinstance(result, WeeklyReliabilityReportPort)
+
+    def test_build_helm_release_version_adapter_returns_helm_release_version_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.helm_release_version_port import (
+            HelmReleaseVersionPort,
+        )
+        from hexawyn.mcp.server import build_helm_release_version_adapter
+
+        result = build_helm_release_version_adapter()
+
+        assert isinstance(result, HelmReleaseVersionPort)
