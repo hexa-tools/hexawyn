@@ -719,3 +719,15 @@ class TestMCPTopologyAdapterFactories:
         result = build_probe_audit_adapter()
 
         assert isinstance(result, ProbeAuditPort)
+
+    def test_build_error_budget_adapter_returns_error_budget_port(self) -> None:
+        from hexawyn.application.ports.driven.error_budget_port import ErrorBudgetPort
+        from hexawyn.mcp.server import build_error_budget_adapter
+
+        with patch(
+            "hexawyn.mcp.server.build_metrics_query_adapter",
+            return_value=MagicMock(),
+        ):
+            result = build_error_budget_adapter()
+
+        assert isinstance(result, ErrorBudgetPort)
