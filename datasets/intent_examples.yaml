@@ -1213,3 +1213,13 @@ compare_service_cost:
     - "Which services have the highest cost increase compared to last month?"
     - "What is the CPU and memory cost trend for our production services?"
     - "Did the checkout-service cost decrease after our optimization efforts last sprint?"
+
+compute_team_cost:
+  tool: compute_team_cost
+  questions:
+    - "Which team is consuming the most cluster resources and at what cost?"
+    - "Show me the infrastructure cost breakdown per team for this month."
+    - "How has each team's resource consumption changed compared to last month?"
+    - "Which team has the highest CPU and memory cost in production?"
+    - "Are there any unattributed costs from namespaces without a team label?"
+    - "Rank all teams by total cloud spend and highlight teams that scaled up significantly."

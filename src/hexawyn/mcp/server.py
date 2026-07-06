@@ -150,6 +150,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.span_bottleneck_port import (
         SpanBottleneckPort,
     )
+    from hexawyn.application.ports.driven.team_cost_port import TeamCostPort
     from hexawyn.application.ports.driven.tekton_port import TektonPort
     from hexawyn.application.ports.driven.topology_snapshot_port import (
         TopologySnapshotPort,
@@ -756,6 +757,14 @@ def build_service_cost_adapter() -> ServiceCostPort:
     )
 
     return ServiceCostPrometheusAdapter()
+
+
+def build_team_cost_adapter() -> TeamCostPort:
+    from hexawyn.adapters.secondary.gitops.team_cost_kubernetes_adapter import (
+        TeamCostKubernetesAdapter,
+    )
+
+    return TeamCostKubernetesAdapter()
 
 
 def register_tools(server: FastMCP) -> None:
