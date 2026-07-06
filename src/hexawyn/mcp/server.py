@@ -115,6 +115,7 @@ if TYPE_CHECKING:
         PodSecurityContextAuditPort,
     )
     from hexawyn.application.ports.driven.policy_port import PolicyPort
+    from hexawyn.application.ports.driven.probe_audit_port import ProbeAuditPort
     from hexawyn.application.ports.driven.rbac_security_audit_port import (
         RBACSecurityAuditPort,
     )
@@ -697,6 +698,13 @@ def build_pipeline_for_service_adapter() -> PipelineForServicePort:
     )
 
     return KubernetesPipelineForServiceAdapter()
+
+
+def build_probe_audit_adapter() -> ProbeAuditPort:
+    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+
+    context = context_name if context_name != "unknown" else None
+    return VanillaAdapter(cluster_name=context or "default")
 
 
 def register_tools(server: FastMCP) -> None:

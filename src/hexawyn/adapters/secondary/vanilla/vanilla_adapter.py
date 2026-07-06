@@ -26,6 +26,11 @@ from hexawyn.application.ports.driven.namespace_waste_port import (
     NamespaceRawData,
     NamespaceWasteAnalysisPort,
 )
+from hexawyn.application.ports.driven.probe_audit_port import (
+    ProbeAuditPort,
+    ProbeContainerRawData,
+    ProbeDeploymentRawData,
+)
 from hexawyn.application.ports.driven.rightsizing_port import (
     RightsizingPort,
     WorkloadRawData,
@@ -157,6 +162,7 @@ class VanillaAdapter(
     RightsizingPort,
     CostForecastPort,
     ZombieDetectionPort,
+    ProbeAuditPort,
     CostSavingEstimationPort,
     WhatIfSimulationPort,
 ):
@@ -1296,6 +1302,60 @@ class VanillaAdapter(
     def get_dependency_graph(self, namespace: str) -> dict[str, list[str]]:
         return {}
 
+    def get_probe_audit_data(self, namespace: str | None = None) -> list[ProbeDeploymentRawData]:
+        try:
+            pod_list = self._api_client().list_pod_for_all_namespaces(timeout_seconds=_K8S_TIMEOUT)
+        except Exception as exc:
+            raise ClusterUnreachableError(f"Cannot list pods for probe audit: {exc}") from exc
+
+        result: list[ProbeDeploymentRawData] = []
+        seen_deployments: set[str] = set()
+
+        for pod in self._items_from(pod_list):
+            meta = getattr(pod, "metadata", None)
+            pod_name = str(getattr(meta, "name", "")) if meta else ""
+            namespace_name = str(getattr(meta, "namespace", "")) if meta else ""
+
+            if namespace is not None and namespace_name != namespace:
+                continue
+
+            deployment_key = _deployment_key_from_pod(pod_name, namespace_name)
+            if deployment_key is None:
+                continue
+            if deployment_key in seen_deployments:
+                continue
+            seen_deployments.add(deployment_key)
+
+            deployment_name = pod_name.rsplit("-", 2)[0] if "-" in pod_name else pod_name
+
+            owner_refs = getattr(meta, "owner_references", None) if meta else None
+            workload_type = _get_workload_type(owner_refs)
+
+            spec = getattr(pod, "spec", None)
+            containers_raw = getattr(spec, "containers", []) if spec else []
+            init_containers_raw = getattr(spec, "init_containers", []) if spec else []
+
+            containers: list[ProbeContainerRawData] = []
+
+            for container in init_containers_raw:
+                containers.append(_extract_container_data(container, is_init=True))
+
+            for container in containers_raw:
+                containers.append(_extract_container_data(container, is_init=False))
+
+            result.append(
+                ProbeDeploymentRawData(
+                    deployment_name=deployment_name,
+                    namespace=namespace_name,
+                    workload_type=workload_type,
+                    containers=containers,
+                    has_service=False,
+                    is_exposed_externally=False,
+                )
+            )
+
+        return result
+
 
 def _compute_pod_resources(containers: list[object]) -> tuple[float, float]:
     """Returns (cpu_cores, memory_gb) summed across containers."""
@@ -1567,3 +1627,85 @@ def _deployment_key_from_pod(pod_name: str, namespace: str) -> str | None:
     if len(parts) == 2:
         return f"{namespace}/{parts[0]}"
     return None
+
+
+def _get_workload_type(owner_references: object) -> str:
+    if not isinstance(owner_references, list):
+        return "Deployment"
+    for ref in owner_references:
+        if not isinstance(ref, object) or not hasattr(ref, "kind"):
+            continue
+        kind = str(getattr(ref, "kind", ""))
+        if kind in ("StatefulSet", "DaemonSet", "Job", "CronJob"):
+            return kind
+    return "Deployment"
+
+
+def _extract_container_data(container: object, *, is_init: bool) -> ProbeContainerRawData:
+    name = str(getattr(container, "name", ""))
+    ports = getattr(container, "ports", None)
+    exposed_ports: list[int] = []
+    if isinstance(ports, list):
+        for port in ports:
+            container_port = getattr(port, "container_port", None)
+            if container_port is not None:
+                exposed_ports.append(int(container_port))
+
+    liveness = getattr(container, "liveness_probe", None)
+    readiness = getattr(container, "readiness_probe", None)
+
+    has_liveness = liveness is not None
+    has_readiness = readiness is not None
+
+    liveness_type = str(getattr(liveness, "_exec", None) and "exec" or "")
+    if liveness is not None and hasattr(liveness, "http_get") and liveness.http_get:
+        liveness_type = "httpGet"
+    elif liveness is not None and hasattr(liveness, "tcp_socket") and liveness.tcp_socket:
+        liveness_type = "tcpSocket"
+
+    readiness_type = str(getattr(readiness, "_exec", None) and "exec" or "")
+    if readiness is not None and hasattr(readiness, "http_get") and readiness.http_get:
+        readiness_type = "httpGet"
+    elif readiness is not None and hasattr(readiness, "tcp_socket") and readiness.tcp_socket:
+        readiness_type = "tcpSocket"
+
+    liveness_http_path = str(
+        getattr(getattr(liveness, "http_get", None), "path", "") if liveness else ""
+    )
+    readiness_http_path = str(
+        getattr(getattr(readiness, "http_get", None), "path", "") if readiness else ""
+    )
+
+    liveness_port = (
+        int(
+            getattr(getattr(liveness, "http_get", None), "port", 0)
+            or getattr(getattr(liveness, "tcp_socket", None), "port", 0)
+            or 0
+        )
+        if liveness
+        else 0
+    )
+
+    readiness_port = (
+        int(
+            getattr(getattr(readiness, "http_get", None), "port", 0)
+            or getattr(getattr(readiness, "tcp_socket", None), "port", 0)
+            or 0
+        )
+        if readiness
+        else 0
+    )
+
+    return ProbeContainerRawData(
+        container_name=name,
+        is_init_container=is_init,
+        exposed_ports=exposed_ports,
+        has_liveness_probe=has_liveness,
+        has_readiness_probe=has_readiness,
+        liveness_probe_type=liveness_type,
+        readiness_probe_type=readiness_type,
+        liveness_http_path=liveness_http_path,
+        readiness_http_path=readiness_http_path,
+        liveness_port=liveness_port,
+        readiness_port=readiness_port,
+    )
