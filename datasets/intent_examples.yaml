@@ -1203,3 +1203,13 @@ detect_kustomize_patch_conflicts:
     - "Are there any patch conflicts in overlays/staging that could cause an unexpected deployment configuration?"
     - "Which patches are targeting resources that don't exist in my base — flag orphan patches."
     - "List all conflicting fields in the production overlay with the winning value and source patch."
+
+compare_service_cost:
+  tool: compare_service_cost
+  questions:
+    - "What is the total infrastructure cost of the payment-service this month vs last month?"
+    - "How has the cost of auth-service changed month-over-month — is it increasing or decreasing?"
+    - "Show me the cost breakdown by pod for payment-service this month."
+    - "Which services have the highest cost increase compared to last month?"
+    - "What is the CPU and memory cost trend for our production services?"
+    - "Did the checkout-service cost decrease after our optimization efforts last sprint?"
