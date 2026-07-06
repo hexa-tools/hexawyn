@@ -137,6 +137,7 @@ if TYPE_CHECKING:
         SecretRotationAuditPort,
     )
     from hexawyn.application.ports.driven.security_audit_port import SecurityAuditPort
+    from hexawyn.application.ports.driven.service_cost_port import ServiceCostPort
     from hexawyn.application.ports.driven.service_dependency_graph_port import (
         ServiceDependencyGraphPort,
     )
@@ -747,6 +748,14 @@ def build_kustomize_patch_analysis_adapter() -> KustomizePatchAnalysisPort:
     )
 
     return KustomizeCLIPatchAdapter()
+
+
+def build_service_cost_adapter() -> ServiceCostPort:
+    from hexawyn.adapters.secondary.gitops.service_cost_prometheus_adapter import (
+        ServiceCostPrometheusAdapter,
+    )
+
+    return ServiceCostPrometheusAdapter()
 
 
 def register_tools(server: FastMCP) -> None:

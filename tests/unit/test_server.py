@@ -771,3 +771,11 @@ class TestMCPTopologyAdapterFactories:
         result = build_kustomize_patch_analysis_adapter()
 
         assert isinstance(result, KustomizePatchAnalysisPort)
+
+    def test_build_service_cost_adapter_returns_service_cost_port(self) -> None:
+        from hexawyn.application.ports.driven.service_cost_port import ServiceCostPort
+        from hexawyn.mcp.server import build_service_cost_adapter
+
+        result = build_service_cost_adapter()
+
+        assert isinstance(result, ServiceCostPort)
