@@ -1223,3 +1223,13 @@ compute_team_cost:
     - "Which team has the highest CPU and memory cost in production?"
     - "Are there any unattributed costs from namespaces without a team label?"
     - "Rank all teams by total cloud spend and highlight teams that scaled up significantly."
+
+compute_monthly_incident_report:
+  tool: compute_monthly_incident_report
+  questions:
+    - "How many incidents occurred this month and what was the total downtime in minutes?"
+    - "Show me the P1, P2, and P3 incident breakdown for this month vs last month."
+    - "Which services were most impacted by incidents this month ranked by downtime?"
+    - "Are incidents increasing or decreasing compared to the previous month?"
+    - "What is the total downtime per severity level for July 2026?"
+    - "Give me the monthly operational health summary for the board report."
