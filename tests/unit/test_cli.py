@@ -354,7 +354,7 @@ class TestSessionScreen:
             assert "🟡 Pending Pods       2" in aside_text
             assert "🔴 Failed Pods        1" in aside_text
             assert "⚠ 1 CrashLoopBackOff detected" in aside_text
-            assert "⚠ 2 Pods restarting frequently" in aside_text
+            assert "⚠ 2 pods with high restart count" in aside_text
             assert "demo" not in aside_text.lower()
 
     @pytest.mark.asyncio
@@ -375,7 +375,7 @@ class TestSessionScreen:
 
             assert compact_project_directory() in str(project_directory.renderable)
             assert "hexa[bold #3B82F6]wyn[/bold #3B82F6]" in str(brand.renderable)
-            assert "0.1.0b0" in str(brand.renderable)
+            assert "0.1.0b2" in str(brand.renderable)
             assert not app.query("#aside-title")
 
     @pytest.mark.asyncio

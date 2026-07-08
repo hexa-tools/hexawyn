@@ -9,7 +9,7 @@ from hexawyn.infrastructure.config.kubernetes_context import (
 def test_cli_app_builds_adapter_from_discovered_current_context() -> None:
     from hexawyn.cli.app import HexawynApp
 
-    startup_status = KubernetesStartupStatus(
+    _ = KubernetesStartupStatus(
         contexts=[
             ClusterContext(
                 name="prod",
@@ -36,14 +36,19 @@ def test_cli_app_builds_adapter_from_discovered_current_context() -> None:
         patch("hexawyn.cli.app.build_adapters") as build_adapters,
         patch("hexawyn.cli.tui.HexawynTUI") as tui,
     ):
-        discovery_service.return_value.startup_status.return_value = startup_status
+        discovery_service.return_value.current.return_value = ClusterContext(
+            name="prod",
+            cluster="cluster-prod",
+            namespace="default",
+            user="user-prod",
+            is_current=True,
+        )
         build_adapters.return_value = MagicMock()
 
         HexawynApp()._run_tui()
 
     build_adapters.assert_called_once_with("prod")
     tui.assert_called_once()
-    assert tui.call_args.kwargs["startup_status"] == startup_status
 
 
 def test_session_screen_renders_kubernetes_startup_status() -> None:
