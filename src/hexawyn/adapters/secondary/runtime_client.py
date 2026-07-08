@@ -1,4 +1,6 @@
+import json
 import time
+from collections.abc import Generator
 
 import httpx
 
@@ -13,13 +15,6 @@ class RuntimeClient:
 
     def close(self) -> None:
         self._client.close()
-
-    def post_tools(self, tools_payload: list[dict[str, object]]) -> None:
-        response = self._client.post(
-            f"{self._endpoint}/api/v1/tools/sync",
-            json={"tools": tools_payload},
-        )
-        response.raise_for_status()
 
     def check_quota(self) -> dict[str, object]:
         response = self._client.get(f"{self._endpoint}/api/v1/quota")
@@ -70,7 +65,43 @@ class RuntimeClient:
         while time.monotonic() < deadline:
             status_response = self.get_investigation(job_id)
             current_status = str(status_response.get("status", ""))
-            if current_status in ("completed", "failed", "complete"):
+            if current_status in ("completed", "failed", "complete", "degraded", "error"):
                 return status_response
             time.sleep(interval)
         return status_response
+
+    def stream_investigation(
+        self,
+        query: str,
+        cluster_name: str = "unknown",
+        provider: str = "vanilla",
+        pods: list[dict[str, object]] | None = None,
+        conversation_history: list[dict[str, str]] | None = None,
+    ) -> Generator[tuple[str, dict[str, object]], None, None]:
+        """Stream investigation results via SSE. Yields (node_name, output) tuples."""
+        with self._client.stream(
+            "POST",
+            f"{self._endpoint}/api/v1/investigations/stream",
+            json={
+                "query": query,
+                "cluster_name": cluster_name,
+                "provider": provider,
+                "pods": pods or [],
+                "conversation_history": conversation_history or [],
+            },
+        ) as response:
+            response.raise_for_status()
+            for line in response.iter_lines():
+                if not line.startswith("data: "):
+                    continue
+                data = line[len("data: ") :]
+                try:
+                    event = json.loads(data)
+                except json.JSONDecodeError:
+                    continue
+                if "done" in event:
+                    break
+                if "error" in event:
+                    yield ("error", event)
+                    break
+                yield (event.get("node", "unknown"), event.get("output", {}))

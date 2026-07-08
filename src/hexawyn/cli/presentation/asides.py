@@ -34,12 +34,14 @@ def safe_metrics(adapter: Any) -> Mapping[object, object]:
 
 def kubectl_current_context() -> str:
     try:
-        import subprocess
+        import os
 
-        result = subprocess.run(
-            ["kubectl", "config", "current-context"], capture_output=True, text=True, timeout=3
-        )
-        return result.stdout.strip() or "?"
+        kubeconfig = os.environ.get("KUBECONFIG", os.path.expanduser("~/.kube/config"))
+        import yaml
+
+        with open(kubeconfig) as f:
+            config = yaml.safe_load(f)
+        return str(config.get("current-context", "?")) if config else "?"
     except Exception:
         return "?"
 

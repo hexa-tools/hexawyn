@@ -72,7 +72,7 @@ class TestSaveLLMConfig:
 
 
 class TestRuntimeMode:
-    def test_defaults_to_embedded(self, tmp_path) -> None:  # type: ignore[no-untyped-def]
+    def test_defaults_to_remote(self, tmp_path) -> None:  # type: ignore[no-untyped-def]
         with patch(
             "hexawyn.infrastructure.config.config_manager.CONFIG_PATH",
             tmp_path / "nonexistent.yaml",
@@ -80,7 +80,7 @@ class TestRuntimeMode:
             with patch.dict(os.environ, {}, clear=True):
                 from hexawyn.infrastructure.config.config_manager import get_runtime_mode
 
-                assert get_runtime_mode() == "embedded"
+                assert get_runtime_mode() == "remote"
 
     def test_reads_configured_mode(self, tmp_path) -> None:  # type: ignore[no-untyped-def]
         config_file = tmp_path / "config.yaml"
@@ -90,14 +90,14 @@ class TestRuntimeMode:
 
             assert get_runtime_mode() == "remote"
 
-    def test_invalid_value_falls_back_to_embedded(self, tmp_path) -> None:  # type: ignore[no-untyped-def]
+    def test_invalid_value_falls_back_to_remote(self, tmp_path) -> None:  # type: ignore[no-untyped-def]
         config_file = tmp_path / "config.yaml"
         config_file.write_text("runtime:\n  mode: invalid\n")
         with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_file):
             with patch.dict(os.environ, {}, clear=True):
                 from hexawyn.infrastructure.config.config_manager import get_runtime_mode
 
-                assert get_runtime_mode() == "embedded"
+                assert get_runtime_mode() == "remote"
 
     def test_remote_mode_with_endpoint(self, tmp_path) -> None:  # type: ignore[no-untyped-def]
         config_file = tmp_path / "config.yaml"

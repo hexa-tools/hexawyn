@@ -37,7 +37,7 @@ By making a contribution to this project, I certify that:
 
 - [ ] Commits are signed (`git log --show-signature`)
 - [ ] Unit tests pass (`poetry run pytest tests/unit/`)
-- [ ] Coverage >= 80% (`poetry run pytest tests/unit/ --cov=src/hexawyn --cov-fail-under=80`)
+- [ ] Coverage >= 95% (`poetry run pytest tests/unit/ --cov=src/hexawyn --cov-fail-under=95`)
 - [ ] Lint passes (`poetry run ruff check src/ tests/`)
 - [ ] Type check passes (`poetry run mypy src/hexawyn/`)
 - [ ] No secrets in code (hexa_guard.py)

@@ -183,6 +183,8 @@ class TestVanillaAdapter:
                 "restarts": 1,
                 "age": "3d",
                 "node": "node-a",
+                "cpu_request_millicores": 0,
+                "memory_request_mib": 0,
             },
             {
                 "name": "worker-64d8b",
@@ -191,6 +193,8 @@ class TestVanillaAdapter:
                 "restarts": 0,
                 "age": "3d",
                 "node": "node-b",
+                "cpu_request_millicores": 0,
+                "memory_request_mib": 0,
             },
         ]
 
@@ -255,7 +259,7 @@ class TestVanillaAdapter:
     def test_findings_are_derived_from_real_pods_and_nodes(self) -> None:
         api = _CoreApi(
             pods=[
-                _Pod("api-7f8d9c", "default", "Running", 4),
+                _Pod("api-7f8d9c", "default", "Running", 12),
                 _Pod("worker-64d8b", "jobs", "Pending", 0),
                 _Pod("payments-555", "default", "Running", 7, "CrashLoopBackOff"),
             ],
@@ -268,7 +272,7 @@ class TestVanillaAdapter:
         assert findings == [
             {
                 "severity": "warning",
-                "message": "Pod default/api-7f8d9c restarted 4 times",
+                "message": "Pod default/api-7f8d9c restarted 12 times",
                 "remediation": "Inspect recent logs and events for this pod.",
             },
             {

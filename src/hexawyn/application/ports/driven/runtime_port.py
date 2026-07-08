@@ -45,7 +45,10 @@ class RuntimePort(ABC):
 
     @abstractmethod
     def run_investigation(
-        self, query: str, cluster_context: ClusterContext
+        self,
+        query: str,
+        cluster_context: ClusterContext,
+        conversation_history: list[dict[str, str]] | None = None,
     ) -> InvestigationOutput: ...
 
     @abstractmethod
@@ -56,6 +59,3 @@ class RuntimePort(ABC):
 
     @abstractmethod
     def increment_quota(self) -> None: ...
-
-    @abstractmethod
-    def sync_tools(self, tools_payload: list[dict[str, object]]) -> None: ...
