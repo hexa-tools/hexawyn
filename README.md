@@ -16,7 +16,11 @@
 </p>
 
 <p align="center">
-  <img src="assets/hexawyn-logo-light.svg" alt="hexawyn" width="900" />
+  <img
+    src="https://raw.githubusercontent.com/hexa-tools/hexawyn/main/assets/hexawyn-logo-light.svg"
+    alt="Hexawyn"
+    width="900"
+  />
 </p>
 
 # hexawyn
