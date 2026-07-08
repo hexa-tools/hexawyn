@@ -5,6 +5,10 @@ from hexawyn.application.use_case.chat_cli.chat_cli_command import ChatCliComman
 from hexawyn.application.use_case.chat_cli.chat_cli_response import ChatCliResponse
 
 
-def route_command(text: str, adapter: K8sPort) -> ChatCliResponse:
+def route_command(
+    text: str, adapter: K8sPort, conversation_history: list[dict[str, str]] | None = None
+) -> ChatCliResponse:
     service = ChatCliService(k8s_port=adapter, runtime=get_runtime())
-    return service.execute(ChatCliCommand(query=text))
+    return service.execute(
+        ChatCliCommand(query=text, conversation_history=conversation_history or [])
+    )

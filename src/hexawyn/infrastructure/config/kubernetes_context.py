@@ -276,7 +276,7 @@ class FileKubernetesDiscoveryService(DiscoveryService):
                 client_configuration=cfg,
             )
             api_client = client.ApiClient(configuration=cfg)
-            client.VersionApi(api_client=api_client).get_code()
+            client.VersionApi(api_client=api_client).get_code(_request_timeout=5)
             return True, None
         except Exception as exc:
             return False, str(exc)

@@ -30,16 +30,20 @@ class ChatCliService(ChatCliUseCase):
                 kind="unknown",
                 lines=[("Type a command or click a suggestion.", "dim")],
             )
-        return self._investigate(normalized)
+        return self._investigate(normalized, command.conversation_history)
 
-    def _investigate(self, query: str) -> ChatCliResponse:
+    def _investigate(
+        self, query: str, conversation_history: list[dict[str, str]] | None = None
+    ) -> ChatCliResponse:
         k8s_ctx: ClusterContext = self._k8s.get_cluster_context()
         domain_ctx = DomainClusterContext(
             name=k8s_ctx["name"],
             namespace=k8s_ctx["namespace"],
         )
         self._runtime.set_adapter(self._k8s)
-        output: InvestigationOutput = self._runtime.run_investigation(query, domain_ctx)
+        output: InvestigationOutput = self._runtime.run_investigation(
+            query, domain_ctx, conversation_history
+        )
         return _build_response(output)
 
     def list_pods(self) -> ChatCliResponse:
@@ -135,8 +139,6 @@ def _build_response(output: InvestigationOutput) -> ChatCliResponse:
     error_msg = output["error"]
     if error_msg:
         lines.append((f"Error: {error_msg}", "red"))
-    if str(output["status"]) == "degraded":
-        lines.append(("[UNVERIFIED — results may be incomplete]", "yellow"))
     raw_suggestions = output["suggestions"]
     suggestions = list(raw_suggestions)[:4] if raw_suggestions else []
     return ChatCliResponse(kind="debug", lines=lines, suggestions=suggestions)

@@ -134,6 +134,29 @@ class HexawynTUI(App[None]):
         else:
             self.push_screen(SessionScreen())
         self.run_worker(self._generate_ai_suggestion, thread=True)
+        self.run_worker(self._connect_and_scan, thread=True)
+
+    def _connect_and_scan(self) -> None:
+        if self.demo_mode or self.context_service is None:
+            return
+        try:
+            status = self.context_service.startup_status()  # type: ignore[attr-defined]
+            self.startup_status = status
+            if status.connected:
+                self.run_startup_scan = True
+                from hexawyn.application.service.runtime_adapter import get_runtime
+
+                get_runtime().set_adapter(self.adapter)
+            self.call_from_thread(self._refresh_aside_after_connect)
+        except Exception:
+            pass
+
+    def _refresh_aside_after_connect(self) -> None:
+        try:
+            if hasattr(self.screen, "_refresh_aside"):
+                self.screen._refresh_aside()
+        except Exception:
+            pass
 
     def action_clear_input(self) -> None:
         if isinstance(self.screen, WelcomeScreen | SessionScreen):
