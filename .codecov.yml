@@ -1,0 +1,44 @@
+comment:
+  layout: "reach, diff, flags, components"
+  require_changes: false
+
+coverage:
+  status:
+    project:
+      default:
+        target: 95%
+        threshold: 2%
+    patch:
+      default:
+        target: 95%
+
+component_management:
+  individual_components:
+    - component_id: domain
+      name: Domain
+      paths:
+        - src/hexawyn/domain/**
+    - component_id: application
+      name: Application
+      paths:
+        - src/hexawyn/application/**
+    - component_id: adapters
+      name: Adapters
+      paths:
+        - src/hexawyn/adapters/**
+    - component_id: infrastructure
+      name: Infrastructure
+      paths:
+        - src/hexawyn/infrastructure/**
+    - component_id: lang_graph
+      name: LangGraph
+      paths:
+        - src/hexawyn/lang_graph/**
+    - component_id: cli
+      name: CLI
+      paths:
+        - src/hexawyn/cli/**
+    - component_id: mcp
+      name: MCP Server
+      paths:
+        - src/hexawyn/mcp/**

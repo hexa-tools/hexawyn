@@ -1,0 +1,15 @@
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+
+from hexawyn.application.ports.driving.semantic_log_search.semantic_log_search_command import (
+    SemanticLogSearchCommand,
+)
+from hexawyn.application.ports.driving.semantic_log_search.semantic_log_search_response import (
+    SemanticLogSearchResponse,
+)
+
+
+class SemanticLogSearchServicePort(ABC):
+    @abstractmethod
+    def search(self, command: SemanticLogSearchCommand) -> SemanticLogSearchResponse: ...

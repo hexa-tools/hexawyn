@@ -1,0 +1,64 @@
+# hexawyn .gitignore
+ 
+# DuckDB local memory — user's choice to commit or not
+.hexawyn/
+*.duckdb
+*.duckdb.wal
+ 
+# Environment variables — NEVER commit
+.env
+ 
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+ 
+# Virtual environments
+.venv/
+venv/
+env/
+ 
+# Poetry
+poetry.lock   # keep this if you want reproducible installs
+ 
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+ 
+# mypy
+.mypy_cache/
+ 
+# ruff
+.ruff_cache/
+ 
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+ 
+# OS
+.DS_Store
+Thumbs.db
+ 
+# Distribution
+dist/
+*.whl
+*.tar.gz
+ 
+AGENTS.md
+.claude/
+hexa_guard.py
+.opencode/
+logs/
+# MemPalace per-project files (issue #185)
+mempalace.yaml
+entities.json

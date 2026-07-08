@@ -1,0 +1,829 @@
+import asyncio
+from unittest.mock import MagicMock, patch
+
+from hexawyn.domain.errors import ClusterUnreachableError
+
+
+class TestMCPHealthTool:
+    def test_health_returns_status_ok_when_duckdb_connected(self):
+        mock_conn = MagicMock()
+        mock_conn.execute.return_value.fetchone.return_value = (1,)
+
+        with (
+            patch("hexawyn.mcp.server.get_connection", return_value=mock_conn),
+            patch("hexawyn.mcp.server.get_api_key", return_value="sk-ant-fake"),
+            patch(
+                "hexawyn.mcp.server._cluster_status",
+                {"status": "connected", "context": "prod-eu"},
+            ),
+        ):
+            from hexawyn.mcp.server import health
+
+            result = health()
+            assert result["status"] == "ok"
+            assert result["duckdb"] == "connected"
+            assert result["api_key"] == "configured"
+            assert result["version"] == "0.1.0b0"
+            assert result["cluster"] == "connected"
+            assert result["context"] == "prod-eu"
+
+    def test_health_returns_degraded_when_duckdb_fails(self):
+        with (
+            patch(
+                "hexawyn.mcp.server.get_connection",
+                side_effect=Exception("DB down"),
+            ),
+            patch("hexawyn.mcp.server.get_api_key", return_value="sk-ant-fake"),
+            patch(
+                "hexawyn.mcp.server._cluster_status",
+                {"status": "connected", "context": "prod-eu"},
+            ),
+        ):
+            from hexawyn.mcp.server import health
+
+            result = health()
+            assert result["status"] == "degraded"
+            assert result["duckdb"] == "unavailable"
+            assert result["cluster"] == "connected"
+
+    def test_health_returns_missing_when_no_api_key(self):
+        mock_conn = MagicMock()
+        mock_conn.execute.return_value.fetchone.return_value = (1,)
+
+        with (
+            patch("hexawyn.mcp.server.get_connection", return_value=mock_conn),
+            patch("hexawyn.mcp.server.get_api_key", return_value=None),
+            patch(
+                "hexawyn.mcp.server._cluster_status",
+                {"status": "no_kubeconfig", "error": "no config found"},
+            ),
+        ):
+            from hexawyn.mcp.server import health
+
+            result = health()
+            assert result["api_key"] == "missing"
+            assert result["cluster"] == "no_kubeconfig"
+            assert result["context"] == "none"
+
+    def test_health_returns_degraded_when_both_fail(self):
+        with (
+            patch(
+                "hexawyn.mcp.server.get_connection",
+                side_effect=Exception("DB down"),
+            ),
+            patch("hexawyn.mcp.server.get_api_key", return_value=None),
+            patch(
+                "hexawyn.mcp.server._cluster_status",
+                {"status": "no_kubeconfig"},
+            ),
+        ):
+            from hexawyn.mcp.server import health
+
+            result = health()
+            assert result["status"] == "degraded"
+            assert result["duckdb"] == "unavailable"
+            assert result["api_key"] == "missing"
+            assert result["cluster"] == "no_kubeconfig"
+
+
+class TestMCPServerStartupValidation:
+    def test_cluster_status_no_kubeconfig_when_config_missing(self):
+        import sys
+
+        sys.modules.pop("hexawyn.mcp.server", None)
+        sys.modules.pop("hexawyn.mcp", None)
+
+        with patch(
+            "hexawyn.infrastructure.config.kubeconfig_reader.load_kubeconfig",
+            side_effect=ClusterUnreachableError("no kubeconfig"),
+        ):
+            import hexawyn.mcp.server as server_mod
+
+            assert server_mod._cluster_status["status"] == "no_kubeconfig"
+
+    def test_cluster_status_connected_when_config_found(self):
+        import sys
+
+        sys.modules.pop("hexawyn.mcp.server", None)
+        sys.modules.pop("hexawyn.mcp", None)
+
+        mock_api = MagicMock()
+        with (
+            patch(
+                "hexawyn.infrastructure.config.kubeconfig_reader.load_kubeconfig",
+                return_value=mock_api,
+            ),
+            patch(
+                "hexawyn.infrastructure.config.kubeconfig_reader.get_active_context",
+                return_value={"name": "prod-eu", "context": {"cluster": "cluster-eu"}},
+            ),
+            patch(
+                "hexawyn.infrastructure.config.kubeconfig_reader.validate_connection",
+                return_value={"status": "connected", "context": "prod-eu"},
+            ),
+        ):
+            import hexawyn.mcp.server as server_mod
+
+            assert server_mod._cluster_status["status"] == "connected"
+            assert server_mod._cluster_status["context"] == "prod-eu"
+
+
+class TestMCPServerInit:
+    def test_mcp_server_has_correct_name_and_version(self):
+        from hexawyn.mcp.server import mcp
+
+        assert "hexawyn" in mcp.name.lower()
+        assert mcp.version is not None
+
+    def test_health_tool_is_registered(self):
+        from hexawyn.mcp.server import mcp
+
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = [tool.name for tool in tools]
+        assert "health" in tool_names
+
+    def test_list_namespaces_tool_is_registered(self) -> None:
+        from hexawyn.mcp.server import mcp
+
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = [tool.name for tool in tools]
+        assert "list_namespaces" in tool_names
+
+
+class TestMCPListNamespacesTool:
+    def test_list_namespaces_returns_dict_with_namespaces_key(self) -> None:
+        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+
+        with patch(
+            "hexawyn.mcp.server.build_k8s_adapter",
+            return_value=DemoAdapter(scenario="aws_eks"),
+        ):
+            from hexawyn.mcp.tools.list_namespaces import list_namespaces
+
+            result = list_namespaces()
+            assert isinstance(result, dict)
+            assert "namespaces" in result
+            assert isinstance(result["namespaces"], list)
+
+    def test_list_namespaces_items_have_expected_fields(self) -> None:
+        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+
+        with patch(
+            "hexawyn.mcp.server.build_k8s_adapter",
+            return_value=DemoAdapter(scenario="aws_eks"),
+        ):
+            from hexawyn.mcp.tools.list_namespaces import list_namespaces
+
+            result = list_namespaces()
+            for ns in result["namespaces"]:
+                assert "name" in ns
+                assert "status" in ns
+                assert "age" in ns
+
+    def test_list_namespaces_handles_no_cluster(self) -> None:
+        from hexawyn.domain.errors import ClusterUnreachableError
+
+        with patch(
+            "hexawyn.mcp.server.build_k8s_adapter",
+            side_effect=ClusterUnreachableError("no kubeconfig"),
+        ):
+            from hexawyn.mcp.tools.list_namespaces import list_namespaces
+
+            result = list_namespaces()
+            assert result["error"] is not None
+            assert result["namespaces"] == []
+
+    def test_list_pods_tool_is_registered(self) -> None:
+        from hexawyn.mcp.server import mcp
+
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = [tool.name for tool in tools]
+        assert "list_pods" in tool_names
+
+    def test_list_task_runs_tool_is_registered(self) -> None:
+        from hexawyn.mcp.server import mcp
+
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = [tool.name for tool in tools]
+        assert "list_task_runs" in tool_names
+
+    def test_build_tekton_adapter_returns_vanilla_adapter(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+        from hexawyn.mcp.server import build_tekton_adapter
+
+        result = build_tekton_adapter()
+        assert isinstance(result, VanillaAdapter)
+
+    def test_build_k8s_adapter_returns_vanilla_adapter(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+        from hexawyn.mcp.server import build_k8s_adapter
+
+        result = build_k8s_adapter()
+        assert isinstance(result, VanillaAdapter)
+
+    def test_build_waste_adapter_returns_namespace_waste_analysis_port(self) -> None:
+        from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+        from hexawyn.mcp.server import build_waste_adapter
+
+        result = build_waste_adapter()
+        assert isinstance(result, NamespaceWasteAnalysisPort)
+
+    def test_build_waste_adapter_reads_prometheus_url_from_env(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+        from hexawyn.mcp.server import build_waste_adapter
+
+        with patch.dict("os.environ", {"PROMETHEUS_URL": "http://prom:9090"}):
+            result = build_waste_adapter()
+
+        assert isinstance(result, VanillaAdapter)
+        assert result._prometheus_url == "http://prom:9090"
+
+    def test_build_rightsizing_adapter_returns_rightsizing_port(self) -> None:
+        from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
+        from hexawyn.mcp.server import build_rightsizing_adapter
+
+        result = build_rightsizing_adapter()
+
+        assert isinstance(result, RightsizingPort)
+
+    def test_build_cost_forecast_adapter_returns_cost_forecast_port(self) -> None:
+        from hexawyn.application.ports.driven.cost_forecast_port import CostForecastPort
+        from hexawyn.mcp.server import build_cost_forecast_adapter
+
+        result = build_cost_forecast_adapter()
+
+        assert isinstance(result, CostForecastPort)
+
+    def test_register_tools_does_not_crash_on_import_error(self) -> None:
+        from pathlib import Path
+        from unittest.mock import patch
+
+        tools_path = Path(__file__).parent.parent.parent / "src" / "hexawyn" / "mcp" / "tools"
+        py_files = list(tools_path.glob("*.py"))
+
+        if not py_files:
+            return
+
+        with patch(
+            "importlib.import_module",
+            side_effect=ImportError("simulated import failure"),
+        ):
+            from fastmcp import FastMCP
+            from hexawyn.mcp.server import register_tools
+
+            test_server = FastMCP("test-register")
+            register_tools(test_server)
+
+
+class TestMCPListPodsTool:
+    def test_list_pods_returns_pods_for_namespace(self) -> None:
+        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+
+        with patch(
+            "hexawyn.mcp.server.build_k8s_adapter",
+            return_value=DemoAdapter(scenario="aws_eks"),
+        ):
+            from hexawyn.mcp.tools.list_pods import list_pods
+
+            result = list_pods(namespace="production")
+            assert isinstance(result, dict)
+            assert "pods" in result
+            assert isinstance(result["pods"], list)
+            assert len(result["pods"]) > 0
+
+    def test_list_pods_empty_namespace(self) -> None:
+        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+
+        with patch(
+            "hexawyn.mcp.server.build_k8s_adapter",
+            return_value=DemoAdapter(scenario="aws_eks"),
+        ):
+            from hexawyn.mcp.tools.list_pods import list_pods
+
+            result = list_pods(namespace="nonexistent")
+            assert result["pods"] == []
+
+    def test_list_pods_handles_error(self) -> None:
+        with patch(
+            "hexawyn.mcp.server.build_k8s_adapter",
+            side_effect=Exception("k8s down"),
+        ):
+            from hexawyn.mcp.tools.list_pods import list_pods
+
+            result = list_pods(namespace="default")
+            assert result["error"] == "k8s down"
+            assert result["pods"] == []
+
+
+class TestMCPListTaskRunsTool:
+    def test_list_task_runs_returns_task_runs_list(self) -> None:
+        from unittest.mock import MagicMock
+
+        from hexawyn.application.ports.driven.tekton_port import TaskRunInfo, TektonPort
+
+        fake_run: TaskRunInfo = {
+            "name": "build-deploy-clone-repo-abc",
+            "task_ref": "clone-repo",
+            "status": "Succeeded",
+            "start_time": "2024-01-01T10:00:00Z",
+            "duration": "12s",
+            "failing_step": None,
+            "failing_step_error": None,
+        }
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_task_runs.return_value = [fake_run]
+
+        with patch(
+            "hexawyn.mcp.server.build_tekton_adapter",
+            return_value=mock_adapter,
+        ):
+            from hexawyn.mcp.tools.list_task_runs import list_task_runs
+
+            result = list_task_runs(pipeline_name="build-deploy", namespace="ci")
+            assert isinstance(result["task_runs"], list)
+            assert len(result["task_runs"]) == 1
+            assert result["error"] is None
+
+    def test_list_task_runs_returns_error_when_pipeline_not_found(self) -> None:
+        from hexawyn.domain.errors import PipelineNotFoundError
+
+        with patch(
+            "hexawyn.mcp.server.build_tekton_adapter",
+            side_effect=PipelineNotFoundError(pipeline_name="ghost"),
+        ):
+            from hexawyn.mcp.tools.list_task_runs import list_task_runs
+
+            result = list_task_runs(pipeline_name="ghost", namespace="ci")
+            assert result["task_runs"] == []
+            assert result["error"] is not None
+            assert "ghost" in str(result["error"])
+
+    def test_list_task_runs_returns_error_on_cluster_failure(self) -> None:
+        with patch(
+            "hexawyn.mcp.server.build_tekton_adapter",
+            side_effect=Exception("tekton API down"),
+        ):
+            from hexawyn.mcp.tools.list_task_runs import list_task_runs
+
+            result = list_task_runs(pipeline_name="build-deploy", namespace="ci")
+            assert result["task_runs"] == []
+            assert result["error"] == "tekton API down"
+
+
+class TestMCPListPipelineRunsTool:
+    def test_list_pipeline_runs_tool_is_registered(self) -> None:
+        from hexawyn.mcp.server import mcp
+
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = [tool.name for tool in tools]
+        assert "list_pipeline_runs" in tool_names
+
+    def test_list_pipeline_runs_returns_runs_and_stats(self) -> None:
+        from unittest.mock import MagicMock
+
+        from hexawyn.application.ports.driven.tekton_port import PipelineRunInfo, TektonPort
+
+        fake_run: PipelineRunInfo = {
+            "name": "payment-service-run-abc",
+            "status": "Succeeded",
+            "start_time": "2024-01-15T10:00:00Z",
+            "duration": "4m30s",
+            "duration_seconds": 270,
+            "triggered_by": "github-push",
+        }
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_pipeline_runs.return_value = [fake_run]
+
+        with patch("hexawyn.mcp.server.build_tekton_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.list_pipeline_runs import list_pipeline_runs
+
+            result = list_pipeline_runs(service_name="payment-service", namespace="ci")
+            assert isinstance(result["runs"], list)
+            assert len(result["runs"]) == 1
+            assert isinstance(result["stats"], dict)
+            assert result["error"] is None
+
+    def test_list_pipeline_runs_returns_error_when_service_not_found(self) -> None:
+        from hexawyn.domain.errors import ServiceNotFoundError
+
+        with patch(
+            "hexawyn.mcp.server.build_tekton_adapter",
+            side_effect=ServiceNotFoundError(service_name="ghost"),
+        ):
+            from hexawyn.mcp.tools.list_pipeline_runs import list_pipeline_runs
+
+            result = list_pipeline_runs(service_name="ghost", namespace="ci")
+            assert result["runs"] == []
+            assert result["error"] is not None
+            assert "ghost" in str(result["error"])
+
+    def test_list_pipeline_runs_returns_error_on_cluster_failure(self) -> None:
+        with patch(
+            "hexawyn.mcp.server.build_tekton_adapter",
+            side_effect=Exception("tekton API down"),
+        ):
+            from hexawyn.mcp.tools.list_pipeline_runs import list_pipeline_runs
+
+            result = list_pipeline_runs(service_name="payment-service", namespace="ci")
+            assert result["runs"] == []
+            assert result["error"] == "tekton API down"
+
+    def test_list_pipeline_runs_includes_outliers_and_note(self) -> None:
+        from unittest.mock import MagicMock
+
+        from hexawyn.application.ports.driven.tekton_port import PipelineRunInfo, TektonPort
+
+        normal = [
+            {
+                "name": f"run-{i}",
+                "status": "Succeeded",
+                "start_time": f"2024-01-{15 - i:02d}T10:00:00Z",
+                "duration": "5m",
+                "duration_seconds": 300,
+                "triggered_by": None,
+            }
+            for i in range(2)
+        ]
+        outlier: PipelineRunInfo = {
+            "name": "run-outlier",
+            "status": "Succeeded",
+            "start_time": "2024-01-10T10:00:00Z",
+            "duration": "22m",
+            "duration_seconds": 1320,
+            "triggered_by": None,
+        }
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_pipeline_runs.return_value = normal + [outlier]
+
+        with patch("hexawyn.mcp.server.build_tekton_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.list_pipeline_runs import list_pipeline_runs
+
+            result = list_pipeline_runs(service_name="payment-service", namespace="ci", limit=10)
+            assert "run-outlier" in result["outliers"]
+            assert result["note"] is not None
+
+
+class TestMCPListPipelineRunsInNamespaceTool:
+    def test_tool_is_registered(self) -> None:
+        from fastmcp import FastMCP
+        from hexawyn.mcp.tools.list_pipeline_runs_in_namespace import register
+
+        mcp = FastMCP("test-server")
+        register(mcp)
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = {t.name for t in tools}
+        assert "list_pipeline_runs_in_namespace" in tool_names
+
+    def test_returns_runs_and_stuck_list(self) -> None:
+        from datetime import UTC, datetime, timedelta
+
+        from hexawyn.application.ports.driven.tekton_port import (
+            NamespacedPipelineRunInfo,
+            TektonPort,
+        )
+
+        stuck_start = (datetime.now(UTC) - timedelta(hours=3)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        runs: list[NamespacedPipelineRunInfo] = [
+            {
+                "name": "deploy-stuck",
+                "status": "Running",
+                "start_time": stuck_start,
+                "duration": None,
+                "duration_seconds": None,
+                "pipeline_ref": "deploy-payment",
+            },
+            {
+                "name": "deploy-ok",
+                "status": "Succeeded",
+                "start_time": "2024-01-15T09:00:00Z",
+                "duration": "4m30s",
+                "duration_seconds": 270,
+                "pipeline_ref": "deploy-auth",
+            },
+        ]
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_pipeline_runs_in_namespace.return_value = runs
+
+        with patch("hexawyn.mcp.server.build_tekton_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.list_pipeline_runs_in_namespace import (
+                list_pipeline_runs_in_namespace,
+            )
+
+            result = list_pipeline_runs_in_namespace(namespace="tekton")
+
+        assert result["error"] is None
+        assert "deploy-stuck" in result["stuck_runs"]
+        assert any(r["name"] == "deploy-stuck" and r["is_stuck"] for r in result["runs"])  # type: ignore[index]
+
+    def test_empty_namespace_returns_note(self) -> None:
+        from hexawyn.application.ports.driven.tekton_port import TektonPort
+
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_pipeline_runs_in_namespace.return_value = []
+
+        with patch("hexawyn.mcp.server.build_tekton_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.list_pipeline_runs_in_namespace import (
+                list_pipeline_runs_in_namespace,
+            )
+
+            result = list_pipeline_runs_in_namespace(namespace="tekton")
+
+        assert result["runs"] == []
+        assert result["note"] is not None
+        assert result["error"] is None
+
+    def test_rbac_error_returns_error_field(self) -> None:
+        from hexawyn.application.ports.driven.tekton_port import TektonPort
+        from hexawyn.domain.errors import InsufficientPermissionsError
+
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_pipeline_runs_in_namespace.side_effect = InsufficientPermissionsError(
+            "forbidden"
+        )
+
+        with patch("hexawyn.mcp.server.build_tekton_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.list_pipeline_runs_in_namespace import (
+                list_pipeline_runs_in_namespace,
+            )
+
+            result = list_pipeline_runs_in_namespace(namespace="tekton")
+
+        assert result["error"] is not None
+        assert "forbidden" in str(result["error"])
+        assert result["runs"] == []
+
+    def test_tekton_not_installed_returns_error_field(self) -> None:
+        from hexawyn.application.ports.driven.tekton_port import TektonPort
+        from hexawyn.domain.errors import TektonNotInstalledError
+
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_pipeline_runs_in_namespace.side_effect = TektonNotInstalledError()
+
+        with patch("hexawyn.mcp.server.build_tekton_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.list_pipeline_runs_in_namespace import (
+                list_pipeline_runs_in_namespace,
+            )
+
+            result = list_pipeline_runs_in_namespace(namespace="tekton")
+
+        assert result["error"] is not None
+        assert "Tekton" in str(result["error"])
+
+
+class TestMCPDetectOverProvisionedNamespacesTool:
+    def test_tool_is_registered(self) -> None:
+        from hexawyn.mcp.server import mcp
+
+        tools = asyncio.run(mcp.list_tools())
+        tool_names = {t.name for t in tools}
+        assert "detect_over_provisioned_namespaces" in tool_names
+
+    def test_dev_namespace_flagged_over_provisioned(self) -> None:
+        from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+
+        mock_adapter = MagicMock(spec=NamespaceWasteAnalysisPort)
+        mock_adapter.get_all_namespace_waste_data.return_value = [
+            {
+                "namespace": "dev",
+                "cpu_requested_cores": 8.0,
+                "memory_requested_gb": 16.0,
+                "cpu_actual_avg_cores": 0.45,
+                "memory_actual_avg_gb": 1.2,
+                "age_hours": 720.0,
+                "has_resource_requests": True,
+            },
+        ]
+
+        with patch("hexawyn.mcp.server.build_waste_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.detect_over_provisioned_namespaces import (
+                detect_over_provisioned_namespaces,
+            )
+
+            result = detect_over_provisioned_namespaces()
+
+        assert result["error"] is None
+        assert len(result["namespaces"]) == 1
+        ns = result["namespaces"][0]  # type: ignore[index]
+        assert ns["namespace"] == "dev"
+        assert ns["is_over_provisioned"] is True
+        assert result["prometheus_available"] is True
+
+    def test_empty_returns_empty_list_no_error(self) -> None:
+        from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+
+        mock_adapter = MagicMock(spec=NamespaceWasteAnalysisPort)
+        mock_adapter.get_all_namespace_waste_data.return_value = []
+
+        with patch("hexawyn.mcp.server.build_waste_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.detect_over_provisioned_namespaces import (
+                detect_over_provisioned_namespaces,
+            )
+
+            result = detect_over_provisioned_namespaces()
+
+        assert result["namespaces"] == []
+        assert result["error"] is None
+
+    def test_cluster_error_returns_error_field(self) -> None:
+        from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+        from hexawyn.domain.errors import ClusterUnreachableError
+
+        mock_adapter = MagicMock(spec=NamespaceWasteAnalysisPort)
+        mock_adapter.get_all_namespace_waste_data.side_effect = ClusterUnreachableError(
+            "connection refused"
+        )
+
+        with patch("hexawyn.mcp.server.build_waste_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.detect_over_provisioned_namespaces import (
+                detect_over_provisioned_namespaces,
+            )
+
+            result = detect_over_provisioned_namespaces()
+
+        assert result["error"] is not None
+        assert result["namespaces"] == []
+
+    def test_excluded_namespace_in_response(self) -> None:
+        from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+
+        mock_adapter = MagicMock(spec=NamespaceWasteAnalysisPort)
+        mock_adapter.get_all_namespace_waste_data.return_value = [
+            {
+                "namespace": "new-ns",
+                "cpu_requested_cores": 4.0,
+                "memory_requested_gb": 8.0,
+                "cpu_actual_avg_cores": None,
+                "memory_actual_avg_gb": None,
+                "age_hours": 6.0,
+                "has_resource_requests": True,
+            },
+        ]
+
+        with patch("hexawyn.mcp.server.build_waste_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.detect_over_provisioned_namespaces import (
+                detect_over_provisioned_namespaces,
+            )
+
+            result = detect_over_provisioned_namespaces()
+
+        assert result["namespaces"] == []
+        excluded = result["excluded"]  # type: ignore[index]
+        assert len(excluded) == 1
+        assert excluded[0]["namespace"] == "new-ns"
+
+
+class TestMCPTopologyAdapterFactories:
+    def test_build_kubernetes_topology_adapter_returns_kubernetes_topology_port(self) -> None:
+        from hexawyn.application.ports.driven.kubernetes_topology_port import (
+            KubernetesTopologyPort,
+        )
+        from hexawyn.mcp.server import build_kubernetes_topology_adapter
+
+        result = build_kubernetes_topology_adapter()
+
+        assert isinstance(result, KubernetesTopologyPort)
+
+    def test_build_istio_topology_adapter_returns_istio_topology_port(self) -> None:
+        from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
+        from hexawyn.mcp.server import build_istio_topology_adapter
+
+        result = build_istio_topology_adapter()
+
+        assert isinstance(result, IstioTopologyPort)
+
+    def test_build_topology_snapshot_adapter_returns_topology_snapshot_port(self) -> None:
+        from hexawyn.application.ports.driven.topology_snapshot_port import TopologySnapshotPort
+        from hexawyn.mcp.server import build_topology_snapshot_adapter
+
+        with patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()):
+            result = build_topology_snapshot_adapter()
+
+        assert isinstance(result, TopologySnapshotPort)
+
+    def test_build_cross_namespace_traffic_adapter_returns_cross_namespace_traffic_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.cross_namespace_traffic_port import (
+            CrossNamespaceTrafficPort,
+        )
+        from hexawyn.mcp.server import build_cross_namespace_traffic_adapter
+
+        result = build_cross_namespace_traffic_adapter()
+
+        assert isinstance(result, CrossNamespaceTrafficPort)
+
+    def test_build_probe_audit_adapter_returns_probe_audit_port(self) -> None:
+        from hexawyn.application.ports.driven.probe_audit_port import ProbeAuditPort
+        from hexawyn.mcp.server import build_probe_audit_adapter
+
+        result = build_probe_audit_adapter()
+
+        assert isinstance(result, ProbeAuditPort)
+
+    def test_build_error_budget_adapter_returns_error_budget_port(self) -> None:
+        from hexawyn.application.ports.driven.error_budget_port import ErrorBudgetPort
+        from hexawyn.mcp.server import build_error_budget_adapter
+
+        with patch(
+            "hexawyn.mcp.server.build_metrics_query_adapter",
+            return_value=MagicMock(),
+        ):
+            result = build_error_budget_adapter()
+
+        assert isinstance(result, ErrorBudgetPort)
+
+    def test_build_reliability_report_adapter_returns_weekly_reliability_report_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.weekly_reliability_report_port import (
+            WeeklyReliabilityReportPort,
+        )
+        from hexawyn.mcp.server import build_reliability_report_adapter
+
+        with patch(
+            "hexawyn.mcp.server.build_metrics_query_adapter",
+            return_value=MagicMock(),
+        ):
+            result = build_reliability_report_adapter()
+
+        assert isinstance(result, WeeklyReliabilityReportPort)
+
+    def test_build_helm_release_version_adapter_returns_helm_release_version_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.helm_release_version_port import (
+            HelmReleaseVersionPort,
+        )
+        from hexawyn.mcp.server import build_helm_release_version_adapter
+
+        result = build_helm_release_version_adapter()
+
+        assert isinstance(result, HelmReleaseVersionPort)
+
+    def test_build_kustomize_patch_analysis_adapter_returns_kustomize_patch_analysis_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.kustomize_patch_analysis_port import (
+            KustomizePatchAnalysisPort,
+        )
+        from hexawyn.mcp.server import build_kustomize_patch_analysis_adapter
+
+        result = build_kustomize_patch_analysis_adapter()
+
+        assert isinstance(result, KustomizePatchAnalysisPort)
+
+    def test_build_service_cost_adapter_returns_service_cost_port(self) -> None:
+        from hexawyn.application.ports.driven.service_cost_port import ServiceCostPort
+        from hexawyn.mcp.server import build_service_cost_adapter
+
+        result = build_service_cost_adapter()
+
+        assert isinstance(result, ServiceCostPort)
+
+    def test_build_team_cost_adapter_returns_team_cost_port(self) -> None:
+        from hexawyn.application.ports.driven.team_cost_port import TeamCostPort
+        from hexawyn.mcp.server import build_team_cost_adapter
+
+        result = build_team_cost_adapter()
+
+        assert isinstance(result, TeamCostPort)
+
+    def test_build_monthly_incident_adapter_returns_monthly_incident_port(self) -> None:
+        from hexawyn.application.ports.driven.monthly_incident_port import (
+            MonthlyIncidentPort,
+        )
+        from hexawyn.mcp.server import build_monthly_incident_adapter
+
+        result = build_monthly_incident_adapter()
+
+        assert isinstance(result, MonthlyIncidentPort)
+
+    def test_build_mttr_trend_adapter_returns_mttr_trend_port(self) -> None:
+        from hexawyn.application.ports.driven.mttr_trend_port import MTTRTrendPort
+        from hexawyn.mcp.server import build_mttr_trend_adapter
+
+        result = build_mttr_trend_adapter()
+
+        assert isinstance(result, MTTRTrendPort)
+
+    def test_build_recurring_incident_adapter_returns_recurring_incident_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.recurring_incident_port import (
+            RecurringIncidentPort,
+        )
+        from hexawyn.mcp.server import build_recurring_incident_adapter
+
+        result = build_recurring_incident_adapter()
+
+        assert isinstance(result, RecurringIncidentPort)
+
+    def test_build_tls_compliance_adapter_returns_tls_compliance_port(self) -> None:
+        from hexawyn.application.ports.driven.tls_compliance_port import (
+            TLSCompliancePort,
+        )
+        from hexawyn.mcp.server import build_tls_compliance_adapter
+
+        result = build_tls_compliance_adapter()
+
+        assert isinstance(result, TLSCompliancePort)
