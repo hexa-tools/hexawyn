@@ -23,12 +23,17 @@ endif
 #  Dev setup
 # ─────────────────────────────────────
 
-.PHONY: install
+.PHONY: install deps-export
 
 install:
 	@echo "📦 Installing all dependencies..."
 	$(POETRY) install --with dev
 	@echo "✅ Dependencies installed"
+
+deps-export:
+	@echo "📋 Exporting requirements.txt from Poetry..."
+	$(POETRY) export -f requirements.txt --output requirements.txt --without-hashes --without dev
+	@echo "✅ requirements.txt updated — commit this file"
 
 # ─────────────────────────────────────
 #  Code quality

@@ -135,6 +135,7 @@ class SessionScreen(Screen[None]):
     def __init__(self, initial_command: str | None = None) -> None:
         super().__init__()
         self.initial_command = initial_command
+        self._history: list[dict[str, str]] = []
 
     def _tui_app(self) -> Any:
         from hexawyn.cli.tui import HexawynTUI
@@ -264,7 +265,7 @@ class SessionScreen(Screen[None]):
         if cl_count:
             lines.append(f"⚠ {cl_count} CrashLoopBackOff detected")
         if r_count:
-            lines.append(f"⚠ {r_count} Pods restarting frequently")
+            lines.append(f"⚠ {r_count} pods with high restart count")
         if not lines:
             lines.append("[green]No active warnings[/green]")
         return lines
@@ -350,7 +351,7 @@ class SessionScreen(Screen[None]):
             for i, stage in enumerate(stages):
                 icon = icons[i] if i < len(icons) else "⏳"
                 status.update(f"[dim #5b6472]  {icon} {stage}...[/dim #5b6472]")
-                await asyncio.sleep(2)
+                await asyncio.sleep(0.3)
                 if i < len(stages) - 1:
                     status.update(f"[dim #3B82F6]  ✓ {stage}[/dim #3B82F6]")
                     await asyncio.sleep(0.3)
@@ -385,7 +386,29 @@ class SessionScreen(Screen[None]):
         spinner_task = asyncio.create_task(self._show_spinner(log, stages))
 
         loop = asyncio.get_running_loop()
-        result: ChatCliResponse = await loop.run_in_executor(None, route_command, text, app.adapter)
+        history_with_context = list(self._history)
+        findings = safe_findings(app.adapter)
+        if findings:
+            finding_lines = [
+                f"{f.get('type', 'issue')}: {f.get('resource', 'unknown')} "
+                f"in {f.get('namespace', '?')} — {f.get('message', '')}"
+                for f in findings[:5]
+            ]
+            history_with_context.insert(
+                0,
+                {
+                    "role": "system",
+                    "content": (
+                        "IMPORTANT — The cluster dashboard detected these issues at startup. "
+                        "You MUST investigate them using appropriate tools (describe_pod, "
+                        "analyze_pod_logs, detect_crashloop, etc.) before giving a diagnosis: "
+                        + "; ".join(finding_lines)
+                    ),
+                },
+            )
+        result: ChatCliResponse = await loop.run_in_executor(
+            None, route_command, text, app.adapter, history_with_context
+        )
 
         spinner_task.cancel()
         try:
@@ -400,6 +423,9 @@ class SessionScreen(Screen[None]):
             return
 
         self._render_result(log, result)
+        answer_text = "\n".join(line[0] for line in result.lines if line[0].strip())
+        self._history.append({"role": "user", "content": text})
+        self._history.append({"role": "assistant", "content": answer_text[:2000]})
         if result.suggestions:
             await self._update_chips(result.suggestions)
         self._refresh_aside()

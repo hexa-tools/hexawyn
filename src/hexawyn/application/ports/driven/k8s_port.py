@@ -2,13 +2,15 @@ from abc import ABC, abstractmethod
 from typing import TypedDict
 
 
-class PodInfo(TypedDict):
+class PodInfo(TypedDict, total=False):
     name: str
     namespace: str
     status: str
     restarts: int
     age: str
     node: str
+    cpu_request_millicores: int
+    memory_request_mib: int
 
 
 class NamespaceInfo(TypedDict):

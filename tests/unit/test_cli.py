@@ -354,7 +354,7 @@ class TestSessionScreen:
             assert "🟡 Pending Pods       2" in aside_text
             assert "🔴 Failed Pods        1" in aside_text
             assert "⚠ 1 CrashLoopBackOff detected" in aside_text
-            assert "⚠ 2 Pods restarting frequently" in aside_text
+            assert "⚠ 2 pods with high restart count" in aside_text
             assert "demo" not in aside_text.lower()
 
     @pytest.mark.asyncio

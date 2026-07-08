@@ -136,40 +136,80 @@ class TestRuntimeClient:
             else:
                 assert False, "Expected ConnectError"
 
-
-class TestRuntimeClientPostTools:
-    def test_post_tools_sends_payload(self) -> None:
+    def test_check_quota_returns_data(self) -> None:
         mock_client = MagicMock(spec=httpx.Client)
-        mock_client.post.return_value = _mock_response(200, {})
+        mock_client.get.return_value = _mock_response(
+            200, {"allowed": True, "used": 5, "limit": 50}
+        )
 
         with patch("httpx.Client", return_value=mock_client):
             client = RuntimeClient(endpoint="http://localhost:8000")
-            client.post_tools(
-                [{"name": "health", "description": "Health check", "input_schema": {}}]
-            )
+            result = client.check_quota()
+
+        assert result["allowed"] is True
+
+    def test_increment_quota_calls_post(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.post.return_value = _mock_response(200, {"status": "ok"})
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+            client.increment_quota()
 
         mock_client.post.assert_called_once()
-        request_body = mock_client.post.call_args[1]["json"]
-        assert request_body["tools"] == [
-            {"name": "health", "description": "Health check", "input_schema": {}}
+
+    def test_stream_investigation_yields_events(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_stream = MagicMock()
+        mock_stream.__enter__.return_value = mock_stream
+        mock_stream.__exit__.return_value = None
+        mock_stream.raise_for_status = MagicMock()
+        mock_stream.iter_lines.return_value = [
+            'data: {"node":"plan","output":{"intent":"diagnose"}}',
+            'data: {"node":"execute","output":{"result":"ok"}}',
+            'data: {"done":true}',
         ]
-
-    def test_post_tools_empty_list(self) -> None:
-        mock_client = MagicMock(spec=httpx.Client)
-        mock_client.post.return_value = _mock_response(200, {})
+        mock_client.stream.return_value = mock_stream
 
         with patch("httpx.Client", return_value=mock_client):
             client = RuntimeClient(endpoint="http://localhost:8000")
-            client.post_tools([])
+            events = list(client.stream_investigation(query="test query"))
 
-        mock_client.post.assert_called_once()
+        assert len(events) == 2
+        assert events[0] == ("plan", {"intent": "diagnose"})
 
-    def test_post_tools_http_error_propagates(self) -> None:
+    def test_stream_investigation_handles_error_event(self) -> None:
         mock_client = MagicMock(spec=httpx.Client)
-        mock_client.post.side_effect = httpx.ConnectError("refused")
+        mock_stream = MagicMock()
+        mock_stream.__enter__.return_value = mock_stream
+        mock_stream.__exit__.return_value = None
+        mock_stream.raise_for_status = MagicMock()
+        mock_stream.iter_lines.return_value = [
+            'data: {"error":"connection lost"}',
+        ]
+        mock_client.stream.return_value = mock_stream
 
         with patch("httpx.Client", return_value=mock_client):
             client = RuntimeClient(endpoint="http://localhost:8000")
+            events = list(client.stream_investigation(query="test query"))
 
-            with __import__("pytest").raises(httpx.ConnectError):
-                client.post_tools([])
+        assert len(events) == 1
+        assert events[0][0] == "error"
+
+    def test_stream_investigation_skips_invalid_json(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_stream = MagicMock()
+        mock_stream.__enter__.return_value = mock_stream
+        mock_stream.__exit__.return_value = None
+        mock_stream.raise_for_status = MagicMock()
+        mock_stream.iter_lines.return_value = [
+            "data: not-json!!!",
+            'data: {"node":"plan","output":{"intent":"diagnose"}}',
+        ]
+        mock_client.stream.return_value = mock_stream
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+            events = list(client.stream_investigation(query="test query"))
+
+        assert len(events) == 1
