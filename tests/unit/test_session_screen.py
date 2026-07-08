@@ -70,7 +70,7 @@ class TestFindingWarningLines:
         with patch("hexawyn.cli.screens.session.crashloop_finding_count", return_value=0):
             with patch("hexawyn.cli.screens.session.restarting_finding_count", return_value=3):
                 lines = screen._finding_warning_lines(findings)
-        assert any("3 Pods restarting frequently" in line for line in lines)
+        assert any("3 pods with high restart count" in line for line in lines)
 
     def test_no_warnings(self) -> None:
         screen = SessionScreen()

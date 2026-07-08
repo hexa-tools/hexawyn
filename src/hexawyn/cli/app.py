@@ -19,20 +19,6 @@ def _format_size(size_bytes: int) -> str:
     return f"{size_bytes / 1_073_741_824:.1f} GB"
 
 
-def _sync_tools_to_control_plane() -> None:
-    """Discover MCP tools and sync to the control-plane at startup."""
-    try:
-        from hexawyn.adapters.secondary.mcp.mcp_discovery_adapter import MCPDiscoveryAdapter
-        from hexawyn.application.service.runtime_adapter import get_runtime
-
-        discovery = MCPDiscoveryAdapter()
-        registry = discovery.discover()
-        runtime = get_runtime()
-        runtime.sync_tools(registry.to_payload())
-    except Exception:
-        pass
-
-
 _PROVIDERS: dict[str, dict[str, str]] = {
     "1": {
         "name": "DeepSeek",
@@ -97,22 +83,17 @@ class HexawynApp:
 
         demo_mode = os.environ.get("HEXAWYN_DEMO_MODE", "false").lower() == "true"
         scenario = os.environ.get("HEXAWYN_DEMO_SCENARIO", "aws_eks")
-        startup_status = None
-        context_service = None
         cluster_name = os.environ.get("KUBECONFIG_CTX", "unknown")
+        context_service = None
 
         if not demo_mode:
             context_service = FileKubernetesDiscoveryService()
-            startup_status = context_service.startup_status()
-            if startup_status.current_context is not None:
-                cluster_name = startup_status.current_context.name
+            current = context_service.current()
+            if current is not None:
+                cluster_name = current.name
 
         adapter = build_adapters(cluster_name)
-
-        run_startup_scan = False
-        if startup_status is not None and startup_status.connected and not needs_setup:
-            get_runtime().set_adapter(adapter)
-            run_startup_scan = True
+        get_runtime().set_adapter(adapter)
 
         extra_chip = None
         if not self.expert_mode and not demo_mode:
@@ -120,18 +101,14 @@ class HexawynApp:
             if db_size > _DB_SIZE_WARNING_THRESHOLD:
                 extra_chip = f"DB: {_format_size(db_size)} — run 'hexa db purge' to clean old data"
 
-        _sync_tools_to_control_plane()
-
         tui = HexawynTUI(
             adapter=adapter,
             expert_mode=self.expert_mode,
             demo_mode=demo_mode,
             scenario=scenario,
             extra_chip=extra_chip,
-            startup_status=startup_status,
             context_service=context_service,
             adapter_builder=build_adapters,
-            run_startup_scan=run_startup_scan,
             cluster_name=cluster_name,
             needs_setup=needs_setup,
         )

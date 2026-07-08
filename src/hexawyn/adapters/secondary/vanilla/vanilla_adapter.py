@@ -632,6 +632,7 @@ class VanillaAdapter(
         metadata = getattr(pod, "metadata", None)
         spec = getattr(pod, "spec", None)
         status = getattr(pod, "status", None)
+        cpu_req, mem_req = self._resource_requests(spec)
         return {
             "name": self._text_attr(metadata, "name", "unknown"),
             "namespace": self._text_attr(metadata, "namespace", "default"),
@@ -639,7 +640,49 @@ class VanillaAdapter(
             "restarts": self._restart_count(status),
             "age": self._pod_age(metadata),
             "node": self._text_attr(spec, "node_name", "unknown"),
+            "cpu_request_millicores": cpu_req,
+            "memory_request_mib": mem_req,
         }
+
+    def _resource_requests(self, spec: object) -> tuple[int, int]:
+        cpu = 0
+        mem = 0
+        try:
+            containers = getattr(spec, "containers", []) or []
+            for container in containers:
+                resources = getattr(container, "resources", None)
+                if resources is None:
+                    continue
+                requests = getattr(resources, "requests", None) or {}
+                cpu_str = requests.get("cpu", "0")
+                mem_str = requests.get("memory", "0")
+                cpu += self._parse_cpu(cpu_str)
+                mem += self._parse_memory(mem_str)
+        except Exception:
+            pass
+        return cpu, mem
+
+    @staticmethod
+    def _parse_cpu(cpu_str: str) -> int:
+        if not cpu_str:
+            return 0
+        cpu_str = str(cpu_str).strip()
+        if cpu_str.endswith("m"):
+            return int(float(cpu_str[:-1]))
+        return int(float(cpu_str) * 1000)
+
+    @staticmethod
+    def _parse_memory(mem_str: str) -> int:
+        if not mem_str:
+            return 0
+        mem_str = str(mem_str).strip()
+        if mem_str.endswith("Mi"):
+            return int(float(mem_str[:-2]))
+        if mem_str.endswith("Gi"):
+            return int(float(mem_str[:-2]) * 1024)
+        if mem_str.endswith("Ki"):
+            return int(float(mem_str[:-2]) / 1024)
+        return int(float(mem_str) / (1024 * 1024))
 
     def _pod_status(self, status: object) -> str:
         waiting_reason = self._waiting_reason(status)
@@ -652,7 +695,7 @@ class VanillaAdapter(
         for pod in self.list_pods():
             if pod["status"] not in _HEALTHY_POD_STATUSES:
                 findings.append(self._unhealthy_pod_finding(pod))
-            elif pod["restarts"] > 0:
+            elif pod["restarts"] >= 10:
                 findings.append(self._restarted_pod_finding(pod))
         return findings
 
