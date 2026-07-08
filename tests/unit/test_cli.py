@@ -375,7 +375,7 @@ class TestSessionScreen:
 
             assert compact_project_directory() in str(project_directory.renderable)
             assert "hexa[bold #3B82F6]wyn[/bold #3B82F6]" in str(brand.renderable)
-            assert "0.1.0b0" in str(brand.renderable)
+            assert "0.1.0b2" in str(brand.renderable)
             assert not app.query("#aside-title")
 
     @pytest.mark.asyncio
