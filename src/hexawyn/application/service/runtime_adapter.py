@@ -17,7 +17,12 @@ class StubRuntimeAdapter(RuntimePort):
     def set_adapter(self, adapter: Any) -> None:
         pass
 
-    def run_investigation(self, query: str, cluster_context: ClusterContext) -> InvestigationOutput:
+    def run_investigation(
+        self,
+        query: str,
+        cluster_context: ClusterContext,
+        conversation_history: list[dict[str, str]] | None = None,
+    ) -> InvestigationOutput:
         return InvestigationOutput(
             answer="Runtime not available — install hexawyn-control-plane for AI-powered investigations.",
             cause="",
@@ -39,9 +44,6 @@ class StubRuntimeAdapter(RuntimePort):
         return QuotaCheckResult(allowed=True, used=0, limit=-1, remaining=-1)
 
     def increment_quota(self) -> None:
-        pass
-
-    def sync_tools(self, tools_payload: list[dict[str, object]]) -> None:
         pass
 
 

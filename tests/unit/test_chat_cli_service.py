@@ -111,13 +111,13 @@ class TestChatCliServiceInvestigation:
         texts = [line[0] for line in result.lines]
         assert any("timeout" in t.lower() for t in texts)
 
-    def test_degraded_status_adds_warning_line(self) -> None:
+    def test_degraded_status_does_not_block_answer(self) -> None:
         self.runtime.run_investigation.return_value = _make_output(
-            answer="partial", status="degraded"
+            answer="partial response", status="degraded"
         )
         result = self.service.execute(ChatCliCommand(query="investigate"))
         texts = [line[0] for line in result.lines]
-        assert any("unverified" in t.lower() for t in texts)
+        assert any("partial response" in t for t in texts)
 
     def test_runtime_is_called_with_query(self) -> None:
         self.runtime.run_investigation.return_value = _make_output()

@@ -29,18 +29,46 @@ class HttpRuntimeAdapter(RuntimePort):
         except Exception:
             return []
 
-    def run_investigation(self, query: str, cluster_context: ClusterContext) -> InvestigationOutput:
+    def run_investigation(
+        self,
+        query: str,
+        cluster_context: ClusterContext,
+        conversation_history: list[dict[str, str]] | None = None,
+    ) -> InvestigationOutput:
         try:
             provider_raw = getattr(cluster_context, "provider", "vanilla")
             provider = getattr(provider_raw, "value", str(provider_raw))
-            job_id = self._client.post_investigation(
+
+            report_output: dict[str, object] = {}
+            for node_name, output in self._client.stream_investigation(
                 query=query,
                 cluster_name=getattr(cluster_context, "name", "unknown"),
                 provider=provider,
                 pods=self._fetch_pods(),
+                conversation_history=conversation_history,
+            ):
+                if node_name == "report":
+                    report_output = output if isinstance(output, dict) else {}
+                elif node_name == "error":
+                    return InvestigationOutput(
+                        answer="",
+                        cause="",
+                        solution="",
+                        status="error",
+                        suggestions=[],
+                        error=str(output.get("error", "stream error")),
+                    )
+
+            return InvestigationOutput(
+                answer=str(report_output.get("llm_response", "")),
+                cause="",
+                solution="",
+                status=str(report_output.get("status", "complete")),
+                suggestions=list(report_output.get("suggestions", []))  # type: ignore[call-overload]
+                if isinstance(report_output.get("suggestions"), list)
+                else [],
+                error=None,
             )
-            response = self._client.poll_investigation(job_id)
-            return self._translate_response(response)
         except Exception as exc:
             return InvestigationOutput(
                 answer="",
@@ -70,12 +98,6 @@ class HttpRuntimeAdapter(RuntimePort):
     def increment_quota(self) -> None:
         try:
             self._client.increment_quota()
-        except Exception:
-            pass
-
-    def sync_tools(self, tools_payload: list[dict[str, object]]) -> None:
-        try:
-            self._client.post_tools(tools_payload)
         except Exception:
             pass
 

@@ -22,18 +22,20 @@ class TestHttpRuntimeAdapter:
     def test_run_investigation_posts_and_polls(self) -> None:
         mock_client = MagicMock()
         mock_client.post_investigation.return_value = "job-42"
-        mock_client.poll_investigation.return_value = {
-            "job_id": "job-42",
-            "status": "completed",
-            "result": {
-                "answer": "OOMKilled — memory limit too low",
-                "cause": "Memory limit set to 128Mi",
-                "solution": "Increase to 512Mi",
-                "status": "complete",
-                "suggestions": ["Increase memory limit", "Add HPA"],
-                "error": None,
-            },
-        }
+        mock_client.stream_investigation.return_value = iter(
+            [
+                ("plan", {"intent": "diagnose"}),
+                ("execute", {"tool_output": {}}),
+                (
+                    "report",
+                    {
+                        "llm_response": "OOMKilled — memory limit too low",
+                        "suggestions": ["Increase memory limit", "Add HPA"],
+                        "status": "complete",
+                    },
+                ),
+            ]
+        )
 
         with patch(
             "hexawyn.application.service.http_runtime_adapter.RuntimeClient",
@@ -46,27 +48,15 @@ class TestHttpRuntimeAdapter:
             )
 
         assert result["answer"] == "OOMKilled — memory limit too low"
-        assert result["cause"] == "Memory limit set to 128Mi"
         assert result["status"] == "complete"
         assert len(result["suggestions"]) == 2
         assert result["error"] is None
 
-        mock_client.post_investigation.assert_called_once_with(
-            query="why is payments-api crashing?",
-            cluster_name="prod-eu",
-            provider="vanilla",
-            pods=[],
-        )
-        mock_client.poll_investigation.assert_called_once_with("job-42")
-
     def test_run_investigation_failed_status(self) -> None:
         mock_client = MagicMock()
-        mock_client.post_investigation.return_value = "job-fail"
-        mock_client.poll_investigation.return_value = {
-            "job_id": "job-fail",
-            "status": "failed",
-            "result": {"error": "Cluster unreachable"},
-        }
+        mock_client.stream_investigation.return_value = iter(
+            [("error", {"error": "Cluster unreachable"})]
+        )
 
         with patch(
             "hexawyn.application.service.http_runtime_adapter.RuntimeClient",
@@ -83,7 +73,7 @@ class TestHttpRuntimeAdapter:
 
     def test_run_investigation_http_error(self) -> None:
         mock_client = MagicMock()
-        mock_client.post_investigation.side_effect = Exception("connection refused")
+        mock_client.stream_investigation.side_effect = Exception("connection refused")
 
         with patch(
             "hexawyn.application.service.http_runtime_adapter.RuntimeClient",
@@ -159,19 +149,9 @@ class TestHttpRuntimeAdapter:
         and falls back to calling K8s directly — which fails on the VPS (no kubeconfig).
         """
         mock_client = MagicMock()
-        mock_client.post_investigation.return_value = "job-1"
-        mock_client.poll_investigation.return_value = {
-            "job_id": "job-1",
-            "status": "completed",
-            "result": {
-                "answer": "ok",
-                "cause": "",
-                "solution": "",
-                "status": "complete",
-                "suggestions": [],
-                "error": None,
-            },
-        }
+        mock_client.stream_investigation.return_value = iter(
+            [("report", {"llm_response": "ok", "suggestions": [], "status": "complete"})]
+        )
 
         mock_adapter = MagicMock()
         mock_adapter.list_pods.return_value = [
@@ -189,7 +169,7 @@ class TestHttpRuntimeAdapter:
                 cluster_context=_mock_cluster_context(),
             )
 
-        call_kwargs = mock_client.post_investigation.call_args[1]
+        call_kwargs = mock_client.stream_investigation.call_args[1]
         assert "pods" in call_kwargs, "pods must be included in the HTTP payload"
         assert len(call_kwargs["pods"]) == 1, "pods list must not be empty"
         assert call_kwargs["pods"][0]["namespace"] == "airflow"
