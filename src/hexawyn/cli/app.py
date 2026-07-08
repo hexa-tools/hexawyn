@@ -66,13 +66,9 @@ class HexawynApp:
 
     def run(self) -> None:
         demo_mode = os.environ.get("HEXAWYN_DEMO_MODE", "false").lower() == "true"
-        has_key = _load_api_key_to_env()
+        _load_api_key_to_env()
 
         if self.force_setup and not demo_mode:
-            self._run_tui(needs_setup=True)
-            return
-
-        if not has_key and not demo_mode:
             self._run_tui(needs_setup=True)
             return
 
