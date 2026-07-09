@@ -35,6 +35,17 @@ class SlackAlertAdapter(AlertNotificationPort):
 
     def send_alert(self, message: AlertMessage) -> bool:
         check_slack_quota()
+        import os
+
+        if os.environ.get("HEXAWYN_ANONYMIZE_ENABLED", "false").lower() == "true":
+            from hexawyn.domain.models.anonymization import RedactionPolicy
+            from hexawyn.runtime.adapters.anonymize.regex_anonymizer import RegexAnonymizerAdapter
+
+            adapter = RegexAnonymizerAdapter()
+            policy = RedactionPolicy()
+            raw = message.get("message", "")
+            masked, _ = adapter.mask(str(raw), policy)
+            message["message"] = masked  # type: ignore[typeddict-unknown-key]
         slack_msg = self._to_slack_message(message)
         return self._post(slack_msg, track_quota=True)
 
