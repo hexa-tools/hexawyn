@@ -213,3 +213,51 @@ class TestRuntimeClient:
             events = list(client.stream_investigation(query="test query"))
 
         assert len(events) == 1
+
+    def test_stream_investigation_skips_non_data_lines(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_stream = MagicMock()
+        mock_stream.__enter__.return_value = mock_stream
+        mock_stream.__exit__.return_value = None
+        mock_stream.raise_for_status = MagicMock()
+        mock_stream.iter_lines.return_value = [
+            "event: ping",
+            'data: {"node":"plan","output":{"intent":"diagnose"}}',
+        ]
+        mock_client.stream.return_value = mock_stream
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+            events = list(client.stream_investigation(query="test query"))
+
+        assert len(events) == 1
+
+    def test_close_calls_httpx_close(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+            client.close()
+        mock_client.close.assert_called_once()
+
+    def test_stream_with_pods_and_history(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_stream = MagicMock()
+        mock_stream.__enter__.return_value = mock_stream
+        mock_stream.__exit__.return_value = None
+        mock_stream.raise_for_status = MagicMock()
+        mock_stream.iter_lines.return_value = [
+            'data: {"node":"plan","output":{}}',
+            'data: {"done":true}',
+        ]
+        mock_client.stream.return_value = mock_stream
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+            events = list(
+                client.stream_investigation(
+                    query="test",
+                    pods=[{"name": "pod1"}],
+                    conversation_history=[{"role": "user", "content": "hi"}],
+                )
+            )
+        assert len(events) == 1

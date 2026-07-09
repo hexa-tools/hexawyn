@@ -36,12 +36,18 @@ def kubectl_current_context() -> str:
     try:
         import os
 
-        kubeconfig = os.environ.get("KUBECONFIG", os.path.expanduser("~/.kube/config"))
+        kubeconfig_env = os.environ.get("KUBECONFIG", os.path.expanduser("~/.kube/config"))
         import yaml
 
-        with open(kubeconfig) as f:
-            config = yaml.safe_load(f)
-        return str(config.get("current-context", "?")) if config else "?"
+        for path in kubeconfig_env.split(os.pathsep):
+            try:
+                with open(path) as f:
+                    config = yaml.safe_load(f)
+                if config and isinstance(config, dict) and config.get("current-context"):
+                    return str(config["current-context"])
+            except Exception:
+                continue
+        return "?"
     except Exception:
         return "?"
 
