@@ -3,9 +3,8 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 from hexawyn.application.ports.driven.capacity_forecast_port import CapacityForecastPort
-from hexawyn.application.ports.driven.metrics_query_port import (
-    MetricsQueryPort,
-    PrometheusRangeSample,
+from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
+    ClusterResourceMetricsPort,
 )
 from hexawyn.application.ports.driving.cluster_capacity_ceiling_forecast.cluster_capacity_ceiling_forecast_command import (
     ClusterCapacityCeilingForecastCommand,
@@ -28,14 +27,13 @@ from hexawyn.domain.services.cluster_capacity_forecast.forecast_builder import (
     build_cluster_capacity_forecast,
 )
 
-_CPU_USAGE_PROMQL = 'sum(rate(container_cpu_usage_seconds_total{container!=""}[5m]))'
-_MEMORY_USAGE_PROMQL = 'sum(container_memory_working_set_bytes{container!=""}) / (1024*1024*1024)'
 _QUERY_TIMEOUT_SECONDS = 15.0
-_RANGE_STEP = "1d"
 
 
 class ClusterCapacityCeilingForecastService(ClusterCapacityCeilingForecastServicePort):
-    def __init__(self, metrics_port: MetricsQueryPort, capacity_port: CapacityForecastPort) -> None:
+    def __init__(
+        self, metrics_port: ClusterResourceMetricsPort, capacity_port: CapacityForecastPort
+    ) -> None:
         self._metrics_port = metrics_port
         self._capacity_port = capacity_port
 
@@ -45,8 +43,11 @@ class ClusterCapacityCeilingForecastService(ClusterCapacityCeilingForecastServic
         end = datetime.now(UTC)
         start = end - timedelta(days=command.window_days)
 
-        cpu_values = self._fetch_daily_series(_CPU_USAGE_PROMQL, start, end)
-        memory_values = self._fetch_daily_series(_MEMORY_USAGE_PROMQL, start, end)
+        daily_usage = self._metrics_port.get_daily_usage(
+            start, end, timeout_seconds=_QUERY_TIMEOUT_SECONDS
+        )
+        cpu_values = daily_usage["cpu_daily_cores"]
+        memory_values = daily_usage["memory_daily_gb"]
         if not cpu_values and not memory_values:
             raise InsufficientDataError(
                 "No Prometheus data available to compute a capacity forecast."
@@ -67,22 +68,6 @@ class ClusterCapacityCeilingForecastService(ClusterCapacityCeilingForecastServic
             observed_at=end.date(),
         )
         return _to_response(report)
-
-    def _fetch_daily_series(self, promql: str, start: datetime, end: datetime) -> list[float]:
-        samples = self._metrics_port.range_query(
-            promql,
-            start=start.isoformat(),
-            end=end.isoformat(),
-            step=_RANGE_STEP,
-            timeout_seconds=_QUERY_TIMEOUT_SECONDS,
-        )
-        return _extract_series(samples)
-
-
-def _extract_series(samples: list[PrometheusRangeSample]) -> list[float]:
-    if not samples:
-        return []
-    return [value for _, value in samples[0]["values"]]
 
 
 def _to_response(

@@ -21,11 +21,14 @@ def cluster_capacity_ceiling_forecast(window_days: int = 14) -> dict[str, object
     from hexawyn.application.service.cluster_capacity_ceiling_forecast_service import (
         ClusterCapacityCeilingForecastService,
     )
-    from hexawyn.mcp.server import build_capacity_forecast_adapter, build_metrics_query_adapter
+    from hexawyn.mcp.server import (
+        build_capacity_forecast_adapter,
+        build_cluster_resource_metrics_adapter,
+    )
 
     try:
         service = ClusterCapacityCeilingForecastService(
-            metrics_port=build_metrics_query_adapter(),
+            metrics_port=build_cluster_resource_metrics_adapter(),
             capacity_port=build_capacity_forecast_adapter(),
         )
         r = ClusterCapacityCeilingForecastUseCase(service=service).execute(

@@ -732,6 +732,129 @@ class TestMCPTopologyAdapterFactories:
 
         assert isinstance(result, ErrorBudgetPort)
 
+
+class TestMCPClusterResourceMetricsFactory:
+    def test_returns_prometheus_adapter_when_not_eks(self) -> None:
+        from hexawyn.adapters.secondary.gitops.prometheus_cluster_resource_metrics_adapter import (
+            PrometheusClusterResourceMetricsAdapter,
+        )
+        from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
+            ClusterResourceMetricsPort,
+        )
+        from hexawyn.mcp.server import build_cluster_resource_metrics_adapter
+
+        with (
+            patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False),
+            patch("hexawyn.mcp.server.build_metrics_query_adapter", return_value=MagicMock()),
+        ):
+            result = build_cluster_resource_metrics_adapter()
+
+        assert isinstance(result, ClusterResourceMetricsPort)
+        assert isinstance(result, PrometheusClusterResourceMetricsAdapter)
+
+    def test_returns_cloudwatch_adapter_when_eks(self) -> None:
+        from hexawyn.adapters.secondary.aws.cloudwatch_metrics_adapter import (
+            CloudWatchClusterResourceMetricsAdapter,
+        )
+        from hexawyn.mcp.server import build_cluster_resource_metrics_adapter
+
+        with patch("hexawyn.mcp.server._is_aws_eks_context", return_value=True):
+            result = build_cluster_resource_metrics_adapter()
+
+        assert isinstance(result, CloudWatchClusterResourceMetricsAdapter)
+
+
+class TestMCPTraceQueryFactory:
+    def test_returns_otel_stub_when_not_eks(self) -> None:
+        from hexawyn.adapters.secondary.gitops.otel_http_adapter import OTelHTTPAdapter
+        from hexawyn.application.ports.driven.trace_query_port import TraceQueryPort
+        from hexawyn.mcp.server import build_trace_query_adapter
+
+        with patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False):
+            result = build_trace_query_adapter()
+
+        assert isinstance(result, TraceQueryPort)
+        assert isinstance(result, OTelHTTPAdapter)
+
+    def test_returns_xray_adapter_when_eks(self) -> None:
+        from hexawyn.adapters.secondary.aws.xray_trace_adapter import AWSXRayTraceAdapter
+        from hexawyn.mcp.server import build_trace_query_adapter
+
+        with patch("hexawyn.mcp.server._is_aws_eks_context", return_value=True):
+            result = build_trace_query_adapter()
+
+        assert isinstance(result, AWSXRayTraceAdapter)
+
+
+class TestMCPStackOverride:
+    def test_override_aws_forces_eks_context(self) -> None:
+        from hexawyn.mcp.server import _current_cluster_context, _is_aws_eks_context
+
+        with patch(
+            "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value="aws"
+        ):
+            assert _is_aws_eks_context(_current_cluster_context()) is True
+
+    def test_override_vanilla_forces_non_eks(self) -> None:
+        from hexawyn.mcp.server import _current_cluster_context, _is_aws_eks_context
+
+        with patch(
+            "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value="vanilla"
+        ):
+            assert _is_aws_eks_context(_current_cluster_context()) is False
+
+    def test_auto_detection_used_when_no_override(self) -> None:
+        from hexawyn.mcp.server import _current_cluster_context, _is_aws_eks_context
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value=None
+            ),
+            patch(
+                "hexawyn.adapters.secondary.aws.aws_eks_provider.AWSEKSProvider.supports",
+                return_value=True,
+            ),
+        ):
+            assert _is_aws_eks_context(_current_cluster_context()) is True
+
+    def test_auto_detection_swallows_provider_errors(self) -> None:
+        from hexawyn.mcp.server import _current_cluster_context, _is_aws_eks_context
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value=None
+            ),
+            patch(
+                "hexawyn.adapters.secondary.aws.aws_eks_provider.AWSEKSProvider.supports",
+                side_effect=RuntimeError("boom"),
+            ),
+        ):
+            assert _is_aws_eks_context(_current_cluster_context()) is False
+
+
+class TestMCPLogSearchFactory:
+    def test_returns_kubernetes_adapter_when_not_eks(self) -> None:
+        from hexawyn.adapters.secondary.gitops.kubernetes_pod_log_search_adapter import (
+            KubernetesPodLogSearchAdapter,
+        )
+        from hexawyn.application.ports.driven.log_search_port import LogSearchPort
+        from hexawyn.mcp.server import build_log_search_adapter
+
+        with patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False):
+            result = build_log_search_adapter()
+
+        assert isinstance(result, LogSearchPort)
+        assert isinstance(result, KubernetesPodLogSearchAdapter)
+
+    def test_returns_cloudwatch_logs_adapter_when_eks(self) -> None:
+        from hexawyn.adapters.secondary.aws.cloudwatch_logs_adapter import CloudWatchLogsAdapter
+        from hexawyn.mcp.server import build_log_search_adapter
+
+        with patch("hexawyn.mcp.server._is_aws_eks_context", return_value=True):
+            result = build_log_search_adapter()
+
+        assert isinstance(result, CloudWatchLogsAdapter)
+
     def test_build_reliability_report_adapter_returns_weekly_reliability_report_port(
         self,
     ) -> None:

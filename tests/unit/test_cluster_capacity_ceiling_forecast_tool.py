@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
+    ClusterResourceMetricsPort,
+)
+
 
 class TestClusterCapacityCeilingForecastTool:
     def test_returns_forecast(self) -> None:
@@ -10,13 +14,14 @@ class TestClusterCapacityCeilingForecastTool:
         )
 
         with (
-            patch("hexawyn.mcp.server.build_metrics_query_adapter") as build_metrics,
+            patch("hexawyn.mcp.server.build_cluster_resource_metrics_adapter") as build_metrics,
             patch("hexawyn.mcp.server.build_capacity_forecast_adapter") as build_capacity,
         ):
-            metrics_port = MagicMock()
-            metrics_port.range_query.return_value = [
-                {"metric": {}, "values": [("2026-06-17T00:00:00Z", 50.0)] * 14}
-            ]
+            metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+            metrics_port.get_daily_usage.return_value = {
+                "cpu_daily_cores": [50.0] * 14,
+                "memory_daily_gb": [50.0] * 14,
+            }
             build_metrics.return_value = metrics_port
 
             capacity_port = MagicMock()
@@ -38,11 +43,14 @@ class TestClusterCapacityCeilingForecastTool:
         )
 
         with (
-            patch("hexawyn.mcp.server.build_metrics_query_adapter") as build_metrics,
+            patch("hexawyn.mcp.server.build_cluster_resource_metrics_adapter") as build_metrics,
             patch("hexawyn.mcp.server.build_capacity_forecast_adapter") as build_capacity,
         ):
-            metrics_port = MagicMock()
-            metrics_port.range_query.return_value = []
+            metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+            metrics_port.get_daily_usage.return_value = {
+                "cpu_daily_cores": [],
+                "memory_daily_gb": [],
+            }
             build_metrics.return_value = metrics_port
 
             capacity_port = MagicMock()
@@ -63,7 +71,7 @@ class TestClusterCapacityCeilingForecastTool:
         )
 
         with patch(
-            "hexawyn.mcp.server.build_metrics_query_adapter",
+            "hexawyn.mcp.server.build_cluster_resource_metrics_adapter",
             side_effect=RuntimeError("Prometheus unavailable"),
         ):
             result = cluster_capacity_ceiling_forecast()

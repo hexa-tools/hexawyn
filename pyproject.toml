@@ -57,6 +57,9 @@ all = ["boto3", "botocore",
 [tool.poetry.scripts]
 hexa = "hexawyn.cli.main:app"
 
+[tool.poetry.plugins."hexawyn.providers"]
+aws-eks = "hexawyn.adapters.secondary.aws.aws_eks_provider:AWSEKSProvider"
+
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"
 pytest-asyncio = "^0.23"

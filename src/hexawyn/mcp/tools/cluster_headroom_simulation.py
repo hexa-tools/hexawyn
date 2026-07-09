@@ -23,11 +23,14 @@ def cluster_headroom_simulation(
     from hexawyn.application.service.cluster_headroom_simulation_service import (
         ClusterHeadroomSimulationService,
     )
-    from hexawyn.mcp.server import build_headroom_simulation_adapter, build_metrics_query_adapter
+    from hexawyn.mcp.server import (
+        build_cluster_resource_metrics_adapter,
+        build_headroom_simulation_adapter,
+    )
 
     try:
         service = ClusterHeadroomSimulationService(
-            metrics_port=build_metrics_query_adapter(),
+            metrics_port=build_cluster_resource_metrics_adapter(),
             headroom_port=build_headroom_simulation_adapter(),
         )
         r = ClusterHeadroomSimulationUseCase(service=service).execute(
