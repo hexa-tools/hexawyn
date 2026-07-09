@@ -1,19 +1,26 @@
-from __future__ import annotations
+from hexawyn.application.ports.driven.trace_query_port import (
+    LatencyDiagnosticRequest,
+    TraceQueryPort,
+    TraceSpan,
+)
 
-from abc import ABC
 
-import pytest
-from hexawyn.application.ports.driven.trace_query_port import TraceQueryPort
+class TestTraceQueryPortContract:
+    def test_port_is_abstract(self) -> None:
+        import pytest
 
-
-class TestTraceQueryPort:
-    def test_is_abstract(self) -> None:
-        assert issubclass(TraceQueryPort, ABC)
-
-    def test_cannot_instantiate(self) -> None:
         with pytest.raises(TypeError):
             TraceQueryPort()  # type: ignore[abstract]
 
-    def test_has_methods(self) -> None:
-        for n in ["fetch_slow_spans", "fetch_total_traces"]:
-            assert getattr(getattr(TraceQueryPort, n), "__isabstractmethod__", False)
+    def test_abstract_methods_are_defined(self) -> None:
+        assert set(TraceQueryPort.__abstractmethods__) == {
+            "fetch_slow_spans",
+            "fetch_total_traces",
+        }
+
+    def test_reexports_domain_contract_types(self) -> None:
+        request = LatencyDiagnosticRequest(service_name="svc")
+        span = TraceSpan(trace_id="t", span_name="s", duration_ms=1.0)
+
+        assert request.service_name == "svc"
+        assert span.duration_ms == 1.0

@@ -3,13 +3,13 @@ from __future__ import annotations
 from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 
+from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
+    ClusterResourceMetricsPort,
+    NodeUtilizationSeries,
+)
 from hexawyn.application.ports.driven.hot_node_analysis_port import (
     HotNodeAnalysisPort,
     PodUsageRaw,
-)
-from hexawyn.application.ports.driven.metrics_query_port import (
-    MetricsQueryPort,
-    PrometheusRangeSample,
 )
 from hexawyn.application.ports.driving.hot_node_analysis.hot_node_analysis_command import (
     HotNodeAnalysisCommand,
@@ -31,18 +31,13 @@ from hexawyn.domain.models.hot_node_analysis import (
 )
 from hexawyn.domain.services.hot_node_analysis.node_analysis_builder import analyze_hot_nodes
 
-_CPU_UTIL_BY_NODE_PROMQL = (
-    '100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)'
-)
-_MEMORY_UTIL_BY_NODE_PROMQL = (
-    "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100"
-)
 _QUERY_TIMEOUT_SECONDS = 15.0
-_RANGE_STEP = "1h"
 
 
 class HotNodeAnalysisService(HotNodeAnalysisServicePort):
-    def __init__(self, metrics_port: MetricsQueryPort, node_port: HotNodeAnalysisPort) -> None:
+    def __init__(
+        self, metrics_port: ClusterResourceMetricsPort, node_port: HotNodeAnalysisPort
+    ) -> None:
         self._metrics_port = metrics_port
         self._node_port = node_port
 
@@ -50,8 +45,9 @@ class HotNodeAnalysisService(HotNodeAnalysisServicePort):
         end = datetime.now(UTC)
         start = end - timedelta(hours=command.window_hours)
 
-        cpu_by_node = self._fetch_series_by_node(_CPU_UTIL_BY_NODE_PROMQL, start, end)
-        memory_by_node = self._fetch_series_by_node(_MEMORY_UTIL_BY_NODE_PROMQL, start, end)
+        node_utilization = self._metrics_port.get_node_utilization(
+            start, end, timeout_seconds=_QUERY_TIMEOUT_SECONDS
+        )
 
         node_infos = self._node_port.list_nodes()
         pods_by_node = _group_non_daemonset_pods(self._node_port.list_pod_usage())
@@ -62,8 +58,12 @@ class HotNodeAnalysisService(HotNodeAnalysisServicePort):
                 cordoned=info["cordoned"],
                 allocatable_cpu_cores=info["allocatable_cpu_cores"],
                 allocatable_memory_gb=info["allocatable_memory_gb"],
-                cpu_percent_series=cpu_by_node.get(info["name"], []),
-                memory_percent_series=memory_by_node.get(info["name"], []),
+                cpu_percent_series=_node_series(node_utilization, info["name"])[
+                    "cpu_percent_series"
+                ],
+                memory_percent_series=_node_series(node_utilization, info["name"])[
+                    "memory_percent_series"
+                ],
                 pods=pods_by_node.get(info["name"], []),
             )
             for info in node_infos
@@ -74,25 +74,14 @@ class HotNodeAnalysisService(HotNodeAnalysisServicePort):
         )
         return _to_response(report)
 
-    def _fetch_series_by_node(
-        self, promql: str, start: datetime, end: datetime
-    ) -> dict[str, list[tuple[str, float]]]:
-        samples = self._metrics_port.range_query(
-            promql,
-            start=start.isoformat(),
-            end=end.isoformat(),
-            step=_RANGE_STEP,
-            timeout_seconds=_QUERY_TIMEOUT_SECONDS,
-        )
-        return _group_by_node(samples)
 
-
-def _group_by_node(samples: list[PrometheusRangeSample]) -> dict[str, list[tuple[str, float]]]:
-    grouped: dict[str, list[tuple[str, float]]] = {}
-    for sample in samples:
-        node_name = sample["metric"].get("instance") or sample["metric"].get("node") or "unknown"
-        grouped[node_name] = sample["values"]
-    return grouped
+def _node_series(
+    node_utilization: dict[str, NodeUtilizationSeries], node_name: str
+) -> NodeUtilizationSeries:
+    return node_utilization.get(node_name) or {
+        "cpu_percent_series": [],
+        "memory_percent_series": [],
+    }
 
 
 def _group_non_daemonset_pods(pod_usage: list[PodUsageRaw]) -> dict[str, list[TopConsumer]]:

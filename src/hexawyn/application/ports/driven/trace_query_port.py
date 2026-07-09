@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 
 from hexawyn.domain.models.latency_diagnostic import LatencyDiagnosticRequest, TraceSpan
 
+__all__ = ["LatencyDiagnosticRequest", "TraceQueryPort", "TraceSpan"]
+
 
 class TraceQueryPort(ABC):
     @abstractmethod

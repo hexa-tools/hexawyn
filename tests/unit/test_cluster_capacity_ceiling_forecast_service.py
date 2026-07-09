@@ -1,13 +1,15 @@
-"""Unit tests for ClusterCapacityCeilingForecastService (mocks the existing
-MetricsQueryPort [ECA-31, reused] + the new CapacityForecastPort)."""
+"""Unit tests for ClusterCapacityCeilingForecastService (mocks the new
+ClusterResourceMetricsPort + CapacityForecastPort)."""
 
 from __future__ import annotations
 
 import re
-from datetime import UTC, datetime
 from unittest.mock import MagicMock
 
 import pytest
+from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
+    ClusterResourceMetricsPort,
+)
 from hexawyn.application.ports.driving.cluster_capacity_ceiling_forecast.cluster_capacity_ceiling_forecast_command import (
     ClusterCapacityCeilingForecastCommand,
 )
@@ -15,11 +17,6 @@ from hexawyn.application.service.cluster_capacity_ceiling_forecast_service impor
     ClusterCapacityCeilingForecastService,
 )
 from hexawyn.domain.errors import InsufficientDataError
-
-
-def _range_sample(values: list[float]) -> dict:
-    now = datetime.now(UTC)
-    return {"metric": {}, "values": [(now.isoformat(), v) for v in values]}
 
 
 def _cpu_series_matching_ticket() -> list[float]:
@@ -34,11 +31,11 @@ def _make_service(
     metrics_port: MagicMock | None = None, capacity_port: MagicMock | None = None
 ) -> tuple[ClusterCapacityCeilingForecastService, MagicMock, MagicMock]:
     if metrics_port is None:
-        metrics_port = MagicMock()
-        metrics_port.range_query.side_effect = [
-            [_range_sample(_cpu_series_matching_ticket())],
-            [_range_sample(_memory_series_matching_ticket())],
-        ]
+        metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+        metrics_port.get_daily_usage.return_value = {
+            "cpu_daily_cores": _cpu_series_matching_ticket(),
+            "memory_daily_gb": _memory_series_matching_ticket(),
+        }
     if capacity_port is None:
         capacity_port = MagicMock()
         capacity_port.get_cluster_capacity_info.return_value = {
@@ -52,30 +49,22 @@ def _make_service(
     return service, metrics_port, capacity_port
 
 
-class TestPrometheusQueries:
-    def test_calls_range_query_twice_with_daily_step(self) -> None:
+class TestMetricsQuery:
+    def test_calls_get_daily_usage_once(self) -> None:
         service, metrics_port, _ = _make_service()
 
         service.forecast(ClusterCapacityCeilingForecastCommand())
 
-        assert metrics_port.range_query.call_count == 2
-        for call in metrics_port.range_query.call_args_list:
-            assert call.kwargs.get("step", call.args[3] if len(call.args) > 3 else None) == "1d"
+        metrics_port.get_daily_usage.assert_called_once()
 
-    def test_window_days_affects_query_start(self) -> None:
+    def test_window_days_affects_query_window(self) -> None:
         service, metrics_port, _ = _make_service()
 
         service.forecast(ClusterCapacityCeilingForecastCommand(window_days=7))
 
-        first_call = metrics_port.range_query.call_args_list[0]
-        start_str = first_call.kwargs.get(
-            "start", first_call.args[1] if len(first_call.args) > 1 else None
-        )
-        end_str = first_call.kwargs.get(
-            "end", first_call.args[2] if len(first_call.args) > 2 else None
-        )
-        start = datetime.fromisoformat(start_str)
-        end = datetime.fromisoformat(end_str)
+        call = metrics_port.get_daily_usage.call_args
+        start = call.args[0]
+        end = call.args[1]
         assert (end - start).days == 7
 
 
@@ -90,8 +79,11 @@ class TestCapacityPort:
 
 class TestInsufficientData:
     def test_raises_when_both_series_empty(self) -> None:
-        metrics_port = MagicMock()
-        metrics_port.range_query.side_effect = [[], []]
+        metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+        metrics_port.get_daily_usage.return_value = {
+            "cpu_daily_cores": [],
+            "memory_daily_gb": [],
+        }
         service, _, _ = _make_service(metrics_port=metrics_port)
 
         with pytest.raises(InsufficientDataError):

@@ -29,6 +29,57 @@ class TestIsContextCommand:
         assert screen._is_context_command("/setup") is False
 
 
+class TestIsStackCommand:
+    def test_slash_stack_is_recognized(self) -> None:
+        screen = SessionScreen()
+        assert screen._is_stack_command("/stack") is True
+
+    def test_slash_stack_with_args_is_recognized(self) -> None:
+        screen = SessionScreen()
+        assert screen._is_stack_command("/stack aws") is True
+
+    def test_regular_command_is_not_stack(self) -> None:
+        screen = SessionScreen()
+        assert screen._is_stack_command("/ctx") is False
+
+
+class TestHandleStackCommand:
+    def test_renders_run_stack_command_output(self) -> None:
+        screen = SessionScreen()
+        app = MagicMock()
+        app.cluster_name = "prod-eks"
+        log = MagicMock()
+
+        with (
+            patch.object(screen, "_tui_app", return_value=app),
+            patch(
+                "hexawyn.cli.presentation.stack_view.run_stack_command",
+                return_value=[("Stack forced to 'aws'.", "green")],
+            ) as run_stack,
+        ):
+            screen._handle_stack_command("/stack aws", log)
+
+        run_stack.assert_called_once_with("/stack aws", "prod-eks")
+        log.write.assert_called()
+
+    def test_defaults_context_name_when_missing(self) -> None:
+        screen = SessionScreen()
+        app = MagicMock()
+        app.cluster_name = None
+        log = MagicMock()
+
+        with (
+            patch.object(screen, "_tui_app", return_value=app),
+            patch(
+                "hexawyn.cli.presentation.stack_view.run_stack_command",
+                return_value=[],
+            ) as run_stack,
+        ):
+            screen._handle_stack_command("/stack", log)
+
+        run_stack.assert_called_once_with("/stack", "default")
+
+
 class TestRequestedContextName:
     def test_no_args_returns_none(self) -> None:
         screen = SessionScreen()
