@@ -39,13 +39,13 @@ sequenceDiagram
   the *observability backend* for that cluster.
 - **Auto by default**: with no override, `_is_aws_eks_context()` falls back to
   `AWSEKSProvider.supports()` (boto3 installed + EKS name/ARN/provider).
-- **Override wins & persists**: `/stack aws|vanilla` writes `stack_overrides` in
+- **Override wins & persists**: `/stack aws|gcp|vanilla` writes `stack_overrides` in
   `~/.hexawyn/config.yaml`; `server.py` reads it before auto-detecting, so it
   works across the CLI and MCP-server processes.
 - **`/stack auto`** clears the override, restoring auto-detection.
 - **Credentials unchanged**: `/stack` only picks the backend — AWS auth still
   comes from the standard boto3 chain (env / `~/.aws` / IAM role), never the repo.
-- **Text subcommands**: `/stack`, `/stack aws`, `/stack vanilla`, `/stack auto`;
+- **Text subcommands**: `/stack`, `/stack aws`, `/stack gcp`, `/stack vanilla`, `/stack auto`;
   forcing `aws` without the extra installed warns to `pip install 'hexawyn[aws]'`.
 
 ## Test Coverage

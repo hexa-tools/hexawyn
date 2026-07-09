@@ -785,6 +785,18 @@ class TestMCPTraceQueryFactory:
 
         assert isinstance(result, AWSXRayTraceAdapter)
 
+    def test_returns_cloud_trace_adapter_when_gke(self) -> None:
+        from hexawyn.adapters.secondary.gcp.cloud_trace_adapter import GCPCloudTraceAdapter
+        from hexawyn.mcp.server import build_trace_query_adapter
+
+        with (
+            patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False),
+            patch("hexawyn.mcp.server._is_gcp_gke_context", return_value=True),
+        ):
+            result = build_trace_query_adapter()
+
+        assert isinstance(result, GCPCloudTraceAdapter)
+
 
 class TestMCPStackOverride:
     def test_override_aws_forces_eks_context(self) -> None:
@@ -800,6 +812,14 @@ class TestMCPStackOverride:
 
         with patch(
             "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value="vanilla"
+        ):
+            assert _is_aws_eks_context(_current_cluster_context()) is False
+
+    def test_override_gcp_disables_eks(self) -> None:
+        from hexawyn.mcp.server import _current_cluster_context, _is_aws_eks_context
+
+        with patch(
+            "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value="gcp"
         ):
             assert _is_aws_eks_context(_current_cluster_context()) is False
 
@@ -832,6 +852,60 @@ class TestMCPStackOverride:
             assert _is_aws_eks_context(_current_cluster_context()) is False
 
 
+class TestMCPMetricsQueryFactory:
+    def test_returns_prometheus_http_adapter_when_not_gke(self) -> None:
+        from hexawyn.adapters.secondary.gitops.prometheus_http_adapter import PrometheusHTTPAdapter
+        from hexawyn.mcp.server import build_metrics_query_adapter
+
+        with patch("hexawyn.mcp.server._is_gcp_gke_context", return_value=False):
+            result = build_metrics_query_adapter()
+
+        assert isinstance(result, PrometheusHTTPAdapter)
+
+    def test_returns_managed_prometheus_adapter_when_gke(self) -> None:
+        from hexawyn.adapters.secondary.gcp.managed_prometheus_adapter import (
+            GCPManagedPrometheusAdapter,
+        )
+        from hexawyn.mcp.server import build_metrics_query_adapter
+
+        with patch("hexawyn.mcp.server._is_gcp_gke_context", return_value=True):
+            result = build_metrics_query_adapter()
+
+        assert isinstance(result, GCPManagedPrometheusAdapter)
+
+
+class TestMCPGkeContextDetection:
+    def test_override_gcp_forces_gke(self) -> None:
+        from hexawyn.mcp.server import _current_cluster_context, _is_gcp_gke_context
+
+        with patch(
+            "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value="gcp"
+        ):
+            assert _is_gcp_gke_context(_current_cluster_context()) is True
+
+    def test_override_vanilla_disables_gke(self) -> None:
+        from hexawyn.mcp.server import _current_cluster_context, _is_gcp_gke_context
+
+        with patch(
+            "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value="vanilla"
+        ):
+            assert _is_gcp_gke_context(_current_cluster_context()) is False
+
+    def test_auto_detection_swallows_provider_errors(self) -> None:
+        from hexawyn.mcp.server import _current_cluster_context, _is_gcp_gke_context
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value=None
+            ),
+            patch(
+                "hexawyn.adapters.secondary.gcp.gcp_gke_provider.GCPGKEProvider.supports",
+                side_effect=RuntimeError("boom"),
+            ),
+        ):
+            assert _is_gcp_gke_context(_current_cluster_context()) is False
+
+
 class TestMCPLogSearchFactory:
     def test_returns_kubernetes_adapter_when_not_eks(self) -> None:
         from hexawyn.adapters.secondary.gitops.kubernetes_pod_log_search_adapter import (
@@ -854,6 +928,18 @@ class TestMCPLogSearchFactory:
             result = build_log_search_adapter()
 
         assert isinstance(result, CloudWatchLogsAdapter)
+
+    def test_returns_cloud_logging_adapter_when_gke(self) -> None:
+        from hexawyn.adapters.secondary.gcp.cloud_logging_adapter import GCPCloudLoggingAdapter
+        from hexawyn.mcp.server import build_log_search_adapter
+
+        with (
+            patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False),
+            patch("hexawyn.mcp.server._is_gcp_gke_context", return_value=True),
+        ):
+            result = build_log_search_adapter()
+
+        assert isinstance(result, GCPCloudLoggingAdapter)
 
     def test_build_reliability_report_adapter_returns_weekly_reliability_report_port(
         self,

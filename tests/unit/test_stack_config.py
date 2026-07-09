@@ -62,7 +62,19 @@ class TestSetStackOverride:
         from hexawyn.infrastructure.config import stack_config
 
         with pytest.raises(ValueError):
-            stack_config.set_stack_override("prod-eks", "gcp")
+            stack_config.set_stack_override("prod-eks", "azure")
+
+    def test_accepts_gcp_provider(self) -> None:
+        from hexawyn.infrastructure.config import stack_config
+
+        saved: dict[str, object] = {}
+        with (
+            patch.object(stack_config, "load_config", return_value={}),
+            patch.object(stack_config, "save_config", side_effect=saved.update),
+        ):
+            stack_config.set_stack_override("gke_p_r_c", "gcp")
+
+        assert saved["stack_overrides"] == {"gke_p_r_c": "gcp"}
 
 
 class TestClearStackOverride:
