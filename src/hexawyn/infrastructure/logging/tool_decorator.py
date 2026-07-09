@@ -15,6 +15,24 @@ MAX_LOG_BYTES: int = 10_000_000
 LOG_BACKUP_COUNT: int = 5
 
 
+def _anonymize_log(record: logging.LogRecord) -> None:
+    try:
+        from hexawyn.domain.models.anonymization import RedactionPolicy
+        from hexawyn.runtime.adapters.anonymize.regex_anonymizer import RegexAnonymizerAdapter
+
+        adapter = RegexAnonymizerAdapter()
+        policy = RedactionPolicy()
+        record.msg = adapter.mask(str(record.msg), policy)[0]
+    except Exception:
+        pass
+
+
+class _AnonymizerFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        _anonymize_log(record)
+        return True
+
+
 def setup_logging(
     level: int = logging.INFO,
     log_dir: str = DEFAULT_LOG_DIR,
@@ -35,6 +53,7 @@ def setup_logging(
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(level)
     stream_handler.setFormatter(formatter)
+    stream_handler.addFilter(_AnonymizerFilter())
     logger.addHandler(stream_handler)
 
     file_handler = RotatingFileHandler(
@@ -45,6 +64,7 @@ def setup_logging(
     )
     file_handler.setLevel(level)
     file_handler.setFormatter(formatter)
+    file_handler.addFilter(_AnonymizerFilter())
     logger.addHandler(file_handler)
 
     logger.propagate = False
