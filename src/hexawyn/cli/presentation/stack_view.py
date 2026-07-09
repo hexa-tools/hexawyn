@@ -1,5 +1,6 @@
 from hexawyn.adapters.secondary.adapter_factory import list_installed_providers
 from hexawyn.adapters.secondary.aws.aws_eks_provider import AWSEKSProvider
+from hexawyn.adapters.secondary.gcp.gcp_gke_provider import GCPGKEProvider
 from hexawyn.application.ports.driven.k8s_port import ClusterContext
 from hexawyn.infrastructure.config.provider_detector import detect_installed_providers
 from hexawyn.infrastructure.config.stack_config import (
@@ -9,9 +10,13 @@ from hexawyn.infrastructure.config.stack_config import (
 )
 from hexawyn.infrastructure.config.stack_resolver import StackDescription, resolve_stack
 
-_FORCE_PROVIDERS = ("aws", "vanilla")
+_FORCE_PROVIDERS = ("aws", "gcp", "vanilla")
 _AUTO = "auto"
-_USAGE = "Usage: /stack [aws | vanilla | auto]"
+_USAGE = "Usage: /stack [aws | gcp | vanilla | auto]"
+_INSTALL_HINTS = {
+    "aws": "⚠ boto3 not installed — run: pip install 'hexawyn[aws]'",
+    "gcp": "⚠ google-cloud libs not installed — run: pip install 'hexawyn[gcp]'",
+}
 
 
 def run_stack_command(text: str, context_name: str) -> list[tuple[str, str]]:
@@ -30,14 +35,14 @@ def run_stack_command(text: str, context_name: str) -> list[tuple[str, str]]:
 def _force_lines(context_name: str, provider: str) -> list[tuple[str, str]]:
     set_stack_override(context_name, provider)
     lines = [(f"Stack forced to '{provider}' for context '{context_name}'.", "green")]
-    if provider == "aws" and not _aws_installed():
-        lines.append(("⚠ boto3 not installed — run: pip install 'hexawyn[aws]'", "yellow"))
+    if not _provider_installed(provider):
+        lines.append((_INSTALL_HINTS[provider], "yellow"))
     return lines
 
 
 def _view_lines(context_name: str) -> list[tuple[str, str]]:
     override = get_stack_override(context_name)
-    stack = resolve_stack(override, _aws_supported(context_name))
+    stack = resolve_stack(override, _aws_supported(context_name), _gcp_supported(context_name))
     return build_stack_lines(context_name, stack, _installed_provider_names())
 
 
@@ -65,18 +70,27 @@ def _parse_argument(text: str) -> str | None:
     return parts[1].strip().lower()
 
 
-def _aws_supported(context_name: str) -> bool:
-    context: ClusterContext = {
+def _cluster_context(context_name: str) -> ClusterContext:
+    return {
         "name": context_name,
         "cluster": context_name,
         "provider": "unknown",
         "namespace": "default",
     }
-    return AWSEKSProvider.supports(context)
 
 
-def _aws_installed() -> bool:
-    return detect_installed_providers().get("aws", False)
+def _aws_supported(context_name: str) -> bool:
+    return AWSEKSProvider.supports(_cluster_context(context_name))
+
+
+def _gcp_supported(context_name: str) -> bool:
+    return GCPGKEProvider.supports(_cluster_context(context_name))
+
+
+def _provider_installed(provider: str) -> bool:
+    if provider == "vanilla":
+        return True
+    return detect_installed_providers().get(provider, False)
 
 
 def _installed_provider_names() -> list[str]:

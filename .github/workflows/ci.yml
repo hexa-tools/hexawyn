@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install poetry
-      - run: poetry install --with dev --extras aws
+      - run: poetry install --with dev --extras "aws gcp"
       - run: |
           poetry run pytest tests/unit/ \
             --tb=short -q \

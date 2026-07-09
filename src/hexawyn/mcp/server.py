@@ -385,6 +385,15 @@ def build_metric_correlation_adapter() -> MetricCorrelationPort:
 
 
 def build_metrics_query_adapter() -> MetricsQueryPort:
+    context = _current_cluster_context()
+    if _is_gcp_gke_context(context):
+        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+        from hexawyn.adapters.secondary.gcp.managed_prometheus_adapter import (
+            GCPManagedPrometheusAdapter,
+        )
+
+        return GCPManagedPrometheusAdapter(project_id=GCPGKEAdapter(context).project_id or "")
+
     from hexawyn.adapters.secondary.gitops.prometheus_http_adapter import (
         PrometheusHTTPAdapter,
     )
@@ -393,6 +402,22 @@ def build_metrics_query_adapter() -> MetricsQueryPort:
     return PrometheusHTTPAdapter(
         endpoint=prometheus_url, token=os.environ.get("PROMETHEUS_TOKEN") or None
     )
+
+
+def _is_gcp_gke_context(context: ClusterContext) -> bool:
+    from hexawyn.adapters.secondary.gcp.gcp_gke_provider import GCPGKEProvider
+    from hexawyn.infrastructure.config.stack_config import get_stack_override
+
+    override = get_stack_override(context["name"])
+    if override == "gcp":
+        return True
+    if override in ("vanilla", "aws"):
+        return False
+
+    try:
+        return GCPGKEProvider.supports(context)
+    except Exception:
+        return False
 
 
 def build_cluster_resource_metrics_adapter() -> ClusterResourceMetricsPort:
@@ -431,7 +456,7 @@ def _is_aws_eks_context(context: ClusterContext) -> bool:
     override = get_stack_override(context["name"])
     if override == "aws":
         return True
-    if override == "vanilla":
+    if override in ("vanilla", "gcp"):
         return False
 
     try:
@@ -604,6 +629,12 @@ def build_trace_query_adapter() -> TraceQueryPort:
 
         return AWSXRayTraceAdapter(region=AWSEKSAdapter(context).region)
 
+    if _is_gcp_gke_context(context):
+        from hexawyn.adapters.secondary.gcp.cloud_trace_adapter import GCPCloudTraceAdapter
+        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+
+        return GCPCloudTraceAdapter(project_id=GCPGKEAdapter(context).project_id or "")
+
     from hexawyn.adapters.secondary.gitops.otel_http_adapter import OTelHTTPAdapter
 
     return OTelHTTPAdapter()
@@ -715,6 +746,12 @@ def build_log_search_adapter() -> LogSearchPort:
             cluster_name=context["cluster"] or context["name"],
             region=AWSEKSAdapter(context).region,
         )
+
+    if _is_gcp_gke_context(context):
+        from hexawyn.adapters.secondary.gcp.cloud_logging_adapter import GCPCloudLoggingAdapter
+        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+
+        return GCPCloudLoggingAdapter(project_id=GCPGKEAdapter(context).project_id or "")
 
     from hexawyn.adapters.secondary.gitops.kubernetes_pod_log_search_adapter import (
         KubernetesPodLogSearchAdapter,
