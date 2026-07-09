@@ -1,12 +1,13 @@
-"""Unit tests for HotNodeAnalysisService (mocks the existing MetricsQueryPort
-[ECA-31, reused via range_query] + the new HotNodeAnalysisPort). This service
-is the first caller in the codebase to walk multiple returned Prometheus
-series instead of indexing samples[0]."""
+"""Unit tests for HotNodeAnalysisService (mocks the new
+ClusterResourceMetricsPort via get_node_utilization + HotNodeAnalysisPort)."""
 
 from __future__ import annotations
 
 from unittest.mock import MagicMock
 
+from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
+    ClusterResourceMetricsPort,
+)
 from hexawyn.application.ports.driving.hot_node_analysis.hot_node_analysis_command import (
     HotNodeAnalysisCommand,
 )
@@ -17,8 +18,8 @@ def _series(value: float, hours: int = 24) -> list[tuple[str, float]]:
     return [(f"2026-06-17T{h % 24:02d}:00:00Z", value) for h in range(hours)]
 
 
-def _range_sample(node_label: str, values: list[tuple[str, float]]) -> dict:
-    return {"metric": {"instance": node_label}, "values": values}
+def _node_util(cpu: float, memory: float) -> dict:
+    return {"cpu_percent_series": _series(cpu), "memory_percent_series": _series(memory)}
 
 
 def _node_info(
@@ -52,11 +53,11 @@ def _make_service(
     metrics_port: MagicMock | None = None, node_port: MagicMock | None = None
 ) -> tuple[HotNodeAnalysisService, MagicMock, MagicMock]:
     if metrics_port is None:
-        metrics_port = MagicMock()
-        metrics_port.range_query.side_effect = [
-            [_range_sample("worker-1", _series(50.0)), _range_sample("worker-2", _series(50.0))],
-            [_range_sample("worker-1", _series(50.0)), _range_sample("worker-2", _series(50.0))],
-        ]
+        metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+        metrics_port.get_node_utilization.return_value = {
+            "worker-1": _node_util(50.0, 50.0),
+            "worker-2": _node_util(50.0, 50.0),
+        }
     if node_port is None:
         node_port = MagicMock()
         node_port.list_nodes.return_value = [_node_info("worker-1"), _node_info("worker-2")]
@@ -65,32 +66,26 @@ def _make_service(
     return service, metrics_port, node_port
 
 
-class TestPrometheusQueries:
-    def test_calls_range_query_twice_with_hourly_step(self) -> None:
+class TestMetricsQuery:
+    def test_calls_get_node_utilization_once_with_window(self) -> None:
         service, metrics_port, _ = _make_service()
 
-        service.analyze(HotNodeAnalysisCommand())
+        service.analyze(HotNodeAnalysisCommand(window_hours=24))
 
-        assert metrics_port.range_query.call_count == 2
-        for call in metrics_port.range_query.call_args_list:
-            assert call.kwargs.get("step", call.args[3] if len(call.args) > 3 else None) == "1h"
+        metrics_port.get_node_utilization.assert_called_once()
+        call = metrics_port.get_node_utilization.call_args
+        start = call.args[0]
+        end = call.args[1]
+        assert round((end - start).total_seconds() / 3600) == 24
 
 
 class TestMultiSeriesGrouping:
     def test_both_node_series_are_used_not_just_the_first(self) -> None:
-        """The distinguishing new behavior — unlike ECA-74/75, this service
-        must not hard-index samples[0]."""
-        metrics_port = MagicMock()
-        metrics_port.range_query.side_effect = [
-            [
-                _range_sample("worker-1", _series(92.0)),
-                _range_sample("worker-2", _series(30.0)),
-            ],
-            [
-                _range_sample("worker-1", _series(30.0)),
-                _range_sample("worker-2", _series(30.0)),
-            ],
-        ]
+        metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+        metrics_port.get_node_utilization.return_value = {
+            "worker-1": _node_util(92.0, 30.0),
+            "worker-2": _node_util(30.0, 30.0),
+        }
         node_port = MagicMock()
         node_port.list_nodes.return_value = [_node_info("worker-1"), _node_info("worker-2")]
         node_port.list_pod_usage.return_value = []
@@ -111,11 +106,8 @@ class TestDaemonSetExclusion:
             _pod_usage("fluentd-abc", "worker-1", cpu=0.9, is_daemonset=True),
             _pod_usage("app-xyz", "worker-1", cpu=0.1, is_daemonset=False),
         ]
-        metrics_port = MagicMock()
-        metrics_port.range_query.side_effect = [
-            [_range_sample("worker-1", _series(92.0))],
-            [_range_sample("worker-1", _series(30.0))],
-        ]
+        metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+        metrics_port.get_node_utilization.return_value = {"worker-1": _node_util(92.0, 30.0)}
         service, _, _ = _make_service(metrics_port=metrics_port, node_port=node_port)
 
         response = service.analyze(HotNodeAnalysisCommand())

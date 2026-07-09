@@ -19,11 +19,14 @@ if TYPE_CHECKING:
 
 def hot_node_analysis(window_hours: int = 24) -> dict[str, object]:
     from hexawyn.application.service.hot_node_analysis_service import HotNodeAnalysisService
-    from hexawyn.mcp.server import build_metrics_query_adapter, build_node_analysis_adapter
+    from hexawyn.mcp.server import (
+        build_cluster_resource_metrics_adapter,
+        build_node_analysis_adapter,
+    )
 
     try:
         service = HotNodeAnalysisService(
-            metrics_port=build_metrics_query_adapter(),
+            metrics_port=build_cluster_resource_metrics_adapter(),
             node_port=build_node_analysis_adapter(),
         )
         r = HotNodeAnalysisUseCase(service=service).execute(

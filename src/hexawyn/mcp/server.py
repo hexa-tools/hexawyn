@@ -32,6 +32,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.certificate_investigation_port import (
         CertificateInvestigationPort,
     )
+    from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
+        ClusterResourceMetricsPort,
+    )
     from hexawyn.application.ports.driven.compliance_audit_port import (
         ComplianceAuditPort,
     )
@@ -75,7 +78,7 @@ if TYPE_CHECKING:
         ImageVulnerabilityScanPort,
     )
     from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
-    from hexawyn.application.ports.driven.k8s_port import K8sPort
+    from hexawyn.application.ports.driven.k8s_port import ClusterContext, K8sPort
     from hexawyn.application.ports.driven.keda_port import KedaPort
     from hexawyn.application.ports.driven.kubernetes_topology_port import (
         KubernetesTopologyPort,
@@ -392,6 +395,51 @@ def build_metrics_query_adapter() -> MetricsQueryPort:
     )
 
 
+def build_cluster_resource_metrics_adapter() -> ClusterResourceMetricsPort:
+    """Provider-aware cluster resource metrics.
+
+    On AWS EKS (boto3 installed + EKS context) uses CloudWatch Container
+    Insights; otherwise falls back to Prometheus (PromQL).
+    """
+    context = _current_cluster_context()
+    if _is_aws_eks_context(context):
+        from hexawyn.adapters.secondary.aws.cloudwatch_metrics_adapter import (
+            CloudWatchClusterResourceMetricsAdapter,
+        )
+        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
+
+        return CloudWatchClusterResourceMetricsAdapter(
+            cluster_name=context["name"], region=AWSEKSAdapter(context).region
+        )
+
+    from hexawyn.adapters.secondary.gitops.prometheus_cluster_resource_metrics_adapter import (
+        PrometheusClusterResourceMetricsAdapter,
+    )
+
+    return PrometheusClusterResourceMetricsAdapter(metrics_query_port=build_metrics_query_adapter())
+
+
+def _current_cluster_context() -> ClusterContext:
+    name = context_name if context_name != "unknown" else "default"
+    return {"name": name, "cluster": name, "provider": "unknown", "namespace": "default"}
+
+
+def _is_aws_eks_context(context: ClusterContext) -> bool:
+    from hexawyn.adapters.secondary.aws.aws_eks_provider import AWSEKSProvider
+    from hexawyn.infrastructure.config.stack_config import get_stack_override
+
+    override = get_stack_override(context["name"])
+    if override == "aws":
+        return True
+    if override == "vanilla":
+        return False
+
+    try:
+        return AWSEKSProvider.supports(context)
+    except Exception:
+        return False
+
+
 def build_capacity_forecast_adapter() -> CapacityForecastPort:
     from hexawyn.adapters.secondary.gitops.kubernetes_capacity_forecast_adapter import (
         KubernetesCapacityForecastAdapter,
@@ -549,6 +597,13 @@ def build_trace_event_correlation_adapter() -> TraceEventCorrelationPort:
 
 
 def build_trace_query_adapter() -> TraceQueryPort:
+    context = _current_cluster_context()
+    if _is_aws_eks_context(context):
+        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
+        from hexawyn.adapters.secondary.aws.xray_trace_adapter import AWSXRayTraceAdapter
+
+        return AWSXRayTraceAdapter(region=AWSEKSAdapter(context).region)
+
     from hexawyn.adapters.secondary.gitops.otel_http_adapter import OTelHTTPAdapter
 
     return OTelHTTPAdapter()
@@ -651,6 +706,16 @@ def build_pod_logs_adapter() -> PodLogsPort:
 
 
 def build_log_search_adapter() -> LogSearchPort:
+    context = _current_cluster_context()
+    if _is_aws_eks_context(context):
+        from hexawyn.adapters.secondary.aws.cloudwatch_logs_adapter import CloudWatchLogsAdapter
+        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
+
+        return CloudWatchLogsAdapter(
+            cluster_name=context["cluster"] or context["name"],
+            region=AWSEKSAdapter(context).region,
+        )
+
     from hexawyn.adapters.secondary.gitops.kubernetes_pod_log_search_adapter import (
         KubernetesPodLogSearchAdapter,
     )

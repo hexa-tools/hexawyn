@@ -2,20 +2,21 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
+    ClusterResourceMetricsPort,
+)
+
 
 class TestClusterHeadroomSimulationTool:
     def test_returns_simulation(self) -> None:
         from hexawyn.mcp.tools.cluster_headroom_simulation import cluster_headroom_simulation
 
         with (
-            patch("hexawyn.mcp.server.build_metrics_query_adapter") as build_metrics,
+            patch("hexawyn.mcp.server.build_cluster_resource_metrics_adapter") as build_metrics,
             patch("hexawyn.mcp.server.build_headroom_simulation_adapter") as build_headroom,
         ):
-            metrics_port = MagicMock()
-            metrics_port.instant_query.side_effect = [
-                [{"metric": {}, "value": 48.0}],
-                [{"metric": {}, "value": 192.0}],
-            ]
+            metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+            metrics_port.get_current_usage.return_value = {"cpu_cores": 48.0, "memory_gb": 192.0}
             build_metrics.return_value = metrics_port
 
             headroom_port = MagicMock()
@@ -46,7 +47,7 @@ class TestClusterHeadroomSimulationTool:
         from hexawyn.mcp.tools.cluster_headroom_simulation import cluster_headroom_simulation
 
         with patch(
-            "hexawyn.mcp.server.build_metrics_query_adapter",
+            "hexawyn.mcp.server.build_cluster_resource_metrics_adapter",
             side_effect=RuntimeError("Prometheus unavailable"),
         ):
             result = cluster_headroom_simulation()

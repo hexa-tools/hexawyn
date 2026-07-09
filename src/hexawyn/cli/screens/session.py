@@ -382,6 +382,10 @@ class SessionScreen(Screen[None]):
             await self._handle_context_command(text.strip(), log)
             return
 
+        if self._is_stack_command(text.strip()):
+            self._handle_stack_command(text.strip(), log)
+            return
+
         stages = ["Planning", "Fetching pods", "Diagnosing", "Formatting"]
         spinner_task = asyncio.create_task(self._show_spinner(log, stages))
 
@@ -433,6 +437,17 @@ class SessionScreen(Screen[None]):
     def _is_context_command(self, text: str) -> bool:
         command_name = text.split(maxsplit=1)[0] if text else ""
         return command_name in {"/context", "/ctx"}
+
+    def _is_stack_command(self, text: str) -> bool:
+        command_name = text.split(maxsplit=1)[0] if text else ""
+        return command_name == "/stack"
+
+    def _handle_stack_command(self, text: str, log: RichLog) -> None:
+        from hexawyn.cli.presentation.stack_view import run_stack_command
+
+        app = self._tui_app()
+        context_name = app.cluster_name or "default"
+        self._render_lines(log, run_stack_command(text, context_name))
 
     def _render_setup_info(self, log: RichLog) -> None:
         from hexawyn.infrastructure.config.config_manager import get_llm_config

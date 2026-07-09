@@ -1,11 +1,13 @@
-"""Unit tests for ClusterHeadroomSimulationService (mocks the existing
-MetricsQueryPort [ECA-31, reused via instant_query] + the new
-HeadroomSimulationPort)."""
+"""Unit tests for ClusterHeadroomSimulationService (mocks the new
+ClusterResourceMetricsPort + HeadroomSimulationPort)."""
 
 from __future__ import annotations
 
 from unittest.mock import MagicMock
 
+from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
+    ClusterResourceMetricsPort,
+)
 from hexawyn.application.ports.driving.cluster_headroom_simulation.cluster_headroom_simulation_command import (
     ClusterHeadroomSimulationCommand,
 )
@@ -36,11 +38,8 @@ def _make_service(
     metrics_port: MagicMock | None = None, headroom_port: MagicMock | None = None
 ) -> tuple[ClusterHeadroomSimulationService, MagicMock, MagicMock]:
     if metrics_port is None:
-        metrics_port = MagicMock()
-        metrics_port.instant_query.side_effect = [
-            [{"metric": {}, "value": 48.0}],
-            [{"metric": {}, "value": 192.0}],
-        ]
+        metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+        metrics_port.get_current_usage.return_value = {"cpu_cores": 48.0, "memory_gb": 192.0}
     if headroom_port is None:
         headroom_port = MagicMock()
         headroom_port.get_node_capacity_info.return_value = _capacity_info()
@@ -50,17 +49,17 @@ def _make_service(
     return service, metrics_port, headroom_port
 
 
-class TestPrometheusQueries:
-    def test_calls_instant_query_twice(self) -> None:
+class TestMetricsQuery:
+    def test_calls_get_current_usage_once(self) -> None:
         service, metrics_port, _ = _make_service()
 
         service.simulate(ClusterHeadroomSimulationCommand())
 
-        assert metrics_port.instant_query.call_count == 2
+        metrics_port.get_current_usage.assert_called_once()
 
-    def test_missing_prometheus_data_defaults_to_zero_usage(self) -> None:
-        metrics_port = MagicMock()
-        metrics_port.instant_query.side_effect = [[], []]
+    def test_missing_metrics_data_defaults_to_zero_usage(self) -> None:
+        metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+        metrics_port.get_current_usage.return_value = {"cpu_cores": 0.0, "memory_gb": 0.0}
         service, _, _ = _make_service(metrics_port=metrics_port)
 
         response = service.simulate(ClusterHeadroomSimulationCommand())

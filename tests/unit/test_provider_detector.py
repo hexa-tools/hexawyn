@@ -1,5 +1,14 @@
+import importlib.util
+
 import pytest
 from hexawyn.infrastructure.config.provider_detector import detect_installed_providers
+
+
+def _is_importable(module_name: str) -> bool:
+    try:
+        return importlib.util.find_spec(module_name) is not None
+    except ModuleNotFoundError:
+        return False
 
 
 class TestDetectInstalledProviders:
@@ -25,7 +34,9 @@ class TestDetectInstalledProviders:
 
     def test_unknown_providers_false(self):
         providers = detect_installed_providers()
-        # boto3, azure, etc. are not installed in dev venv
-        assert providers["aws"] is False
-        assert providers["azure"] is False
-        assert providers["gcp"] is False
+        # Detection must reflect the real import availability in the current
+        # environment (extras may or may not be installed), never a hardcoded
+        # assumption.
+        assert providers["aws"] is _is_importable("boto3")
+        assert providers["azure"] is _is_importable("azure.identity")
+        assert providers["gcp"] is _is_importable("google.cloud.container")

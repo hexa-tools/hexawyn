@@ -2,17 +2,21 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
+    ClusterResourceMetricsPort,
+)
+
 
 class TestHotNodeAnalysisTool:
     def test_returns_analysis(self) -> None:
         from hexawyn.mcp.tools.hot_node_analysis import hot_node_analysis
 
         with (
-            patch("hexawyn.mcp.server.build_metrics_query_adapter") as build_metrics,
+            patch("hexawyn.mcp.server.build_cluster_resource_metrics_adapter") as build_metrics,
             patch("hexawyn.mcp.server.build_node_analysis_adapter") as build_node,
         ):
-            metrics_port = MagicMock()
-            metrics_port.range_query.return_value = []
+            metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+            metrics_port.get_node_utilization.return_value = {}
             build_metrics.return_value = metrics_port
 
             node_port = MagicMock()
@@ -29,7 +33,7 @@ class TestHotNodeAnalysisTool:
         from hexawyn.mcp.tools.hot_node_analysis import hot_node_analysis
 
         with patch(
-            "hexawyn.mcp.server.build_metrics_query_adapter",
+            "hexawyn.mcp.server.build_cluster_resource_metrics_adapter",
             side_effect=RuntimeError("Prometheus unavailable"),
         ):
             result = hot_node_analysis()
