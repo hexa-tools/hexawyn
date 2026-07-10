@@ -14,6 +14,7 @@ class TestViewStack:
             patch.object(stack_view, "_aws_supported", return_value=True),
             patch.object(stack_view, "_gcp_supported", return_value=False),
             patch.object(stack_view, "_azure_supported", return_value=False),
+            patch.object(stack_view, "_datadog_supported", return_value=False),
             patch.object(stack_view, "_installed_provider_names", return_value=["AWS EKS"]),
         ):
             lines = stack_view.run_stack_command("/stack", "prod-eks")
@@ -44,6 +45,7 @@ class TestViewStack:
             patch.object(stack_view, "_aws_supported", return_value=False),
             patch.object(stack_view, "_gcp_supported", return_value=False),
             patch.object(stack_view, "_azure_supported", return_value=True),
+            patch.object(stack_view, "_datadog_supported", return_value=False),
             patch.object(stack_view, "_installed_provider_names", return_value=["Azure AKS"]),
         ):
             lines = stack_view.run_stack_command("/stack", "aks-prod")
@@ -52,12 +54,29 @@ class TestViewStack:
         assert "Azure Monitor Prometheus" in body
         assert "Azure Log Analytics" in body
 
+    def test_shows_datadog_stack_when_configured(self) -> None:
+        with (
+            patch.object(stack_view, "get_stack_override", return_value=None),
+            patch.object(stack_view, "_aws_supported", return_value=False),
+            patch.object(stack_view, "_gcp_supported", return_value=False),
+            patch.object(stack_view, "_azure_supported", return_value=False),
+            patch.object(stack_view, "_datadog_supported", return_value=True),
+            patch.object(stack_view, "_installed_provider_names", return_value=[]),
+        ):
+            lines = stack_view.run_stack_command("/stack", "any-cluster")
+
+        body = _texts(lines)
+        assert "Datadog Metrics" in body
+        assert "Datadog APM" in body
+        assert "Datadog Logs" in body
+
     def test_shows_override_source_when_forced(self) -> None:
         with (
             patch.object(stack_view, "get_stack_override", return_value="vanilla"),
             patch.object(stack_view, "_aws_supported", return_value=True),
             patch.object(stack_view, "_gcp_supported", return_value=True),
             patch.object(stack_view, "_azure_supported", return_value=True),
+            patch.object(stack_view, "_datadog_supported", return_value=True),
             patch.object(stack_view, "_installed_provider_names", return_value=[]),
         ):
             lines = stack_view.run_stack_command("/stack", "prod-eks")
@@ -104,6 +123,24 @@ class TestOverrideCommands:
             lines = stack_view.run_stack_command("/stack azure", "aks-prod")
 
         assert "hexawyn[azure]" in _texts(lines)
+
+    def test_force_datadog_persists_override(self) -> None:
+        with (
+            patch.object(stack_view, "set_stack_override") as set_override,
+            patch.object(stack_view, "_provider_installed", return_value=True),
+        ):
+            stack_view.run_stack_command("/stack datadog", "any-cluster")
+
+        set_override.assert_called_once_with("any-cluster", "datadog")
+
+    def test_force_datadog_warns_when_libs_missing(self) -> None:
+        with (
+            patch.object(stack_view, "set_stack_override"),
+            patch.object(stack_view, "_provider_installed", return_value=False),
+        ):
+            lines = stack_view.run_stack_command("/stack datadog", "any-cluster")
+
+        assert "hexawyn[datadog]" in _texts(lines)
 
     def test_force_gcp_warns_when_libs_missing(self) -> None:
         with (
@@ -174,6 +211,10 @@ class TestHelpers:
             assert stack_view._azure_supported("aks-prod") is True
 
         assert supports.call_args.args[0]["name"] == "aks-prod"
+
+    def test_datadog_supported_reads_config(self) -> None:
+        with patch.object(stack_view, "is_datadog_configured", return_value=True):
+            assert stack_view._datadog_supported() is True
 
     def test_provider_installed_vanilla_always_true(self) -> None:
         assert stack_view._provider_installed("vanilla") is True
