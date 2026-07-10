@@ -797,6 +797,21 @@ class TestMCPTraceQueryFactory:
 
         assert isinstance(result, GCPCloudTraceAdapter)
 
+    def test_returns_azure_monitor_traces_adapter_when_aks(self) -> None:
+        from hexawyn.adapters.secondary.azure.monitor_traces_adapter import (
+            AzureMonitorTracesAdapter,
+        )
+        from hexawyn.mcp.server import build_trace_query_adapter
+
+        with (
+            patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False),
+            patch("hexawyn.mcp.server._is_gcp_gke_context", return_value=False),
+            patch("hexawyn.mcp.server._is_azure_aks_context", return_value=True),
+        ):
+            result = build_trace_query_adapter()
+
+        assert isinstance(result, AzureMonitorTracesAdapter)
+
 
 class TestMCPStackOverride:
     def test_override_aws_forces_eks_context(self) -> None:
@@ -873,6 +888,20 @@ class TestMCPMetricsQueryFactory:
 
         assert isinstance(result, GCPManagedPrometheusAdapter)
 
+    def test_returns_azure_monitor_adapter_when_aks(self) -> None:
+        from hexawyn.adapters.secondary.azure.monitor_metrics_adapter import (
+            AzureMonitorMetricsAdapter,
+        )
+        from hexawyn.mcp.server import build_metrics_query_adapter
+
+        with (
+            patch("hexawyn.mcp.server._is_gcp_gke_context", return_value=False),
+            patch("hexawyn.mcp.server._is_azure_aks_context", return_value=True),
+        ):
+            result = build_metrics_query_adapter()
+
+        assert isinstance(result, AzureMonitorMetricsAdapter)
+
 
 class TestMCPGkeContextDetection:
     def test_override_gcp_forces_gke(self) -> None:
@@ -904,6 +933,28 @@ class TestMCPGkeContextDetection:
             ),
         ):
             assert _is_gcp_gke_context(_current_cluster_context()) is False
+
+    def test_azure_override_forces_aks(self) -> None:
+        from hexawyn.mcp.server import _current_cluster_context, _is_azure_aks_context
+
+        with patch(
+            "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value="azure"
+        ):
+            assert _is_azure_aks_context(_current_cluster_context()) is True
+
+    def test_azure_override_disables_gke_and_eks(self) -> None:
+        from hexawyn.mcp.server import (
+            _current_cluster_context,
+            _is_aws_eks_context,
+            _is_gcp_gke_context,
+        )
+
+        with patch(
+            "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value="azure"
+        ):
+            ctx = _current_cluster_context()
+            assert _is_aws_eks_context(ctx) is False
+            assert _is_gcp_gke_context(ctx) is False
 
 
 class TestMCPLogSearchFactory:
@@ -940,6 +991,21 @@ class TestMCPLogSearchFactory:
             result = build_log_search_adapter()
 
         assert isinstance(result, GCPCloudLoggingAdapter)
+
+    def test_returns_log_analytics_adapter_when_aks(self) -> None:
+        from hexawyn.adapters.secondary.azure.log_analytics_adapter import (
+            AzureLogAnalyticsAdapter,
+        )
+        from hexawyn.mcp.server import build_log_search_adapter
+
+        with (
+            patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False),
+            patch("hexawyn.mcp.server._is_gcp_gke_context", return_value=False),
+            patch("hexawyn.mcp.server._is_azure_aks_context", return_value=True),
+        ):
+            result = build_log_search_adapter()
+
+        assert isinstance(result, AzureLogAnalyticsAdapter)
 
     def test_build_reliability_report_adapter_returns_weekly_reliability_report_port(
         self,

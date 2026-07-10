@@ -1,5 +1,6 @@
 from hexawyn.adapters.secondary.adapter_factory import list_installed_providers
 from hexawyn.adapters.secondary.aws.aws_eks_provider import AWSEKSProvider
+from hexawyn.adapters.secondary.azure.azure_aks_provider import AzureAKSProvider
 from hexawyn.adapters.secondary.gcp.gcp_gke_provider import GCPGKEProvider
 from hexawyn.application.ports.driven.k8s_port import ClusterContext
 from hexawyn.infrastructure.config.provider_detector import detect_installed_providers
@@ -10,12 +11,13 @@ from hexawyn.infrastructure.config.stack_config import (
 )
 from hexawyn.infrastructure.config.stack_resolver import StackDescription, resolve_stack
 
-_FORCE_PROVIDERS = ("aws", "gcp", "vanilla")
+_FORCE_PROVIDERS = ("aws", "gcp", "azure", "vanilla")
 _AUTO = "auto"
-_USAGE = "Usage: /stack [aws | gcp | vanilla | auto]"
+_USAGE = "Usage: /stack [aws | gcp | azure | vanilla | auto]"
 _INSTALL_HINTS = {
     "aws": "⚠ boto3 not installed — run: pip install 'hexawyn[aws]'",
     "gcp": "⚠ google-cloud libs not installed — run: pip install 'hexawyn[gcp]'",
+    "azure": "⚠ azure libs not installed — run: pip install 'hexawyn[azure]'",
 }
 
 
@@ -42,7 +44,12 @@ def _force_lines(context_name: str, provider: str) -> list[tuple[str, str]]:
 
 def _view_lines(context_name: str) -> list[tuple[str, str]]:
     override = get_stack_override(context_name)
-    stack = resolve_stack(override, _aws_supported(context_name), _gcp_supported(context_name))
+    stack = resolve_stack(
+        override,
+        _aws_supported(context_name),
+        _gcp_supported(context_name),
+        _azure_supported(context_name),
+    )
     return build_stack_lines(context_name, stack, _installed_provider_names())
 
 
@@ -85,6 +92,10 @@ def _aws_supported(context_name: str) -> bool:
 
 def _gcp_supported(context_name: str) -> bool:
     return GCPGKEProvider.supports(_cluster_context(context_name))
+
+
+def _azure_supported(context_name: str) -> bool:
+    return AzureAKSProvider.supports(_cluster_context(context_name))
 
 
 def _provider_installed(provider: str) -> bool:

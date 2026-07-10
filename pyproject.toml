@@ -60,6 +60,7 @@ hexa = "hexawyn.cli.main:app"
 [tool.poetry.plugins."hexawyn.providers"]
 aws-eks = "hexawyn.adapters.secondary.aws.aws_eks_provider:AWSEKSProvider"
 gcp-gke = "hexawyn.adapters.secondary.gcp.gcp_gke_provider:GCPGKEProvider"
+azure-aks = "hexawyn.adapters.secondary.azure.azure_aks_provider:AzureAKSProvider"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"
@@ -95,7 +96,7 @@ exclude = ["tests/"]
 # Cloud SDKs are optional extras: treat them as opaque so type-checking is
 # identical whether or not the extra is installed (no spurious unused-ignore).
 [[tool.mypy.overrides]]
-module = ["google.*", "boto3.*", "botocore.*"]
+module = ["google.*", "boto3.*", "botocore.*", "azure.*"]
 follow_imports = "skip"
 follow_imports_for_stubs = true
 
