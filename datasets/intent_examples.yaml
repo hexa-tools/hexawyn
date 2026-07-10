@@ -1320,3 +1320,13 @@ check_cluster_operator_health:
     - "Give me a summary of ClusterOperator health — how many are healthy versus degraded?"
     - "Why is my OpenShift upgrade stuck — which operators are still progressing?"
     - "Show me every degraded cluster operator with its condition message."
+
+check_machine_config_pool_status:
+  tool: check_machine_config_pool_status
+  questions:
+    - "What is the current status of all MachineConfigPools in the cluster?"
+    - "Are any nodes stuck in an update or degraded MachineConfigPool state?"
+    - "Which MachineConfigPool is degraded, and what is the reason it failed to apply?"
+    - "Has the worker pool been updating for too long — is the rollout stuck?"
+    - "Give me a summary of MachineConfigPool health — how many pools are healthy versus degraded?"
+    - "Show me the current and desired MachineConfig for each pool."
