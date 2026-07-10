@@ -3,6 +3,7 @@ from hexawyn.domain.errors import (
     AdapterTimeoutError,
     AmbiguousResultError,
     CheckerNodeError,
+    ClusterOperatorCRDNotFoundError,
     ClusterUnreachableError,
     DuckDBUnavailableError,
     EncryptionError,
@@ -87,6 +88,20 @@ class TestTektonNotInstalledError:
     def test_can_be_caught_as_hexawyn_error(self) -> None:
         with pytest.raises(HexawynError):
             raise TektonNotInstalledError()
+
+
+class TestClusterOperatorCRDNotFoundError:
+    def test_inherits_from_hexawyn_error(self) -> None:
+        assert issubclass(ClusterOperatorCRDNotFoundError, HexawynError)
+
+    def test_message_mentions_openshift_hint(self) -> None:
+        err = ClusterOperatorCRDNotFoundError()
+        assert "ClusterOperator" in str(err)
+        assert "OpenShift" in str(err)
+
+    def test_can_be_caught_as_hexawyn_error(self) -> None:
+        with pytest.raises(HexawynError):
+            raise ClusterOperatorCRDNotFoundError()
 
 
 class TestServiceNotFoundError:
