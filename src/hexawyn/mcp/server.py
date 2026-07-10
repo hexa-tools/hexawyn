@@ -96,6 +96,9 @@ if TYPE_CHECKING:
     )
     from hexawyn.application.ports.driven.live_resource_port import LiveResourcePort
     from hexawyn.application.ports.driven.log_search_port import LogSearchPort
+    from hexawyn.application.ports.driven.machine_config_pool_port import (
+        MachineConfigPoolPort,
+    )
     from hexawyn.application.ports.driven.memory_saturation_port import (
         MemorySaturationPort,
     )
@@ -996,6 +999,14 @@ def build_cluster_operator_status_adapter() -> ClusterOperatorStatusPort:
     )
 
     return OpenShiftClusterOperatorAdapter()
+
+
+def build_machine_config_pool_adapter() -> MachineConfigPoolPort:
+    from hexawyn.adapters.secondary.openshift.openshift_machine_config_adapter import (
+        OpenShiftMachineConfigAdapter,
+    )
+
+    return OpenShiftMachineConfigAdapter()
 
 
 def register_tools(server: FastMCP) -> None:

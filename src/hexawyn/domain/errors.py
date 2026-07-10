@@ -302,3 +302,19 @@ class ClusterOperatorCRDNotFoundError(HexawynError):
             "(config.openshift.io/v1). Run this tool against an OpenShift cluster.",
             context=context,
         )
+
+
+class MachineConfigPoolCRDNotFoundError(HexawynError):
+    """Raised when the MachineConfigPool CRD is absent (e.g. vanilla Kubernetes).
+
+    MachineConfigPools are an OpenShift-only resource served by the
+    machineconfiguration.openshift.io/v1 API group.
+    """
+
+    def __init__(self, context: dict[str, str] | None = None) -> None:
+        super().__init__(
+            "MachineConfigPool CRD not found. This resource is OpenShift-only "
+            "(machineconfiguration.openshift.io/v1). Run this tool against an "
+            "OpenShift cluster.",
+            context=context,
+        )
