@@ -1263,3 +1263,50 @@ audit_tls_compliance:
     - "Which self-signed certificates are in use across the cluster?"
     - "Give me a TLS compliance audit report ranked by severity."
     - "Are any services running behind a proxy that handles TLS termination instead?"
+
+# ── OpenShift Native Support ───────────────────────────────────
+
+list_openshift_projects:
+  tool: list_namespaces
+  questions:
+    - "List all OpenShift projects and their current status."
+    - "What projects exist in my OpenShift cluster and how are they doing?"
+    - "Show me every project on this OCP cluster with its display name."
+    - "How many projects do we have running in production OpenShift?"
+    - "Give me the full project inventory for this OpenShift cluster."
+
+list_openshift_routes:
+  tool: list_ingresses
+  questions:
+    - "Which routes are exposed in the payments namespace, and are they TLS-enabled?"
+    - "Show me all OpenShift routes for the web namespace with their target services."
+    - "Are there any routes serving traffic without TLS termination?"
+    - "List the externally exposed routes in my OpenShift project."
+    - "What hostnames are exposed via routes in the frontend namespace?"
+
+audit_openshift_sccs:
+  tool: audit_rbac_permissions
+  questions:
+    - "Show me the SecurityContextConstraints that allow privileged containers."
+    - "Which SCCs are the most permissive on this OpenShift cluster?"
+    - "Are there any SecurityContextConstraints allowing run-as-any user?"
+    - "Audit my OpenShift SCCs for privilege escalation risks."
+    - "List all security context constraints and flag the dangerous ones."
+
+get_openshift_failed_pipeline_runs:
+  tool: get_tekton_pipeline_runs_status
+  questions:
+    - "Are there any failed Tekton pipeline runs in the ci namespace?"
+    - "Show me the OpenShift Pipelines runs that failed recently."
+    - "Which PipelineRuns are failing in my OpenShift build namespace?"
+    - "List all failed Tekton pipeline runs so I can debug the CI breakage."
+    - "Did any pipeline runs fail in the tekton namespace today?"
+
+list_openshift_image_streams:
+  tool: list_image_streams
+  questions:
+    - "What ImageStreams are available in the openshift namespace?"
+    - "Show me all ImageStreams and how many tags each one has."
+    - "Which ImageStreams exist in my build namespace on OpenShift?"
+    - "List the container ImageStreams in the shared registry project."
+    - "How many image tags are tracked in the frontend ImageStream?"
