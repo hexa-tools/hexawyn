@@ -434,6 +434,17 @@ def build_cluster_resource_metrics_adapter() -> ClusterResourceMetricsPort:
     Insights; otherwise falls back to Prometheus (PromQL).
     """
     context = _current_cluster_context()
+    if _is_datadog_enabled(context):
+        from hexawyn.adapters.secondary.datadog.datadog_metrics_adapter import (
+            DatadogClusterResourceMetricsAdapter,
+        )
+        from hexawyn.infrastructure.config.datadog_config import get_datadog_config
+
+        config = get_datadog_config()
+        return DatadogClusterResourceMetricsAdapter(
+            key=config["key"], app_key=config["app_key"], site=config["site"]
+        )
+
     if _is_aws_eks_context(context):
         from hexawyn.adapters.secondary.aws.cloudwatch_metrics_adapter import (
             CloudWatchClusterResourceMetricsAdapter,
@@ -449,6 +460,16 @@ def build_cluster_resource_metrics_adapter() -> ClusterResourceMetricsPort:
     )
 
     return PrometheusClusterResourceMetricsAdapter(metrics_query_port=build_metrics_query_adapter())
+
+
+def _is_datadog_enabled(context: ClusterContext) -> bool:
+    from hexawyn.infrastructure.config.datadog_config import is_datadog_configured
+    from hexawyn.infrastructure.config.stack_config import get_stack_override
+
+    override = get_stack_override(context["name"])
+    if override is not None:
+        return override == "datadog"
+    return is_datadog_configured()
 
 
 def _current_cluster_context() -> ClusterContext:
@@ -642,6 +663,17 @@ def build_trace_event_correlation_adapter() -> TraceEventCorrelationPort:
 
 def build_trace_query_adapter() -> TraceQueryPort:
     context = _current_cluster_context()
+    if _is_datadog_enabled(context):
+        from hexawyn.adapters.secondary.datadog.datadog_traces_adapter import (
+            DatadogTracesAdapter,
+        )
+        from hexawyn.infrastructure.config.datadog_config import get_datadog_config
+
+        config = get_datadog_config()
+        return DatadogTracesAdapter(
+            key=config["key"], app_key=config["app_key"], site=config["site"]
+        )
+
     if _is_aws_eks_context(context):
         from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
         from hexawyn.adapters.secondary.aws.xray_trace_adapter import AWSXRayTraceAdapter
@@ -766,6 +798,13 @@ def build_pod_logs_adapter() -> PodLogsPort:
 
 def build_log_search_adapter() -> LogSearchPort:
     context = _current_cluster_context()
+    if _is_datadog_enabled(context):
+        from hexawyn.adapters.secondary.datadog.datadog_logs_adapter import DatadogLogsAdapter
+        from hexawyn.infrastructure.config.datadog_config import get_datadog_config
+
+        config = get_datadog_config()
+        return DatadogLogsAdapter(key=config["key"], app_key=config["app_key"], site=config["site"])
+
     if _is_aws_eks_context(context):
         from hexawyn.adapters.secondary.aws.cloudwatch_logs_adapter import CloudWatchLogsAdapter
         from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter

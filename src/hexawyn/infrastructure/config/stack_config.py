@@ -1,7 +1,7 @@
 from hexawyn.infrastructure.config.config_manager import load_config, save_config
 
 _OVERRIDES_KEY = "stack_overrides"
-_VALID_PROVIDERS = ("aws", "vanilla", "gcp", "azure")
+_VALID_PROVIDERS = ("aws", "vanilla", "gcp", "azure", "datadog")
 
 
 def get_stack_override(context_name: str) -> str | None:
