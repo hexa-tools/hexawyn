@@ -13,6 +13,7 @@ from hexawyn.domain.errors import (
     InvestigationError,
     LabelSelectorError,
     LogPatternError,
+    MachineConfigPoolCRDNotFoundError,
     ManifestRenderError,
     MetricsUnavailableError,
     MutationGuardTriggeredError,
@@ -102,6 +103,20 @@ class TestClusterOperatorCRDNotFoundError:
     def test_can_be_caught_as_hexawyn_error(self) -> None:
         with pytest.raises(HexawynError):
             raise ClusterOperatorCRDNotFoundError()
+
+
+class TestMachineConfigPoolCRDNotFoundError:
+    def test_inherits_from_hexawyn_error(self) -> None:
+        assert issubclass(MachineConfigPoolCRDNotFoundError, HexawynError)
+
+    def test_message_mentions_openshift_hint(self) -> None:
+        err = MachineConfigPoolCRDNotFoundError()
+        assert "MachineConfigPool" in str(err)
+        assert "OpenShift" in str(err)
+
+    def test_can_be_caught_as_hexawyn_error(self) -> None:
+        with pytest.raises(HexawynError):
+            raise MachineConfigPoolCRDNotFoundError()
 
 
 class TestServiceNotFoundError:

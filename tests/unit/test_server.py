@@ -1195,3 +1195,13 @@ class TestMCPLogSearchFactory:
         result = build_cluster_operator_status_adapter()
 
         assert isinstance(result, ClusterOperatorStatusPort)
+
+    def test_build_machine_config_pool_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.machine_config_pool_port import (
+            MachineConfigPoolPort,
+        )
+        from hexawyn.mcp.server import build_machine_config_pool_adapter
+
+        result = build_machine_config_pool_adapter()
+
+        assert isinstance(result, MachineConfigPoolPort)
