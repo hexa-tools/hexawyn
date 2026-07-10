@@ -287,3 +287,18 @@ class ManifestRenderError(HexawynError):
         super().__init__(f"Failed to render manifests for {source!r}: {detail}")
         self.source = source
         self.detail = detail
+
+
+class ClusterOperatorCRDNotFoundError(HexawynError):
+    """Raised when the ClusterOperator CRD is absent (e.g. vanilla Kubernetes).
+
+    ClusterOperators are an OpenShift-only resource served by the
+    config.openshift.io/v1 API group.
+    """
+
+    def __init__(self, context: dict[str, str] | None = None) -> None:
+        super().__init__(
+            "ClusterOperator CRD not found. This resource is OpenShift-only "
+            "(config.openshift.io/v1). Run this tool against an OpenShift cluster.",
+            context=context,
+        )
