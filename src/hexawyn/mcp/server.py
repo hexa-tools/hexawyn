@@ -16,6 +16,8 @@ from hexawyn.infrastructure.config.kubeconfig_reader import (
 from hexawyn.infrastructure.memory.duckdb_client import get_connection
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from hexawyn.application.ports.driven.adaptive_investigation_port import (
         AdaptiveInvestigationPort,
     )
@@ -394,6 +396,15 @@ def build_metrics_query_adapter() -> MetricsQueryPort:
 
         return GCPManagedPrometheusAdapter(project_id=GCPGKEAdapter(context).project_id or "")
 
+    if _is_azure_aks_context(context):
+        from hexawyn.adapters.secondary.azure.monitor_metrics_adapter import (
+            AzureMonitorMetricsAdapter,
+        )
+
+        return AzureMonitorMetricsAdapter(
+            endpoint=os.environ.get("AZURE_MONITOR_PROMETHEUS_URL", "")
+        )
+
     from hexawyn.adapters.secondary.gitops.prometheus_http_adapter import (
         PrometheusHTTPAdapter,
     )
@@ -406,18 +417,14 @@ def build_metrics_query_adapter() -> MetricsQueryPort:
 
 def _is_gcp_gke_context(context: ClusterContext) -> bool:
     from hexawyn.adapters.secondary.gcp.gcp_gke_provider import GCPGKEProvider
-    from hexawyn.infrastructure.config.stack_config import get_stack_override
 
-    override = get_stack_override(context["name"])
-    if override == "gcp":
-        return True
-    if override in ("vanilla", "aws"):
-        return False
+    return _detect_provider(context, "gcp", GCPGKEProvider.supports)
 
-    try:
-        return GCPGKEProvider.supports(context)
-    except Exception:
-        return False
+
+def _is_azure_aks_context(context: ClusterContext) -> bool:
+    from hexawyn.adapters.secondary.azure.azure_aks_provider import AzureAKSProvider
+
+    return _detect_provider(context, "azure", AzureAKSProvider.supports)
 
 
 def build_cluster_resource_metrics_adapter() -> ClusterResourceMetricsPort:
@@ -451,16 +458,28 @@ def _current_cluster_context() -> ClusterContext:
 
 def _is_aws_eks_context(context: ClusterContext) -> bool:
     from hexawyn.adapters.secondary.aws.aws_eks_provider import AWSEKSProvider
+
+    return _detect_provider(context, "aws", AWSEKSProvider.supports)
+
+
+def _detect_provider(
+    context: ClusterContext,
+    provider_key: str,
+    supports: Callable[[ClusterContext], bool],
+) -> bool:
+    """Resolve whether a cloud provider applies to the context.
+
+    An explicit stack override wins over auto-detection; otherwise the
+    provider's own `supports()` is used (failures are swallowed as False).
+    """
     from hexawyn.infrastructure.config.stack_config import get_stack_override
 
     override = get_stack_override(context["name"])
-    if override == "aws":
-        return True
-    if override in ("vanilla", "gcp"):
-        return False
+    if override is not None:
+        return override == provider_key
 
     try:
-        return AWSEKSProvider.supports(context)
+        return supports(context)
     except Exception:
         return False
 
@@ -635,6 +654,15 @@ def build_trace_query_adapter() -> TraceQueryPort:
 
         return GCPCloudTraceAdapter(project_id=GCPGKEAdapter(context).project_id or "")
 
+    if _is_azure_aks_context(context):
+        from hexawyn.adapters.secondary.azure.monitor_traces_adapter import (
+            AzureMonitorTracesAdapter,
+        )
+
+        return AzureMonitorTracesAdapter(
+            workspace_id=os.environ.get("AZURE_LOG_ANALYTICS_WORKSPACE_ID", "")
+        )
+
     from hexawyn.adapters.secondary.gitops.otel_http_adapter import OTelHTTPAdapter
 
     return OTelHTTPAdapter()
@@ -752,6 +780,15 @@ def build_log_search_adapter() -> LogSearchPort:
         from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         return GCPCloudLoggingAdapter(project_id=GCPGKEAdapter(context).project_id or "")
+
+    if _is_azure_aks_context(context):
+        from hexawyn.adapters.secondary.azure.log_analytics_adapter import (
+            AzureLogAnalyticsAdapter,
+        )
+
+        return AzureLogAnalyticsAdapter(
+            workspace_id=os.environ.get("AZURE_LOG_ANALYTICS_WORKSPACE_ID", "")
+        )
 
     from hexawyn.adapters.secondary.gitops.kubernetes_pod_log_search_adapter import (
         KubernetesPodLogSearchAdapter,

@@ -13,6 +13,7 @@ class TestViewStack:
             patch.object(stack_view, "get_stack_override", return_value=None),
             patch.object(stack_view, "_aws_supported", return_value=True),
             patch.object(stack_view, "_gcp_supported", return_value=False),
+            patch.object(stack_view, "_azure_supported", return_value=False),
             patch.object(stack_view, "_installed_provider_names", return_value=["AWS EKS"]),
         ):
             lines = stack_view.run_stack_command("/stack", "prod-eks")
@@ -28,6 +29,7 @@ class TestViewStack:
             patch.object(stack_view, "get_stack_override", return_value=None),
             patch.object(stack_view, "_aws_supported", return_value=False),
             patch.object(stack_view, "_gcp_supported", return_value=True),
+            patch.object(stack_view, "_azure_supported", return_value=False),
             patch.object(stack_view, "_installed_provider_names", return_value=["GCP GKE"]),
         ):
             lines = stack_view.run_stack_command("/stack", "gke_p_r_c")
@@ -36,11 +38,26 @@ class TestViewStack:
         assert "GCP Managed Prometheus" in body
         assert "Google Cloud Trace" in body
 
+    def test_shows_azure_stack_when_aks(self) -> None:
+        with (
+            patch.object(stack_view, "get_stack_override", return_value=None),
+            patch.object(stack_view, "_aws_supported", return_value=False),
+            patch.object(stack_view, "_gcp_supported", return_value=False),
+            patch.object(stack_view, "_azure_supported", return_value=True),
+            patch.object(stack_view, "_installed_provider_names", return_value=["Azure AKS"]),
+        ):
+            lines = stack_view.run_stack_command("/stack", "aks-prod")
+
+        body = _texts(lines)
+        assert "Azure Monitor Prometheus" in body
+        assert "Azure Log Analytics" in body
+
     def test_shows_override_source_when_forced(self) -> None:
         with (
             patch.object(stack_view, "get_stack_override", return_value="vanilla"),
             patch.object(stack_view, "_aws_supported", return_value=True),
             patch.object(stack_view, "_gcp_supported", return_value=True),
+            patch.object(stack_view, "_azure_supported", return_value=True),
             patch.object(stack_view, "_installed_provider_names", return_value=[]),
         ):
             lines = stack_view.run_stack_command("/stack", "prod-eks")
@@ -69,6 +86,24 @@ class TestOverrideCommands:
             stack_view.run_stack_command("/stack gcp", "gke_p_r_c")
 
         set_override.assert_called_once_with("gke_p_r_c", "gcp")
+
+    def test_force_azure_persists_override(self) -> None:
+        with (
+            patch.object(stack_view, "set_stack_override") as set_override,
+            patch.object(stack_view, "_provider_installed", return_value=True),
+        ):
+            stack_view.run_stack_command("/stack azure", "aks-prod")
+
+        set_override.assert_called_once_with("aks-prod", "azure")
+
+    def test_force_azure_warns_when_libs_missing(self) -> None:
+        with (
+            patch.object(stack_view, "set_stack_override"),
+            patch.object(stack_view, "_provider_installed", return_value=False),
+        ):
+            lines = stack_view.run_stack_command("/stack azure", "aks-prod")
+
+        assert "hexawyn[azure]" in _texts(lines)
 
     def test_force_gcp_warns_when_libs_missing(self) -> None:
         with (
@@ -105,10 +140,10 @@ class TestOverrideCommands:
         assert "auto" in _texts(lines).lower()
 
     def test_unknown_argument_returns_usage(self) -> None:
-        lines = stack_view.run_stack_command("/stack azure", "prod-eks")
+        lines = stack_view.run_stack_command("/stack oracle", "prod-eks")
 
         body = _texts(lines)
-        assert "azure" in body.lower()
+        assert "oracle" in body.lower()
         assert "/stack" in body
 
     def test_argument_is_case_insensitive(self) -> None:
@@ -133,6 +168,12 @@ class TestHelpers:
             assert stack_view._gcp_supported("gke_p_r_c") is True
 
         assert supports.call_args.args[0]["name"] == "gke_p_r_c"
+
+    def test_azure_supported_delegates_to_provider(self) -> None:
+        with patch.object(stack_view.AzureAKSProvider, "supports", return_value=True) as supports:
+            assert stack_view._azure_supported("aks-prod") is True
+
+        assert supports.call_args.args[0]["name"] == "aks-prod"
 
     def test_provider_installed_vanilla_always_true(self) -> None:
         assert stack_view._provider_installed("vanilla") is True

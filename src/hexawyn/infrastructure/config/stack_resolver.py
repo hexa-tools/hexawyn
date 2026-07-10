@@ -2,6 +2,7 @@ from typing import TypedDict
 
 _AWS_PROVIDER = "aws-eks"
 _GCP_PROVIDER = "gcp-gke"
+_AZURE_PROVIDER = "azure-aks"
 _VANILLA_PROVIDER = "vanilla"
 _SOURCE_OVERRIDE = "override"
 _SOURCE_AUTO = "auto"
@@ -16,7 +17,10 @@ class StackDescription(TypedDict):
 
 
 def resolve_stack(
-    override: str | None, aws_supported: bool, gcp_supported: bool
+    override: str | None,
+    aws_supported: bool,
+    gcp_supported: bool,
+    azure_supported: bool,
 ) -> StackDescription:
     """Resolve the effective observability stack for a context.
 
@@ -26,8 +30,12 @@ def resolve_stack(
         return _aws_stack(_SOURCE_OVERRIDE)
     if override == "gcp":
         return _gcp_stack(_SOURCE_OVERRIDE)
+    if override == "azure":
+        return _azure_stack(_SOURCE_OVERRIDE)
     if override == "vanilla":
         return _vanilla_stack(_SOURCE_OVERRIDE)
+    if azure_supported:
+        return _azure_stack(_SOURCE_AUTO)
     if gcp_supported:
         return _gcp_stack(_SOURCE_AUTO)
     if aws_supported:
@@ -51,6 +59,16 @@ def _gcp_stack(source: str) -> StackDescription:
         "metrics": "GCP Managed Prometheus",
         "traces": "Google Cloud Trace",
         "logs": "Google Cloud Logging",
+        "source": source,
+    }
+
+
+def _azure_stack(source: str) -> StackDescription:
+    return {
+        "provider": _AZURE_PROVIDER,
+        "metrics": "Azure Monitor Prometheus",
+        "traces": "Azure Monitor Traces",
+        "logs": "Azure Log Analytics",
         "source": source,
     }
 
