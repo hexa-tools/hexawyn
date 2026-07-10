@@ -3,6 +3,7 @@ from hexawyn.adapters.secondary.aws.aws_eks_provider import AWSEKSProvider
 from hexawyn.adapters.secondary.azure.azure_aks_provider import AzureAKSProvider
 from hexawyn.adapters.secondary.gcp.gcp_gke_provider import GCPGKEProvider
 from hexawyn.application.ports.driven.k8s_port import ClusterContext
+from hexawyn.infrastructure.config.datadog_config import is_datadog_configured
 from hexawyn.infrastructure.config.provider_detector import detect_installed_providers
 from hexawyn.infrastructure.config.stack_config import (
     clear_stack_override,
@@ -11,13 +12,14 @@ from hexawyn.infrastructure.config.stack_config import (
 )
 from hexawyn.infrastructure.config.stack_resolver import StackDescription, resolve_stack
 
-_FORCE_PROVIDERS = ("aws", "gcp", "azure", "vanilla")
+_FORCE_PROVIDERS = ("aws", "gcp", "azure", "datadog", "vanilla")
 _AUTO = "auto"
-_USAGE = "Usage: /stack [aws | gcp | azure | vanilla | auto]"
+_USAGE = "Usage: /stack [aws | gcp | azure | datadog | vanilla | auto]"
 _INSTALL_HINTS = {
     "aws": "⚠ boto3 not installed — run: pip install 'hexawyn[aws]'",
     "gcp": "⚠ google-cloud libs not installed — run: pip install 'hexawyn[gcp]'",
     "azure": "⚠ azure libs not installed — run: pip install 'hexawyn[azure]'",
+    "datadog": "⚠ datadog-api-client not installed — run: pip install 'hexawyn[datadog]'",
 }
 
 
@@ -49,6 +51,7 @@ def _view_lines(context_name: str) -> list[tuple[str, str]]:
         _aws_supported(context_name),
         _gcp_supported(context_name),
         _azure_supported(context_name),
+        _datadog_supported(),
     )
     return build_stack_lines(context_name, stack, _installed_provider_names())
 
@@ -96,6 +99,10 @@ def _gcp_supported(context_name: str) -> bool:
 
 def _azure_supported(context_name: str) -> bool:
     return AzureAKSProvider.supports(_cluster_context(context_name))
+
+
+def _datadog_supported() -> bool:
+    return is_datadog_configured()
 
 
 def _provider_installed(provider: str) -> bool:

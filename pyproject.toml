@@ -96,7 +96,7 @@ exclude = ["tests/"]
 # Cloud SDKs are optional extras: treat them as opaque so type-checking is
 # identical whether or not the extra is installed (no spurious unused-ignore).
 [[tool.mypy.overrides]]
-module = ["google.*", "boto3.*", "botocore.*", "azure.*"]
+module = ["google.*", "boto3.*", "botocore.*", "azure.*", "datadog_api_client.*"]
 follow_imports = "skip"
 follow_imports_for_stubs = true
 

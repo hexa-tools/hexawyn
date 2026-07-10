@@ -3,6 +3,7 @@ from typing import TypedDict
 _AWS_PROVIDER = "aws-eks"
 _GCP_PROVIDER = "gcp-gke"
 _AZURE_PROVIDER = "azure-aks"
+_DATADOG_PROVIDER = "datadog"
 _VANILLA_PROVIDER = "vanilla"
 _SOURCE_OVERRIDE = "override"
 _SOURCE_AUTO = "auto"
@@ -21,11 +22,14 @@ def resolve_stack(
     aws_supported: bool,
     gcp_supported: bool,
     azure_supported: bool,
+    datadog_supported: bool,
 ) -> StackDescription:
     """Resolve the effective observability stack for a context.
 
     An explicit override always wins over auto-detection.
     """
+    if override == "datadog":
+        return _datadog_stack(_SOURCE_OVERRIDE)
     if override == "aws":
         return _aws_stack(_SOURCE_OVERRIDE)
     if override == "gcp":
@@ -34,6 +38,8 @@ def resolve_stack(
         return _azure_stack(_SOURCE_OVERRIDE)
     if override == "vanilla":
         return _vanilla_stack(_SOURCE_OVERRIDE)
+    if datadog_supported:
+        return _datadog_stack(_SOURCE_AUTO)
     if azure_supported:
         return _azure_stack(_SOURCE_AUTO)
     if gcp_supported:
@@ -69,6 +75,16 @@ def _azure_stack(source: str) -> StackDescription:
         "metrics": "Azure Monitor Prometheus",
         "traces": "Azure Monitor Traces",
         "logs": "Azure Log Analytics",
+        "source": source,
+    }
+
+
+def _datadog_stack(source: str) -> StackDescription:
+    return {
+        "provider": _DATADOG_PROVIDER,
+        "metrics": "Datadog Metrics",
+        "traces": "Datadog APM",
+        "logs": "Datadog Logs",
         "source": source,
     }
 

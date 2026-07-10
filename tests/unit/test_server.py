@@ -744,6 +744,7 @@ class TestMCPClusterResourceMetricsFactory:
         from hexawyn.mcp.server import build_cluster_resource_metrics_adapter
 
         with (
+            patch("hexawyn.mcp.server._is_datadog_enabled", return_value=False),
             patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False),
             patch("hexawyn.mcp.server.build_metrics_query_adapter", return_value=MagicMock()),
         ):
@@ -758,10 +759,56 @@ class TestMCPClusterResourceMetricsFactory:
         )
         from hexawyn.mcp.server import build_cluster_resource_metrics_adapter
 
-        with patch("hexawyn.mcp.server._is_aws_eks_context", return_value=True):
+        with (
+            patch("hexawyn.mcp.server._is_datadog_enabled", return_value=False),
+            patch("hexawyn.mcp.server._is_aws_eks_context", return_value=True),
+        ):
             result = build_cluster_resource_metrics_adapter()
 
         assert isinstance(result, CloudWatchClusterResourceMetricsAdapter)
+
+    def test_returns_datadog_adapter_when_enabled(self) -> None:
+        from hexawyn.adapters.secondary.datadog.datadog_metrics_adapter import (
+            DatadogClusterResourceMetricsAdapter,
+        )
+        from hexawyn.mcp.server import build_cluster_resource_metrics_adapter
+
+        with patch("hexawyn.mcp.server._is_datadog_enabled", return_value=True):
+            result = build_cluster_resource_metrics_adapter()
+
+        assert isinstance(result, DatadogClusterResourceMetricsAdapter)
+
+
+class TestMCPDatadogDetection:
+    def test_override_datadog_enables(self) -> None:
+        from hexawyn.mcp.server import _current_cluster_context, _is_datadog_enabled
+
+        with patch(
+            "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value="datadog"
+        ):
+            assert _is_datadog_enabled(_current_cluster_context()) is True
+
+    def test_override_other_provider_disables_datadog(self) -> None:
+        from hexawyn.mcp.server import _current_cluster_context, _is_datadog_enabled
+
+        with patch(
+            "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value="aws"
+        ):
+            assert _is_datadog_enabled(_current_cluster_context()) is False
+
+    def test_env_configured_enables_when_no_override(self) -> None:
+        from hexawyn.mcp.server import _current_cluster_context, _is_datadog_enabled
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.stack_config.get_stack_override", return_value=None
+            ),
+            patch(
+                "hexawyn.infrastructure.config.datadog_config.is_datadog_configured",
+                return_value=True,
+            ),
+        ):
+            assert _is_datadog_enabled(_current_cluster_context()) is True
 
 
 class TestMCPTraceQueryFactory:
@@ -770,7 +817,10 @@ class TestMCPTraceQueryFactory:
         from hexawyn.application.ports.driven.trace_query_port import TraceQueryPort
         from hexawyn.mcp.server import build_trace_query_adapter
 
-        with patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False):
+        with (
+            patch("hexawyn.mcp.server._is_datadog_enabled", return_value=False),
+            patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False),
+        ):
             result = build_trace_query_adapter()
 
         assert isinstance(result, TraceQueryPort)
@@ -780,7 +830,10 @@ class TestMCPTraceQueryFactory:
         from hexawyn.adapters.secondary.aws.xray_trace_adapter import AWSXRayTraceAdapter
         from hexawyn.mcp.server import build_trace_query_adapter
 
-        with patch("hexawyn.mcp.server._is_aws_eks_context", return_value=True):
+        with (
+            patch("hexawyn.mcp.server._is_datadog_enabled", return_value=False),
+            patch("hexawyn.mcp.server._is_aws_eks_context", return_value=True),
+        ):
             result = build_trace_query_adapter()
 
         assert isinstance(result, AWSXRayTraceAdapter)
@@ -790,6 +843,7 @@ class TestMCPTraceQueryFactory:
         from hexawyn.mcp.server import build_trace_query_adapter
 
         with (
+            patch("hexawyn.mcp.server._is_datadog_enabled", return_value=False),
             patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False),
             patch("hexawyn.mcp.server._is_gcp_gke_context", return_value=True),
         ):
@@ -804,6 +858,7 @@ class TestMCPTraceQueryFactory:
         from hexawyn.mcp.server import build_trace_query_adapter
 
         with (
+            patch("hexawyn.mcp.server._is_datadog_enabled", return_value=False),
             patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False),
             patch("hexawyn.mcp.server._is_gcp_gke_context", return_value=False),
             patch("hexawyn.mcp.server._is_azure_aks_context", return_value=True),
@@ -811,6 +866,17 @@ class TestMCPTraceQueryFactory:
             result = build_trace_query_adapter()
 
         assert isinstance(result, AzureMonitorTracesAdapter)
+
+    def test_returns_datadog_traces_adapter_when_enabled(self) -> None:
+        from hexawyn.adapters.secondary.datadog.datadog_traces_adapter import (
+            DatadogTracesAdapter,
+        )
+        from hexawyn.mcp.server import build_trace_query_adapter
+
+        with patch("hexawyn.mcp.server._is_datadog_enabled", return_value=True):
+            result = build_trace_query_adapter()
+
+        assert isinstance(result, DatadogTracesAdapter)
 
 
 class TestMCPStackOverride:
@@ -965,7 +1031,10 @@ class TestMCPLogSearchFactory:
         from hexawyn.application.ports.driven.log_search_port import LogSearchPort
         from hexawyn.mcp.server import build_log_search_adapter
 
-        with patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False):
+        with (
+            patch("hexawyn.mcp.server._is_datadog_enabled", return_value=False),
+            patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False),
+        ):
             result = build_log_search_adapter()
 
         assert isinstance(result, LogSearchPort)
@@ -975,7 +1044,10 @@ class TestMCPLogSearchFactory:
         from hexawyn.adapters.secondary.aws.cloudwatch_logs_adapter import CloudWatchLogsAdapter
         from hexawyn.mcp.server import build_log_search_adapter
 
-        with patch("hexawyn.mcp.server._is_aws_eks_context", return_value=True):
+        with (
+            patch("hexawyn.mcp.server._is_datadog_enabled", return_value=False),
+            patch("hexawyn.mcp.server._is_aws_eks_context", return_value=True),
+        ):
             result = build_log_search_adapter()
 
         assert isinstance(result, CloudWatchLogsAdapter)
@@ -985,6 +1057,7 @@ class TestMCPLogSearchFactory:
         from hexawyn.mcp.server import build_log_search_adapter
 
         with (
+            patch("hexawyn.mcp.server._is_datadog_enabled", return_value=False),
             patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False),
             patch("hexawyn.mcp.server._is_gcp_gke_context", return_value=True),
         ):
@@ -999,6 +1072,7 @@ class TestMCPLogSearchFactory:
         from hexawyn.mcp.server import build_log_search_adapter
 
         with (
+            patch("hexawyn.mcp.server._is_datadog_enabled", return_value=False),
             patch("hexawyn.mcp.server._is_aws_eks_context", return_value=False),
             patch("hexawyn.mcp.server._is_gcp_gke_context", return_value=False),
             patch("hexawyn.mcp.server._is_azure_aks_context", return_value=True),
@@ -1006,6 +1080,15 @@ class TestMCPLogSearchFactory:
             result = build_log_search_adapter()
 
         assert isinstance(result, AzureLogAnalyticsAdapter)
+
+    def test_returns_datadog_logs_adapter_when_enabled(self) -> None:
+        from hexawyn.adapters.secondary.datadog.datadog_logs_adapter import DatadogLogsAdapter
+        from hexawyn.mcp.server import build_log_search_adapter
+
+        with patch("hexawyn.mcp.server._is_datadog_enabled", return_value=True):
+            result = build_log_search_adapter()
+
+        assert isinstance(result, DatadogLogsAdapter)
 
     def test_build_reliability_report_adapter_returns_weekly_reliability_report_port(
         self,

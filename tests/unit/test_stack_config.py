@@ -76,6 +76,18 @@ class TestSetStackOverride:
 
         assert saved["stack_overrides"] == {"aks-prod": "azure"}
 
+    def test_accepts_datadog_provider(self) -> None:
+        from hexawyn.infrastructure.config import stack_config
+
+        saved: dict[str, object] = {}
+        with (
+            patch.object(stack_config, "load_config", return_value={}),
+            patch.object(stack_config, "save_config", side_effect=saved.update),
+        ):
+            stack_config.set_stack_override("any-cluster", "datadog")
+
+        assert saved["stack_overrides"] == {"any-cluster": "datadog"}
+
     def test_accepts_gcp_provider(self) -> None:
         from hexawyn.infrastructure.config import stack_config
 
