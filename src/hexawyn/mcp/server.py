@@ -34,6 +34,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.certificate_investigation_port import (
         CertificateInvestigationPort,
     )
+    from hexawyn.application.ports.driven.cluster_operator_status_port import (
+        ClusterOperatorStatusPort,
+    )
     from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
         ClusterResourceMetricsPort,
     )
@@ -985,6 +988,14 @@ def build_tls_compliance_adapter() -> TLSCompliancePort:
     )
 
     return TLSComplianceAdapter()
+
+
+def build_cluster_operator_status_adapter() -> ClusterOperatorStatusPort:
+    from hexawyn.adapters.secondary.openshift.openshift_cluster_operator_adapter import (
+        OpenShiftClusterOperatorAdapter,
+    )
+
+    return OpenShiftClusterOperatorAdapter()
 
 
 def register_tools(server: FastMCP) -> None:

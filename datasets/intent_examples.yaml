@@ -1310,3 +1310,13 @@ list_openshift_image_streams:
     - "Which ImageStreams exist in my build namespace on OpenShift?"
     - "List the container ImageStreams in the shared registry project."
     - "How many image tags are tracked in the frontend ImageStream?"
+
+check_cluster_operator_health:
+  tool: check_cluster_operator_health
+  questions:
+    - "Are all OpenShift cluster operators healthy right now?"
+    - "Which cluster operators are Degraded or Progressing, and what is the root cause?"
+    - "Has the etcd cluster operator been degraded long enough to be a chronic problem?"
+    - "Give me a summary of ClusterOperator health — how many are healthy versus degraded?"
+    - "Why is my OpenShift upgrade stuck — which operators are still progressing?"
+    - "Show me every degraded cluster operator with its condition message."
