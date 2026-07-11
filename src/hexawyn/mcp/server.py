@@ -60,7 +60,13 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.deployment_latency_comparison_port import (
         DeploymentLatencyComparisonPort,
     )
+    from hexawyn.application.ports.driven.disruption_risk_port import (
+        DisruptionRiskPort,
+    )
     from hexawyn.application.ports.driven.drift_detection_port import DriftDetectionPort
+    from hexawyn.application.ports.driven.engineer_workload_port import (
+        EngineerWorkloadPort,
+    )
     from hexawyn.application.ports.driven.error_attribution_port import (
         ErrorAttributionPort,
     )
@@ -635,6 +641,28 @@ def build_budget_intelligence_adapter() -> BudgetIntelligencePort:
     )
 
     return BudgetIntelligenceAdapter(source=ConfigBudgetIntelligenceSource())
+
+
+def build_night_intervention_adapter() -> EngineerWorkloadPort:
+    from hexawyn.adapters.secondary.gitops.night_intervention_adapter import (
+        NightInterventionAdapter,
+    )
+    from hexawyn.adapters.secondary.gitops.night_intervention_source import (
+        EmptyNightInterventionSource,
+    )
+
+    return NightInterventionAdapter(source=EmptyNightInterventionSource())
+
+
+def build_disruption_risk_adapter() -> DisruptionRiskPort:
+    from hexawyn.adapters.secondary.gitops.disruption_risk_adapter import (
+        DisruptionRiskAdapter,
+    )
+    from hexawyn.adapters.secondary.gitops.disruption_risk_source import (
+        EmptyDisruptionRiskSource,
+    )
+
+    return DisruptionRiskAdapter(source=EmptyDisruptionRiskSource())
 
 
 def build_node_analysis_adapter() -> HotNodeAnalysisPort:
