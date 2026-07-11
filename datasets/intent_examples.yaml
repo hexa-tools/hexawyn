@@ -1350,3 +1350,13 @@ compute_security_posture:
     - "Is our security compliance improving or degrading versus last quarter?"
     - "How many workloads fail TLS, RBAC, Pod Security, image scanning or secret rotation?"
     - "Show me our security compliance score so I can report our posture to the board."
+
+project_budget:
+  tool: project_budget
+  questions:
+    - "At current growth, what will our infrastructure cost be in 6 months?"
+    - "Project our monthly cloud spend for the next two quarters with best and worst case."
+    - "When will we exceed our monthly budget threshold at the current growth rate?"
+    - "Is our infrastructure cost trending up or down, and by how much per month?"
+    - "Give me a 6-month budget forecast broken down by compute, storage and network."
+    - "Forecast our cloud bill so I can plan the budget and avoid surprises."

@@ -24,6 +24,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.alert_notification_port import (
         AlertNotificationPort,
     )
+    from hexawyn.application.ports.driven.budget_projection_port import (
+        BudgetProjectionPort,
+    )
     from hexawyn.application.ports.driven.canary_comparison_port import (
         CanaryComparisonPort,
     )
@@ -261,6 +264,14 @@ def build_cost_forecast_adapter() -> CostForecastPort:
 
     context = context_name if context_name != "unknown" else None
     return VanillaAdapter(cluster_name=context or "default")
+
+
+def build_budget_projection_adapter() -> BudgetProjectionPort:
+    from hexawyn.adapters.secondary.gitops.budget_projection_adapter import (
+        BudgetProjectionAdapter,
+    )
+
+    return BudgetProjectionAdapter(cost_forecast_port=build_cost_forecast_adapter())
 
 
 def build_waste_adapter() -> NamespaceWasteAnalysisPort:

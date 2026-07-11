@@ -254,6 +254,16 @@ class TestMCPListNamespacesTool:
 
         assert isinstance(result, CostForecastPort)
 
+    def test_build_budget_projection_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.budget_projection_port import (
+            BudgetProjectionPort,
+        )
+        from hexawyn.mcp.server import build_budget_projection_adapter
+
+        result = build_budget_projection_adapter()
+
+        assert isinstance(result, BudgetProjectionPort)
+
     def test_register_tools_does_not_crash_on_import_error(self) -> None:
         from pathlib import Path
         from unittest.mock import patch
