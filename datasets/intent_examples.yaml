@@ -1340,3 +1340,13 @@ diff_helm_values:
     - "Are staging and production in sync for the checkout release, or do values differ?"
     - "Which critical Helm value differences exist between my two environments?"
     - "Compare the effective Helm values of my release across environments and flag risky diffs."
+
+compute_security_posture:
+  tool: compute_security_posture
+  questions:
+    - "What percentage of our workloads are compliant with our security policies?"
+    - "Give me our overall security posture score with a breakdown by category."
+    - "Which non-compliant workloads should we remediate first for the board report?"
+    - "Is our security compliance improving or degrading versus last quarter?"
+    - "How many workloads fail TLS, RBAC, Pod Security, image scanning or secret rotation?"
+    - "Show me our security compliance score so I can report our posture to the board."

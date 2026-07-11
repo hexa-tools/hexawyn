@@ -1196,6 +1196,16 @@ class TestMCPLogSearchFactory:
 
         assert isinstance(result, TLSCompliancePort)
 
+    def test_build_security_posture_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.security_posture_port import (
+            SecurityPosturePort,
+        )
+        from hexawyn.mcp.server import build_security_posture_adapter
+
+        result = build_security_posture_adapter()
+
+        assert isinstance(result, SecurityPosturePort)
+
     def test_build_cluster_operator_status_adapter_returns_port(self) -> None:
         from hexawyn.application.ports.driven.cluster_operator_status_port import (
             ClusterOperatorStatusPort,
