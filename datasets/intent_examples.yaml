@@ -1370,3 +1370,13 @@ plan_spike_provisioning:
     - "What is our current CPU and memory headroom ahead of peak season?"
     - "Can our autoscaler handle the Black Friday spike, or do we need manual provisioning?"
     - "Provision infrastructure proactively for peak traffic and give me a deadline."
+
+compute_optimization_roi:
+  tool: compute_optimization_roi
+  questions:
+    - "What is the ROI of our last Kubernetes optimization sprint?"
+    - "How much did our optimization sprint save per month and per year?"
+    - "Which optimizations had the biggest cost impact last sprint?"
+    - "Did our cost reduction hurt latency or reliability?"
+    - "Show me the business value of our right-sizing sprint for the board."
+    - "Prove the savings from our last cost-optimization sprint with before and after numbers."

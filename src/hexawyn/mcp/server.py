@@ -128,6 +128,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.network_policy_audit_port import (
         NetworkPolicyAuditPort,
     )
+    from hexawyn.application.ports.driven.optimization_roi_port import (
+        OptimizationRoiPort,
+    )
     from hexawyn.application.ports.driven.pipeline_for_service_port import (
         PipelineForServicePort,
     )
@@ -557,6 +560,17 @@ def build_spike_provisioning_adapter() -> SpikeProvisioningPort:
         current_cpu_used_cores=0.0,
         current_memory_used_gb=0.0,
     )
+
+
+def build_optimization_roi_adapter() -> OptimizationRoiPort:
+    from hexawyn.adapters.secondary.gitops.optimization_roi_adapter import (
+        OptimizationRoiAdapter,
+    )
+    from hexawyn.adapters.secondary.gitops.optimization_roi_source import (
+        EmptySprintRoiSource,
+    )
+
+    return OptimizationRoiAdapter(source=EmptySprintRoiSource())
 
 
 def build_node_analysis_adapter() -> HotNodeAnalysisPort:
