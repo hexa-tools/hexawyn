@@ -1360,3 +1360,13 @@ project_budget:
     - "Is our infrastructure cost trending up or down, and by how much per month?"
     - "Give me a 6-month budget forecast broken down by compute, storage and network."
     - "Forecast our cloud bill so I can plan the budget and avoid surprises."
+
+plan_spike_provisioning:
+  tool: plan_spike_provisioning
+  questions:
+    - "Do we need to provision new nodes before the Black Friday traffic spike?"
+    - "Will our cluster survive a 3x traffic spike, or should we scale up first?"
+    - "How many nodes should we add before our product launch, and by when?"
+    - "What is our current CPU and memory headroom ahead of peak season?"
+    - "Can our autoscaler handle the Black Friday spike, or do we need manual provisioning?"
+    - "Provision infrastructure proactively for peak traffic and give me a deadline."

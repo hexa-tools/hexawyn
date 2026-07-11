@@ -264,6 +264,16 @@ class TestMCPListNamespacesTool:
 
         assert isinstance(result, BudgetProjectionPort)
 
+    def test_build_spike_provisioning_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.spike_provisioning_port import (
+            SpikeProvisioningPort,
+        )
+        from hexawyn.mcp.server import build_spike_provisioning_adapter
+
+        result = build_spike_provisioning_adapter()
+
+        assert isinstance(result, SpikeProvisioningPort)
+
     def test_register_tools_does_not_crash_on_import_error(self) -> None:
         from pathlib import Path
         from unittest.mock import patch
