@@ -171,6 +171,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.service_dependency_graph_port import (
         ServiceDependencyGraphPort,
     )
+    from hexawyn.application.ports.driven.sla_report_port import SlaReportPort
     from hexawyn.application.ports.driven.slo_breach_prediction_port import (
         SLOBreachPredictionPort,
     )
@@ -571,6 +572,15 @@ def build_optimization_roi_adapter() -> OptimizationRoiPort:
     )
 
     return OptimizationRoiAdapter(source=EmptySprintRoiSource())
+
+
+def build_sla_report_adapter() -> SlaReportPort:
+    from hexawyn.adapters.secondary.gitops.sla_report_adapter import SlaReportAdapter
+    from hexawyn.adapters.secondary.gitops.sla_report_source import (
+        EmptyQuarterSlaSource,
+    )
+
+    return SlaReportAdapter(source=EmptyQuarterSlaSource())
 
 
 def build_node_analysis_adapter() -> HotNodeAnalysisPort:

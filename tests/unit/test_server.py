@@ -284,6 +284,14 @@ class TestMCPListNamespacesTool:
 
         assert isinstance(result, OptimizationRoiPort)
 
+    def test_build_sla_report_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.sla_report_port import SlaReportPort
+        from hexawyn.mcp.server import build_sla_report_adapter
+
+        result = build_sla_report_adapter()
+
+        assert isinstance(result, SlaReportPort)
+
     def test_register_tools_does_not_crash_on_import_error(self) -> None:
         from pathlib import Path
         from unittest.mock import patch

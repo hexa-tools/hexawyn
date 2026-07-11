@@ -1380,3 +1380,13 @@ compute_optimization_roi:
     - "Did our cost reduction hurt latency or reliability?"
     - "Show me the business value of our right-sizing sprint for the board."
     - "Prove the savings from our last cost-optimization sprint with before and after numbers."
+
+generate_sla_report:
+  tool: generate_sla_report
+  questions:
+    - "Generate an executive SLA report for all customer-facing services this quarter."
+    - "What was our uptime per service versus SLA target this quarter?"
+    - "Which services breached their SLA, and for how long?"
+    - "Is our reliability improving or degrading compared to last quarter?"
+    - "Give me a stakeholder-ready SLA summary with breaches and impacted users."
+    - "Show me quarterly SLA compliance so I can report reliability to the board."
