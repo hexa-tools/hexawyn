@@ -302,6 +302,34 @@ class TestMCPListNamespacesTool:
 
         assert isinstance(result, PlatformReliabilityPort)
 
+    def test_build_incident_cost_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.incident_cost_port import IncidentCostPort
+        from hexawyn.mcp.server import build_incident_cost_adapter
+
+        result = build_incident_cost_adapter()
+
+        assert isinstance(result, IncidentCostPort)
+
+    def test_build_prediction_roi_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.prediction_roi_port import (
+            PredictionRoiPort,
+        )
+        from hexawyn.mcp.server import build_prediction_roi_adapter
+
+        result = build_prediction_roi_adapter()
+
+        assert isinstance(result, PredictionRoiPort)
+
+    def test_build_budget_intelligence_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.budget_intelligence_port import (
+            BudgetIntelligencePort,
+        )
+        from hexawyn.mcp.server import build_budget_intelligence_adapter
+
+        result = build_budget_intelligence_adapter()
+
+        assert isinstance(result, BudgetIntelligencePort)
+
     def test_register_tools_does_not_crash_on_import_error(self) -> None:
         from pathlib import Path
         from unittest.mock import patch
