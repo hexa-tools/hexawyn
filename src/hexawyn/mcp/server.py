@@ -54,6 +54,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.cost_saving_estimation_port import (
         CostSavingEstimationPort,
     )
+    from hexawyn.application.ports.driven.critical_cve_port import CriticalCvePort
     from hexawyn.application.ports.driven.cross_namespace_traffic_port import (
         CrossNamespaceTrafficPort,
     )
@@ -200,6 +201,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.spike_provisioning_port import (
         SpikeProvisioningPort,
     )
+    from hexawyn.application.ports.driven.stale_credentials_port import (
+        StaleCredentialsPort,
+    )
     from hexawyn.application.ports.driven.team_cost_port import TeamCostPort
     from hexawyn.application.ports.driven.tekton_port import TektonPort
     from hexawyn.application.ports.driven.tls_compliance_port import (
@@ -215,6 +219,9 @@ if TYPE_CHECKING:
         TraceLogCorrelationPort,
     )
     from hexawyn.application.ports.driven.trace_query_port import TraceQueryPort
+    from hexawyn.application.ports.driven.unauthorized_access_port import (
+        UnauthorizedAccessPort,
+    )
     from hexawyn.application.ports.driven.version_regression_port import (
         VersionRegressionPort,
     )
@@ -663,6 +670,39 @@ def build_disruption_risk_adapter() -> DisruptionRiskPort:
     )
 
     return DisruptionRiskAdapter(source=EmptyDisruptionRiskSource())
+
+
+def build_critical_cve_adapter() -> CriticalCvePort:
+    from hexawyn.adapters.secondary.gitops.critical_cve_adapter import (
+        CriticalCveAdapter,
+    )
+    from hexawyn.adapters.secondary.gitops.critical_cve_source import (
+        EmptyCriticalCveSource,
+    )
+
+    return CriticalCveAdapter(source=EmptyCriticalCveSource())
+
+
+def build_stale_credentials_adapter() -> StaleCredentialsPort:
+    from hexawyn.adapters.secondary.gitops.stale_credentials_adapter import (
+        StaleCredentialsAdapter,
+    )
+    from hexawyn.adapters.secondary.gitops.stale_credentials_source import (
+        EmptyStaleCredentialsSource,
+    )
+
+    return StaleCredentialsAdapter(source=EmptyStaleCredentialsSource())
+
+
+def build_unauthorized_access_adapter() -> UnauthorizedAccessPort:
+    from hexawyn.adapters.secondary.gitops.unauthorized_access_adapter import (
+        UnauthorizedAccessAdapter,
+    )
+    from hexawyn.adapters.secondary.gitops.unauthorized_access_source import (
+        EmptyUnauthorizedAccessSource,
+    )
+
+    return UnauthorizedAccessAdapter(source=EmptyUnauthorizedAccessSource())
 
 
 def build_node_analysis_adapter() -> HotNodeAnalysisPort:
