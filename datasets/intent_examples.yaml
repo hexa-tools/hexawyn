@@ -1427,3 +1427,19 @@ compute_budget_intelligence:
     - "Quel est l'état de notre budget cloud ce mois ?"
     - "Suis-je en train de dépasser mon budget infrastructure ?"
     - "Devrais-je m'inquiéter de la hausse de nos coûts cloud ?"
+
+report_night_interventions:
+  tool: report_night_interventions
+  questions:
+    - "L'équipe SRE est-elle moins sollicitée la nuit ?"
+    - "Combien d'interventions nocturnes avons-nous ce mois versus le trimestre dernier ?"
+    - "La charge d'astreinte nocturne s'améliore-t-elle ?"
+    - "Quelle est la moyenne d'interventions par nuit ce mois ?"
+
+check_disruption_risks:
+  tool: check_disruption_risks
+  questions:
+    - "Avons-nous des risques de rupture de service dans la semaine ?"
+    - "Y a-t-il des risques de saturation mémoire ou de breach SLO prochainement ?"
+    - "Quels services risquent une interruption dans les 7 prochains jours ?"
+    - "Dois-je planifier une intervention cette semaine pour éviter une panne ?"

@@ -330,6 +330,26 @@ class TestMCPListNamespacesTool:
 
         assert isinstance(result, BudgetIntelligencePort)
 
+    def test_build_night_intervention_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.engineer_workload_port import (
+            EngineerWorkloadPort,
+        )
+        from hexawyn.mcp.server import build_night_intervention_adapter
+
+        result = build_night_intervention_adapter()
+
+        assert isinstance(result, EngineerWorkloadPort)
+
+    def test_build_disruption_risk_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.disruption_risk_port import (
+            DisruptionRiskPort,
+        )
+        from hexawyn.mcp.server import build_disruption_risk_adapter
+
+        result = build_disruption_risk_adapter()
+
+        assert isinstance(result, DisruptionRiskPort)
+
     def test_register_tools_does_not_crash_on_import_error(self) -> None:
         from pathlib import Path
         from unittest.mock import patch
