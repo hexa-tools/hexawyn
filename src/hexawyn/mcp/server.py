@@ -137,6 +137,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.pipeline_run_logs_port import (
         PipelineRunLogsPort,
     )
+    from hexawyn.application.ports.driven.platform_reliability_port import (
+        PlatformReliabilityPort,
+    )
     from hexawyn.application.ports.driven.pod_log_watch_port import PodLogWatchPort
     from hexawyn.application.ports.driven.pod_logs_port import PodLogsPort
     from hexawyn.application.ports.driven.pod_metrics_baseline_port import (
@@ -581,6 +584,17 @@ def build_sla_report_adapter() -> SlaReportPort:
     )
 
     return SlaReportAdapter(source=EmptyQuarterSlaSource())
+
+
+def build_platform_reliability_adapter() -> PlatformReliabilityPort:
+    from hexawyn.adapters.secondary.gitops.platform_reliability_adapter import (
+        PlatformReliabilityAdapter,
+    )
+    from hexawyn.adapters.secondary.gitops.platform_reliability_source import (
+        EmptyReliabilityDataSource,
+    )
+
+    return PlatformReliabilityAdapter(source=EmptyReliabilityDataSource())
 
 
 def build_node_analysis_adapter() -> HotNodeAnalysisPort:
