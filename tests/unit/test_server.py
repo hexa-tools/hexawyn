@@ -1118,6 +1118,16 @@ class TestMCPLogSearchFactory:
 
         assert isinstance(result, HelmReleaseVersionPort)
 
+    def test_build_helm_values_diff_adapter_returns_helm_values_diff_port(self) -> None:
+        from hexawyn.application.ports.driven.helm_values_diff_port import (
+            HelmValuesDiffPort,
+        )
+        from hexawyn.mcp.server import build_helm_values_diff_adapter
+
+        result = build_helm_values_diff_adapter()
+
+        assert isinstance(result, HelmValuesDiffPort)
+
     def test_build_kustomize_patch_analysis_adapter_returns_kustomize_patch_analysis_port(
         self,
     ) -> None:
