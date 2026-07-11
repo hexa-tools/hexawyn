@@ -292,6 +292,16 @@ class TestMCPListNamespacesTool:
 
         assert isinstance(result, SlaReportPort)
 
+    def test_build_platform_reliability_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.platform_reliability_port import (
+            PlatformReliabilityPort,
+        )
+        from hexawyn.mcp.server import build_platform_reliability_adapter
+
+        result = build_platform_reliability_adapter()
+
+        assert isinstance(result, PlatformReliabilityPort)
+
     def test_register_tools_does_not_crash_on_import_error(self) -> None:
         from pathlib import Path
         from unittest.mock import patch

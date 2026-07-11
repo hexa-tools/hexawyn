@@ -1390,3 +1390,13 @@ generate_sla_report:
     - "Is our reliability improving or degrading compared to last quarter?"
     - "Give me a stakeholder-ready SLA summary with breaches and impacted users."
     - "Show me quarterly SLA compliance so I can report reliability to the board."
+
+report_platform_reliability:
+  tool: report_platform_reliability
+  questions:
+    - "Quelle est la fiabilité de notre plateforme ce mois-ci ?"
+    - "Combien d'incidents avons-nous eu ce mois, et de quelle gravité ?"
+    - "Notre temps de résolution s'améliore-t-il par rapport au mois dernier ?"
+    - "Quel a été l'impact financier des indisponibilités ce mois-ci ?"
+    - "Donne-moi un résumé de santé de la plateforme en langage clair pour la direction."
+    - "How reliable was our platform this month in plain business terms?"
