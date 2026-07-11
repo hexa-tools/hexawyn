@@ -1400,3 +1400,30 @@ report_platform_reliability:
     - "Quel a été l'impact financier des indisponibilités ce mois-ci ?"
     - "Donne-moi un résumé de santé de la plateforme en langage clair pour la direction."
     - "How reliable was our platform this month in plain business terms?"
+
+analyze_incident_cost:
+  tool: analyze_incident_cost
+  questions:
+    - "Combien nous a coûté la panne d'hier ?"
+    - "Quel a été l'impact financier de l'incident du service Paiement ?"
+    - "Combien de chiffre d'affaires avons-nous perdu pendant l'indisponibilité ?"
+    - "Quel est le coût métier de l'incident de ce matin ?"
+    - "How much did yesterday's outage cost us in euros?"
+    - "Chiffre-moi l'impact business de la dernière interruption de service."
+
+compute_prediction_roi:
+  tool: compute_prediction_roi
+  questions:
+    - "Combien avons-nous économisé grâce aux prédictions ce mois-ci ?"
+    - "Quel est le ROI des alertes automatiques ?"
+    - "Combien d'incidents potentiels avons-nous détectés et évités ?"
+    - "Montre-moi les pertes évitées grâce à Hexawyn ce mois."
+    - "How much did predictions save us this month?"
+
+compute_budget_intelligence:
+  tool: compute_budget_intelligence
+  questions:
+    - "Allons-nous dépasser notre budget cloud mensuel ?"
+    - "Quel est l'état de notre budget cloud ce mois ?"
+    - "Suis-je en train de dépasser mon budget infrastructure ?"
+    - "Devrais-je m'inquiéter de la hausse de nos coûts cloud ?"

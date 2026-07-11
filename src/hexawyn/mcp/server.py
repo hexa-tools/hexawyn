@@ -24,6 +24,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.alert_notification_port import (
         AlertNotificationPort,
     )
+    from hexawyn.application.ports.driven.budget_intelligence_port import (
+        BudgetIntelligencePort,
+    )
     from hexawyn.application.ports.driven.budget_projection_port import (
         BudgetProjectionPort,
     )
@@ -88,6 +91,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.image_vulnerability_scan_port import (
         ImageVulnerabilityScanPort,
     )
+    from hexawyn.application.ports.driven.incident_cost_port import IncidentCostPort
     from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
     from hexawyn.application.ports.driven.k8s_port import ClusterContext, K8sPort
     from hexawyn.application.ports.driven.keda_port import KedaPort
@@ -149,6 +153,9 @@ if TYPE_CHECKING:
         PodSecurityContextAuditPort,
     )
     from hexawyn.application.ports.driven.policy_port import PolicyPort
+    from hexawyn.application.ports.driven.prediction_roi_port import (
+        PredictionRoiPort,
+    )
     from hexawyn.application.ports.driven.probe_audit_port import ProbeAuditPort
     from hexawyn.application.ports.driven.rbac_security_audit_port import (
         RBACSecurityAuditPort,
@@ -595,6 +602,39 @@ def build_platform_reliability_adapter() -> PlatformReliabilityPort:
     )
 
     return PlatformReliabilityAdapter(source=EmptyReliabilityDataSource())
+
+
+def build_incident_cost_adapter() -> IncidentCostPort:
+    from hexawyn.adapters.secondary.gitops.incident_cost_adapter import (
+        IncidentCostAdapter,
+    )
+    from hexawyn.adapters.secondary.gitops.incident_cost_source import (
+        ConfigIncidentCostSource,
+    )
+
+    return IncidentCostAdapter(source=ConfigIncidentCostSource())
+
+
+def build_prediction_roi_adapter() -> PredictionRoiPort:
+    from hexawyn.adapters.secondary.gitops.prediction_roi_adapter import (
+        PredictionRoiAdapter,
+    )
+    from hexawyn.adapters.secondary.gitops.prediction_roi_source import (
+        ConfigPredictionRoiSource,
+    )
+
+    return PredictionRoiAdapter(source=ConfigPredictionRoiSource())
+
+
+def build_budget_intelligence_adapter() -> BudgetIntelligencePort:
+    from hexawyn.adapters.secondary.gitops.budget_intelligence_adapter import (
+        BudgetIntelligenceAdapter,
+    )
+    from hexawyn.adapters.secondary.gitops.budget_intelligence_source import (
+        ConfigBudgetIntelligenceSource,
+    )
+
+    return BudgetIntelligenceAdapter(source=ConfigBudgetIntelligenceSource())
 
 
 def build_node_analysis_adapter() -> HotNodeAnalysisPort:
