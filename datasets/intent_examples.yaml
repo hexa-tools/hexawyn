@@ -1330,3 +1330,13 @@ check_machine_config_pool_status:
     - "Has the worker pool been updating for too long — is the rollout stuck?"
     - "Give me a summary of MachineConfigPool health — how many pools are healthy versus degraded?"
     - "Show me the current and desired MachineConfig for each pool."
+
+diff_helm_values:
+  tool: diff_helm_values
+  questions:
+    - "Show me all values that differ between my staging and production Helm values."
+    - "What configuration differences could explain why prod behaves differently from staging?"
+    - "Diff the payment-service Helm values between staging and production."
+    - "Are staging and production in sync for the checkout release, or do values differ?"
+    - "Which critical Helm value differences exist between my two environments?"
+    - "Compare the effective Helm values of my release across environments and flag risky diffs."

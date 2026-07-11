@@ -74,6 +74,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.helm_release_version_port import (
         HelmReleaseVersionPort,
     )
+    from hexawyn.application.ports.driven.helm_values_diff_port import (
+        HelmValuesDiffPort,
+    )
     from hexawyn.application.ports.driven.hot_node_analysis_port import (
         HotNodeAnalysisPort,
     )
@@ -935,6 +938,14 @@ def build_helm_release_version_adapter() -> HelmReleaseVersionPort:
     )
 
     return HelmReleaseVersionAdapter()
+
+
+def build_helm_values_diff_adapter() -> HelmValuesDiffPort:
+    from hexawyn.adapters.secondary.gitops.helm_values_adapter import (
+        HelmValuesAdapter,
+    )
+
+    return HelmValuesAdapter()
 
 
 def build_kustomize_patch_analysis_adapter() -> KustomizePatchAnalysisPort:
