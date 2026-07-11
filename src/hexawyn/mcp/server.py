@@ -158,6 +158,9 @@ if TYPE_CHECKING:
         SecretRotationAuditPort,
     )
     from hexawyn.application.ports.driven.security_audit_port import SecurityAuditPort
+    from hexawyn.application.ports.driven.security_posture_port import (
+        SecurityPosturePort,
+    )
     from hexawyn.application.ports.driven.service_cost_port import ServiceCostPort
     from hexawyn.application.ports.driven.service_dependency_graph_port import (
         ServiceDependencyGraphPort,
@@ -1002,6 +1005,33 @@ def build_tls_compliance_adapter() -> TLSCompliancePort:
     )
 
     return TLSComplianceAdapter()
+
+
+def build_security_posture_adapter() -> SecurityPosturePort:
+    from hexawyn.adapters.secondary.security_posture.category_providers import (
+        PodSecurityProvider,
+        TLSComplianceProvider,
+    )
+    from hexawyn.adapters.secondary.security_posture.security_posture_adapter import (
+        ComplianceCategoryProvider,
+        SecurityPostureAdapter,
+    )
+    from hexawyn.application.service.audit_tls_compliance_service import (
+        AuditTLSComplianceService,
+    )
+    from hexawyn.application.service.pod_security_standards_audit_service import (
+        PodSecurityStandardsAuditService,
+    )
+
+    providers: list[ComplianceCategoryProvider] = [
+        TLSComplianceProvider(
+            service=AuditTLSComplianceService(tls_port=build_tls_compliance_adapter())
+        ),
+        PodSecurityProvider(
+            service=PodSecurityStandardsAuditService(pod_security_port=build_pod_security_adapter())
+        ),
+    ]
+    return SecurityPostureAdapter(providers=providers)
 
 
 def build_cluster_operator_status_adapter() -> ClusterOperatorStatusPort:
