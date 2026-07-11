@@ -177,6 +177,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.span_bottleneck_port import (
         SpanBottleneckPort,
     )
+    from hexawyn.application.ports.driven.spike_provisioning_port import (
+        SpikeProvisioningPort,
+    )
     from hexawyn.application.ports.driven.team_cost_port import TeamCostPort
     from hexawyn.application.ports.driven.tekton_port import TektonPort
     from hexawyn.application.ports.driven.tls_compliance_port import (
@@ -542,6 +545,18 @@ def build_headroom_simulation_adapter() -> HeadroomSimulationPort:
     )
 
     return KubernetesHeadroomSimulationAdapter()
+
+
+def build_spike_provisioning_adapter() -> SpikeProvisioningPort:
+    from hexawyn.adapters.secondary.gitops.spike_provisioning_adapter import (
+        SpikeProvisioningAdapter,
+    )
+
+    return SpikeProvisioningAdapter(
+        headroom_port=build_headroom_simulation_adapter(),
+        current_cpu_used_cores=0.0,
+        current_memory_used_gb=0.0,
+    )
 
 
 def build_node_analysis_adapter() -> HotNodeAnalysisPort:
