@@ -49,6 +49,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.compliance_audit_port import (
         ComplianceAuditPort,
     )
+    from hexawyn.application.ports.driven.cost_estimation_port import (
+        CostEstimationPort,
+    )
     from hexawyn.application.ports.driven.cost_forecast_port import CostForecastPort
     from hexawyn.application.ports.driven.cost_profiling_port import CostProfilingPort
     from hexawyn.application.ports.driven.cost_saving_estimation_port import (
@@ -703,6 +706,30 @@ def build_unauthorized_access_adapter() -> UnauthorizedAccessPort:
     )
 
     return UnauthorizedAccessAdapter(source=EmptyUnauthorizedAccessSource())
+
+
+def build_cost_adapter() -> CostEstimationPort:
+    """Select the cost adapter based on the detected cloud provider."""
+
+    provider = context_name or ""
+    provider_lower = provider.lower()
+
+    if "eks" in provider_lower or provider_lower == "aws":
+        from hexawyn.adapters.secondary.aws.aws_cost_adapter import AWSCostAdapter
+
+        return AWSCostAdapter(region="us-east-1")
+    if "aks" in provider_lower or provider_lower == "azure":
+        from hexawyn.adapters.secondary.azure.azure_cost_adapter import AzureCostAdapter
+
+        return AzureCostAdapter(subscription_id="unknown")
+    if "gke" in provider_lower or provider_lower == "gcp":
+        from hexawyn.adapters.secondary.gcp.gcp_cost_adapter import GCPCostAdapter
+
+        return GCPCostAdapter(project_id="unknown")
+
+    from hexawyn.adapters.secondary.vanilla.vanilla_cost_adapter import VanillaCostAdapter
+
+    return VanillaCostAdapter()
 
 
 def build_node_analysis_adapter() -> HotNodeAnalysisPort:
