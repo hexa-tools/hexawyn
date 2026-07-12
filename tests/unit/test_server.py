@@ -350,6 +350,34 @@ class TestMCPListNamespacesTool:
 
         assert isinstance(result, DisruptionRiskPort)
 
+    def test_build_critical_cve_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.critical_cve_port import CriticalCvePort
+        from hexawyn.mcp.server import build_critical_cve_adapter
+
+        result = build_critical_cve_adapter()
+
+        assert isinstance(result, CriticalCvePort)
+
+    def test_build_stale_credentials_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.stale_credentials_port import (
+            StaleCredentialsPort,
+        )
+        from hexawyn.mcp.server import build_stale_credentials_adapter
+
+        result = build_stale_credentials_adapter()
+
+        assert isinstance(result, StaleCredentialsPort)
+
+    def test_build_unauthorized_access_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.unauthorized_access_port import (
+            UnauthorizedAccessPort,
+        )
+        from hexawyn.mcp.server import build_unauthorized_access_adapter
+
+        result = build_unauthorized_access_adapter()
+
+        assert isinstance(result, UnauthorizedAccessPort)
+
     def test_register_tools_does_not_crash_on_import_error(self) -> None:
         from pathlib import Path
         from unittest.mock import patch

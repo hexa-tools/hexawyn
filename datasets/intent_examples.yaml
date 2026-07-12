@@ -1443,3 +1443,24 @@ check_disruption_risks:
     - "Y a-t-il des risques de saturation mémoire ou de breach SLO prochainement ?"
     - "Quels services risquent une interruption dans les 7 prochains jours ?"
     - "Dois-je planifier une intervention cette semaine pour éviter une panne ?"
+
+report_critical_vulnerabilities:
+  tool: report_critical_vulnerabilities
+  questions:
+    - "Avons-nous des vulnérabilités critiques non résolues sur notre plateforme ?"
+    - "Combien de CVEs critiques sont encore ouvertes, et sur quels services ?"
+    - "Quelle est la plus ancienne vulnérabilité critique non résolue ?"
+
+report_stale_credentials:
+  tool: report_stale_credentials
+  questions:
+    - "Y a-t-il des identifiants d'accès qui n'ont pas été renouvelés depuis 90 jours ?"
+    - "Combien de crédentiels n'ont pas été renouvelés, et lesquels sont critiques ?"
+    - "Quels secrets faut-il renouveler cette semaine pour la conformité ?"
+
+report_unauthorized_access:
+  tool: report_unauthorized_access
+  questions:
+    - "Y a-t-il eu des tentatives d'accès non autorisées récemment ?"
+    - "Quel est le niveau d'alerte sur les accès non autorisés ?"
+    - "D'où viennent les tentatives d'accès bloquées ?"
