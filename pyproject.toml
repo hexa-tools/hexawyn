@@ -13,7 +13,6 @@ anthropic = "^0.40"
 kubernetes = "^31.0"
 duckdb = "^1.1"
 cryptography = "^43.0"
-pytz = "^2024.2"
 httpx = "^0.28"
 click = "^8.1"
 langgraph = "^1.2.6"
@@ -33,7 +32,6 @@ google-cloud-logging = { version = "^3.11", optional = true }
 google-auth = { version = "^2.35", optional = true }
 openshift = { version = "^0.13", optional = true }
 datadog-api-client = { version = "^2.28", optional = true }
-openai = "^2.43.0"
 python-dotenv = "^1.2.2"
 scikit-learn = "^1.9.0"
 pyyaml = "^6.0.3"
