@@ -105,3 +105,24 @@ class RuntimeClient:
                     yield ("error", event)
                     break
                 yield (event.get("node", "unknown"), event.get("output", {}))
+
+    def list_custom_tools(self) -> list[dict[str, object]]:
+        response = self._client.get(f"{self._endpoint}/api/v1/custom-tools")
+        response.raise_for_status()
+        data: list[dict[str, object]] = response.json()
+        return data
+
+    def describe_custom_tool(self, name: str) -> dict[str, object]:
+        response = self._client.get(f"{self._endpoint}/api/v1/custom-tools/{name}")
+        response.raise_for_status()
+        data: dict[str, object] = response.json()
+        return data
+
+    def run_custom_tool(self, name: str, params: dict[str, object]) -> dict[str, object]:
+        response = self._client.post(
+            f"{self._endpoint}/api/v1/custom-tools/{name}/run",
+            json=params,
+        )
+        response.raise_for_status()
+        data: dict[str, object] = response.json()
+        return data

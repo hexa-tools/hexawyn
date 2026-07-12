@@ -432,6 +432,16 @@ class TestMCPListNamespacesTool:
 
         assert isinstance(result, ClusterDiffPort)
 
+    def test_build_cross_cluster_incident_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.cross_cluster_incident_port import (
+            CrossClusterIncidentPort,
+        )
+        from hexawyn.mcp.server import build_cross_cluster_incident_adapter
+
+        result = build_cross_cluster_incident_adapter()
+
+        assert isinstance(result, CrossClusterIncidentPort)
+
     def test_build_what_if_simulation_adapter_returns_what_if_simulation_port(self) -> None:
         from hexawyn.application.ports.driven.what_if_simulation_port import WhatIfSimulationPort
         from hexawyn.mcp.server import build_what_if_simulation_adapter
