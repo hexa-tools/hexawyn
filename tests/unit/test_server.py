@@ -424,6 +424,14 @@ class TestMCPListNamespacesTool:
 
         assert isinstance(result, CostEstimationPort)
 
+    def test_build_cluster_diff_adapter_returns_port(self) -> None:
+        from hexawyn.application.ports.driven.cluster_diff_port import ClusterDiffPort
+        from hexawyn.mcp.server import build_cluster_diff_adapter
+
+        result = build_cluster_diff_adapter()
+
+        assert isinstance(result, ClusterDiffPort)
+
     def test_build_what_if_simulation_adapter_returns_what_if_simulation_port(self) -> None:
         from hexawyn.application.ports.driven.what_if_simulation_port import WhatIfSimulationPort
         from hexawyn.mcp.server import build_what_if_simulation_adapter
