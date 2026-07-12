@@ -40,6 +40,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.certificate_investigation_port import (
         CertificateInvestigationPort,
     )
+    from hexawyn.application.ports.driven.cluster_diff_port import ClusterDiffPort
     from hexawyn.application.ports.driven.cluster_operator_status_port import (
         ClusterOperatorStatusPort,
     )
@@ -730,6 +731,17 @@ def build_cost_adapter() -> CostEstimationPort:
     from hexawyn.adapters.secondary.vanilla.vanilla_cost_adapter import VanillaCostAdapter
 
     return VanillaCostAdapter()
+
+
+def build_cluster_diff_adapter() -> ClusterDiffPort:
+    from hexawyn.adapters.secondary.gitops.cluster_diff_adapter import (
+        ClusterDiffAdapter,
+    )
+    from hexawyn.adapters.secondary.gitops.cluster_diff_source import (
+        EmptyClusterInventorySource,
+    )
+
+    return ClusterDiffAdapter(source=EmptyClusterInventorySource())
 
 
 def build_node_analysis_adapter() -> HotNodeAnalysisPort:

@@ -1320,3 +1320,12 @@ report_unauthorized_access:
   - Have there been recent unauthorized access attempts?
   - What is the alert level on blocked access attempts?
   - Where are the blocked access attempts coming from?
+
+diff_cluster_resources:
+  tool: diff_cluster_resources
+  questions:
+    - "Show me all resources that exist in staging but not in production."
+    - "What is missing or not yet promoted before the release?"
+    - "Are there any version mismatches between staging and production?"
+    - "What is my promotion checklist for the next deployment?"
+    - "What's the diff between my staging and production clusters?"
