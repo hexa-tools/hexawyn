@@ -1347,3 +1347,28 @@ detect_cross_cluster_incident:
     - "Are all our clusters having the same ImagePullBackOff error?"
     - "Did the incident cascade from US to EU?"
     - "Check if the same failure is happening across all production clusters."
+
+custom_tools_list:
+  tool: custom_tools_list
+  questions:
+    - "What custom tools are registered and available?"
+    - "List all third-party analyzers connected to hexawyn"
+    - "Which external checks are currently active?"
+    - "Show me all registered custom tools with their transport"
+
+custom_tool_describe:
+  tool: custom_tool_describe
+  questions:
+    - "Describe the contract of the pci-compliance custom tool"
+    - "What parameters does the finops-zombie-check tool expect?"
+    - "Show me the input schema for the custom tool security-scanner"
+    - "What is the output format of the custom compliance audit tool?"
+
+custom_tool_run:
+  tool: custom_tool_run
+  questions:
+    - "Run my custom analyzer finops-zombie-check on the data namespace"
+    - "Execute the pci-compliance check with namespace=production"
+    - "Launch my custom tool network-policy-auditor on all namespaces"
+    - "Run the external security-scanner tool for the staging environment"
+    - "Execute custom/helm-drift-detector on namespace default"
