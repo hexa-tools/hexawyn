@@ -378,6 +378,476 @@ class TestMCPListNamespacesTool:
 
         assert isinstance(result, UnauthorizedAccessPort)
 
+    def test_build_cost_adapter_returns_cost_estimation_port(self) -> None:
+        from hexawyn.application.ports.driven.cost_estimation_port import (
+            CostEstimationPort,
+        )
+        from hexawyn.mcp.server import build_cost_adapter
+
+        result = build_cost_adapter()
+
+        assert isinstance(result, CostEstimationPort)
+
+    def test_build_cost_adapter_aws_branch(self) -> None:
+        from hexawyn.application.ports.driven.cost_estimation_port import (
+            CostEstimationPort,
+        )
+
+        with patch("hexawyn.mcp.server.context_name", "eks-prod"):
+            from hexawyn.mcp.server import build_cost_adapter as _build
+
+            result = _build()
+
+        assert isinstance(result, CostEstimationPort)
+
+    def test_build_cost_adapter_azure_branch(self) -> None:
+        from hexawyn.application.ports.driven.cost_estimation_port import (
+            CostEstimationPort,
+        )
+
+        with patch("hexawyn.mcp.server.context_name", "aks-prod"):
+            from hexawyn.mcp.server import build_cost_adapter as _build
+
+            result = _build()
+
+        assert isinstance(result, CostEstimationPort)
+
+    def test_build_cost_adapter_gcp_branch(self) -> None:
+        from hexawyn.application.ports.driven.cost_estimation_port import (
+            CostEstimationPort,
+        )
+
+        with patch("hexawyn.mcp.server.context_name", "gke-prod"):
+            from hexawyn.mcp.server import build_cost_adapter as _build
+
+            result = _build()
+
+        assert isinstance(result, CostEstimationPort)
+
+    def test_build_what_if_simulation_adapter_returns_what_if_simulation_port(self) -> None:
+        from hexawyn.application.ports.driven.what_if_simulation_port import WhatIfSimulationPort
+        from hexawyn.mcp.server import build_what_if_simulation_adapter
+
+        result = build_what_if_simulation_adapter()
+        assert isinstance(result, WhatIfSimulationPort)
+
+    def test_build_zombie_detection_adapter_returns_zombie_detection_port(self) -> None:
+        from hexawyn.application.ports.driven.zombie_detection_port import ZombieDetectionPort
+        from hexawyn.mcp.server import build_zombie_detection_adapter
+
+        result = build_zombie_detection_adapter()
+        assert isinstance(result, ZombieDetectionPort)
+
+    def test_build_cost_saving_adapter_returns_cost_saving_estimation_port(self) -> None:
+        from hexawyn.application.ports.driven.cost_saving_estimation_port import (
+            CostSavingEstimationPort,
+        )
+        from hexawyn.mcp.server import build_cost_saving_adapter
+
+        result = build_cost_saving_adapter()
+        assert isinstance(result, CostSavingEstimationPort)
+
+    def test_build_fleet_health_adapter_returns_fleet_health_port(self) -> None:
+        from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
+        from hexawyn.mcp.server import build_fleet_health_adapter
+
+        result = build_fleet_health_adapter()
+        assert isinstance(result, FleetHealthPort)
+
+    def test_build_gitops_adapter_returns_gitops_port(self) -> None:
+        from hexawyn.application.ports.driven.gitops_port import GitOpsPort
+        from hexawyn.mcp.server import build_gitops_adapter
+
+        result = build_gitops_adapter()
+        assert isinstance(result, GitOpsPort)
+
+    def test_build_rollouts_adapter_returns_rollouts_port(self) -> None:
+        from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
+        from hexawyn.mcp.server import build_rollouts_adapter
+
+        result = build_rollouts_adapter()
+        assert isinstance(result, RolloutsPort)
+
+    def test_build_policy_adapter_returns_policy_port(self) -> None:
+        from hexawyn.application.ports.driven.policy_port import PolicyPort
+        from hexawyn.mcp.server import build_policy_adapter
+
+        result = build_policy_adapter()
+        assert isinstance(result, PolicyPort)
+
+    def test_build_cert_manager_adapter_returns_cert_manager_port(self) -> None:
+        from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
+        from hexawyn.mcp.server import build_cert_manager_adapter
+
+        result = build_cert_manager_adapter()
+        assert isinstance(result, CertManagerPort)
+
+    def test_build_keda_adapter_returns_keda_port(self) -> None:
+        from hexawyn.application.ports.driven.keda_port import KedaPort
+        from hexawyn.mcp.server import build_keda_adapter
+
+        result = build_keda_adapter()
+        assert isinstance(result, KedaPort)
+
+    def test_build_canary_comparison_adapter_returns_canary_comparison_port(self) -> None:
+        from hexawyn.application.ports.driven.canary_comparison_port import CanaryComparisonPort
+        from hexawyn.mcp.server import build_canary_comparison_adapter
+
+        result = build_canary_comparison_adapter()
+        assert isinstance(result, CanaryComparisonPort)
+
+    def test_build_cost_profiling_adapter_returns_cost_profiling_port(self) -> None:
+        from hexawyn.application.ports.driven.cost_profiling_port import CostProfilingPort
+        from hexawyn.mcp.server import build_cost_profiling_adapter
+
+        result = build_cost_profiling_adapter()
+        assert isinstance(result, CostProfilingPort)
+
+    def test_build_memory_saturation_adapter_returns_memory_saturation_port(self) -> None:
+        from hexawyn.application.ports.driven.memory_saturation_port import MemorySaturationPort
+        from hexawyn.mcp.server import build_memory_saturation_adapter
+
+        result = build_memory_saturation_adapter()
+        assert isinstance(result, MemorySaturationPort)
+
+    def test_build_span_bottleneck_adapter_returns_span_bottleneck_port(self) -> None:
+        from hexawyn.application.ports.driven.span_bottleneck_port import SpanBottleneckPort
+        from hexawyn.mcp.server import build_span_bottleneck_adapter
+
+        result = build_span_bottleneck_adapter()
+        assert isinstance(result, SpanBottleneckPort)
+
+    def test_build_latency_percentile_adapter_returns_latency_percentile_port(self) -> None:
+        from hexawyn.application.ports.driven.latency_percentile_port import LatencyPercentilePort
+        from hexawyn.mcp.server import build_latency_percentile_adapter
+
+        result = build_latency_percentile_adapter()
+        assert isinstance(result, LatencyPercentilePort)
+
+    def test_build_metric_correlation_adapter_returns_metric_correlation_port(self) -> None:
+        from hexawyn.application.ports.driven.metric_correlation_port import MetricCorrelationPort
+        from hexawyn.mcp.server import build_metric_correlation_adapter
+
+        result = build_metric_correlation_adapter()
+        assert isinstance(result, MetricCorrelationPort)
+
+    def test_build_capacity_forecast_adapter_returns_capacity_forecast_port(self) -> None:
+        from hexawyn.application.ports.driven.capacity_forecast_port import CapacityForecastPort
+        from hexawyn.mcp.server import build_capacity_forecast_adapter
+
+        result = build_capacity_forecast_adapter()
+        assert isinstance(result, CapacityForecastPort)
+
+    def test_build_headroom_simulation_adapter_returns_headroom_simulation_port(self) -> None:
+        from hexawyn.application.ports.driven.headroom_simulation_port import HeadroomSimulationPort
+        from hexawyn.mcp.server import build_headroom_simulation_adapter
+
+        result = build_headroom_simulation_adapter()
+        assert isinstance(result, HeadroomSimulationPort)
+
+    def test_build_node_analysis_adapter_returns_hot_node_analysis_port(self) -> None:
+        from hexawyn.application.ports.driven.hot_node_analysis_port import HotNodeAnalysisPort
+        from hexawyn.mcp.server import build_node_analysis_adapter
+
+        result = build_node_analysis_adapter()
+        assert isinstance(result, HotNodeAnalysisPort)
+
+    def test_build_helm_drift_adapter_returns_drift_detection_port(self) -> None:
+        from hexawyn.application.ports.driven.drift_detection_port import DriftDetectionPort
+        from hexawyn.mcp.server import build_helm_drift_adapter
+
+        result = build_helm_drift_adapter()
+        assert isinstance(result, DriftDetectionPort)
+
+    def test_build_kustomize_drift_adapter_returns_drift_detection_port(self) -> None:
+        from hexawyn.application.ports.driven.drift_detection_port import DriftDetectionPort
+        from hexawyn.mcp.server import build_kustomize_drift_adapter
+
+        result = build_kustomize_drift_adapter()
+        assert isinstance(result, DriftDetectionPort)
+
+    def test_build_live_resource_adapter_returns_live_resource_port(self) -> None:
+        from hexawyn.application.ports.driven.live_resource_port import LiveResourcePort
+        from hexawyn.mcp.server import build_live_resource_adapter
+
+        result = build_live_resource_adapter()
+        assert isinstance(result, LiveResourcePort)
+
+    def test_build_audit_log_adapter_returns_gitops_drift_audit_port(self) -> None:
+        from hexawyn.application.ports.driven.gitops_drift_audit_port import GitOpsDriftAuditPort
+        from hexawyn.mcp.server import build_audit_log_adapter
+
+        result = build_audit_log_adapter()
+        assert isinstance(result, GitOpsDriftAuditPort)
+
+    def test_build_image_drift_adapter_returns_image_drift_port(self) -> None:
+        from hexawyn.application.ports.driven.image_drift_port import ImageDriftPort
+        from hexawyn.mcp.server import build_image_drift_adapter
+
+        result = build_image_drift_adapter()
+        assert isinstance(result, ImageDriftPort)
+
+    def test_build_rbac_audit_adapter_returns_rbac_security_audit_port(self) -> None:
+        from hexawyn.application.ports.driven.rbac_security_audit_port import RBACSecurityAuditPort
+        from hexawyn.mcp.server import build_rbac_audit_adapter
+
+        result = build_rbac_audit_adapter()
+        assert isinstance(result, RBACSecurityAuditPort)
+
+    def test_build_pod_security_adapter_returns_pod_security_context_audit_port(self) -> None:
+        from hexawyn.application.ports.driven.pod_security_context_audit_port import (
+            PodSecurityContextAuditPort,
+        )
+        from hexawyn.mcp.server import build_pod_security_adapter
+
+        result = build_pod_security_adapter()
+        assert isinstance(result, PodSecurityContextAuditPort)
+
+    def test_build_image_inventory_adapter_returns_image_inventory_port(self) -> None:
+        from hexawyn.application.ports.driven.image_inventory_port import ImageInventoryPort
+        from hexawyn.mcp.server import build_image_inventory_adapter
+
+        result = build_image_inventory_adapter()
+        assert isinstance(result, ImageInventoryPort)
+
+    def test_build_image_vulnerability_scan_adapter_returns_image_vulnerability_scan_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.image_vulnerability_scan_port import (
+            ImageVulnerabilityScanPort,
+        )
+        from hexawyn.mcp.server import build_image_vulnerability_scan_adapter
+
+        result = build_image_vulnerability_scan_adapter()
+        assert isinstance(result, ImageVulnerabilityScanPort)
+
+    def test_build_secret_rotation_audit_adapter_returns_secret_rotation_audit_port(self) -> None:
+        from hexawyn.application.ports.driven.secret_rotation_audit_port import (
+            SecretRotationAuditPort,
+        )
+        from hexawyn.mcp.server import build_secret_rotation_audit_adapter
+
+        result = build_secret_rotation_audit_adapter()
+        assert isinstance(result, SecretRotationAuditPort)
+
+    def test_build_network_policy_audit_adapter_returns_network_policy_audit_port(self) -> None:
+        from hexawyn.application.ports.driven.network_policy_audit_port import (
+            NetworkPolicyAuditPort,
+        )
+        from hexawyn.mcp.server import build_network_policy_audit_adapter
+
+        result = build_network_policy_audit_adapter()
+        assert isinstance(result, NetworkPolicyAuditPort)
+
+    def test_build_external_exposure_audit_adapter_returns_external_exposure_audit_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.external_exposure_audit_port import (
+            ExternalExposureAuditPort,
+        )
+        from hexawyn.mcp.server import build_external_exposure_audit_adapter
+
+        result = build_external_exposure_audit_adapter()
+        assert isinstance(result, ExternalExposureAuditPort)
+
+    def test_build_trace_log_correlation_adapter_returns_trace_log_correlation_port(self) -> None:
+        from hexawyn.application.ports.driven.trace_log_correlation_port import (
+            TraceLogCorrelationPort,
+        )
+        from hexawyn.mcp.server import build_trace_log_correlation_adapter
+
+        result = build_trace_log_correlation_adapter()
+        assert isinstance(result, TraceLogCorrelationPort)
+
+    def test_build_security_audit_adapter_returns_security_audit_port(self) -> None:
+        from hexawyn.application.ports.driven.security_audit_port import SecurityAuditPort
+        from hexawyn.mcp.server import build_security_audit_adapter
+
+        result = build_security_audit_adapter()
+        assert isinstance(result, SecurityAuditPort)
+
+    def test_build_service_dependency_graph_adapter_returns_service_dependency_graph_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.service_dependency_graph_port import (
+            ServiceDependencyGraphPort,
+        )
+        from hexawyn.mcp.server import build_service_dependency_graph_adapter
+
+        result = build_service_dependency_graph_adapter()
+        assert isinstance(result, ServiceDependencyGraphPort)
+
+    def test_build_trace_event_correlation_adapter_returns_trace_event_correlation_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.trace_event_correlation_port import (
+            TraceEventCorrelationPort,
+        )
+        from hexawyn.mcp.server import build_trace_event_correlation_adapter
+
+        result = build_trace_event_correlation_adapter()
+        assert isinstance(result, TraceEventCorrelationPort)
+
+    def test_build_slow_trace_search_adapter_returns_slow_trace_search_port(self) -> None:
+        from hexawyn.application.ports.driven.slow_trace_search_port import SlowTraceSearchPort
+        from hexawyn.mcp.server import build_slow_trace_search_adapter
+
+        result = build_slow_trace_search_adapter()
+        assert isinstance(result, SlowTraceSearchPort)
+
+    def test_build_deployment_latency_comparison_adapter_returns_deployment_latency_comparison_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.deployment_latency_comparison_port import (
+            DeploymentLatencyComparisonPort,
+        )
+        from hexawyn.mcp.server import build_deployment_latency_comparison_adapter
+
+        result = build_deployment_latency_comparison_adapter()
+        assert isinstance(result, DeploymentLatencyComparisonPort)
+
+    def test_build_version_regression_adapter_returns_version_regression_port(self) -> None:
+        from hexawyn.application.ports.driven.version_regression_port import VersionRegressionPort
+        from hexawyn.mcp.server import build_version_regression_adapter
+
+        result = build_version_regression_adapter()
+        assert isinstance(result, VersionRegressionPort)
+
+    def test_build_redundant_call_detection_adapter_returns_redundant_call_detection_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.redundant_call_detection_port import (
+            RedundantCallDetectionPort,
+        )
+        from hexawyn.mcp.server import build_redundant_call_detection_adapter
+
+        result = build_redundant_call_detection_adapter()
+        assert isinstance(result, RedundantCallDetectionPort)
+
+    def test_build_compliance_audit_adapter_returns_compliance_audit_port(self) -> None:
+        from hexawyn.application.ports.driven.compliance_audit_port import ComplianceAuditPort
+        from hexawyn.mcp.server import build_compliance_audit_adapter
+
+        result = build_compliance_audit_adapter()
+        assert isinstance(result, ComplianceAuditPort)
+
+    def test_build_error_attribution_adapter_returns_error_attribution_port(self) -> None:
+        from hexawyn.application.ports.driven.error_attribution_port import ErrorAttributionPort
+        from hexawyn.mcp.server import build_error_attribution_adapter
+
+        result = build_error_attribution_adapter()
+        assert isinstance(result, ErrorAttributionPort)
+
+    def test_build_slo_breach_prediction_adapter_returns_slo_breach_prediction_port(self) -> None:
+        from hexawyn.application.ports.driven.slo_breach_prediction_port import (
+            SLOBreachPredictionPort,
+        )
+        from hexawyn.mcp.server import build_slo_breach_prediction_adapter
+
+        result = build_slo_breach_prediction_adapter()
+        assert isinstance(result, SLOBreachPredictionPort)
+
+    def test_build_certificate_investigation_adapter_returns_certificate_investigation_port(
+        self,
+    ) -> None:
+        from hexawyn.application.ports.driven.certificate_investigation_port import (
+            CertificateInvestigationPort,
+        )
+        from hexawyn.mcp.server import build_certificate_investigation_adapter
+
+        result = build_certificate_investigation_adapter()
+        assert isinstance(result, CertificateInvestigationPort)
+
+    def test_build_resource_yaml_adapter_returns_resource_yaml_port(self) -> None:
+        from hexawyn.application.ports.driven.resource_yaml_port import ResourceYAMLPort
+        from hexawyn.mcp.server import build_resource_yaml_adapter
+
+        result = build_resource_yaml_adapter()
+        assert isinstance(result, ResourceYAMLPort)
+
+    def test_build_pipeline_run_logs_adapter_returns_pipeline_run_logs_port(self) -> None:
+        from hexawyn.application.ports.driven.pipeline_run_logs_port import PipelineRunLogsPort
+        from hexawyn.mcp.server import build_pipeline_run_logs_adapter
+
+        result = build_pipeline_run_logs_adapter()
+        assert isinstance(result, PipelineRunLogsPort)
+
+    def test_build_etcd_logs_adapter_returns_etcd_logs_port(self) -> None:
+        from hexawyn.application.ports.driven.etcd_logs_port import ETCDLogsPort
+        from hexawyn.mcp.server import build_etcd_logs_adapter
+
+        result = build_etcd_logs_adapter()
+        assert isinstance(result, ETCDLogsPort)
+
+    def test_build_pod_logs_adapter_returns_pod_logs_port(self) -> None:
+        from hexawyn.application.ports.driven.pod_logs_port import PodLogsPort
+        from hexawyn.mcp.server import build_pod_logs_adapter
+
+        result = build_pod_logs_adapter()
+        assert isinstance(result, PodLogsPort)
+
+    def test_build_pod_metrics_baseline_adapter_returns_pod_metrics_baseline_port(self) -> None:
+        from hexawyn.application.ports.driven.pod_metrics_baseline_port import (
+            PodMetricsBaselinePort,
+        )
+        from hexawyn.mcp.server import build_pod_metrics_baseline_adapter
+
+        result = build_pod_metrics_baseline_adapter()
+        assert isinstance(result, PodMetricsBaselinePort)
+
+    def test_build_resource_search_adapter_returns_resource_search_port(self) -> None:
+        from hexawyn.application.ports.driven.resource_search_port import ResourceSearchPort
+        from hexawyn.mcp.server import build_resource_search_adapter
+
+        result = build_resource_search_adapter()
+        assert isinstance(result, ResourceSearchPort)
+
+    def test_build_namespace_events_adapter_returns_namespace_events_port(self) -> None:
+        from hexawyn.application.ports.driven.namespace_events_port import NamespaceEventsPort
+        from hexawyn.mcp.server import build_namespace_events_adapter
+
+        result = build_namespace_events_adapter()
+        assert isinstance(result, NamespaceEventsPort)
+
+    def test_build_namespace_overview_adapter_returns_namespace_overview_port(self) -> None:
+        from hexawyn.application.ports.driven.namespace_overview_port import NamespaceOverviewPort
+        from hexawyn.mcp.server import build_namespace_overview_adapter
+
+        result = build_namespace_overview_adapter()
+        assert isinstance(result, NamespaceOverviewPort)
+
+    def test_build_adaptive_investigation_adapter_returns_adaptive_investigation_port(self) -> None:
+        from hexawyn.application.ports.driven.adaptive_investigation_port import (
+            AdaptiveInvestigationPort,
+        )
+        from hexawyn.mcp.server import build_adaptive_investigation_adapter
+
+        result = build_adaptive_investigation_adapter()
+        assert isinstance(result, AdaptiveInvestigationPort)
+
+    def test_build_pod_log_watch_adapter_returns_pod_log_watch_port(self) -> None:
+        from hexawyn.application.ports.driven.pod_log_watch_port import PodLogWatchPort
+        from hexawyn.mcp.server import build_pod_log_watch_adapter
+
+        result = build_pod_log_watch_adapter()
+        assert isinstance(result, PodLogWatchPort)
+
+    def test_build_alert_notification_adapter_returns_alert_notification_port(self) -> None:
+        from hexawyn.application.ports.driven.alert_notification_port import AlertNotificationPort
+        from hexawyn.mcp.server import build_alert_notification_adapter
+
+        result = build_alert_notification_adapter()
+        assert isinstance(result, AlertNotificationPort)
+
+    def test_build_pipeline_for_service_adapter_returns_pipeline_for_service_port(self) -> None:
+        from hexawyn.application.ports.driven.pipeline_for_service_port import (
+            PipelineForServicePort,
+        )
+        from hexawyn.mcp.server import build_pipeline_for_service_adapter
+
+        result = build_pipeline_for_service_adapter()
+        assert isinstance(result, PipelineForServicePort)
+
     def test_register_tools_does_not_crash_on_import_error(self) -> None:
         from pathlib import Path
         from unittest.mock import patch
