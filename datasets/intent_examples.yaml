@@ -1329,3 +1329,12 @@ diff_cluster_resources:
     - "Are there any version mismatches between staging and production?"
     - "What is my promotion checklist for the next deployment?"
     - "What's the diff between my staging and production clusters?"
+
+compare_cluster_health:
+  tool: compare_cluster_health
+  questions:
+    - "Compare the health of cluster prod-eu vs prod-us."
+    - "Which cluster has more failing pods — EU or US?"
+    - "Is prod-eu in worse shape than prod-us during this incident?"
+    - "What are the health deltas between our two production regions?"
+    - "Which cluster should I investigate first during this multi-region outage?"
