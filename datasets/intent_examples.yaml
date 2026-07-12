@@ -1338,3 +1338,12 @@ compare_cluster_health:
     - "Is prod-eu in worse shape than prod-us during this incident?"
     - "What are the health deltas between our two production regions?"
     - "Which cluster should I investigate first during this multi-region outage?"
+
+detect_cross_cluster_incident:
+  tool: detect_cross_cluster_incident
+  questions:
+    - "Is the same issue affecting multiple clusters simultaneously?"
+    - "Is this a global infrastructure problem or isolated to one cluster?"
+    - "Are all our clusters having the same ImagePullBackOff error?"
+    - "Did the incident cascade from US to EU?"
+    - "Check if the same failure is happening across all production clusters."
