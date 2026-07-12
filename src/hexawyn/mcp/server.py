@@ -59,6 +59,9 @@ if TYPE_CHECKING:
         CostSavingEstimationPort,
     )
     from hexawyn.application.ports.driven.critical_cve_port import CriticalCvePort
+    from hexawyn.application.ports.driven.cross_cluster_incident_port import (
+        CrossClusterIncidentPort,
+    )
     from hexawyn.application.ports.driven.cross_namespace_traffic_port import (
         CrossNamespaceTrafficPort,
     )
@@ -742,6 +745,17 @@ def build_cluster_diff_adapter() -> ClusterDiffPort:
     )
 
     return ClusterDiffAdapter(source=EmptyClusterInventorySource())
+
+
+def build_cross_cluster_incident_adapter() -> CrossClusterIncidentPort:
+    from hexawyn.adapters.secondary.gitops.cross_cluster_incident_adapter import (
+        CrossClusterIncidentAdapter,
+    )
+    from hexawyn.adapters.secondary.gitops.cross_cluster_incident_source import (
+        EmptyFailureSignatureSource,
+    )
+
+    return CrossClusterIncidentAdapter(source=EmptyFailureSignatureSource())
 
 
 def build_node_analysis_adapter() -> HotNodeAnalysisPort:
