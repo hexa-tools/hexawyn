@@ -157,24 +157,21 @@ sequenceDiagram
 
 ---
 
-## Flow 4 — Checker Node (semantic validation + DuckDB store)
+## Flow 4 — Checker Node (semantic validation)
 
 ```mermaid
 sequenceDiagram
     participant Checker as Checker Node
     participant Svc as RunWhatIfSimulationService
-    participant DuckDB as DuckDB (memory)
 
     Checker->>Svc: validate_simulation_response(result)
 
     alt PASS — all validations green
         Svc->>Svc: risk level correct ✓<br/>all dependents listed ✓<br/>HPA mentioned ✓<br/>PDB flagged ✓
-        Note over Checker,DuckDB: Store simulation in DuckDB for historical comparison
-        Checker->>DuckDB: INSERT INTO what_if_simulations<br/>(target, risk, proposed, computed_at)
 
         Checker-->>MCP: PASS — format_response with simulation result
     else FAIL — mutation language detected
-        Svc->>Svc: LLM suggests "je vais appliquer le changement"
+        Svc->>Svc: LLM suggests "I will apply the change"
         Checker->>Checker: BLOCKED — read-only tool must never suggest mutations
 
         Checker-->>MCP: FAIL — "Mutation attempt blocked: this is a read-only simulation tool"

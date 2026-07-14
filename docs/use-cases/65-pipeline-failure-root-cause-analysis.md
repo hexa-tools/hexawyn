@@ -100,33 +100,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as analyze_failed_pipeline
-    participant Store as store_memory
-
-    CLI->>Cache: query + pipeline_name + namespace
-    Cache->>DuckDB: VSS search similar prior pipeline failure RCAs
-    alt Similar result found (fresh)
-        DuckDB-->>Cache: cached AnalyzeFailedPipelineResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to analyze_failed_pipeline
-        Tool-->>Store: AnalyzeFailedPipelineResponse
-        Store->>DuckDB: persist embedding + result
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Flakiness is a historical pattern, checked before message classification** — for each failing task, the last `flaky_test_window_runs` (5) entries for that same `task_ref` are inspected; `flaky_test_min_failures` (3) ≤ failures-in-window < window size means intermittent (flaky), overriding whatever the current error message says. A test that fails every single recent run is NOT flaky — that's a persistent regression.

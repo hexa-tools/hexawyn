@@ -2,11 +2,11 @@
 
 ## Sample Questions
 
-- "Combien vais-je dépenser ce mois en tout sur mon cluster Kubernetes ?"
-- "Est-ce que mon spend accélère par rapport aux semaines précédentes ?"
-- "Quels sont les 3 namespaces qui coûtent le plus cher ce mois-ci ?"
-- "Mon budget mensuel est $2,000 — est-ce que je vais le dépasser ?"
-- "Quelle est la tendance de mon spend Cloud par rapport au mois dernier ?"
+- "How much will I spend this month in total on my Kubernetes cluster?"
+- "Is my spend accelerating compared to previous weeks?"
+- "Which are the 3 most expensive namespaces this month?"
+- "My monthly budget is $2,000 — am I going to exceed it?"
+- "What is my Cloud spend trend compared to last month?"
 
 ---
 
@@ -40,7 +40,7 @@ sequenceDiagram
 
 ---
 
-## Détection d'accélération (trend > 1.0)
+## Acceleration Detection (trend > 1.0)
 
 ```mermaid
 sequenceDiagram
@@ -48,10 +48,10 @@ sequenceDiagram
     participant Engine as CostForecastEngine
     participant Adapter as VanillaAdapter
 
-    Note over Adapter: J1-J4: $40/jour → J5-J7: $80/jour
-    Adapter-->>Engine: daily_costs (7 points non-uniformes)
-    Note over Engine: recent_avg (3j) = $80<br/>overall_avg (7j) = $57<br/>trend_factor = 80/57 = 1.40
-    Note over Engine: projected_total × 1.40 → alerte dépassement
+    Note over Adapter: D1-D4: $40/day → D5-D7: $80/day
+    Adapter-->>Engine: daily_costs (7 non-uniform points)
+    Note over Engine: recent_avg (3d) = $80<br/>overall_avg (7d) = $57<br/>trend_factor = 80/57 = 1.40
+    Note over Engine: projected_total × 1.40 → overrun alert
     Engine-->>User: trend_factor: 1.40, forecast_confidence: "low"
 ```
 
@@ -76,7 +76,7 @@ sequenceDiagram
 
 ---
 
-## Pro Tier — Billing Réel (ECA-115, post v1.0)
+## Pro Tier — Real Billing (ECA-115, post v1.0)
 
 ```mermaid
 sequenceDiagram
@@ -85,31 +85,31 @@ sequenceDiagram
     participant Adapter as AWSCostAdapter
     participant AWS as AWS Cost Explorer
 
-    Note over Svc: même engine, adapter différent
+    Note over Svc: same engine, different adapter
     Svc->>Adapter: get_daily_costs(days=90)
-    Adapter->>AWS: GetCostAndUsage(90j)
-    AWS-->>Adapter: [DailyCostData réels]
+    Adapter->>AWS: GetCostAndUsage(90d)
+    AWS-->>Adapter: [real DailyCostData]
     Note over Adapter: billing_events: spot expiry, savings plan renewal
-    Adapter-->>Svc: 90 points réels + BillingEvent[]
+    Adapter-->>Svc: 90 real points + BillingEvent[]
     Note over Svc: forecast_confidence="high", data_source="aws"
-    Svc-->>User: projection précise + événements billing
+    Svc-->>User: precise projection + billing events
 ```
 
 ---
 
 ## Key Points
 
-- **Formule Free** : `daily_rate = resource_requests × pricing_constants / 30` — même constantes que le rightsizing (`$21.6/core/month`, `$2.88/GiB/month`).
-- **Tendance** : `trend_factor = avg(3 derniers jours) / avg(global)`. Fenêtre glissante de 3 jours.
-- **Free tier** : 7 jours d'historique estimé, tous identiques → `trend_factor = 1.0`, `confidence = "low"`.
-- **Projection** : `projected = current_spend + daily_avg × trend_factor × days_remaining`.
-- **Top drivers** : namespaces triés par coût journalier agrégé, convertis en coût mensuel estimé.
-- **`previous_month_usd`** : `None` en Free (pas d'historique réel). Delta MoM = 0% par défaut.
-- **Même engine** pour Free et Pro — seule la qualité des données de l'adapter change.
+- **Free formula**: `daily_rate = resource_requests × pricing_constants / 30` — same constants as rightsizing (`$21.6/core/month`, `$2.88/GiB/month`).
+- **Trend**: `trend_factor = avg(last 3 days) / avg(overall)`. 3-day sliding window.
+- **Free tier**: 7 days of estimated history, all identical → `trend_factor = 1.0`, `confidence = "low"`.
+- **Projection**: `projected = current_spend + daily_avg × trend_factor × days_remaining`.
+- **Top drivers**: namespaces sorted by aggregated daily cost, converted to estimated monthly cost.
+- **`previous_month_usd`**: `None` on Free (no real history). MoM delta = 0% by default.
+- **Same engine** for Free and Pro — only the adapter's data quality changes.
 
 ## Test Coverage
 
-| Layer | Fichier |
+| Layer | File |
 |-------|---------|
 | Domain models | `tests/unit/test_cost_forecast_models.py` |
 | Domain service | `tests/unit/test_cost_forecast_engine.py` |

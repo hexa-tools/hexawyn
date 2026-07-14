@@ -110,32 +110,6 @@ sequenceDiagram
 
 ---
 
-## 4. DuckDB Memory
-
-```mermaid
-sequenceDiagram
-    participant Svc as Service
-    participant Cache as check_cache
-    participant DuckDB
-    participant Store as store_memory
-
-    Cache->>DuckDB: VSS search (query + cluster "ocp-prod")
-    alt similar prior finding
-        DuckDB-->>Cache: prior ClusterOperator report
-        Cache-->>Svc: reuse (skip API call)
-    else miss
-        Cache-->>Svc: proceed to OpenShift API
-        Svc->>Store: store report after generate
-        alt DuckDB available
-            Store->>DuckDB: INSERT finding (sanitized, no raw IPs)
-        else DuckDBUnavailableError
-            Store-->>Store: degraded mode — skip persist, never crash
-        end
-    end
-```
-
----
-
 ## Key Points
 
 - ClusterOperator is OpenShift-only (`config.openshift.io/v1`); on vanilla k8s

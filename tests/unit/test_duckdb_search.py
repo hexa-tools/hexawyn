@@ -12,7 +12,7 @@ class TestSearchSimilarHistoryDays:
     def setup_method(self) -> None:
         self.mock_conn = MagicMock()
         self.mock_conn.execute.return_value.fetchall.return_value = []
-        self.embedding: list[float] = [0.1] * 1536
+        self.embedding: list[float] = [0.1] * 768
 
     def test_free_tier_uses_7_days(self) -> None:
         search_similar(

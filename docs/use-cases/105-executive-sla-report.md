@@ -105,28 +105,6 @@ sequenceDiagram
 
 ---
 
-## 4. DuckDB Memory (quarter history & trend)
-
-```mermaid
-sequenceDiagram
-    participant MCP as MCP Tool
-    participant DuckDB
-    participant Svc as Service
-
-    MCP->>DuckDB: fetch previous quarter's average uptime
-    alt prior quarter exists
-        DuckDB-->>Svc: 99.5% → trend comparison
-    else first quarter tracked
-        DuckDB-->>Svc: none → trend stable
-    end
-    Svc->>DuckDB: store this quarter's SLA summary for next comparison
-    alt DuckDB unavailable
-        Svc-->>Svc: degraded mode — skip persist, never crash
-    end
-```
-
----
-
 ## Key Points
 
 - **Aggregator via Facade**: the domain never touches the reliability/SLO

@@ -23,14 +23,18 @@ def _make_output(
     status: str = "ok",
     suggestions: list[str] | None = None,
     error: str | None = None,
+    cause: str = "",
+    solution: str = "",
+    embedding: list[float] | None = None,
 ) -> InvestigationOutput:
     return InvestigationOutput(
         answer=answer,
-        cause="",
-        solution="",
+        cause=cause,
+        solution=solution,
         status=status,
         suggestions=suggestions or [],
         error=error,
+        embedding=embedding or [],
     )
 
 
@@ -134,6 +138,54 @@ class TestChatCliServiceInvestigation:
         self.runtime.run_investigation.return_value = _make_output()
         result = self.service.execute(ChatCliCommand(query="why is api crashing?"))
         assert result.pods is None
+
+
+# ── Incident memory ───────────────────────────────────────────────────────────
+
+
+class TestChatCliServiceIncidentMemory:
+    def setup_method(self) -> None:
+        self.k8s = MagicMock()
+        self.runtime = MagicMock()
+        self.memory = MagicMock()
+        self.k8s.get_cluster_context.return_value = _make_ctx()
+        self.service = ChatCliService(
+            k8s_port=self.k8s,
+            runtime=self.runtime,
+            incident_memory_port=self.memory,
+        )
+
+    def test_stores_incident_on_successful_investigation_with_embedding(self) -> None:
+        self.runtime.run_investigation.return_value = _make_output(
+            cause="OOMKilled", solution="raise limit", embedding=[0.1, 0.2]
+        )
+        self.service.execute(ChatCliCommand(query="why is api down?"))
+
+        self.memory.store_incident.assert_called_once()
+        record = self.memory.store_incident.call_args[0][0]
+        assert record.cluster_name == "prod-eu"
+        assert record.tool_name == "chat_investigation"
+        assert record.cause == "OOMKilled"
+        assert record.solution == "raise limit"
+        assert record.embedding == [0.1, 0.2]
+
+    def test_does_not_store_when_no_embedding(self) -> None:
+        self.runtime.run_investigation.return_value = _make_output(embedding=[])
+        self.service.execute(ChatCliCommand(query="investigate"))
+        self.memory.store_incident.assert_not_called()
+
+    def test_does_not_store_on_error_status(self) -> None:
+        self.runtime.run_investigation.return_value = _make_output(
+            status="error", error="timeout", embedding=[0.1]
+        )
+        self.service.execute(ChatCliCommand(query="investigate"))
+        self.memory.store_incident.assert_not_called()
+
+    def test_no_memory_port_is_safe(self) -> None:
+        service = ChatCliService(k8s_port=self.k8s, runtime=self.runtime)
+        self.runtime.run_investigation.return_value = _make_output(embedding=[0.1])
+        result = service.execute(ChatCliCommand(query="investigate"))
+        assert isinstance(result, ChatCliResponse)
 
 
 # ── Logs port ─────────────────────────────────────────────────────────────────

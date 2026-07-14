@@ -142,42 +142,6 @@ sequenceDiagram
 
 ---
 
-## DuckDB — Certificate Scan Caching
-
-```mermaid
-sequenceDiagram
-    participant MCP as MCP Tool
-    participant Duck as DuckDB (local)
-    participant Svc as ClusterCertificateHealthService
-    participant Adapter as KubernetesClusterCertificateAdapter
-
-    MCP->>Duck: SELECT * FROM cert_scans WHERE cluster=? AND scanned_at > NOW()-INTERVAL 5 MINUTE
-
-    alt Cache hit (fresh scan available)
-        Duck-->>MCP: ClusterCertificateReport (cached JSON)
-        MCP-->>User: report from cache (no K8s API calls)
-
-    else Cache miss
-        MCP->>Svc: check_cluster_certificate_health(command)
-        Svc->>Adapter: full K8s scan across all namespaces
-        Adapter-->>Svc: TlsSecretData[]
-        Svc-->>MCP: ClusterCertificateReport
-
-        MCP->>Duck: INSERT INTO cert_scans (cluster, report_json, scanned_at) VALUES (?, ?, NOW())
-        Duck-->>MCP: OK
-        MCP-->>User: fresh report
-
-    else DuckDB unavailable (offline mode)
-        Duck--xMCP: IOError / file locked
-        Note over MCP: Bypass cache, call K8s directly
-        MCP->>Svc: check_cluster_certificate_health(command)
-        Svc-->>MCP: ClusterCertificateReport
-        MCP-->>User: fresh report (no caching)
-    end
-```
-
----
-
 ## Key Points
 
 - **Per-namespace RBAC resilience** — a single 403 on a namespace adds it to `skipped_namespaces` and the scan continues; no crash, no partial silence.

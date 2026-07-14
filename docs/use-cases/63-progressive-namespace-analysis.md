@@ -110,33 +110,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as analyze_critical_namespace_events
-    participant Store as store_memory
-
-    CLI->>Cache: query + namespace
-    Cache->>DuckDB: VSS search similar prior critical-incident analyses
-    alt Similar result found (fresh)
-        DuckDB-->>Cache: cached AnalyzeCriticalNamespaceEventsResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to analyze_critical_namespace_events
-        Tool-->>Store: AnalyzeCriticalNamespaceEventsResponse
-        Store->>DuckDB: persist embedding + result
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Two tools, two phases, one data source** — `summarize_namespace_events` (Phase 1) and `analyze_critical_namespace_events` (Phase 2) both fetch through the same `NamespaceEventsPort` (ECA-19), unfiltered — Normal events count toward `total_events`, unlike the Warning/Error-only filter built for the prior `get_namespace_events` ticket.

@@ -102,33 +102,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as advanced_namespace_event_analytics
-    participant Store as store_memory
-
-    CLI->>Cache: query + namespace + time_window_minutes
-    Cache->>DuckDB: VSS search similar prior 6h analytics reports
-    alt Similar result found (fresh, <5min old)
-        DuckDB-->>Cache: cached AdvancedNamespaceEventAnalyticsResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to advanced_namespace_event_analytics
-        Tool-->>Store: AdvancedNamespaceEventAnalyticsResponse
-        Store->>DuckDB: persist embedding + result
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Timeline and storm detection see every event, correlation and top-reasons don't** — a rolling restart floods a namespace with Normal events (Killing, Created, Started), which is exactly the kind of volume spike this report must surface; but only non-Normal (Warning/Error) events are meaningful for "top recurring reasons" and root-cause correlation, so those two are filtered.

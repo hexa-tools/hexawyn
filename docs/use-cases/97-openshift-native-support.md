@@ -108,35 +108,6 @@ sequenceDiagram
 
 ---
 
-## 4. DuckDB Memory
-
-Findings are looked up in DuckDB before the query and stored after, with an
-offline fallback that never crashes the flow.
-
-```mermaid
-sequenceDiagram
-    participant Adapter as OpenShiftAdapter
-    participant Cache as check_cache
-    participant DuckDB
-    participant Store as store_memory
-
-    Cache->>DuckDB: VSS search (query + cluster "ocp-prod")
-    alt similar finding found
-        DuckDB-->>Cache: prior RouteInfo/SCC finding
-        Cache-->>Adapter: reuse (skip API)
-    else miss
-        Cache-->>Adapter: proceed to OpenShift API
-        Adapter->>Store: store finding after generate
-        alt DuckDB available
-            Store->>DuckDB: INSERT finding (sanitized)
-        else DuckDBUnavailableError
-            Store-->>Store: degraded mode — skip persist, never crash
-        end
-    end
-```
-
----
-
 ## Key Points
 
 - OpenShift adapter is auto-selected via the CloudProvider entry-points registry

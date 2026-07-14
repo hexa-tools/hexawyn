@@ -108,30 +108,6 @@ sequenceDiagram
 
 ---
 
-## 4. DuckDB Memory (quarter-over-quarter trend)
-
-```mermaid
-sequenceDiagram
-    participant MCP as MCP Tool
-    participant DuckDB
-    participant Svc as Service
-
-    MCP->>DuckDB: fetch last quarter's overall score
-    alt previous score found
-        DuckDB-->>MCP: previous_score_pct = 75.0
-        MCP->>Svc: compute(previous_score_pct=75.0)
-        Svc->>Svc: classify_trend(current, 75.0) → improving/degrading/stable
-    else no history
-        MCP->>Svc: compute(previous_score_pct=None) → trend "stable"
-    end
-    Svc->>DuckDB: store current overall score for next quarter
-    alt DuckDB unavailable
-        Svc-->>Svc: degraded mode — skip persist, never crash
-    end
-```
-
----
-
 ## Key Points
 
 - **Aggregator via Facade**: the domain never touches the 5 individual audits;
@@ -145,8 +121,6 @@ sequenceDiagram
   Pod Security > TLS, producing an action-ordered list for the board.
 - **Graceful partial results**: a provider timeout marks the report `partial`
   with a warning instead of crashing (large-cluster edge case).
-- **Quarter-over-quarter trend**: optional previous score (DuckDB-backed) yields
-  improving / degrading / stable with a 0.5-point tolerance.
 
 ---
 

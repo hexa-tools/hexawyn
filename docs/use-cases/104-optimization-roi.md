@@ -105,28 +105,6 @@ sequenceDiagram
 
 ---
 
-## 4. DuckDB Memory (baseline & sprint isolation)
-
-```mermaid
-sequenceDiagram
-    participant MCP as MCP Tool
-    participant DuckDB
-    participant Svc as Service
-
-    MCP->>DuckDB: fetch pre-sprint cost baseline for sprint_id
-    alt baseline found
-        DuckDB-->>Svc: baseline €500/mo (isolated per sprint_id)
-    else no baseline (TC3)
-        DuckDB-->>Svc: none → has_baseline=false
-    end
-    Svc->>DuckDB: store this sprint's ROI (attributed to sprint_id)
-    alt DuckDB unavailable
-        Svc-->>Svc: degraded mode — skip persist, never crash
-    end
-```
-
----
-
 ## Key Points
 
 - **Aggregator via Facade**: the domain never touches the cost / right-sizing /

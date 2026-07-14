@@ -22,9 +22,7 @@ capabilities are `high`/Restricted; privilege escalation is `medium`/
 Restricted), and recommends the specific securityContext fix.
 
 **Deterministic matrix, not an LLM judgment call — same pattern as ECA-71.**
-The ticket's Checker Node cases 1 & 2 describe a downstream semantic-layer
-check (in the private `hexa-control-plane` repo, out of scope here per
-AGENTS.md's repo boundary) that verifies an LLM narrative against this tool's
+A downstream semantic-layer check verifies an LLM narrative against this tool's
 ground truth. `classify_severity`/`classify_pss_level`
 (`domain/services/pod_security/violation_classifier.py`) are that ground
 truth: a fixed lookup, no heuristics. `NET_BIND_SERVICE` is explicitly kept
@@ -106,7 +104,7 @@ sequenceDiagram
     end
 ```
 
-### Flow 3 — Checker Node: Verification Cases (documented ground truth — checker itself lives in hexa-control-plane, out of scope here)
+### Flow 3 — Checker Node: Verification Cases (semantic-layer validation against the tool's deterministic ground truth)
 
 ```mermaid
 sequenceDiagram
@@ -131,33 +129,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: Prior Violation Recurrence (documented flow only — no insert path exists anywhere in this codebase yet, matching every prior use-case doc)
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as detect_privileged_pods
-    participant Store as store_memory
-
-    CLI->>Cache: query + namespaces
-    Cache->>DuckDB: VSS search similar prior PSS findings (same pod_name/namespace)
-    alt Same pod flagged privileged in a previous audit and still unremediated
-        DuckDB-->>Cache: prior finding (recurrence — "persistent violation, remediation overdue")
-        Cache-->>CLI: recurrence context available
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to detect_privileged_pods
-        Tool-->>Store: DetectPrivilegedPodsResponse
-        Store->>DuckDB: persist embedding + result (not yet wired — no insert path exists anywhere in this codebase today)
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Deterministic severity + PSS-level matrix, no LLM ambiguity** —
@@ -178,12 +149,7 @@ sequenceDiagram
   `critical` severity, with an added `note` for context.
 - **Namespace PSA `enforce` labels are cross-referenced, not scored** — the
   finding carries the namespace's Pod Security Admission level (if any) as
-  informational context; it doesn't change the violation's own severity.
-- **Checker-node validation and DuckDB recurrence tracking are documented,
-  not implemented, in this repo** — same scope boundary and precedent as
-  ECA-71 (RBAC audit): LangGraph/checker nodes live in the private
-  `hexa-control-plane` repo, and no DuckDB insert path exists anywhere in
-  this codebase yet.
+   informational context; it doesn't change the violation's own severity.
 
 ## Tests
 

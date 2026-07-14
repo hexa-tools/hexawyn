@@ -129,7 +129,7 @@ sequenceDiagram
     end
 ```
 
-### Flow 3 — Checker Node: Verification Cases (documented ground truth — checker itself lives in hexa-control-plane, out of scope here)
+### Flow 3 — Checker Node: Verification Cases (semantic-layer validation against the tool's deterministic ground truth)
 
 ```mermaid
 sequenceDiagram
@@ -151,33 +151,6 @@ sequenceDiagram
         Checker-->>LLM: ❌ FLAG — system namespaces are excluded_namespaces, never findings
     else All checks pass
         Checker-->>LLM: ✅ PASS
-    end
-```
-
-### Flow 4 — DuckDB Memory: Long-Standing Exposure Duration (documented flow only — no insert path exists anywhere in this codebase yet, matching every prior use-case doc)
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as detect_network_segmentation_gaps
-    participant Store as store_memory
-
-    CLI->>Cache: query + namespaces
-    Cache->>DuckDB: VSS search prior scans for the same namespace
-    alt Namespace was already "open" in prior scans, still open now (e.g. 6 months)
-        DuckDB-->>Cache: prior finding — exposure duration surfaced, escalate if > 30 days
-        Cache-->>CLI: exposure-duration context available
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to detect_network_segmentation_gaps
-        Tool-->>Store: DetectNetworkSegmentationGapsResponse
-        Store->>DuckDB: persist embedding + result (not yet wired — no insert path exists anywhere in this codebase today)
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
     end
 ```
 
@@ -203,9 +176,6 @@ sequenceDiagram
   mis-set a risk level on in the first place.
 - **Every namespace checked is returned, not just the open ones** — the
   ticket's own summary counts (2+3+3=8) only make sense that way.
-- **Checker-node validation and DuckDB exposure-duration tracking are
-  documented, not implemented, in this repo** — same repo-boundary and
-  "no insert path yet" precedent as every prior security-domain ticket.
 
 ## Tests
 

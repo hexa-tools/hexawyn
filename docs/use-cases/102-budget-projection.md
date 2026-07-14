@@ -112,30 +112,6 @@ sequenceDiagram
 
 ---
 
-## 4. DuckDB Memory (baseline & anomaly exclusion)
-
-```mermaid
-sequenceDiagram
-    participant MCP as MCP Tool
-    participant DuckDB
-    participant Svc as Service
-
-    MCP->>DuckDB: fetch cost history + known anomalous periods
-    alt recent infra change distorts baseline
-        DuckDB-->>MCP: anomalous month (new cluster)
-        MCP->>Svc: project(exclude_months=[anomaly])
-        Svc->>Svc: growth estimated on clean baseline
-    else no anomaly
-        MCP->>Svc: project(exclude_months=[])
-    end
-    Svc->>DuckDB: store current projection for trend history
-    alt DuckDB unavailable
-        Svc-->>Svc: degraded mode — skip persist, never crash
-    end
-```
-
----
-
 ## Key Points
 
 - **Growth model classification**: linear / exponential / decreasing / flat,

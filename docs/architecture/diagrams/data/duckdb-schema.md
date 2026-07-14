@@ -20,7 +20,7 @@ erDiagram
         VARCHAR severity
         INTEGER feedback
         FLOAT weight
-        DOUBLE[1536] embedding
+        DOUBLE[768] embedding
         BOOLEAN sanitized
     }
 
@@ -79,11 +79,11 @@ erDiagram
 ## Table Details
 
 ### 1. `incidents` — Past investigations
-Stores every investigation result with 1536-dimensional embeddings for VSS (Vector Similarity Search). This is the core memory table — every time the LLM diagnoses an issue, the result is stored here for future recall.
+Stores every investigation result with 768-dimensional embeddings for VSS (Vector Similarity Search). This is the core memory table — every time the LLM diagnoses an issue, the result is stored here for future recall.
 
 | Champ | Type | Usage |
 |---|---|---|
-| `embedding` | `FLOAT[1536]` | HNSW index with cosine similarity — fast approximate nearest neighbor |
+| `embedding` | `FLOAT[768]` | HNSW index with cosine similarity — fast approximate nearest neighbor |
 | `retained_until` | `TIMESTAMPTZ` | 90 days default TTL — expired rows filtered by `WHERE retained_until > now()` |
 | `age_days` | `INTEGER` (VIRTUAL) | `DATEDIFF('day', timestamp, now())` — used for recency scoring |
 | `weight` | `FLOAT` | Multiplier for VSS score — incremented on cache hits to boost popular results |
@@ -215,7 +215,7 @@ Tracks applied schema migrations. Standard flyway-style pattern.
 SELECT id, timestamp, age_days, cluster_name, namespace,
        resource_name, resource_kind, tool_name, cause,
        solution, severity, weight,
-       array_cosine_similarity(embedding, ?::DOUBLE[1536]) * weight
+       array_cosine_similarity(embedding, ?::DOUBLE[768]) * weight
            / ln(age_days + 2) AS score
 FROM incidents
 WHERE cluster_name = ?
@@ -254,7 +254,7 @@ WITH (metric = 'cosine');
 ## Key Points
 
 - **Local-first:** DuckDB file lives on the user's machine — zero server cost, zero data egress
-- **text-embedding-3-small:** 1536-dimensional embeddings for VSS via HNSW index with cosine similarity
+- **nomic-embed-text:** 768-dimensional embeddings for VSS via HNSW index with cosine similarity
 - **Recency weighting:** `score / ln(age_days + 2)` — today's incidents score ~3x higher than 30-day-old incidents
 - **History limits by tier:** Free = 7 days, Dev = 30 days, Startup = 90 days, Scale-up+ = unlimited
 - **TTL enforcement:** `retained_until` defaults to 90 days — expired rows filtered and purgeable via `hexa db purge`
