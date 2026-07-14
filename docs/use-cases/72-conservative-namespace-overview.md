@@ -109,33 +109,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as conservative_namespace_overview
-    participant Store as store_memory
-
-    CLI->>Cache: query + namespace + max_tokens
-    Cache->>DuckDB: VSS search similar prior namespace-overview runs
-    alt Similar result found (fresh)
-        DuckDB-->>Cache: cached ConservativeNamespaceOverviewResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to conservative_namespace_overview
-        Tool-->>Store: ConservativeNamespaceOverviewResponse
-        Store->>DuckDB: persist embedding + result
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Rule-based health score, not a weighted formula** — `classify_deployment`/`compute_health_status`

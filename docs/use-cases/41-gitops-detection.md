@@ -4,7 +4,7 @@
 
 - "Does my cluster use Flux or Argo CD?"
 - "Which GitOps engine is installed and show me its apps"
-- "Montre-moi le statut de toutes mes apps Argo CD"
+- "Show me the status of all my Argo CD apps"
 - "Why is my payments-api HelmRelease not synced with Git?"
 - "What is the latest commit deployed to my cluster via GitOps?"
 

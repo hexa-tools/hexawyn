@@ -129,42 +129,6 @@ sequenceDiagram
 
 ---
 
-## DuckDB — Pipeline Status Caching
-
-```mermaid
-sequenceDiagram
-    participant MCP as MCP Tool
-    participant Duck as DuckDB (local)
-    participant Svc as PipelineRunStatusService
-    participant Adapter as KubernetesTektonAdapter
-
-    MCP->>Duck: SELECT * FROM pipeline_status_cache WHERE namespace=? AND window_hours=? AND scanned_at > NOW()-INTERVAL 5 MINUTE
-
-    alt Cache hit (fresh scan)
-        Duck-->>MCP: PipelineRunStatusReport (cached JSON)
-        MCP-->>User: report from cache (no K8s API calls)
-
-    else Cache miss
-        MCP->>Svc: get_pipeline_run_status(command)
-        Svc->>Adapter: list_pipeline_runs("ci", 500)
-        Adapter-->>Svc: list[PipelineRunRecord]
-        Svc-->>MCP: PipelineRunStatusReport
-
-        MCP->>Duck: INSERT INTO pipeline_status_cache (namespace, window_hours, report_json, scanned_at)
-        Duck-->>MCP: OK
-        MCP-->>User: fresh report
-
-    else DuckDB unavailable (offline mode)
-        Duck--xMCP: IOError / file locked
-        Note over MCP: Bypass cache, call K8s directly
-        MCP->>Svc: get_pipeline_run_status(command)
-        Svc-->>MCP: PipelineRunStatusReport
-        MCP-->>User: fresh report (no caching)
-    end
-```
-
----
-
 ## Key Points
 
 - **Time-window filtering** — only runs started within `hours_window` (default 24h) are counted; runs with no `start_time` (NotStarted/Pending) are always included.

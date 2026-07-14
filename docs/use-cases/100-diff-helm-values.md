@@ -120,39 +120,8 @@ sequenceDiagram
     else Raw file compared instead of effective values
         Checker->>Checker: assert helm get values (effective) used
         Checker->>Gen: FAIL — use effective values
-    else Chronic critical diff (DuckDB age > 7 days)
-        Checker->>Store: attach diff age
-        Checker->>Format: FLAG "critical diff persisted N days"
     else PASS
-        Checker->>Store: persist finding
-        Store->>Format: rendered answer
-    end
-```
-
----
-
-## 4. DuckDB Memory
-
-```mermaid
-sequenceDiagram
-    participant Svc as Service
-    participant Cache as check_cache
-    participant DuckDB
-    participant Store as store_memory
-
-    Cache->>DuckDB: VSS search (release + envs)
-    alt prior diff found
-        DuckDB-->>Cache: previous HelmValuesDiffReport + first_seen timestamp
-        Cache->>Svc: inject diff_age_provider(key) → age in days
-        Svc->>Svc: FLAG critical diffs older than 7 days
-    else miss
-        Cache-->>Svc: proceed, no age annotation
-    end
-    Svc->>Store: store report after generate
-    alt DuckDB available
-        Store->>DuckDB: INSERT diff (secret values already [REDACTED])
-    else DuckDBUnavailableError
-        Store-->>Store: degraded mode — skip persist, never crash
+        Checker->>Format: rendered answer
     end
 ```
 
@@ -168,11 +137,9 @@ sequenceDiagram
   replicas/resource limits/feature flags = warning, rest = informational. This is
   the single source of truth the checker verifies against.
 - **Secret redaction in the domain**: secret-bearing values become `[REDACTED]`
-  before leaving the domain layer — never exposed, even to DuckDB.
+  before leaving the domain layer — never exposed.
 - **Explicit direction**: source (staging) is the reference, target (production)
   is compared against it — prevents inverted "prod is newer" narratives.
-- **Diff age (optional)**: an injected DuckDB-backed provider flags critical
-  differences that have persisted more than 7 days.
 
 ---
 

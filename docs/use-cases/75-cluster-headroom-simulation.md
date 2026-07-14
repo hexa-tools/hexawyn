@@ -113,33 +113,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: Prior Simulation Recurrence
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as cluster_headroom_simulation
-    participant Store as store_memory
-
-    CLI->>Cache: query + proposed_workloads
-    Cache->>DuckDB: VSS search similar prior headroom simulations (same cluster, similar workload shape)
-    alt Similar past simulation found
-        DuckDB-->>Cache: prior result (verdict, whether nodes were actually added afterward)
-        Cache-->>CLI: recurrence context available
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to cluster_headroom_simulation
-        Tool-->>Store: ClusterHeadroomSimulationResponse
-        Store->>DuckDB: persist embedding + result (not yet wired — no insert path exists anywhere in this codebase today)
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Genuinely narrower new port, not a duplicate of ECA-74's** — `HeadroomSimulationPort`
@@ -167,8 +140,6 @@ sequenceDiagram
   path** — adding zero CPU/memory cores is just a zero-valued input to the same
   formula, with `binding_constraint="None"` and a plainly-worded summary distinguishing
   it from an actual simulation.
-- **DuckDB VSS / trend-history recurrence and the Checker Node are documentation
-  conventions here too** — unchanged from every prior feature this session.
 
 ## Tests
 

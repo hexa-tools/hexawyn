@@ -140,13 +140,12 @@ sequenceDiagram
 
 ---
 
-## Flow 4 — Checker Node (validation + DuckDB store)
+## Flow 4 — Checker Node (validation)
 
 ```mermaid
 sequenceDiagram
     participant Checker as Checker Node
     participant Domain as CICDPerformanceBaselineService
-    participant DuckDB as DuckDB (VSS + memory)
     participant LLM as LLM
 
     Checker->>Domain: validate_baseline(result)
@@ -154,15 +153,9 @@ sequenceDiagram
     alt PASS — all validations green
         Domain->>Domain: runs_analyzed >= 5 ✓<br/>stages have meaningful durations ✓<br/>no all-failed scenario ✓
 
-        Note over Checker,DuckDB: Store baseline in DuckDB for future comparison
-        Checker->>DuckDB: INSERT INTO pipeline_baselines<br/>(pipeline_name, avg_build_s, p95_deploy_s, trend, computed_at)
-
         Checker-->>MCP: PASS — format_response with baseline report
     else FLAG — outliers detected (>2x avg)
         Domain->>Domain: 2 runs flagged as outliers
-
-        Note over Checker,DuckDB: Store baseline with outlier caveats
-        Checker->>DuckDB: INSERT INTO pipeline_baselines<br/>(..., outlier_count=2)
 
         Checker-->>MCP: FLAG — format_response with caveats<br/>"Baseline computed, 2 outliers excluded"
     else DEGRADED — insufficient data (< 5 runs)
@@ -186,7 +179,6 @@ sequenceDiagram
 - Detects **outliers**: any run whose duration exceeds **2× the stage average** is flagged and excluded from the baseline
 - Computes **trend**: compares average duration of last 5 runs vs first 5 runs → improving (faster), stable (±10%), degrading (slower)
 - When fewer than N runs are available, baseline is computed on available data with `runs_available` note
-- Stores baseline in DuckDB for future trend comparison and VSS retrieval
 
 ## Test Coverage
 

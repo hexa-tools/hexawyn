@@ -135,33 +135,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: Prior RBAC-Audit Recurrence (documented flow only — no insert path exists anywhere in this codebase yet, matching every prior use-case doc)
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as audit_rbac_permissions
-    participant Store as store_memory
-
-    CLI->>Cache: query + window_days
-    Cache->>DuckDB: VSS search similar prior RBAC findings (same service_account/namespace)
-    alt Same SA flagged critical in a previous audit and still unremediated
-        DuckDB-->>Cache: prior finding (recurrence — escalate in the summary text)
-        Cache-->>CLI: recurrence context available
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to audit_rbac_permissions
-        Tool-->>Store: AuditRBACPermissionsResponse
-        Store->>DuckDB: persist embedding + result (not yet wired — no insert path exists anywhere in this codebase today)
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Deterministic risk matrix, no LLM ambiguity** — cluster-admin is always
@@ -185,12 +158,7 @@ sequenceDiagram
   (no-bindings SA presented as a risk) is impossible by construction.
 - **Namespace-scoped bindings to cluster-scoped resources are flagged as
   misconfigured** — a real, common RBAC-authoring mistake (the rule is a
-  no-op inside the namespace), surfaced as its own boolean plus a reason.
-- **Checker-node validation and DuckDB recurrence tracking are documented,
-  not implemented, in this repo** — per AGENTS.md's repo-boundary table,
-  LangGraph/checker nodes live in the private `hexa-control-plane` repo; and
-  per every prior use-case doc's precedent, there is no DuckDB insert path
-  anywhere in this codebase yet.
+   no-op inside the namespace), surfaced as its own boolean plus a reason.
 
 ## Tests
 

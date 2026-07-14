@@ -78,7 +78,6 @@ sequenceDiagram
 sequenceDiagram
     participant Checker as Checker Node
     participant LLM as LLM Response
-    participant DuckDB as DuckDB
 
     Checker->>LLM: Validate attribution accuracy
     alt Percentage math incorrect (auth=1012/1240 ≠ 70%)
@@ -90,7 +89,6 @@ sequenceDiagram
     else All checks pass
         Checker-->>LLM: ✅ PASS
     end
-    Checker->>DuckDB: Check if culprit is recurrent from previous windows
 ```
 
 ## Key Points
@@ -98,7 +96,6 @@ sequenceDiagram
 - **Root error span** — deepest span with error=true (not intermediate)
 - **Pareto** — service ≥ 80% of errors flagged as culprit
 - **Gateway self-error** — if error originates in gateway itself, noted separately
-- **Recurrence** — DuckDB tracks repeat offenders across time windows
 
 ## Test Coverage
 

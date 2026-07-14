@@ -84,7 +84,6 @@ sequenceDiagram
 sequenceDiagram
     participant Checker as Checker Node
     participant LLM as LLM Response
-    participant DuckDB as DuckDB
 
     Checker->>LLM: Validate version comparison
     alt Delta % incorrect (math error)
@@ -96,7 +95,6 @@ sequenceDiagram
     else All checks pass
         Checker-->>LLM: ✅ PASS
     end
-    Checker->>DuckDB: Store version comparison for recurrence detection
 ```
 
 ## Key Points
@@ -104,7 +102,6 @@ sequenceDiagram
 - **Version grouping** — `deployment.version` OTel attribute + k8s image tag fallback
 - **p99 threshold** — ≥ +20% → CRITICAL flag
 - **Error threshold** — ≥ +0.5pp → WARNING flag
-- **DuckDB** — stores comparisons for detecting recurrence patterns across releases
 
 ## Test Coverage
 

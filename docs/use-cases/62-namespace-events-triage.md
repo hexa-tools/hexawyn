@@ -95,33 +95,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as get_namespace_events
-    participant Store as store_memory
-
-    CLI->>Cache: query + namespace + time_window_minutes
-    Cache->>DuckDB: VSS search similar prior namespace-events triage runs
-    alt Similar result found (fresh, <5min old)
-        DuckDB-->>Cache: cached GetNamespaceEventsResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to get_namespace_events
-        Tool-->>Store: GetNamespaceEventsResponse
-        Store->>DuckDB: persist embedding + result
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **ECA-5 is an explicit dependency, not an afterthought** — `GetNamespaceEventsService` calls `K8sPort.list_namespaces()` before ever touching `NamespaceEventsPort`, so a typo'd or deleted namespace fails fast with a clear `ResourceNotFoundError` instead of a confusing empty-events response.

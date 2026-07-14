@@ -133,33 +133,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as semantic_log_search
-    participant Store as store_memory
-
-    CLI->>Cache: query + pattern + namespace + time_window_minutes
-    Cache->>DuckDB: VSS search similar prior log-search runs
-    alt Similar result found (fresh)
-        DuckDB-->>Cache: cached SemanticLogSearchResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to semantic_log_search
-        Tool-->>Store: SemanticLogSearchResponse
-        Store->>DuckDB: persist embedding + result
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Exact matching is real and complete; "semantic" is an honest, bounded fallback** —

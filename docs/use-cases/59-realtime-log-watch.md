@@ -126,30 +126,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as watch_pod_logs
-    participant Store as store_memory
-
-    CLI->>Cache: query + pod_name + namespace
-    Cache->>DuckDB: VSS search similar prior watch sessions
-    alt Similar result found (fresh)
-        DuckDB-->>Cache: cached WatchPodLogsResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale
-        Cache-->>Tool: proceed to watch_pod_logs
-        Tool-->>Store: WatchPodLogsResponse
-        Store->>DuckDB: persist embedding + result
-        DuckDB-->>Store: stored
-    end
-    Note over DuckDB: offline fallback — if DuckDB unavailable, skip cache and watch directly (DuckDBUnavailableError → degraded mode, never crash)
-```
-
 ## Key Points
 
 - **No buffering** — every line is processed and yielded as it arrives via `kubernetes.watch.Watch`; the adapter never accumulates the full log body in memory.

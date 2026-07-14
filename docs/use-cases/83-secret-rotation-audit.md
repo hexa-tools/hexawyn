@@ -160,33 +160,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: Chronic Non-Rotation Escalation (documented flow only — no insert path exists anywhere in this codebase yet, matching every prior use-case doc)
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as audit_secret_rotation
-    participant Store as store_memory
-
-    CLI->>Cache: query + rotation_threshold_days
-    Cache->>DuckDB: VSS search prior audits for the same secret (name/namespace)
-    alt Same secret flagged stale in the last 3 audits, still not rotated
-        DuckDB-->>Cache: prior findings — escalate severity, "chronic non-rotation"
-        Cache-->>CLI: escalation context available
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to audit_secret_rotation
-        Tool-->>Store: AuditSecretRotationResponse
-        Store->>DuckDB: persist embedding + result (not yet wired — no insert path exists anywhere in this codebase today)
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Only entries that touch `f:data` ever count as a rotation** — a label,
@@ -209,10 +182,7 @@ sequenceDiagram
 - **Reference scanning reads Deployments' pod templates directly** — no
   live-Pod traversal is needed for Deployment-owned workloads, since the
   Deployment object already carries the full template; only ownerless
-  ("bare") Pods are scanned as live objects, avoiding double-counting.
-- **Checker-node validation and DuckDB chronic-non-rotation escalation are
-  documented, not implemented, in this repo** — same repo-boundary and
-  "no insert path yet" precedent as every prior security-domain ticket.
+   ("bare") Pods are scanned as live objects, avoiding double-counting.
 
 ## Tests
 

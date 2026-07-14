@@ -165,49 +165,12 @@ sequenceDiagram
 
 ---
 
-## DuckDB — Fleet Health Trend
-
-```mermaid
-sequenceDiagram
-    participant MCP as MCP Tool
-    participant Duck as DuckDB (local)
-    participant SVC as GlobalHealthCheckService
-    participant ADAPT as FleetHealthAdapter
-
-    MCP->>Duck: SELECT fleet_score, scanned_at FROM fleet_health_history WHERE scanned_at > NOW()-INTERVAL 7 DAY ORDER BY scanned_at DESC LIMIT 1
-
-    alt Previous score found (trend computation)
-        Duck-->>MCP: {fleet_score: 85, scanned_at: "2026-06-24"}
-        Note over SVC: previous=85, current=95 → trend="improving"
-        MCP->>Duck: INSERT INTO fleet_health_history (fleet_score, clusters_json, scanned_at)
-        Duck-->>MCP: OK
-        MCP-->>SRE: report + fleet_score_trend="improving"
-
-    else No previous score (first run)
-        Duck-->>MCP: (empty result)
-        Note over SVC: trend="unknown" (no baseline)
-        MCP->>Duck: INSERT INTO fleet_health_history ...
-        MCP-->>SRE: report + fleet_score_trend="unknown"
-
-    else DuckDB unavailable (offline mode)
-        Duck--xMCP: IOError / file locked
-        Note over MCP: Bypass history — run scan without trend
-        MCP->>SVC: global_health_check(command)
-        ADAPT-->>SVC: ClusterRawMetrics
-        SVC-->>MCP: FleetHealthReport(trend=None)
-        MCP-->>SRE: report (no trend available)
-    end
-```
-
----
-
 ## Key Points
 
 - **Parallel execution** — `ThreadPoolExecutor` scans all contexts simultaneously; each cluster failure is caught individually so one unreachable cluster never blocks the others.
 - **Score formula** — `score = 100 - 20×nodes_not_ready - int(crashloop/total×40) - cpu/mem pressure deductions - cert deductions - security deductions`, floored at 0.
 - **Fleet aggregate** — `fleet_score` averages only reachable clusters; unreachable clusters are excluded from the denominator and counted in `unreachable_count`.
 - **Prometheus optional** — when Prometheus is unavailable, CPU/memory categories become `UNKNOWN` (not `OK`); score is computed without those deductions.
-- **Trend** — `fleet_score_trend` is derived from DuckDB history; `"improving"` when score rises >10%, `"degrading"` when it drops >10%, `"stable"` otherwise.
 
 ## Test Coverage
 

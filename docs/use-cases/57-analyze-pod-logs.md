@@ -104,30 +104,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as analyze_pod_logs
-    participant Store as store_memory
-
-    CLI->>Cache: query + pod_name + namespace
-    Cache->>DuckDB: VSS search similar prior analyses
-    alt Similar result found (fresh)
-        DuckDB-->>Cache: cached AnalyzePodLogsResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale
-        Cache-->>Tool: proceed to analyze_pod_logs
-        Tool-->>Store: AnalyzePodLogsResponse
-        Store->>DuckDB: persist embedding + result
-        DuckDB-->>Store: stored
-    end
-    Note over DuckDB: offline fallback — if DuckDB unavailable, skip cache and analyze directly (DuckDBUnavailableError → degraded mode, never crash)
-```
-
 ## Key Points
 
 - **Volume-based Strategy selection** — SMART <1000 lines, HYBRID 1000–10000, STREAMING >10000, decided purely by line count in `select_strategy_by_volume` (domain), independent of the pre-existing context-aware `StrategySelector`.

@@ -78,7 +78,6 @@ sequenceDiagram
 sequenceDiagram
     participant Checker as Checker Node
     participant LLM as LLM Response
-    participant DuckDB as DuckDB
 
     Checker->>LLM: Validate prediction math
     alt breach_in_minutes calculation wrong
@@ -90,7 +89,6 @@ sequenceDiagram
     else All checks pass
         Checker-->>LLM: ✅ PASS
     end
-    Checker->>DuckDB: Store trend baseline for recurrence detection
 ```
 
 ## Key Points

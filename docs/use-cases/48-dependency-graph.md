@@ -80,13 +80,8 @@ sequenceDiagram
 sequenceDiagram
     participant Checker as Checker Node
     participant LLM as LLM Response
-    participant DuckDB as DuckDB
 
     Checker->>LLM: Validate graph accuracy
-    alt New service appeared that wasn't in DuckDB history
-        Checker->>DuckDB: query previous graph snapshot
-        DuckDB-->>Checker: previous: 3 nodes (no recommendation-service)
-        Checker-->>LLM: ⚠️ FLAG — "recommendation-service is new (not in previous graph)"
     alt LLM shows only unidirectional edge when bidirectional exists
         Checker-->>LLM: ⚠️ FLAG — "A→B AND B→A both detected, show both directions"
     alt LLM rounds call count without caveat (sampled data)
@@ -94,7 +89,6 @@ sequenceDiagram
     else All checks pass
         Checker-->>LLM: ✅ PASS
     end
-    Checker->>DuckDB: Store current graph snapshot
 ```
 
 ## Key Points
@@ -102,7 +96,6 @@ sequenceDiagram
 - **Edge extraction** — `source→target` from span parent/child service.name attributes
 - **Aggregation** — multiple raw edges merged into single edge with summed call_count
 - **Error rate** — `total_errors / call_count` per edge
-- **DuckDB snapshot** — stores graph for future comparison (new service detection)
 
 ## Test Coverage
 

@@ -104,33 +104,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as search_resources_by_labels
-    participant Store as store_memory
-
-    CLI->>Cache: query + label_selector + resource_types + namespace
-    Cache->>DuckDB: VSS search similar prior label-search runs
-    alt Similar result found (fresh)
-        DuckDB-->>Cache: cached SearchResourcesByLabelsResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to search_resources_by_labels
-        Tool-->>Store: SearchResourcesByLabelsResponse
-        Store->>DuckDB: persist embedding + result
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **One port method per K8s API group, service composes** — `ResourceSearchPort` has

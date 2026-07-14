@@ -103,33 +103,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as prometheus_query
-    participant Store as store_memory
-
-    CLI->>Cache: promql + query_type + time range
-    Cache->>DuckDB: VSS search similar prior PromQL query runs
-    alt Similar result found (fresh)
-        DuckDB-->>Cache: cached ExecutePrometheusQueryResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to prometheus_query
-        Tool-->>Store: ExecutePrometheusQueryResponse
-        Store->>DuckDB: persist embedding + result
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Unit is caller-supplied, not inferred** — `unit_hint: Literal["cores","bytes","percent","raw"]` is an explicit param on the command; PromQL results carry no unit metadata, and guessing from the query string (e.g. spotting `"cpu"`) is a fragile heuristic that was deliberately rejected in favor of the SRE/agent stating what they queried.
