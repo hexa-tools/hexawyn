@@ -1,6 +1,6 @@
 # Full Investigation — Happy Path (RuntimePort Architecture)
 
-The user asks a question in the CLI. The CLI calls `get_runtime()` which resolves the RuntimePort implementation based on `config.yaml`. Two modes: **embedded** (stub, local-only) and **remote** (HTTP to hexawyn-control-plane). The remote flow covers: CLI → RuntimeClient → POST /investigations → FastAPI → Valkey → Worker → LangGraph → Ollama → polling → InvestigationResult → CLI.
+The user asks a question in the CLI. The CLI calls `get_runtime()` which resolves the RuntimePort implementation based on `config.yaml`. Two modes: **embedded** (stub, local-only) and **remote** (HTTP to hexawyn-control-plane). The remote flow covers: CLI → RuntimeClient → POST /investigations → FastAPI → Valkey → Worker → LangGraph → Ollama → polling → InvestigationResult → CLI. On a successful investigation, the completed result (including the embedding computed by the control-plane) is persisted locally in the DuckDB incident-memory store for later similarity retrieval.
 
 ```mermaid
 sequenceDiagram
@@ -16,6 +16,7 @@ sequenceDiagram
     participant Engine as Runtime Engine
     participant LG as LangGraph
     participant LLM as Ollama
+    participant Memory as IncidentMemoryRepository<br/>(DuckDB)
 
     User->>CLI: "why is payments-api crashing?"
 
@@ -50,16 +51,20 @@ sequenceDiagram
         LLM-->>LG: diagnostic response
         LG->>LLM: POST /api/chat (mistral:7b — judge)
         LLM-->>LG: judge verdict: PASS (score: 0.92)
-        LG-->>Engine: InvestigationResult
+        LG-->>Engine: InvestigationResult (+ embedding)
         Engine-->>Worker: result
         Worker->>Valkey: store result → job-abc-123
 
         Client->>API: GET /api/v1/investigations/job-abc-123
         API->>Valkey: get job result
         Valkey-->>API: { status: "completed", result: {...} }
-        API-->>Client: { status: "completed", result: { answer: "...", ... } }
+        API-->>Client: { status: "completed", result: { answer: "...", embedding: [...] } }
         Client-->>HTTP: completed
-        HTTP-->>CLI: InvestigationOutput
+        HTTP-->>CLI: InvestigationOutput (+ embedding)
+
+        Note over CLI,Memory: store on success, only when an embedding is present
+        CLI->>Memory: store_incident(IncidentMemoryRecord)
+        Memory->>Memory: INSERT INTO incidents (best-effort)
 
         CLI-->>User: "OOMKilled — increase memory limit to 512Mi" + [19/50 · 31 remaining]
     end
@@ -71,6 +76,8 @@ sequenceDiagram
 - `runtime.mode: embedded` → `StubRuntimeAdapter` (dev, no control-plane needed)
 - `runtime.mode: remote` → `HttpRuntimeAdapter` → `RuntimeClient` (httpx, polling)
 - The control-plane (FastAPI + Valkey + Worker) owns all AI logic including LangGraph
+- The control-plane is **stateless**: it *computes* the embedding (via Ollama `nomic-embed-text`) and returns it, but never persists — persistence is the public repo's job
+- Incident memory is stored locally in DuckDB (`~/.hexawyn/memory.duckdb`), best-effort: a storage failure never blocks the response, and records without an embedding are skipped
 - The CLI and control-plane evolve independently thanks to the HTTP contract
 - Polling waits for "completed" or "failed" status (60s timeout, 1s interval)
 
@@ -82,14 +89,24 @@ sequenceDiagram
 | `test_post_investigation_returns_job_id` | `tests/unit/test_runtime_client.py` | ✅ |
 | `test_poll_investigation_waits_for_completed` | `tests/unit/test_runtime_client.py` | ✅ |
 | `test_run_investigation_posts_and_polls` | `tests/unit/test_http_runtime_adapter.py` | ✅ |
+| `test_run_investigation_extracts_embedding_cause_solution_from_report` | `tests/unit/test_http_runtime_adapter.py` | ✅ |
 | `test_run_investigation_failed_status` | `tests/unit/test_http_runtime_adapter.py` | ✅ |
 | `test_run_startup_scan_not_supported` | `tests/unit/test_http_runtime_adapter.py` | ✅ |
+| `test_stores_incident_on_successful_investigation_with_embedding` | `tests/unit/test_chat_cli_service.py` | ✅ |
+| `test_does_not_store_when_no_embedding` | `tests/unit/test_chat_cli_service.py` | ✅ |
+| `test_does_not_store_on_error_status` | `tests/unit/test_chat_cli_service.py` | ✅ |
+| `test_store_incident_executes_insert_with_all_columns` | `tests/unit/test_incident_memory_repository.py` | ✅ |
+| `test_store_incident_skips_record_without_embedding` | `tests/unit/test_incident_memory_repository.py` | ✅ |
 | `test_defaults_to_embedded` | `tests/unit/test_config_manager.py` | ✅ |
 
 ## Related Files
 
-- `src/hexawyn/application/ports/driven/runtime_port.py` — RuntimePort ABC + types
+- `src/hexawyn/application/ports/driven/runtime_port.py` — RuntimePort ABC + types (InvestigationOutput carries `embedding`)
 - `src/hexawyn/application/service/runtime_adapter.py` — get_runtime() + StubRuntimeAdapter
-- `src/hexawyn/application/service/http_runtime_adapter.py` — HttpRuntimeAdapter
+- `src/hexawyn/application/service/http_runtime_adapter.py` — HttpRuntimeAdapter (extracts embedding from the report)
 - `src/hexawyn/adapters/secondary/runtime_client.py` — RuntimeClient (HTTP + polling)
+- `src/hexawyn/application/service/chat_cli_service.py` — stores the incident after a successful investigation
+- `src/hexawyn/application/ports/driven/incident_memory_port.py` — IncidentMemoryPort ABC
+- `src/hexawyn/infrastructure/memory/incident_memory_repository.py` — IncidentMemoryRepository (INSERT, best-effort)
+- `src/hexawyn/domain/models/incident_memory.py` — IncidentMemoryRecord value object
 - `src/hexawyn/infrastructure/config/config_manager.py` — get_runtime_mode() + get_runtime_endpoint()

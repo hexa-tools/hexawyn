@@ -19,7 +19,7 @@ sequenceDiagram
     QM-->>check_cache: 7 (Free) or 90 (Pro)
 
     check_cache->>ES: embed(query)
-    ES-->>check_cache: float[1536] embedding
+    ES-->>check_cache: float[768] embedding
 
     check_cache->>DuckDB: search_similar(embedding, history_days)
 
@@ -45,7 +45,7 @@ sequenceDiagram
 
 - Cosine similarity threshold: 0.80 — lower scores are treated as cache miss
 - Recency weighting: score divided by ln(age_days + 2) — recent matches ranked higher
-- HNSW index enables fast approximate nearest neighbor search on 1536-dimensional embeddings
+- HNSW index enables fast approximate nearest neighbor search on 768-dimensional embeddings
 - L2 hit automatically populates L1 — next identical query returns in <1ms
 - Free tier sees 7 days of history, Pro tier sees 90 days (via history_days parameter)
 

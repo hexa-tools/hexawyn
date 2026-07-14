@@ -19,11 +19,9 @@ aggregated ClusterRoles), classifies risk with a **deterministic** matrix
 namespace-scoped `Role` replacement — built from actual audit-log usage when
 available, or a conservative read-only estimate when it isn't.
 
-**Deterministic risk matrix, not an LLM judgment call.** The ticket's own
-"Checker Node Edge Cases" describe a downstream semantic-layer check (in the
-private `hexa-control-plane` repo, out of scope here per AGENTS.md's repo
-boundary) that verifies an LLM's narrative against this tool's ground truth.
-That means the domain layer *is* the ground truth: `classify_risk_level`
+**Deterministic risk matrix, not an LLM judgment call.** A downstream
+semantic-layer check verifies an LLM's narrative against this tool's ground
+truth. That means the domain layer *is* the ground truth: `classify_risk_level`
 (`domain/services/rbac_audit/risk_scoring.py`) resolves cluster-admin → all
 resources (`*`) → wildcard verb → breadth score, in that fixed order, with no
 heuristic ambiguity. A wildcard verb on `secrets` stays `high` (matching the
@@ -110,7 +108,7 @@ sequenceDiagram
     end
 ```
 
-### Flow 3 — Checker Node: Verification Cases (documented ground truth — checker itself lives in hexa-control-plane, out of scope here)
+### Flow 3 — Checker Node: Verification Cases (semantic-layer validation against the tool's deterministic ground truth)
 
 ```mermaid
 sequenceDiagram

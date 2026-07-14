@@ -117,8 +117,6 @@ sequenceDiagram
         Checker-->>LLM: ❌ FAIL — annotations are never a comparison target, only labels are
     alt Orphaned resource presented as "no drift"
         Checker-->>LLM: ❌ FAIL — a deleted Helm release with resources still live must be reported as orphaned, not in-sync
-    alt Stale DuckDB drift cache reported as current
-        Checker-->>LLM: ⚠️ FLAG — if the cached finding is older than 5 minutes, verify freshness before reporting it as active
     else All checks pass
         Checker-->>LLM: ✅ PASS
     end

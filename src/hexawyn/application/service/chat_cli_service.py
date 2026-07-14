@@ -1,3 +1,4 @@
+from hexawyn.application.ports.driven.incident_memory_port import IncidentMemoryPort
 from hexawyn.application.ports.driven.k8s_port import (
     ClusterContext,
     Finding,
@@ -10,6 +11,7 @@ from hexawyn.application.use_case.chat_cli.chat_cli_command import ChatCliComman
 from hexawyn.application.use_case.chat_cli.chat_cli_response import ChatCliResponse
 from hexawyn.application.use_case.chat_cli.chat_cli_use_case import ChatCliUseCase
 from hexawyn.domain.models.cluster import ClusterContext as DomainClusterContext
+from hexawyn.domain.models.incident_memory import IncidentMemoryRecord
 
 
 class ChatCliService(ChatCliUseCase):
@@ -18,10 +20,12 @@ class ChatCliService(ChatCliUseCase):
         k8s_port: K8sPort,
         runtime: RuntimePort,
         logs_port: LogsPort | None = None,
+        incident_memory_port: IncidentMemoryPort | None = None,
     ) -> None:
         self._k8s = k8s_port
         self._runtime = runtime
         self._logs = logs_port
+        self._incident_memory = incident_memory_port
 
     def execute(self, command: ChatCliCommand) -> ChatCliResponse:
         normalized = command.query.strip().lower()
@@ -44,7 +48,24 @@ class ChatCliService(ChatCliUseCase):
         output: InvestigationOutput = self._runtime.run_investigation(
             query, domain_ctx, conversation_history
         )
+        self._store_incident(output, k8s_ctx)
         return _build_response(output)
+
+    def _store_incident(self, output: InvestigationOutput, k8s_ctx: ClusterContext) -> None:
+        if self._incident_memory is None:
+            return
+        if output["status"] == "error" or not output["embedding"]:
+            return
+        self._incident_memory.store_incident(
+            IncidentMemoryRecord(
+                cluster_name=k8s_ctx["name"],
+                tool_name="chat_investigation",
+                cause=output["cause"],
+                solution=output["solution"],
+                namespace=k8s_ctx["namespace"] or None,
+                embedding=output["embedding"],
+            )
+        )
 
     def list_pods(self) -> ChatCliResponse:
         pods = self._k8s.list_pods()

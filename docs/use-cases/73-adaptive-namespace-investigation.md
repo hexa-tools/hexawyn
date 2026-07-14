@@ -126,8 +126,6 @@ sequenceDiagram
         Checker-->>LLM: ❌ FAIL — failing_pods > 0 must be at least Degraded
     alt Destructive recommendation without justification ("delete the namespace")
         Checker-->>LLM: ❌ FAIL + escalate — destructive verbs (delete/purge/wipe) require data-backed justification
-    alt Recurring pattern found in DuckDB but not mentioned in the response
-        Checker-->>LLM: ⚠️ FLAG — if VSS finds a matching past investigation, the response must acknowledge the recurrence
     else All checks pass
         Checker-->>LLM: ✅ PASS
     end

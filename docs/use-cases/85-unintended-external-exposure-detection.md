@@ -151,7 +151,6 @@ sequenceDiagram
 - IP source ranges (loadBalancerSourceRanges) downgrade risk by one tier
 - Pending LoadBalancer services (no external IP yet) are still flagged as exposure risk
 - Namespace weighting: non-production namespaces get one-tier risk downgrade
-- DuckDB stores exposure history for chronic exposure escalation (30/90/180 day thresholds)
 
 ## Test Coverage
 

@@ -144,8 +144,6 @@ sequenceDiagram
 | `test_list_namespaces_terminating_status` | `tests/unit/test_vanilla_adapter.py` | ✅ |
 | `test_list_namespaces_returns_list` | `tests/unit/test_demo_adapter.py` | ✅ |
 | `test_list_namespaces_tool_is_registered` | `tests/unit/test_server.py` | ✅ |
-| `test_sync_tools_returns_ok` | `tests/unit/test_api.py` (control-plane) | ✅ |
-| `test_run_with_available_tools_ranks_and_returns` | `tests/unit/test_planner_integration.py` (control-plane) | ✅ |
 
 ## Related Files
 
@@ -157,6 +155,4 @@ sequenceDiagram
 - `src/hexawyn/adapters/secondary/mcp/mcp_discovery_adapter.py` — Tool discovery at startup
 - `src/hexawyn/mcp/server.py` — MCP tool registration + build_k8s_adapter()
 - `src/hexawyn/mcp/tools/list_namespaces.py` — MCP tool
-- `src/hexawyn/cli/app.py` — _sync_tools_to_control_plane()
-- `src/hexawyn/api/routers/tools.py` (control-plane) — POST /api/v1/tools/sync
-- `src/hexawyn/lang_graph/nodes/parse_intent.py` (control-plane) — _load_tools_from_cache()
+- `src/hexawyn/cli/app.py` — syncs discovered tools to the runtime backend

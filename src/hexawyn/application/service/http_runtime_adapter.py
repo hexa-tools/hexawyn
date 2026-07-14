@@ -57,17 +57,19 @@ class HttpRuntimeAdapter(RuntimePort):
                         status="error",
                         suggestions=[],
                         error=str(output.get("error", "stream error")),
+                        embedding=[],
                     )
 
             return InvestigationOutput(
                 answer=str(report_output.get("llm_response", "")),
-                cause="",
-                solution="",
+                cause=str(report_output.get("cause", "")),
+                solution=str(report_output.get("solution", "")),
                 status=str(report_output.get("status", "complete")),
                 suggestions=list(report_output.get("suggestions", []))  # type: ignore[call-overload]
                 if isinstance(report_output.get("suggestions"), list)
                 else [],
                 error=None,
+                embedding=_extract_float_list(report_output.get("embedding")),
             )
         except Exception as exc:
             return InvestigationOutput(
@@ -77,6 +79,7 @@ class HttpRuntimeAdapter(RuntimePort):
                 status="error",
                 suggestions=[],
                 error=str(exc),
+                embedding=[],
             )
 
     def check_quota(self) -> QuotaCheckResult:
@@ -120,6 +123,7 @@ class HttpRuntimeAdapter(RuntimePort):
                 status="error" if api_status == "failed" else api_status,
                 suggestions=[],
                 error="No result in response",
+                embedding=[],
             )
         return InvestigationOutput(
             answer=str(result.get("answer", "")),
@@ -128,10 +132,21 @@ class HttpRuntimeAdapter(RuntimePort):
             status="error" if api_status == "failed" else str(result.get("status", api_status)),
             suggestions=_extract_string_list(result.get("suggestions")),
             error=str(result.get("error")) if result.get("error") else None,
+            embedding=_extract_float_list(result.get("embedding")),
         )
 
 
 def _extract_string_list(value: object) -> list[str]:
     if isinstance(value, list):
         return [str(item) for item in value]
+    return []
+
+
+def _extract_float_list(value: object) -> list[float]:
+    if isinstance(value, list):
+        result: list[float] = []
+        for item in value:
+            if isinstance(item, int | float) and not isinstance(item, bool):
+                result.append(float(item))
+        return result
     return []

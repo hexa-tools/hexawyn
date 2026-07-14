@@ -106,9 +106,6 @@ sequenceDiagram
     else FAIL — critical workloads missing probes
         Engine-->>Checker: total_without_probes=8, critical=3
         Checker-->>User: "8 workloads have no probes. 3 critical: payment-service, auth-service, ..."
-    else DEGRADED — DuckDB unavailable
-        Engine-->>Checker: result (no memory stored)
-        Checker-->>User: "Probe audit completed (memory unavailable for caching)"
     end
 ```
 

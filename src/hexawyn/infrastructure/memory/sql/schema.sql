@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS incidents (
     severity VARCHAR DEFAULT 'low',
     feedback INTEGER DEFAULT 0,
     weight FLOAT DEFAULT 1.0,
-    embedding FLOAT[1536],
+    embedding FLOAT[768],
     sanitized BOOLEAN DEFAULT false
 );
 

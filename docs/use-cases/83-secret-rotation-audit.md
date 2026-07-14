@@ -135,7 +135,7 @@ sequenceDiagram
     end
 ```
 
-### Flow 3 — Checker Node: Verification Cases (documented ground truth — checker itself lives in hexa-control-plane, out of scope here)
+### Flow 3 — Checker Node: Verification Cases (semantic-layer validation against the tool's deterministic ground truth)
 
 ```mermaid
 sequenceDiagram

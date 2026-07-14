@@ -106,7 +106,7 @@ sequenceDiagram
     end
 ```
 
-### Flow 3 — Checker Node: All 7 Listed Edge Cases (illustrative — validated in hexa-control-plane)
+### Flow 3 — Checker Node: All 7 Listed Edge Cases (semantic-layer validation)
 
 ```mermaid
 sequenceDiagram

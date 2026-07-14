@@ -22,9 +22,7 @@ capabilities are `high`/Restricted; privilege escalation is `medium`/
 Restricted), and recommends the specific securityContext fix.
 
 **Deterministic matrix, not an LLM judgment call — same pattern as ECA-71.**
-The ticket's Checker Node cases 1 & 2 describe a downstream semantic-layer
-check (in the private `hexa-control-plane` repo, out of scope here per
-AGENTS.md's repo boundary) that verifies an LLM narrative against this tool's
+A downstream semantic-layer check verifies an LLM narrative against this tool's
 ground truth. `classify_severity`/`classify_pss_level`
 (`domain/services/pod_security/violation_classifier.py`) are that ground
 truth: a fixed lookup, no heuristics. `NET_BIND_SERVICE` is explicitly kept
@@ -106,7 +104,7 @@ sequenceDiagram
     end
 ```
 
-### Flow 3 — Checker Node: Verification Cases (documented ground truth — checker itself lives in hexa-control-plane, out of scope here)
+### Flow 3 — Checker Node: Verification Cases (semantic-layer validation against the tool's deterministic ground truth)
 
 ```mermaid
 sequenceDiagram
