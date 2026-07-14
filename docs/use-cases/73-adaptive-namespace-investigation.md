@@ -126,37 +126,8 @@ sequenceDiagram
         Checker-->>LLM: ❌ FAIL — failing_pods > 0 must be at least Degraded
     alt Destructive recommendation without justification ("delete the namespace")
         Checker-->>LLM: ❌ FAIL + escalate — destructive verbs (delete/purge/wipe) require data-backed justification
-    alt Recurring pattern found in DuckDB but not mentioned in the response
-        Checker-->>LLM: ⚠️ FLAG — if VSS finds a matching past investigation, the response must acknowledge the recurrence
     else All checks pass
         Checker-->>LLM: ✅ PASS
-    end
-```
-
-### Flow 4 — DuckDB Memory: VSS Recurrence Check
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as adaptive_namespace_investigation
-    participant Store as store_memory
-
-    CLI->>Cache: query + namespace + depth
-    Cache->>DuckDB: VSS search similar prior investigations (same namespace, similar failure pattern)
-    alt Similar past investigation found
-        DuckDB-->>Cache: prior incident (cause, solution, age_days)
-        Cache-->>CLI: recurrence context available — response should mention it
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to adaptive_namespace_investigation
-        Tool-->>Store: AdaptiveNamespaceInvestigationResponse
-        Store->>DuckDB: persist embedding + result (not yet wired — no insert path exists anywhere in this codebase today)
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
     end
 ```
 
@@ -191,11 +162,6 @@ sequenceDiagram
   drillable resources but some were excluded as Pending, `node_pressure_context` is set
   instead of returning an empty, unexplained investigation. No new Node API port was
   added for this — it stays a plain string note.
-- **Checker Node and DuckDB VSS recurrence are documentation conventions here, as
-  everywhere else this session** — no `src/hexawyn/lang_graph/` exists in this codebase
-  today, and no feature has ever written to the `incidents` DuckDB table. Cascading
-  failures, causal-claim evidence, and recurrence detection are the Checker's job
-  (Flow 3), not new Python orchestration.
 
 ## Tests
 

@@ -95,29 +95,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as analyze_pod_logs
-    participant Store as store_memory
-
-    CLI->>Cache: query + pod_name + namespace
-    Cache->>DuckDB: VSS search similar prior SMART summaries
-    alt Similar result found (fresh)
-        DuckDB-->>Cache: cached AnalyzePodLogsResponse (strategy_used="smart_summary")
-        Cache-->>CLI: cache_hit=True
-    else No match / stale
-        Cache-->>Tool: proceed to analyze_pod_logs
-        Tool-->>Store: AnalyzePodLogsResponse
-        Store->>DuckDB: persist embedding + result
-        DuckDB-->>Store: stored
-    end
-```
-
 ## Key Points
 
 - **Dedup always keeps the count** — `deduplicate_lines` collapses identical lines (a line repeated 10000 times shows once with `count=10000`), never silently drops occurrence information.

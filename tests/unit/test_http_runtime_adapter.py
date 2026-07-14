@@ -52,6 +52,55 @@ class TestHttpRuntimeAdapter:
         assert len(result["suggestions"]) == 2
         assert result["error"] is None
 
+    def test_run_investigation_extracts_embedding_cause_solution_from_report(self) -> None:
+        mock_client = MagicMock()
+        mock_client.stream_investigation.return_value = iter(
+            [
+                (
+                    "report",
+                    {
+                        "llm_response": "OOMKilled",
+                        "cause": "memory limit too low",
+                        "solution": "increase limit to 512Mi",
+                        "status": "complete",
+                        "embedding": [0.1, 0.2, 0.3],
+                    },
+                ),
+            ]
+        )
+
+        with patch(
+            "hexawyn.application.service.http_runtime_adapter.RuntimeClient",
+            return_value=mock_client,
+        ):
+            adapter = HttpRuntimeAdapter(endpoint="http://localhost:8000")
+            result = adapter.run_investigation(
+                query="why is payments-api crashing?",
+                cluster_context=_mock_cluster_context(),
+            )
+
+        assert result["cause"] == "memory limit too low"
+        assert result["solution"] == "increase limit to 512Mi"
+        assert result["embedding"] == [0.1, 0.2, 0.3]
+
+    def test_run_investigation_embedding_defaults_to_empty_list(self) -> None:
+        mock_client = MagicMock()
+        mock_client.stream_investigation.return_value = iter(
+            [("report", {"llm_response": "ok", "status": "complete"})]
+        )
+
+        with patch(
+            "hexawyn.application.service.http_runtime_adapter.RuntimeClient",
+            return_value=mock_client,
+        ):
+            adapter = HttpRuntimeAdapter(endpoint="http://localhost:8000")
+            result = adapter.run_investigation(
+                query="test",
+                cluster_context=_mock_cluster_context(),
+            )
+
+        assert result["embedding"] == []
+
     def test_run_investigation_failed_status(self) -> None:
         mock_client = MagicMock()
         mock_client.stream_investigation.return_value = iter(
@@ -192,3 +241,53 @@ class TestHttpRuntimeAdapter:
             adapter.close()
 
         mock_client.close.assert_called_once()
+
+
+class TestExtractFloatList:
+    def test_returns_floats_from_numeric_list(self) -> None:
+        from hexawyn.application.service.http_runtime_adapter import _extract_float_list
+
+        assert _extract_float_list([1, 2.5, 3]) == [1.0, 2.5, 3.0]
+
+    def test_returns_empty_for_non_list(self) -> None:
+        from hexawyn.application.service.http_runtime_adapter import _extract_float_list
+
+        assert _extract_float_list("not a list") == []
+        assert _extract_float_list(None) == []
+
+    def test_excludes_bool_and_non_numeric_items(self) -> None:
+        from hexawyn.application.service.http_runtime_adapter import _extract_float_list
+
+        assert _extract_float_list([1.0, True, "x", 2.0]) == [1.0, 2.0]
+
+
+class TestTranslateResponse:
+    def _adapter(self) -> HttpRuntimeAdapter:
+        with patch(
+            "hexawyn.application.service.http_runtime_adapter.RuntimeClient",
+            return_value=MagicMock(),
+        ):
+            return HttpRuntimeAdapter(endpoint="http://localhost:8000")
+
+    def test_translate_response_extracts_embedding(self) -> None:
+        adapter = self._adapter()
+        out = adapter._translate_response(
+            {
+                "status": "complete",
+                "result": {
+                    "answer": "ok",
+                    "cause": "oom",
+                    "solution": "raise limit",
+                    "embedding": [0.5, 0.6],
+                },
+            }
+        )
+        assert out["cause"] == "oom"
+        assert out["solution"] == "raise limit"
+        assert out["embedding"] == [0.5, 0.6]
+
+    def test_translate_response_no_result_returns_empty_embedding(self) -> None:
+        adapter = self._adapter()
+        out = adapter._translate_response({"status": "failed"})
+        assert out["status"] == "error"
+        assert out["embedding"] == []

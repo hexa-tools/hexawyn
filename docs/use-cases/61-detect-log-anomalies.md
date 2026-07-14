@@ -96,33 +96,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as detect_log_anomalies
-    participant Store as store_memory
-
-    CLI->>Cache: query + pod_name + namespace
-    Cache->>DuckDB: VSS search similar prior anomaly-detection runs
-    alt Similar result found (fresh, same zscore_threshold)
-        DuckDB-->>Cache: cached DetectLogAnomaliesResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to detect_log_anomalies
-        Tool-->>Store: DetectLogAnomaliesResponse
-        Store->>DuckDB: persist embedding + result
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Two independent, composable detectors** — `ZScoreAnomalyDetector` (already shipped for event correlation, reused as-is with `zscore_threshold` now defaulting to 3.0 for logs) flags volume spikes; the new `IsolationForestAnomalyDetector` flags semantic outliers. Neither depends on the other.

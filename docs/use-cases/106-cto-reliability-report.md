@@ -1,32 +1,31 @@
-# Use Case 106 — Rapport de fiabilité CTO (langage métier)
+# Use Case 106 — CTO Reliability Report (business language)
 
-Répond à : *« Quelle est la fiabilité de notre plateforme ce mois-ci ? »* — pour
-un dirigeant non-technique, en langage métier, sans aucun jargon Kubernetes.
+Answers: *"How reliable was our platform this month?"* — for a non-technical
+executive, in business language, with zero Kubernetes jargon.
 
-Agrège les incidents du mois en un rapport exécutif : taux de disponibilité en
-langage humain, nombre d'incidents par sévérité (majeur/mineur), temps de
-résolution moyen avec tendance vs mois précédent, et impact financier estimé
-(uniquement si le pricing est configuré — jamais inventé). Le résumé exécutif
-tient en moins de 5 phrases ; le détail technique reste disponible en
-drill-down.
+Aggregates the month's incidents into an executive report: availability in
+plain language, incident count by severity (major/minor), average resolution
+time with trend vs the previous month, and estimated financial impact (only if
+pricing is configured — never invented). The executive summary fits in fewer
+than 5 sentences; the technical detail stays available via drill-down.
 
 ## Sample Questions
 
-- « Quelle est la fiabilité de notre plateforme ce mois-ci ? »
-- « Combien d'incidents avons-nous eu ce mois, et de quelle gravité ? »
-- « Notre temps de résolution s'améliore-t-il par rapport au mois dernier ? »
-- « Quel a été l'impact financier des indisponibilités ce mois-ci ? »
-- « Donne-moi un résumé de santé de la plateforme en langage clair pour la direction. »
+- "How reliable was our platform this month?"
+- "How many incidents did we have this month, and how severe?"
+- "Is our resolution time improving compared to last month?"
+- "What was the financial impact of downtime this month?"
+- "Give me a plain-language platform health summary for leadership."
 
-## 1. Happy Path — chaîne hexagonale complète
+## 1. Happy Path — full hexagonal chain
 
 ```mermaid
 sequenceDiagram
     participant CTO
     participant MCP as MCP Tool<br/>(report_platform_reliability)
     participant UC as UseCase
-    participant Svc as Service applicatif
-    participant Domain as Domaine<br/>(uptime + resolution_trend + financial_impact + summary)
+    participant Svc as Application Service
+    participant Domain as Domain<br/>(uptime + resolution_trend + financial_impact + summary)
     participant Port as Driven Port<br/>(PlatformReliabilityPort)
     participant Facade as Adapter Facade
     participant Sources as incidents · MTTR · pricing
@@ -37,19 +36,19 @@ sequenceDiagram
     UC->>Svc: report(command)
     Svc->>Port: get_reliability_data("2026-06")
     Port->>Facade: get_reliability_data(...)
-    Facade->>Sources: incidents + MTTR mois précédent + coût/min (ou null)
+    Facade->>Sources: incidents + previous-month MTTR + cost/min (or null)
     Sources-->>Svc: ReliabilityData
     Svc->>Domain: generate(data, period)
-    Domain->>Domain: uptime = (1 - downtime/total) x 100 (maintenance exclue)
-    Domain->>Domain: MTTR moyen + tendance vs mois dernier
-    Domain->>Domain: impact financier (null si pricing absent)
-    Domain->>Domain: résumé métier sans jargon (<= 5 phrases)
+    Domain->>Domain: uptime = (1 - downtime/total) x 100 (maintenance excluded)
+    Domain->>Domain: average MTTR + trend vs last month
+    Domain->>Domain: financial impact (null if pricing absent)
+    Domain->>Domain: business summary without jargon (<= 5 sentences)
     Domain-->>Svc: PlatformReliabilityReport
     Svc-->>MCP: Response(report)
-    MCP-->>CTO: « 99,95% de disponibilité, 2 incidents mineurs... »
+    MCP-->>CTO: "99.95% availability, 2 minor incidents..."
 ```
 
-## 2. Scénarios de contenu
+## 2. Content Scenarios
 
 ```mermaid
 sequenceDiagram
@@ -57,89 +56,66 @@ sequenceDiagram
     participant Summary as executive_summary_builder
 
     Domain->>Summary: build_summary(...)
-    alt mois sain (0 incident)
-        Summary-->>Domain: « Plateforme stable. Aucun incident ce mois. »
-    else 2 incidents mineurs
-        Summary-->>Domain: « 99,97% de disponibilité, 2 incidents mineurs... »
-    else 1 incident majeur (2h)
-        Summary-->>Domain: « Incident critique le 14 juin : 2h. Cause : panne base de données. Corrigé. »
+    alt healthy month (0 incidents)
+        Summary-->>Domain: "Platform stable. No incidents this month."
+    else 2 minor incidents
+        Summary-->>Domain: "99.97% availability, 2 minor incidents..."
+    else 1 major incident (2h)
+        Summary-->>Domain: "Critical incident on June 14: 2h. Cause: database outage. Fixed."
     end
-    Note over Domain: impact financier inclus uniquement si pricing configuré
+    Note over Domain: financial impact included only if pricing configured
 ```
 
-## 3. Checker Node — validations LLM (langage métier)
+## 3. Checker Node — LLM validations (business language)
 
 ```mermaid
 sequenceDiagram
     participant Gen as generate_response
     participant Checker as checker_node / semantic_layer
-    participant Matrix as chiffres autoritaires du domaine
+    participant Matrix as authoritative domain figures
     participant Format as format_response
 
-    Gen->>Checker: réponse LLM + PlatformReliabilityReport
-    alt Jargon technique (« 3 pods en CrashLoopBackOff »)
-        Checker->>Checker: détecte termes k8s interdits en mode direction
-        Checker->>Gen: FAIL → reformuler en langage métier
-    else Uptime incorrect (LLM dit 99,9% au lieu de 99,72%)
+    Gen->>Checker: LLM response + PlatformReliabilityReport
+    alt Technical jargon ("3 pods in CrashLoopBackOff")
+        Checker->>Checker: detects forbidden k8s terms in executive mode
+        Checker->>Gen: FAIL => rephrase in business language
+    else Incorrect uptime (LLM says 99.9% instead of 99.72%)
         Checker->>Matrix: uptime = (1 - downtime/total) x 100
         Checker->>Gen: FAIL
-    else Impact financier inventé (pricing null mais LLM annonce 5000€)
-        Checker->>Matrix: pricing = null ⇒ aucun chiffre financier
-        Checker->>Gen: FAIL critique
-    else Tendance non signalée (99,99% → 99,95%)
-        Checker->>Matrix: compare snapshot DuckDB
-        Checker->>Format: FLAG dégradation
+    else Invented financial impact (pricing null but LLM states €5000)
+        Checker->>Matrix: pricing = null => no financial figure
+        Checker->>Gen: critical FAIL
     else PASS
-        Checker->>Format: réponse exécutive validée
-    end
-```
-
-## 4. DuckDB Memory (snapshot mensuel & tendance)
-
-```mermaid
-sequenceDiagram
-    participant MCP as MCP Tool
-    participant DuckDB
-    participant Svc as Service
-
-    MCP->>DuckDB: MTTR moyen du mois précédent
-    alt mois précédent connu
-        DuckDB-->>Svc: 14 min → tendance -15%
-    else premier mois suivi
-        DuckDB-->>Svc: null → tendance stable
-    end
-    Svc->>DuckDB: stocke le snapshot du mois (uptime, MTTR) pour comparaison
-    alt DuckDB indisponible
-        Svc-->>Svc: mode dégradé — pas de persistance, jamais de crash
+        Checker->>Format: validated executive response
     end
 ```
 
 ## Key Points
 
-- **Zéro jargon Kubernetes** : le résumé exécutif est construit dans le domaine,
-  en langage métier français, et ne contient jamais pod/kubectl/namespace/node.
-- **Formule d'uptime autoritaire** : `(1 - downtime/total) x 100`, maintenance
-  planifiée exclue — c'est la source de vérité que le checker valide (2h/720h → 99,72%).
-- **Impact financier honnête** : `None` strict si le pricing n'est pas configuré ;
-  aucun chiffre financier n'est jamais inventé.
-- **Tendance MTTR signée** (« -15% vs mois dernier ») + improving/degrading/stable.
-- **Sévérité métier** (majeur/mineur), pas de niveaux techniques k8s.
-- **Résumé ≤ 5 phrases** en mode exécutif ; drill-down technique via `incidents[]`.
+- **Zero Kubernetes jargon**: the executive summary is built in the domain, in
+  business language, and never contains pod/kubectl/namespace/node.
+- **Authoritative uptime formula**: `(1 - downtime/total) x 100`, planned
+  maintenance excluded — the source of truth the checker validates (2h/720h → 99.72%).
+- **Honest financial impact**: strict `None` if pricing is not configured; no
+  financial figure is ever invented.
+- **Signed MTTR trend** ("-15% vs last month") + improving/degrading/stable.
+- **Business severity** (major/minor), not k8s technical levels.
+- **Summary ≤ 5 sentences** in executive mode; technical drill-down via `incidents[]`.
 
 ## Tests
 
-Fichiers de tests créés pour ce use case :
+Test files created for this use case:
 
 ```
 tests/unit/test_platform_reliability.py                          # domain model
 tests/unit/test_platform_reliability_port.py                     # driven port + TypedDicts
-tests/unit/test_platform_uptime_calculator.py                    # formule uptime + maintenance
-tests/unit/test_resolution_trend.py                              # MTTR + delta% + tendance
-tests/unit/test_financial_impact.py                              # null si pas de pricing
-tests/unit/test_executive_summary_builder.py                     # langage métier, sans jargon, <=5 phrases
+tests/unit/test_platform_uptime_calculator.py                    # uptime formula + maintenance
+tests/unit/test_resolution_trend.py                              # MTTR + delta% + trend
+tests/unit/test_financial_impact.py                              # null if no pricing
+tests/unit/test_executive_summary_builder.py                     # business language, no jargon, <=5 sentences
 tests/unit/test_platform_reliability_service.py                  # orchestration
 tests/unit/test_platform_reliability_adapter.py                  # Facade delegation
-tests/unit/test_platform_reliability_source.py                   # source par défaut (mois sain)
+tests/unit/test_platform_reliability_source.py                   # default source (healthy month)
 tests/unit/test_report_platform_reliability_command.py           # driving command
 tests/unit/test_report_platform_reliability_response.py          # driving response
 tests/unit/test_report_platform_reliability_service_port.py      # driving service port (ABC)
@@ -149,44 +125,44 @@ tests/unit/test_report_platform_reliability_mcp.py               # MCP tool
 tests/unit/test_server.py                                        # build_platform_reliability_adapter factory
 ```
 
-Stubs de logique domaine (uptime, tendance, impact, résumé) :
+Domain logic stubs (uptime, trend, impact, summary):
 
 ```python
 def test_two_hours_over_thirty_days_is_99_72():
-    # 120 min / 43200 min => 99.72% (formule vérifiée par le checker)
+    # 120 min / 43200 min => 99.72% (formula verified by the checker)
     ...
 
 def test_planned_maintenance_excluded():
-    # fenêtre de maintenance => exclue du downtime
+    # maintenance window => excluded from downtime
     ...
 
 def test_none_when_pricing_not_configured():
-    # cost_per_minute None => impact financier None (jamais inventé)
+    # cost_per_minute None => financial impact None (never invented)
     ...
 
 def test_improving_when_faster_than_previous():
-    # 12 min vs 14 => -15%, tendance improving
+    # 12 min vs 14 => -15%, improving trend
     ...
 
 def test_summary_contains_no_kubernetes_jargon():
-    # résumé sans pod/kubectl/namespace/node
+    # summary without pod/kubectl/namespace/node
     ...
 
 def test_summary_at_most_five_sentences():
-    # mode exécutif <= 5 phrases
+    # executive mode <= 5 sentences
     ...
 ```
 
-| Scénario (ticket) | Test | Statut |
+| Scenario (ticket) | Test | Status |
 |---|---|---|
-| Mois sain (0 incident) → « Plateforme stable » | `test_zero_incidents` | ✅ |
-| 2 incidents mineurs → 99,9x% + RCA dispo | `test_two_minor_incidents` | ✅ |
-| 1 incident majeur (2h) → date + cause racine | `test_major_incident` | ✅ |
-| Drill-down technique | `incidents[]` dans la réponse du tool | ✅ |
-| Jargon interdit détecté | `test_summary_contains_no_kubernetes_jargon` | ✅ |
+| Healthy month (0 incidents) → "Platform stable" | `test_zero_incidents` | ✅ |
+| 2 minor incidents → 99.9x% + RCA available | `test_two_minor_incidents` | ✅ |
+| 1 major incident (2h) → date + root cause | `test_major_incident` | ✅ |
+| Technical drill-down | `incidents[]` in the tool response | ✅ |
+| Forbidden jargon detected | `test_summary_contains_no_kubernetes_jargon` | ✅ |
 | Uptime = (1 - downtime/total) | `test_two_hours_over_thirty_days_is_99_72` | ✅ |
-| Impact financier null si pas de pricing | `test_no_financial_figure_without_pricing` | ✅ |
-| Tendance vs mois précédent | `test_resolution_trend_improving` | ✅ |
+| Financial impact null without pricing | `test_no_financial_figure_without_pricing` | ✅ |
+| Trend vs previous month | `test_resolution_trend_improving` | ✅ |
 
 ## Related Files
 

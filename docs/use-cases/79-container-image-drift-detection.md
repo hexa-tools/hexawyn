@@ -133,33 +133,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: Prior Image-Drift Recurrence
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as detect_container_image_drift
-    participant Store as store_memory
-
-    CLI->>Cache: query + namespace + kustomize_paths
-    Cache->>DuckDB: VSS search similar prior image-drift findings (same deployment/container)
-    alt Similar past finding (e.g. payment-service drifted last week too)
-        DuckDB-->>Cache: prior result (was it a repeat hotfix pattern?)
-        Cache-->>CLI: recurrence context available
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to detect_container_image_drift
-        Tool-->>Store: ContainerImageDriftResponse
-        Store->>DuckDB: persist embedding + result (not yet wired — no insert path exists anywhere in this codebase today)
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Three of four ports are pure reuse, zero new code** — `LiveResourcePort`,

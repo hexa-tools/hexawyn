@@ -19,11 +19,9 @@ aggregated ClusterRoles), classifies risk with a **deterministic** matrix
 namespace-scoped `Role` replacement — built from actual audit-log usage when
 available, or a conservative read-only estimate when it isn't.
 
-**Deterministic risk matrix, not an LLM judgment call.** The ticket's own
-"Checker Node Edge Cases" describe a downstream semantic-layer check (in the
-private `hexa-control-plane` repo, out of scope here per AGENTS.md's repo
-boundary) that verifies an LLM's narrative against this tool's ground truth.
-That means the domain layer *is* the ground truth: `classify_risk_level`
+**Deterministic risk matrix, not an LLM judgment call.** A downstream
+semantic-layer check verifies an LLM's narrative against this tool's ground
+truth. That means the domain layer *is* the ground truth: `classify_risk_level`
 (`domain/services/rbac_audit/risk_scoring.py`) resolves cluster-admin → all
 resources (`*`) → wildcard verb → breadth score, in that fixed order, with no
 heuristic ambiguity. A wildcard verb on `secrets` stays `high` (matching the
@@ -110,7 +108,7 @@ sequenceDiagram
     end
 ```
 
-### Flow 3 — Checker Node: Verification Cases (documented ground truth — checker itself lives in hexa-control-plane, out of scope here)
+### Flow 3 — Checker Node: Verification Cases (semantic-layer validation against the tool's deterministic ground truth)
 
 ```mermaid
 sequenceDiagram
@@ -132,33 +130,6 @@ sequenceDiagram
         Checker-->>LLM: ❌ FAIL — no-bindings SAs are unused_service_accounts, structurally disjoint from findings
     else All checks pass
         Checker-->>LLM: ✅ PASS
-    end
-```
-
-### Flow 4 — DuckDB Memory: Prior RBAC-Audit Recurrence (documented flow only — no insert path exists anywhere in this codebase yet, matching every prior use-case doc)
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as audit_rbac_permissions
-    participant Store as store_memory
-
-    CLI->>Cache: query + window_days
-    Cache->>DuckDB: VSS search similar prior RBAC findings (same service_account/namespace)
-    alt Same SA flagged critical in a previous audit and still unremediated
-        DuckDB-->>Cache: prior finding (recurrence — escalate in the summary text)
-        Cache-->>CLI: recurrence context available
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to audit_rbac_permissions
-        Tool-->>Store: AuditRBACPermissionsResponse
-        Store->>DuckDB: persist embedding + result (not yet wired — no insert path exists anywhere in this codebase today)
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
     end
 ```
 
@@ -185,12 +156,7 @@ sequenceDiagram
   (no-bindings SA presented as a risk) is impossible by construction.
 - **Namespace-scoped bindings to cluster-scoped resources are flagged as
   misconfigured** — a real, common RBAC-authoring mistake (the rule is a
-  no-op inside the namespace), surfaced as its own boolean plus a reason.
-- **Checker-node validation and DuckDB recurrence tracking are documented,
-  not implemented, in this repo** — per AGENTS.md's repo-boundary table,
-  LangGraph/checker nodes live in the private `hexa-control-plane` repo; and
-  per every prior use-case doc's precedent, there is no DuckDB insert path
-  anywhere in this codebase yet.
+   no-op inside the namespace), surfaced as its own boolean plus a reason.
 
 ## Tests
 

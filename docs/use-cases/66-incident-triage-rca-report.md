@@ -119,33 +119,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as generate_incident_triage_report
-    participant Store as store_memory
-
-    CLI->>Cache: query + namespace + time_window_minutes
-    Cache->>DuckDB: VSS search similar prior incident triage reports
-    alt Similar result found (fresh)
-        DuckDB-->>Cache: cached GenerateIncidentTriageReportResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to generate_incident_triage_report
-        Tool-->>Store: GenerateIncidentTriageReportResponse
-        Store->>DuckDB: persist embedding + result
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Root cause is grouped by classified category, not raw K8s event `reason`** — `_build_root_causes` runs `classify_incident_cause` (keyword match: database/resource-exhaustion/network/image-or-config/deployment) on every Warning/Error timeline entry's `reason + message`, then groups by the resulting `IncidentCauseCategory`. A DB outage that trips `FailedConnect` on the database pod and `BackOff` on three dependent services all classify as `DATABASE` and merge into **one** candidate — exactly the "clear root cause with cascade" shape TC1 expects, which raw per-reason correlation (as used by the namespace-events feature) would have split into two separate incidents.

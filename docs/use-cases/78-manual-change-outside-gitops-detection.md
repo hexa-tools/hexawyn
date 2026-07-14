@@ -130,33 +130,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: Prior Manual-Change Recurrence
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as detect_manual_changes_outside_gitops
-    participant Store as store_memory
-
-    CLI->>Cache: query + namespace + window_days
-    Cache->>DuckDB: VSS search similar prior manual-change findings (same resource, same actor)
-    alt Similar past finding (e.g. jane.ops edited db-password last week too)
-        DuckDB-->>Cache: prior result (was it reverted via GitOps sync afterward?)
-        Cache-->>CLI: recurrence context available
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to detect_manual_changes_outside_gitops
-        Tool-->>Store: ManualChangeOutsideGitOpsResponse
-        Store->>DuckDB: persist embedding + result (not yet wired — no insert path exists anywhere in this codebase today)
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **`managedFields` is the only source of `changed_fields`, in both the enriched and

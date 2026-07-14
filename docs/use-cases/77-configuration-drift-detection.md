@@ -117,37 +117,8 @@ sequenceDiagram
         Checker-->>LLM: ❌ FAIL — annotations are never a comparison target, only labels are
     alt Orphaned resource presented as "no drift"
         Checker-->>LLM: ❌ FAIL — a deleted Helm release with resources still live must be reported as orphaned, not in-sync
-    alt Stale DuckDB drift cache reported as current
-        Checker-->>LLM: ⚠️ FLAG — if the cached finding is older than 5 minutes, verify freshness before reporting it as active
     else All checks pass
         Checker-->>LLM: ✅ PASS
-    end
-```
-
-### Flow 4 — DuckDB Memory: Drift Cache Freshness
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as configuration_drift_detection
-    participant Store as store_memory
-
-    CLI->>Cache: query + namespace
-    Cache->>DuckDB: VSS search similar prior drift reports (same namespace/resource)
-    alt Cached drift found, fresher than 5 minutes
-        DuckDB-->>Cache: cached ConfigurationDriftDetectionResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale (>5 min) / DuckDBUnavailableError
-        Cache-->>Tool: proceed to configuration_drift_detection (fresh check)
-        Tool-->>Store: ConfigurationDriftDetectionResponse
-        Store->>DuckDB: persist embedding + result (not yet wired — no insert path exists anywhere in this codebase today)
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
     end
 ```
 
@@ -194,8 +165,6 @@ sequenceDiagram
 - **`pyyaml` is now an explicit direct dependency**, not just transitively locked via
   `kubernetes`/`fastmcp` — `types-pyyaml` was already a direct dev dependency,
   confirming typed usage was anticipated.
-- **DuckDB VSS / trend-history recurrence and the Checker Node are documentation
-  conventions here too**, unchanged from every prior feature this session.
 
 ## Tests
 

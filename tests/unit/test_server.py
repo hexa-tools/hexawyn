@@ -1312,6 +1312,15 @@ class TestMCPTopologyAdapterFactories:
 
         assert isinstance(result, TopologySnapshotPort)
 
+    def test_build_incident_memory_adapter_returns_incident_memory_port(self) -> None:
+        from hexawyn.application.ports.driven.incident_memory_port import IncidentMemoryPort
+        from hexawyn.mcp.server import build_incident_memory_adapter
+
+        with patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()):
+            result = build_incident_memory_adapter()
+
+        assert isinstance(result, IncidentMemoryPort)
+
     def test_build_cross_namespace_traffic_adapter_returns_cross_namespace_traffic_port(
         self,
     ) -> None:

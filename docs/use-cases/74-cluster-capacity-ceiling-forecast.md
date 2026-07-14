@@ -121,33 +121,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: Trend-History Recurrence
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as cluster_capacity_ceiling_forecast
-    participant Store as store_memory
-
-    CLI->>Cache: query + window_days
-    Cache->>DuckDB: VSS search similar prior capacity-forecast runs (same cluster)
-    alt Similar past forecast found (e.g. same growth pattern seen 2 weeks ago)
-        DuckDB-->>Cache: prior forecast (growth rate, outcome)
-        Cache-->>CLI: recurrence context available — response should mention it
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to cluster_capacity_ceiling_forecast
-        Tool-->>Store: ClusterCapacityCeilingForecastResponse
-        Store->>DuckDB: persist embedding + result (not yet wired — no insert path exists anywhere in this codebase today)
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **Prometheus querying is composed, not duplicated** — `ClusterCapacityCeilingForecastService`
@@ -181,10 +154,6 @@ sequenceDiagram
   disclosed `autoscaler_enabled` flag against the real Kubernetes API, so the flag
   itself must be a genuine field on the response, sourced from an actual
   kube-system Deployment check (`"cluster-autoscaler"` in the name).
-- **DuckDB VSS / trend-history recurrence and the Checker Node are documentation
-  conventions here too** — unchanged from every prior feature this session:
-  `search_similar()` still has zero production call sites, no `insert_incident.sql`
-  exists, and no `src/hexawyn/lang_graph/` exists in this codebase.
 
 ## Tests
 

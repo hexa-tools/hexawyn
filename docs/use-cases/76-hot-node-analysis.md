@@ -112,33 +112,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: Prior Hot-Node Recurrence
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as hot_node_analysis
-    participant Store as store_memory
-
-    CLI->>Cache: query + window_hours
-    Cache->>DuckDB: VSS search similar prior hot-node findings (same node, same pattern)
-    alt Similar past finding (e.g. worker-eu-3 was hot last week too)
-        DuckDB-->>Cache: prior result (recommendation given, whether it was acted on)
-        Cache-->>CLI: recurrence context available
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to hot_node_analysis
-        Tool-->>Store: HotNodeAnalysisResponse
-        Store->>DuckDB: persist embedding + result (not yet wired — no insert path exists anywhere in this codebase today)
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **First caller to walk multiple Prometheus series from one query** — both
@@ -177,8 +150,6 @@ sequenceDiagram
   once more** — Prometheus querying is composed directly from `MetricsQueryPort` at
   the service layer; the new adapter is entirely Kubernetes-side, so it's named
   `KubernetesNodeAnalysisAdapter` — the third such deviation this session.
-- **DuckDB VSS / trend-history recurrence and the Checker Node remain documentation
-  conventions**, unchanged from every prior feature this session.
 
 ## Tests
 

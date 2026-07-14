@@ -111,65 +111,35 @@ sequenceDiagram
     LLM Output->>Checker: finding: {name: "api-gateway", risk: "high"}
     Checker->>Checker: is_allowlisted("api-gateway", allowlist)?
     Checker-->>Checker: ✅ True → FAIL
-    Note over Checker: api-gateway est dans l'allowlist → ne doit pas être flaggé
+    Note over Checker: api-gateway is in the allowlist → must not be flagged
 
-    Note over Checker: Checker Case 2 — Risk non pondéré par namespace
+    Note over Checker: Checker Case 2 — Risk not weighted by namespace
 
     LLM Output->>Checker: finding: {name: "redis-svc", ns: "dev", risk: "critical"}
     Checker->>Checker: classify_risk_level("critical", ns="dev")?
-    Checker-->>Checker: ✅ "high" (pas "critical") → FLAG
-    Note over Checker: redis-svc dans dev doit être high, pas critical
+    Checker-->>Checker: ✅ "high" (not "critical") → FLAG
+    Note over Checker: redis-svc in dev must be high, not critical
 
-    Note over Checker: Checker Case 3 — Internal LB traité comme public
+    Note over Checker: Checker Case 3 — Internal LB treated as public
 
     LLM Output->>Checker: finding: {name: "internal-svc", risk: "critical"}
     Checker->>Checker: is_internal_load_balancer(annotations)?
     Checker-->>Checker: ✅ True → FAIL
-    Note over Checker: annotation internal LB → ne doit pas apparaître du tout
+    Note over Checker: internal LB annotation → must not appear at all
 
-    Note over Checker: Checker Case 5 — sourceRanges ignoré
+    Note over Checker: Checker Case 5 — sourceRanges ignored
 
     LLM Output->>Checker: finding: {name: "db-svc", risk: "critical", note: None}
-    Checker->>Checker: has_source_ranges? note présente?
+    Checker->>Checker: has_source_ranges? note present?
     Checker-->>Checker: ✅ sourceRanges=True, note=None → FLAG
-    Note over Checker: "risk reduced by IP allowlist" doit être noté
+    Note over Checker: "risk reduced by IP allowlist" must be noted
 
     Note over Checker: Checker Case 6 — Port confusion (DB vs Web)
 
     LLM Output->>Checker: finding: {name: "grafana", port: 3000, risk: "critical"}
     Checker->>Checker: classify_base_severity([3000])?
-    Checker-->>Checker: ✅ "medium" (pas "critical") → FAIL
-    Note over Checker: port 3000 = medium, pas critical. postgres 5432 = critical
-```
-
-## DuckDB — Exposure History & Escalation
-
-```mermaid
-sequenceDiagram
-    participant Service
-    participant DuckDB
-    participant ExposureHistory
-
-    Note over Service: After each audit, store findings for trend analysis
-
-    Service->>DuckDB: INSERT INTO exposure_history (name, namespace, detected_at, risk_level)
-    DuckDB-->>Service: stored
-
-    Note over Service,DuckDB: On next audit, check exposure duration
-
-    Service->>DuckDB: SELECT first_detected FROM exposure_history WHERE name="postgres-svc"
-    DuckDB-->>Service: first_detected = 180 days ago
-
-    alt exposure >= 180 days
-        Service->>Service: escalate → severity += "chronic"
-        Note over Service: Ancient exposure: postgres-svc exposed for 180 days
-    else exposure >= 90 days
-        Service->>Service: escalate → flag with duration warning
-    else exposure < 90 days
-        Service->>Service: standard risk classification
-    end
-
-    Note over DuckDB: DuckDB unavailable → degraded mode, skip history, no crash
+    Checker-->>Checker: ✅ "medium" (not "critical") → FAIL
+    Note over Checker: port 3000 = medium, not critical. postgres 5432 = critical
 ```
 
 ## Key Points
@@ -181,7 +151,6 @@ sequenceDiagram
 - IP source ranges (loadBalancerSourceRanges) downgrade risk by one tier
 - Pending LoadBalancer services (no external IP yet) are still flagged as exposure risk
 - Namespace weighting: non-production namespaces get one-tier risk downgrade
-- DuckDB stores exposure history for chronic exposure escalation (30/90/180 day thresholds)
 
 ## Test Coverage
 

@@ -113,29 +113,6 @@ sequenceDiagram
 
 ---
 
-## 4. DuckDB Memory (historical spike baseline)
-
-```mermaid
-sequenceDiagram
-    participant MCP as MCP Tool
-    participant DuckDB
-    participant Svc as Service
-
-    MCP->>DuckDB: fetch last year's peak multiplier for this event
-    alt history found
-        DuckDB-->>Svc: 3.0x (last Black Friday, 6h peak)
-        Svc->>Svc: source="historical"
-    else no history
-        Svc->>Svc: generic 3x fallback + warning
-    end
-    Svc->>DuckDB: store this year's projection + observed peak (post-event)
-    alt DuckDB unavailable
-        Svc-->>Svc: degraded mode — skip persist, never crash
-    end
-```
-
----
-
 ## Key Points
 
 - **Traffic multiplier precedence**: unpredictable → pessimistic (default);

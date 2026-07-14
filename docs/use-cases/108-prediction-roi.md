@@ -1,27 +1,27 @@
 # Use Case 108 — Prediction ROI (Business Impact Slice 2)
 
-Répond à : « Combien avons-nous économisé grâce aux prédictions ce mois-ci ? »
+Answers: "How much did we save thanks to predictions this month?"
 
-Calcule le retour sur investissement des prédictions automatiques : chaque
-détection ayant abouti à un incident évité génère un coût évité (downtime évité ×
-revenue_per_minute), auquel on soustrait le coût d'infrastructure. Seuls les
-incidents réellement évités (flag preveted=True) comptent, et chaque euro est
-traçable à l'événement historique de référence.
+Computes the return on investment of automatic predictions: each detection that
+resulted in an avoided incident generates an avoided cost (avoided downtime ×
+revenue_per_minute), from which the infrastructure cost is subtracted. Only
+genuinely avoided incidents (flag `prevented=True`) count, and every euro is
+traceable to the reference historical event.
 
 ## Sample Questions
 
-- « Combien avons-nous économisé grâce aux prédictions ce mois-ci ? »
-- « Quel est le ROI des alertes automatiques ? »
-- « Combien d'incidents potentiels avons-nous détectés et évités ? »
-- « Montre-moi les pertes évitées grâce à Hexawyn ce mois. »
-- « How much did predictions save us this month? »
+- "How much did we save thanks to predictions this month?"
+- "What is the ROI of the automatic alerts?"
+- "How many potential incidents did we detect and avoid?"
+- "Show me the losses avoided thanks to Hexawyn this month."
+- "How much did predictions save us this month?"
 
 ## Key Points
 
-- **Seulement les détections avec preveted=True** génèrent un coût évité.
-- **Sans revenue_per_minute** aucun montant n'est produit.
-- **ROI = Σ coûts évités − coût infrastructure**.
-- Chaque incident évité référence un `incident_ref` historique.
+- **Only detections with `prevented=True`** generate an avoided cost.
+- **Without `revenue_per_minute`** no amount is produced.
+- **ROI = Σ avoided costs − infrastructure cost**.
+- Each avoided incident references a historical `incident_ref`.
 
 ## Related Files (12)
 

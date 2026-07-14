@@ -78,7 +78,6 @@ sequenceDiagram
 sequenceDiagram
     participant Checker as Checker Node
     participant LLM as LLM Response
-    participant DuckDB as DuckDB
 
     Checker->>LLM: Validate trace ranking
     alt OTel uses 10% sampling, LLM presents count as absolute
@@ -88,7 +87,6 @@ sequenceDiagram
     else All checks pass
         Checker-->>LLM: ✅ PASS
     end
-    Checker->>DuckDB: Store trace baseline for this pod
 ```
 
 ## Key Points

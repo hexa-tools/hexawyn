@@ -27,6 +27,7 @@ class InvestigationOutput(TypedDict):
     status: str
     suggestions: list[str]
     error: str | None
+    embedding: list[float]
 
 
 class QuotaCheckResult(TypedDict):

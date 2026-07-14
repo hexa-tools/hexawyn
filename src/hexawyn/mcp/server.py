@@ -106,6 +106,7 @@ if TYPE_CHECKING:
         ImageVulnerabilityScanPort,
     )
     from hexawyn.application.ports.driven.incident_cost_port import IncidentCostPort
+    from hexawyn.application.ports.driven.incident_memory_port import IncidentMemoryPort
     from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
     from hexawyn.application.ports.driven.k8s_port import ClusterContext, K8sPort
     from hexawyn.application.ports.driven.keda_port import KedaPort
@@ -368,6 +369,14 @@ def build_topology_snapshot_adapter() -> TopologySnapshotPort:
     )
 
     return TopologySnapshotRepository(conn=get_connection())
+
+
+def build_incident_memory_adapter() -> IncidentMemoryPort:
+    from hexawyn.infrastructure.memory.incident_memory_repository import (
+        IncidentMemoryRepository,
+    )
+
+    return IncidentMemoryRepository(conn=get_connection())
 
 
 def build_rollouts_adapter() -> RolloutsPort:

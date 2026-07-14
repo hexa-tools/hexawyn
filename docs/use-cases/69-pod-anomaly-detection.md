@@ -108,33 +108,6 @@ sequenceDiagram
     end
 ```
 
-### Flow 4 — DuckDB Memory: VSS Check Before, Store After
-
-```mermaid
-sequenceDiagram
-    participant CLI as CLI
-    participant Cache as check_cache
-    participant DuckDB as DuckDB (L2 VSS)
-    participant Tool as detect_pod_anomalies
-    participant Store as store_memory
-
-    CLI->>Cache: query + namespace + baseline_window_days
-    Cache->>DuckDB: VSS search similar prior anomaly-detection runs
-    alt Similar result found (fresh)
-        DuckDB-->>Cache: cached DetectPodAnomaliesResponse
-        Cache-->>CLI: cache_hit=True
-    else No match / stale / DuckDBUnavailableError
-        Cache-->>Tool: proceed to detect_pod_anomalies
-        Tool-->>Store: DetectPodAnomaliesResponse
-        Store->>DuckDB: persist embedding + result
-        alt DuckDB unavailable
-            DuckDB-->>Store: DuckDBUnavailableError → degraded mode, never crash
-        else
-            DuckDB-->>Store: stored
-        end
-    end
-```
-
 ## Key Points
 
 - **`IsolationForestAnomalyDetector` gained one additive method, nothing removed** — `detect_series(values: list[float])` shares the exact same `_select_true_outliers` deviation-filter as the existing text-based `detect(log_lines)`, generalized to a `item_key` parameter (`"line"` vs `"value"`). The pre-existing `detect()` public contract and its 7 tests are untouched; 5 new tests were added alongside.
