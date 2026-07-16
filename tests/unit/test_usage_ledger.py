@@ -1,9 +1,10 @@
 import json
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 from hexawyn.domain.models.usage import InvestigationUsage
-from hexawyn.infrastructure.monitoring.usage_ledger import UsageLedger
+from hexawyn.infrastructure.monitoring.usage_ledger import UsageLedger, _parse_iso
 
 
 def _make_entry(
@@ -75,6 +76,12 @@ class TestUsageLedgerRecord:
             path.chmod(0o444)
             ledger.record(_make_entry())
 
+    def test_init_uses_default_path_when_none_provided(self) -> None:
+        with patch("hexawyn.infrastructure.monitoring.usage_ledger.Path.home") as mock_home:
+            mock_home.return_value = Path("/mock/home")
+            ledger = UsageLedger()
+            assert ledger._path == Path("/mock/home") / ".hexawyn" / "usage.jsonl"
+
 
 class TestUsageLedgerReadAll:
     def test_read_all_returns_entries(self) -> None:
@@ -125,6 +132,67 @@ class TestUsageLedgerReadAll:
 
             entries = ledger.read_all()
             assert len(entries) == 2
+
+    def test_read_all_skips_blank_lines(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "usage.jsonl"
+            path.write_text(
+                '{"tool_name": "tool_a", "timestamp": "2026-07-16T10:00:00Z"}\n'
+                "\n"
+                '{"tool_name": "tool_b", "timestamp": "2026-07-16T11:00:00Z"}\n'
+                "\n"
+            )
+            ledger = UsageLedger(path=path)
+
+            entries = ledger.read_all()
+            assert len(entries) == 2
+
+    def test_read_all_skips_non_dict_entries(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "usage.jsonl"
+            path.write_text(
+                '{"tool_name": "tool_a", "timestamp": "2026-07-16T10:00:00Z"}\n'
+                '["valid json but not dict"]\n'
+                "12345\n"
+                '{"tool_name": "tool_b", "timestamp": "2026-07-16T11:00:00Z"}\n'
+            )
+            ledger = UsageLedger(path=path)
+
+            entries = ledger.read_all()
+            assert len(entries) == 2
+
+    def test_read_all_handles_os_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "usage.jsonl"
+            path.write_text('{"tool_name": "tool_a", "timestamp": "2026-07-16T10:00:00Z"}\n')
+            ledger = UsageLedger(path=path)
+
+            with patch("builtins.open", side_effect=OSError("permission denied")):
+                entries = ledger.read_all()
+                assert entries == []
+
+    def test_read_all_since_handles_invalid_iso_timestamp(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "usage.jsonl"
+            ledger = UsageLedger(path=path)
+            ledger.record(_make_entry(timestamp="2026-07-16T10:00:00Z", tool_name="valid"))
+
+            entries = ledger.read_all(since="not-a-date")
+            assert len(entries) == 1
+
+
+class TestParseIso:
+    def test_returns_datetime_for_valid_iso(self) -> None:
+        result = _parse_iso("2026-07-16T10:00:00Z")
+        assert result is not None
+        assert result.month == 7
+        assert result.day == 16
+
+    def test_returns_none_for_invalid_string(self) -> None:
+        assert _parse_iso("not-a-date") is None
+
+    def test_returns_none_for_empty_string(self) -> None:
+        assert _parse_iso("") is None
 
 
 class TestUsageLedgerStats:
@@ -257,3 +325,22 @@ class TestUsageLedgerMonthlyReport:
             report = ledger.monthly_report(2026, 7)
             assert report.stats["total_investigations"] == 0
             assert report.daily_breakdown == []
+
+    def test_monthly_report_december_boundary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "usage.jsonl"
+            ledger = UsageLedger(path=path)
+            ledger.record(
+                _make_entry(
+                    timestamp="2025-12-15T10:00:00Z",
+                    tool_name="tool_z",
+                    prompt_tokens=100,
+                    completion_tokens=50,
+                )
+            )
+
+            report = ledger.monthly_report(2025, 12)
+            assert report.year == 2025
+            assert report.month == 12
+            assert report.stats["total_investigations"] == 1
+            assert len(report.daily_breakdown) == 1
