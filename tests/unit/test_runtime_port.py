@@ -136,3 +136,31 @@ class TestHttpRuntimeAdapterQuota:
 
         adapter.increment_quota()
         mock_client.increment_quota.assert_called_once()
+
+    def test_check_quota_handles_client_exception(self) -> None:
+        from unittest.mock import MagicMock
+
+        from hexawyn.application.service.http_runtime_adapter import HttpRuntimeAdapter
+
+        adapter = HttpRuntimeAdapter(endpoint="http://localhost:8000")
+        mock_client = MagicMock()
+        mock_client.check_quota.side_effect = Exception("connection lost")
+        adapter._client = mock_client
+
+        result = adapter.check_quota()
+        assert result["allowed"] is True
+        assert result["used"] == 0
+        assert result["limit"] == -1
+        assert result["remaining"] == -1
+
+    def test_increment_quota_handles_client_exception(self) -> None:
+        from unittest.mock import MagicMock
+
+        from hexawyn.application.service.http_runtime_adapter import HttpRuntimeAdapter
+
+        adapter = HttpRuntimeAdapter(endpoint="http://localhost:8000")
+        mock_client = MagicMock()
+        mock_client.increment_quota.side_effect = Exception("connection lost")
+        adapter._client = mock_client
+
+        adapter.increment_quota()  # no exception should propagate
