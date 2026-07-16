@@ -31,6 +31,7 @@ class StubRuntimeAdapter(RuntimePort):
             suggestions=[],
             error="LangGraph runtime has been moved to the private repository.",
             embedding=[],
+            usage={},
         )
 
     def run_startup_scan(self, cluster_name: str) -> StartupScanResult:

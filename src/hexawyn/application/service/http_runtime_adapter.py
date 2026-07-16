@@ -58,7 +58,18 @@ class HttpRuntimeAdapter(RuntimePort):
                         suggestions=[],
                         error=str(output.get("error", "stream error")),
                         embedding=[],
+                        usage={},
                     )
+
+            usage_raw = report_output.get("usage")
+            usage_dict: dict[str, int | str] = {}
+            if isinstance(usage_raw, dict):
+                usage_dict = {
+                    str(k): int(v)
+                    if isinstance(v, int | float) and not isinstance(v, bool)
+                    else str(v)
+                    for k, v in usage_raw.items()
+                }
 
             return InvestigationOutput(
                 answer=str(report_output.get("llm_response", "")),
@@ -70,6 +81,7 @@ class HttpRuntimeAdapter(RuntimePort):
                 else [],
                 error=None,
                 embedding=_extract_float_list(report_output.get("embedding")),
+                usage=usage_dict,
             )
         except Exception as exc:
             return InvestigationOutput(
@@ -80,6 +92,7 @@ class HttpRuntimeAdapter(RuntimePort):
                 suggestions=[],
                 error=str(exc),
                 embedding=[],
+                usage={},
             )
 
     def check_quota(self) -> QuotaCheckResult:
@@ -124,6 +137,7 @@ class HttpRuntimeAdapter(RuntimePort):
                 suggestions=[],
                 error="No result in response",
                 embedding=[],
+                usage={},
             )
         return InvestigationOutput(
             answer=str(result.get("answer", "")),
@@ -133,6 +147,7 @@ class HttpRuntimeAdapter(RuntimePort):
             suggestions=_extract_string_list(result.get("suggestions")),
             error=str(result.get("error")) if result.get("error") else None,
             embedding=_extract_float_list(result.get("embedding")),
+            usage={},
         )
 
 

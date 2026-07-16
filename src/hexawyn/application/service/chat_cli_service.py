@@ -1,3 +1,6 @@
+import time
+from datetime import UTC, datetime
+
 from hexawyn.application.ports.driven.incident_memory_port import IncidentMemoryPort
 from hexawyn.application.ports.driven.k8s_port import (
     ClusterContext,
@@ -7,11 +10,13 @@ from hexawyn.application.ports.driven.k8s_port import (
 )
 from hexawyn.application.ports.driven.logs_port import LogEntry, LogsPort
 from hexawyn.application.ports.driven.runtime_port import InvestigationOutput, RuntimePort
+from hexawyn.application.ports.driven.usage_ledger_port import UsageLedgerPort
 from hexawyn.application.use_case.chat_cli.chat_cli_command import ChatCliCommand
 from hexawyn.application.use_case.chat_cli.chat_cli_response import ChatCliResponse
 from hexawyn.application.use_case.chat_cli.chat_cli_use_case import ChatCliUseCase
 from hexawyn.domain.models.cluster import ClusterContext as DomainClusterContext
 from hexawyn.domain.models.incident_memory import IncidentMemoryRecord
+from hexawyn.domain.models.usage import InvestigationUsage
 
 
 class ChatCliService(ChatCliUseCase):
@@ -21,11 +26,13 @@ class ChatCliService(ChatCliUseCase):
         runtime: RuntimePort,
         logs_port: LogsPort | None = None,
         incident_memory_port: IncidentMemoryPort | None = None,
+        usage_ledger: UsageLedgerPort | None = None,
     ) -> None:
         self._k8s = k8s_port
         self._runtime = runtime
         self._logs = logs_port
         self._incident_memory = incident_memory_port
+        self._usage_ledger = usage_ledger
 
     def execute(self, command: ChatCliCommand) -> ChatCliResponse:
         normalized = command.query.strip().lower()
@@ -45,10 +52,13 @@ class ChatCliService(ChatCliUseCase):
             namespace=k8s_ctx["namespace"],
         )
         self._runtime.set_adapter(self._k8s)
+        start = time.monotonic()
         output: InvestigationOutput = self._runtime.run_investigation(
             query, domain_ctx, conversation_history
         )
+        duration_ms = int((time.monotonic() - start) * 1000)
         self._store_incident(output, k8s_ctx)
+        self._record_usage(query, k8s_ctx, output, duration_ms)
         return _build_response(output)
 
     def _store_incident(self, output: InvestigationOutput, k8s_ctx: ClusterContext) -> None:
@@ -66,6 +76,35 @@ class ChatCliService(ChatCliUseCase):
                 embedding=output["embedding"],
             )
         )
+
+    def _record_usage(
+        self,
+        query: str,
+        k8s_ctx: ClusterContext,
+        output: InvestigationOutput,
+        duration_ms: int,
+    ) -> None:
+        if self._usage_ledger is None:
+            return
+        try:
+            usage_data = output.get("usage", {})
+            self._usage_ledger.record(
+                InvestigationUsage(
+                    timestamp=datetime.now(UTC).isoformat(),
+                    query=query,
+                    tool_name=str(usage_data.get("tool_name", "chat_investigation")),
+                    verdict=str(output.get("status", "N/A")),
+                    cluster_name=k8s_ctx["name"],
+                    namespace=k8s_ctx["namespace"] or None,
+                    duration_ms=duration_ms,
+                    prompt_tokens=int(str(usage_data.get("prompt_tokens", 0))),
+                    completion_tokens=int(str(usage_data.get("completion_tokens", 0))),
+                    model=str(usage_data.get("model", "-")),
+                    provider=str(usage_data.get("provider", "-")),
+                )
+            )
+        except Exception:
+            pass
 
     def list_pods(self) -> ChatCliResponse:
         pods = self._k8s.list_pods()

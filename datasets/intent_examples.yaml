@@ -1372,3 +1372,12 @@ custom_tool_run:
     - "Launch my custom tool network-policy-auditor on all namespaces"
     - "Run the external security-scanner tool for the staging environment"
     - "Execute custom/helm-drift-detector on namespace default"
+
+usage_ledger_report:
+  tool: usage_ledger_report
+  questions:
+    - "How many investigations did I run this month?"
+    - "Which tools consume the most SLM time?"
+    - "What's my average investigation duration this week?"
+    - "How many tokens did the SLM consume last month across all investigations?"
+    - "Show me my monthly usage report for July 2026"
