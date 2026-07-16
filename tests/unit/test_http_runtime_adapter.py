@@ -242,6 +242,76 @@ class TestHttpRuntimeAdapter:
 
         mock_client.close.assert_called_once()
 
+    def test_run_investigation_includes_usage_dict(self) -> None:
+        mock_client = MagicMock()
+        mock_client.stream_investigation.return_value = iter(
+            [
+                (
+                    "report",
+                    {
+                        "llm_response": "OOMKilled",
+                        "status": "complete",
+                        "usage": {
+                            "prompt_tokens": 450,
+                            "completion_tokens": 180,
+                            "total_tokens": 630,
+                        },
+                    },
+                ),
+            ]
+        )
+
+        with patch(
+            "hexawyn.application.service.http_runtime_adapter.RuntimeClient",
+            return_value=mock_client,
+        ):
+            adapter = HttpRuntimeAdapter(endpoint="http://localhost:8000")
+            result = adapter.run_investigation(
+                query="test",
+                cluster_context=_mock_cluster_context(),
+            )
+
+        assert result["usage"] == {
+            "prompt_tokens": 450,
+            "completion_tokens": 180,
+            "total_tokens": 630,
+        }
+
+    def test_run_investigation_usage_dict_coerces_float_tokens(self) -> None:
+        mock_client = MagicMock()
+        mock_client.stream_investigation.return_value = iter(
+            [
+                (
+                    "report",
+                    {
+                        "llm_response": "ok",
+                        "status": "complete",
+                        "usage": {
+                            "prompt_tokens": 450.0,
+                            "completion_tokens": 180,
+                            "model": "qwen3:8b",
+                        },
+                    },
+                ),
+            ]
+        )
+
+        with patch(
+            "hexawyn.application.service.http_runtime_adapter.RuntimeClient",
+            return_value=mock_client,
+        ):
+            adapter = HttpRuntimeAdapter(endpoint="http://localhost:8000")
+            result = adapter.run_investigation(
+                query="test",
+                cluster_context=_mock_cluster_context(),
+            )
+
+        assert result["usage"] == {
+            "prompt_tokens": 450,
+            "completion_tokens": 180,
+            "model": "qwen3:8b",
+        }
+
 
 class TestExtractFloatList:
     def test_returns_floats_from_numeric_list(self) -> None:
@@ -291,3 +361,34 @@ class TestTranslateResponse:
         out = adapter._translate_response({"status": "failed"})
         assert out["status"] == "error"
         assert out["embedding"] == []
+
+    def test_translate_response_with_suggestions_list(self) -> None:
+        adapter = self._adapter()
+        out = adapter._translate_response(
+            {
+                "status": "complete",
+                "result": {
+                    "answer": "ok",
+                    "suggestions": ["Increase memory limit", "Add HPA", "Scale horizontally"],
+                },
+            }
+        )
+        assert out["suggestions"] == ["Increase memory limit", "Add HPA", "Scale horizontally"]
+
+
+class TestExtractStringList:
+    def test_returns_strings_from_list(self) -> None:
+        from hexawyn.application.service.http_runtime_adapter import _extract_string_list
+
+        assert _extract_string_list(["tip1", "tip2"]) == ["tip1", "tip2"]
+
+    def test_coerces_non_string_items(self) -> None:
+        from hexawyn.application.service.http_runtime_adapter import _extract_string_list
+
+        assert _extract_string_list(["a", 1, True, None]) == ["a", "1", "True", "None"]
+
+    def test_returns_empty_for_non_list(self) -> None:
+        from hexawyn.application.service.http_runtime_adapter import _extract_string_list
+
+        assert _extract_string_list("not a list") == []
+        assert _extract_string_list(None) == []

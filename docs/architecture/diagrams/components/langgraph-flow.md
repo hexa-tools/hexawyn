@@ -51,6 +51,7 @@ flowchart TD
 - **Max 3 retries**: generate_response can retry up to 3 times on checker FAIL — after 3 failures, returns DEGRADED status
 - **BLOCKED is a hard stop**: mutation guard violations immediately route to format_response (never reaches LLM or K8s)
 - **FLAG goes to store_memory**: results with caveats are stored but marked for review (not shown in simplified diagram)
+- **LLM usage tracking**: `LLMService.generate()` stores token counts in `last_usage` (Ollama: `prompt_eval_count`+`eval_count`, OpenAI: `usage` field). The Reporter node includes this in `InvestigationOutput.usage` → consumed by the CLI UsageLedger.
 
 ## Node Details
 
@@ -60,7 +61,7 @@ flowchart TD
 | check_cache | CacheL1, DuckDB VSS | L1 exact hash match → L2 semantic similarity. cache_hit=True skips 5 nodes |
 | retrieve_context | kubeconfig | Reads cluster name, namespace, provider from kubeconfig |
 | execute_tool | K8s API (or DemoAdapter) | Calls MCP tool (describe_pod, list_pods, etc.) — real or mock |
-| generate_response | claude-sonnet-4-6 | LLM generates investigation answer from tool output |
+| generate_response | LLM (Ollama / OpenAI) | LLM generates investigation answer from tool output. Usage tracked via `LLMService.last_usage` |
 | semantic_checker | deterministic | Validates response against tool output (no hallucination check) |
 | llm_judge | claude-haiku-4-5 | Semantic validation — cheaper model, checks quality |
 | store_memory | DuckDB, CacheL1, QuotaManager | INSERT into incidents, populate L1, increment quota |
