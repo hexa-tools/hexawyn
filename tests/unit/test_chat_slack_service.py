@@ -36,6 +36,8 @@ def _make_output(
         status=status,
         suggestions=suggestions or [],
         error=error,
+        embedding=[],
+        usage={},
     )
 
 

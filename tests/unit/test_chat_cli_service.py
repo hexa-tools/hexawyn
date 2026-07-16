@@ -26,6 +26,7 @@ def _make_output(
     cause: str = "",
     solution: str = "",
     embedding: list[float] | None = None,
+    usage: dict[str, int | str] | None = None,
 ) -> InvestigationOutput:
     return InvestigationOutput(
         answer=answer,
@@ -35,6 +36,7 @@ def _make_output(
         suggestions=suggestions or [],
         error=error,
         embedding=embedding or [],
+        usage=usage or {},
     )
 
 
@@ -401,3 +403,85 @@ class TestSuggestedChips:
 
     def test_returns_empty_when_no_pods(self) -> None:
         assert _suggested_chips([]) == []
+
+
+# ── Usage ledger ──────────────────────────────────────────────────────────────
+
+
+class TestChatCliServiceUsageLedger:
+    def setup_method(self) -> None:
+        self.k8s = MagicMock()
+        self.runtime = MagicMock()
+        self.ledger = MagicMock()
+        self.k8s.get_cluster_context.return_value = _make_ctx()
+        self.service = ChatCliService(
+            k8s_port=self.k8s,
+            runtime=self.runtime,
+            usage_ledger=self.ledger,
+        )
+
+    def test_records_usage_after_investigation(self) -> None:
+        self.runtime.run_investigation.return_value = _make_output(
+            answer="OOM detected",
+            status="ok",
+            usage={
+                "prompt_tokens": 450,
+                "completion_tokens": 180,
+                "model": "qwen3:8b",
+                "provider": "ollama",
+            },
+        )
+        self.service.execute(ChatCliCommand(query="why is payments-api crashing?"))
+
+        self.ledger.record.assert_called_once()
+        entry = self.ledger.record.call_args[0][0]
+        assert entry["query"] == "why is payments-api crashing?"
+        assert entry["cluster_name"] == "prod-eu"
+        assert entry["verdict"] == "ok"
+        assert entry["duration_ms"] >= 0
+
+    def test_records_usage_with_tool_name_from_usage(self) -> None:
+        self.runtime.run_investigation.return_value = _make_output(
+            usage={
+                "tool_name": "crashloop_detector",
+                "prompt_tokens": 100,
+                "completion_tokens": 50,
+                "model": "qwen3:8b",
+                "provider": "ollama",
+            },
+        )
+        self.service.execute(ChatCliCommand(query="debug payments-api"))
+
+        entry = self.ledger.record.call_args[0][0]
+        assert entry["tool_name"] == "crashloop_detector"
+
+    def test_no_ledger_is_safe(self) -> None:
+        service = ChatCliService(k8s_port=self.k8s, runtime=self.runtime)
+        self.runtime.run_investigation.return_value = _make_output()
+        result = service.execute(ChatCliCommand(query="investigate"))
+        assert isinstance(result, ChatCliResponse)
+
+    def test_ledger_exception_does_not_block_investigation(self) -> None:
+        self.ledger.record.side_effect = RuntimeError("disk full")
+        self.runtime.run_investigation.return_value = _make_output(answer="OOM detected")
+
+        result = self.service.execute(ChatCliCommand(query="debug"))
+
+        assert isinstance(result, ChatCliResponse)
+        assert any("OOM detected" in line[0] for line in result.lines)
+
+    def test_zero_tokens_when_usage_empty(self) -> None:
+        self.runtime.run_investigation.return_value = _make_output(usage={})
+        self.service.execute(ChatCliCommand(query="list pods"))
+
+        entry = self.ledger.record.call_args[0][0]
+        assert entry["prompt_tokens"] == 0
+        assert entry["completion_tokens"] == 0
+        assert entry["model"] == "-"
+
+    def test_namespace_from_k8s_context(self) -> None:
+        self.runtime.run_investigation.return_value = _make_output()
+        self.service.execute(ChatCliCommand(query="investigate"))
+
+        entry = self.ledger.record.call_args[0][0]
+        assert entry["namespace"] == "default"
