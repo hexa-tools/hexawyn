@@ -1862,3 +1862,14 @@ class TestMCPLogSearchFactory:
         result = build_usage_meter_adapter()
 
         assert isinstance(result, UsageMeterPort)
+
+    def test_build_consolidation_adapter_returns_consolidation_port(self) -> None:
+        from hexawyn.application.ports.driven.consolidation_port import (
+            ConsolidationPort,
+        )
+        from hexawyn.mcp.server import build_consolidation_adapter
+
+        with patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()):
+            result = build_consolidation_adapter()
+
+        assert isinstance(result, ConsolidationPort)
