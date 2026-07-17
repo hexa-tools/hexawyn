@@ -1,0 +1,6 @@
+{"query":"Mon cluster est en crashloop, que faire ?","expected":{"identifies_root_cause":true,"suggests_logs_check":true,"suggests_describe_pod":true,"no_destructive_command":true,"actionable":true}}
+{"query":"Why is payments-api crashing repeatedly?","expected":{"identifies_root_cause":true,"suggests_logs_check":true,"suggests_describe_pod":true,"actionable":true,"no_hallucination":true}}
+{"query":"CrashLoopBackOff on auth-service in prod","expected":{"identifies_root_cause":true,"suggests_events_check":true,"no_destructive_command":true,"actionable":true}}
+{"query":"How to debug CrashLoopBackOff in payments namespace?","expected":{"identifies_root_cause":true,"suggests_logs_check":true,"suggests_describe_pod":true,"actionable":true}}
+{"query":"auth-deployment keeps restarting, what should I look at?","expected":{"identifies_root_cause":true,"suggests_logs_check":true,"actionable":true,"no_hallucination":true}}
+{"query":"Tous les pods du namespace payments sont en CrashLoop, aide-moi","expected":{"identifies_root_cause":true,"suggests_describe_pod":true,"actionable":true,"no_destructive_command":true}}
