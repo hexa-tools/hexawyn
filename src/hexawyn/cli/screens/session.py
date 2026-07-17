@@ -1,5 +1,6 @@
 import asyncio
 from dataclasses import asdict as _asdict
+from datetime import UTC
 from typing import Any
 
 from rich import box
@@ -280,9 +281,10 @@ class SessionScreen(Screen[None]):
                 f"🟢 Running Pods      {running_pod_count(pods)}",
                 f"🟡 Pending Pods       {pending_pod_count(pods)}",
                 f"🔴 Failed Pods        {failed_pod_count(pods)}",
-                "",
             ]
         )
+        lines.extend(self._license_aside_lines())
+        lines.append("")
         lines.extend(self._finding_warning_lines(findings))
         lines.extend(self._suggestion_lines(app, suggestions))
 
@@ -390,6 +392,48 @@ class SessionScreen(Screen[None]):
 
         return lines
 
+    def _license_aside_lines(self) -> list[str]:
+        try:
+            import base64
+            import json
+            from pathlib import Path
+
+            license_path = Path.home() / ".hexawyn" / "license.key"
+            if not license_path.exists():
+                return ["", "[dim]License: not configured[/dim]"]
+
+            parts = license_path.read_text().strip().split(".")
+            if len(parts) < 2:
+                return ["", "[dim]License: invalid[/dim]"]
+
+            payload = parts[1]
+            padding = 4 - len(payload) % 4
+            if padding != 4:
+                payload += "=" * padding
+            claims = json.loads(base64.urlsafe_b64decode(payload).decode())
+
+            plan = claims.get("plan", "unknown")
+            exp = claims.get("exp", 0)
+            from datetime import datetime
+
+            try:
+                dt = datetime.fromtimestamp(exp, tz=UTC)
+                days = (dt - datetime.now(UTC)).days
+                if days > 0:
+                    expiry = f"{dt.strftime('%d %b')} ({days}d)"
+                else:
+                    expiry = "[red]expired[/]"
+            except (ValueError, OverflowError, OSError):
+                expiry = "unknown"
+
+            return [
+                "",
+                f"[bold green]License: {plan.title()}[/]",
+                f"[dim]Expires: {expiry}[/dim]",
+            ]
+        except Exception:
+            return ["", "[dim]License: unknown[/dim]"]
+
     def action_clear_input(self) -> None:
         cmd_input = self.query_one("#cmd-input", CommandInput)
         if cmd_input.value.strip():
@@ -454,6 +498,10 @@ class SessionScreen(Screen[None]):
             self._render_setup_info(log)
             return
 
+        if self._is_token_command(text.strip()):
+            await self._open_token_input()
+            return
+
         if self._is_context_command(text.strip()):
             await self._handle_context_command(text.strip(), log)
             return
@@ -513,6 +561,10 @@ class SessionScreen(Screen[None]):
     def _is_context_command(self, text: str) -> bool:
         command_name = text.split(maxsplit=1)[0] if text else ""
         return command_name in {"/context", "/ctx"}
+
+    def _is_token_command(self, text: str) -> bool:
+        command_name = text.split(maxsplit=1)[0] if text else ""
+        return command_name == "/token"
 
     def _is_stack_command(self, text: str) -> bool:
         command_name = text.split(maxsplit=1)[0] if text else ""
@@ -590,6 +642,19 @@ class SessionScreen(Screen[None]):
             ContextPickerScreen(self._available_contexts()),
             callback=self._switch_context,
         )
+
+    async def _open_token_input(self) -> None:
+        from hexawyn.cli.screens.token_input import TokenInputScreen
+
+        app = self._tui_app()
+
+        def _on_done(prefix: str | None) -> None:
+            log = self.query_one("#conversation", RichLog)
+            if prefix:
+                log.write(f"[green]✓ License activated — token: [bold]{prefix}...[/][/green]")
+            self._refresh_aside()
+
+        app.push_screen(TokenInputScreen(), callback=_on_done)
 
     def _requested_context_name(self, text: str) -> str | None:
         parts = text.split(maxsplit=1)

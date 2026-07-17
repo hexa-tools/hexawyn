@@ -41,6 +41,7 @@ def setup() -> None:
     app_instance.run()
 
 
+from hexawyn.cli.commands.auth_command import auth  # noqa: E402, I001
 from hexawyn.cli.commands.cache_command import cache  # noqa: E402, I001
 from hexawyn.cli.commands.cluster_command import cluster  # noqa: E402, I001
 from hexawyn.cli.commands.db_command import db  # noqa: E402, I001
@@ -48,6 +49,7 @@ from hexawyn.cli.commands.quota_command import quota  # noqa: E402, I001
 from hexawyn.cli.commands.schedule_command import schedule  # noqa: E402, I001
 from hexawyn.cli.commands.slack_command import slack  # noqa: E402, I001
 
+app.add_command(auth)
 app.add_command(quota)
 app.add_command(cluster)
 app.add_command(db)

@@ -31,6 +31,8 @@ jobs:
       - run: |
           poetry run pytest tests/unit/ \
             --tb=short -q \
+            --ignore=tests/integration \
+            --ignore=tests/e2e \
             --cov=src/hexawyn \
             --cov-report=xml \
             --cov-report=term \
