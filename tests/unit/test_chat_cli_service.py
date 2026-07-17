@@ -499,3 +499,12 @@ class TestChatCliServiceUsageLedger:
         result = self.service.execute(ChatCliCommand(query="debug"))
         assert isinstance(result, ChatCliResponse)
         assert any("OOM detected" in line[0] for line in result.lines)
+
+    def test_increment_quota_local_import_error_handled(self) -> None:
+        self.runtime.run_investigation.return_value = _make_output(answer="ok")
+        with __import__("unittest").mock.patch(
+            "hexawyn.infrastructure.config.quota_manager.increment_quota",
+            side_effect=ImportError("quota_module_missing"),
+        ):
+            result = self.service.execute(ChatCliCommand(query="test"))
+            assert isinstance(result, ChatCliResponse)
