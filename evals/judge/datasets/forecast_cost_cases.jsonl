@@ -1,0 +1,6 @@
+{"query":"Quel est le cout previsionnel de mon namespace payments pour le mois prochain ?","expected":{"has_cost_estimate":true,"cost_currency":"USD","mentions_rightsizing":true,"actionable":true,"no_hallucination":true}}
+{"query":"Combien va me couter le namespace monitoring dans 3 mois ?","expected":{"has_cost_estimate":true,"cost_currency":"USD","projection_window":"3 months","actionable":true,"no_hallucination":true}}
+{"query":"What is the projected cost for prod-eu cluster next month?","expected":{"has_cost_estimate":true,"cost_currency":"USD","actionable":true,"no_hallucination":true}}
+{"query":"Forecast the spending trend for the payments-api deployment","expected":{"has_cost_estimate":true,"mentions_trend":true,"actionable":true,"no_hallucination":true}}
+{"query":"Est-ce que mon namespace auth risque de depasser le budget ?","expected":{"has_cost_estimate":true,"mentions_budget":true,"actionable":true,"no_hallucination":true}}
+{"query":"show me cost projections for all namespaces in production","expected":{"has_cost_estimate":true,"mentions_rightsizing":true,"actionable":true,"no_hallucination":true}}

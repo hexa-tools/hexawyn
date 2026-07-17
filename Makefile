@@ -161,6 +161,11 @@ stop:
 	docker compose -f docker/docker-compose.yml down
 	@echo "✅ All services stopped"
 
+
+.PHONY: gate
+gate:
+	$(POETRY) run python evals/gate.py
+
 # ─────────────────────────────────────
 #  Slack
 # ─────────────────────────────────────
@@ -262,6 +267,7 @@ help:
 	@echo "  make run-demo              → Start MCP server in demo mode (compose)"
 	@echo "  make run-cli               → Start CLI Textual (real cluster)"
 	@echo "  make run-cli-demo          → Start CLI in demo mode"
+	@echo "  make gate                  → Run eval gate (deterministic + judge)"
 	@echo "  make run-demo-aws          → Start CLI in AWS EKS demo"
 	@echo "  make run-demo-azure        → Start CLI in Azure AKS demo"
 	@echo "  make run-demo-gcp          → Start CLI in GCP GKE demo"
