@@ -1,0 +1,6 @@
+{"query":"Y a-t-il des zombies dans mon cluster ?","expected":{"identifies_idle_resources":true,"mentions_cost_saving":true,"actionable":true,"no_hallucination":true}}
+{"query":"Which pods have 0 traffic and can be removed?","expected":{"identifies_idle_resources":true,"mentions_cost_saving":true,"actionable":true,"no_hallucination":true}}
+{"query":"Find zombie deployments wasting compute","expected":{"identifies_idle_resources":true,"mentions_cost_saving":true,"suggests_removal":true,"actionable":true}}
+{"query":"Are there unused workloads in my production cluster?","expected":{"identifies_idle_resources":true,"mentions_cost_saving":true,"actionable":true,"no_hallucination":true}}
+{"query":"Show me idle pods that can be safely decommissioned","expected":{"identifies_idle_resources":true,"suggests_removal":true,"actionable":true,"no_hallucination":true}}
+{"query":"How much money would I save by removing zombie deployments?","expected":{"identifies_idle_resources":true,"mentions_cost_saving":true,"actionable":true,"no_hallucination":true}}

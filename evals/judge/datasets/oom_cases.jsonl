@@ -1,0 +1,6 @@
+{"query":"Pourquoi payments-api a ete OOMKilled ?","expected":{"identifies_memory_limit":true,"suggests_increase_memory":true,"actionable":true,"no_hallucination":true}}
+{"query":"OOMKilled on worker-pod in prod namespace","expected":{"identifies_memory_limit":true,"suggests_memory_analysis":true,"actionable":true,"no_hallucination":true}}
+{"query":"My pod keeps getting OOMKilled every 2 hours","expected":{"identifies_memory_limit":true,"suggests_memory_leak_check":true,"actionable":true,"no_hallucination":true}}
+{"query":"OOM detected on database pod — how to fix?","expected":{"identifies_memory_limit":true,"suggests_increase_memory":true,"actionable":true,"no_hallucination":true}}
+{"query":"The payments-api pod is OOMKilled with 512Mi limit","expected":{"identifies_memory_limit":true,"suggests_increase_memory":true,"actionable":true,"no_hallucination":true}}
+{"query":"cluster OOM issue on multiple pods in data namespace","expected":{"identifies_memory_limit":true,"suggests_memory_analysis":true,"actionable":true,"no_hallucination":true}}

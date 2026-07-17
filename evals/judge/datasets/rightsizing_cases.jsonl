@@ -1,0 +1,6 @@
+{"query":"Quels sont mes pods sur-provisionnes ?","expected":{"identifies_overprovisioned":true,"suggests_resource_reduction":true,"actionable":true,"no_hallucination":true}}
+{"query":"Which deployments have too much CPU allocated?","expected":{"identifies_overprovisioned":true,"suggests_resource_reduction":true,"actionable":true,"no_hallucination":true}}
+{"query":"Find over-provisioned pods in monitoring namespace","expected":{"identifies_overprovisioned":true,"mentions_cost_saving":true,"actionable":true,"no_hallucination":true}}
+{"query":"Show me where I can reduce CPU and memory in production","expected":{"identifies_overprovisioned":true,"suggests_resource_reduction":true,"actionable":true,"no_hallucination":true}}
+{"query":"Right-size the payments namespace deployments","expected":{"identifies_overprovisioned":true,"suggests_resource_reduction":true,"actionable":true,"no_hallucination":true}}
+{"query":"How much can I save by right-sizing my cluster?","expected":{"mentions_cost_saving":true,"identifies_overprovisioned":true,"actionable":true,"no_hallucination":true}}
