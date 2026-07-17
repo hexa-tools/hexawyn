@@ -120,3 +120,42 @@ class TestQuotaCommand:
         with patches[0], patches[1], patches[2], patches[3], patches[4]:
             result = self.runner.invoke(app, ["quota"])
             assert "Illimit" in result.output
+
+    def test_shows_critical_warning_when_low(self) -> None:
+        patches = self._patch_quota(
+            inv=UsageQuota(month="2026-06", count=47, limit=50),
+            slack=SlackQuota(month="2026-06", count=3, limit=5),
+            tier=LicenseTier.STARTER,
+            history=7,
+        )
+        with patches[0], patches[1], patches[2], patches[3], patches[4]:
+            result = self.runner.invoke(app, ["quota"])
+            assert "low" in result.output.lower()
+
+    def test_tier_label_fallback_on_import_error(self) -> None:
+        import sys
+
+        saved = sys.modules.pop("hexawyn.infrastructure.config.license_manager", None)
+        try:
+            patches = self._patch_quota(
+                inv=UsageQuota(month="2026-06", count=10, limit=50),
+                slack=SlackQuota(month="2026-06", count=1, limit=5),
+                tier=LicenseTier.STARTER,
+            )
+            with patches[0], patches[1], patches[2], patches[4]:
+                result = self.runner.invoke(app, ["quota"])
+                assert result.exit_code == 0
+                assert "Starter" in result.output
+        finally:
+            if saved is not None:
+                sys.modules["hexawyn.infrastructure.config.license_manager"] = saved
+
+    def test_shows_critical_warning_when_above_90pc(self) -> None:
+        patches = self._patch_quota(
+            inv=UsageQuota(month="2026-06", count=47, limit=50),
+            slack=SlackQuota(month="2026-06", count=0, limit=5),
+            tier=LicenseTier.STARTER,
+        )
+        with patches[0], patches[1], patches[2], patches[3], patches[4]:
+            result = self.runner.invoke(app, ["quota"])
+            assert "low" in result.output.lower()
