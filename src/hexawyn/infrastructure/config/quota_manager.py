@@ -40,7 +40,7 @@ def _get_current_month() -> str:
 def _get_current_tier() -> LicenseTier:
     """
     Get current license tier from license_manager.
-    Returns LicenseTier.FREE if no valid license found.
+    Returns LicenseTier.STARTER if no valid license found.
     Import is deferred to avoid circular dependency with license_manager.
     """
     try:
@@ -48,7 +48,7 @@ def _get_current_tier() -> LicenseTier:
 
         return get_license_tier()
     except ImportError:
-        return LicenseTier.FREE
+        return LicenseTier.STARTER
 
 
 def _get_current_investigation_quota() -> UsageQuota:
@@ -134,13 +134,11 @@ def get_quota_display() -> str:
     quota = _get_current_investigation_quota()
 
     tier_labels: dict[LicenseTier, str] = {
-        LicenseTier.FREE: "free",
-        LicenseTier.DEV: "Dev",
-        LicenseTier.STARTUP: "Startup",
+        LicenseTier.STARTER: "Starter",
+        LicenseTier.TEAM: "Team",
         LicenseTier.SCALE_UP: "Scale-up",
-        LicenseTier.ENTERPRISE: "Enterprise",
     }
-    label = tier_labels.get(tier, "free")
+    label = tier_labels.get(tier, "Starter")
 
     if quota.is_unlimited:
         return f"[\u2b50 {label} \u2014 unlimited investigations]"

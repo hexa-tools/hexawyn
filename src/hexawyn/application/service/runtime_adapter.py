@@ -34,7 +34,9 @@ class StubRuntimeAdapter(RuntimePort):
             usage={},
         )
 
-    def run_startup_scan(self, cluster_name: str) -> StartupScanResult:
+    def run_startup_scan(
+        self, cluster_name: str, pods: list[dict[str, object]] | None = None
+    ) -> StartupScanResult:
         return StartupScanResult(
             health_score=0,
             narrative_summary="Runtime not available — install hexawyn-control-plane.",

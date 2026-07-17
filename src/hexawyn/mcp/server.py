@@ -156,6 +156,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.pipeline_run_logs_port import (
         PipelineRunLogsPort,
     )
+    from hexawyn.application.ports.driven.plan_port import PlanPort
     from hexawyn.application.ports.driven.platform_reliability_port import (
         PlatformReliabilityPort,
     )
@@ -230,6 +231,7 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.unauthorized_access_port import (
         UnauthorizedAccessPort,
     )
+    from hexawyn.application.ports.driven.usage_meter_port import UsageMeterPort
     from hexawyn.application.ports.driven.version_regression_port import (
         VersionRegressionPort,
     )
@@ -1282,6 +1284,18 @@ def build_machine_config_pool_adapter() -> MachineConfigPoolPort:
     )
 
     return OpenShiftMachineConfigAdapter()
+
+
+def build_pricing_plan_adapter() -> PlanPort:
+    from hexawyn.adapters.secondary.pricing_plan_adapter import PricingPlanAdapter
+
+    return PricingPlanAdapter()
+
+
+def build_usage_meter_adapter() -> UsageMeterPort:
+    from hexawyn.adapters.secondary.usage_meter_adapter import UsageMeterAdapter
+
+    return UsageMeterAdapter()
 
 
 def register_tools(server: FastMCP) -> None:

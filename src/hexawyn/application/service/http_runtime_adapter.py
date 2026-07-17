@@ -12,7 +12,9 @@ from hexawyn.domain.models.cluster import ClusterContext
 
 class HttpRuntimeAdapter(RuntimePort):
     def __init__(self, endpoint: str) -> None:
-        self._client = RuntimeClient(endpoint=endpoint)
+        from hexawyn.infrastructure.config.config_manager import get_api_key
+
+        self._client = RuntimeClient(endpoint=endpoint, api_key=get_api_key())
         self._adapter: Any = None
 
     def close(self) -> None:
@@ -117,13 +119,39 @@ class HttpRuntimeAdapter(RuntimePort):
         except Exception:
             pass
 
-    def run_startup_scan(self, cluster_name: str) -> StartupScanResult:
-        return StartupScanResult(
-            health_score=0,
-            narrative_summary="Startup scan not available via HTTP runtime.",
-            provider_badge="[remote]",
-            top_issues=["Startup scan is only available in embedded mode."],
-        )
+    def run_startup_scan(
+        self, cluster_name: str, pods: list[dict[str, object]] | None = None
+    ) -> StartupScanResult:
+        try:
+            local_pods = pods if pods is not None else self._fetch_pods()
+            raw = self._client.startup_scan(cluster_name, pods=local_pods)
+            suggestions_raw = raw.get("suggestions")
+            suggestions: list[dict[str, str]] = []
+            if isinstance(suggestions_raw, list):
+                for s in suggestions_raw:
+                    if isinstance(s, dict):
+                        suggestions.append(
+                            {
+                                "label": str(s.get("label", "")),
+                                "value": str(s.get("value", "")),
+                            }
+                        )
+            return StartupScanResult(
+                health_score=int(str(raw.get("health_score", 0))),
+                narrative_summary=str(raw.get("narrative_summary", "")),
+                provider_badge=str(raw.get("provider_badge", "[remote]")),
+                top_issues=_extract_string_list(raw.get("top_issues")),
+                suggestions=suggestions,
+                provider=str(raw.get("provider", "")),
+                provider_display=str(raw.get("provider_display", "")),
+            )
+        except Exception:
+            return StartupScanResult(
+                health_score=0,
+                narrative_summary="Startup scan unavailable — control plane reachable?",
+                provider_badge="[remote]",
+                top_issues=["Could not reach control plane for startup scan."],
+            )
 
     def _translate_response(self, response: dict[str, object]) -> InvestigationOutput:
         api_status = str(response.get("status", "error"))

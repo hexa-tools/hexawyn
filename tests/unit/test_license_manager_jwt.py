@@ -33,7 +33,7 @@ def _sign_jwt(private_pem: str, claims: dict) -> str:
     return jwt.encode(
         payload={
             "sub": claims.get("sub", "test@hexawyn.com"),
-            "plan": claims.get("plan", "free"),
+            "plan": claims.get("plan", "starter"),
             "clusters_max": claims.get("clusters_max", 1),
             "users_max": claims.get("users_max", 1),
             "investigations_monthly": claims.get("investigations_monthly", 50),
@@ -50,7 +50,7 @@ def _sign_jwt(private_pem: str, claims: dict) -> str:
 class TestLicenseClaims:
     def test_default_free_claims(self) -> None:
         claims = LicenseClaims.free()
-        assert claims.plan == "free"
+        assert claims.plan == "starter"
         assert claims.clusters_max == 1
         assert claims.users_max == 1
         assert claims.investigations_monthly == 50
@@ -68,7 +68,7 @@ class TestVerifyLicense:
                 from hexawyn.infrastructure.license.license_manager import verify_license
 
                 claims = verify_license()
-                assert claims.plan == "free"
+                assert claims.plan == "starter"
                 assert claims.clusters_max == 1
 
     def test_valid_jwt_decodes_correctly(self) -> None:
@@ -97,7 +97,7 @@ class TestVerifyLicense:
         token = _sign_jwt(
             private_pem,
             {
-                "plan": "startup",
+                "plan": "team",
                 "clusters_max": 3,
                 "users_max": 5,
                 "investigations_monthly": 500,
@@ -117,7 +117,7 @@ class TestVerifyLicense:
                 from hexawyn.infrastructure.license.license_manager import verify_license
 
                 claims = verify_license()
-                assert claims.plan == "startup"
+                assert claims.plan == "team"
                 assert claims.clusters_max == 3
                 assert claims.investigations_monthly == 500
 
@@ -149,7 +149,7 @@ class TestVerifyLicense:
             return_value="not-a-valid-jwt",
         ):
             claims = verify_license()
-            assert claims.plan == "free"
+            assert claims.plan == "starter"
 
 
 class TestHasProviderAccess:
@@ -284,7 +284,7 @@ class TestActivateLicense:
 class TestBackwardCompatibility:
     def test_get_license_tier_returns_tier_from_jwt(self) -> None:
         private_pem, public_pem = _generate_rsa_keypair()
-        token = _sign_jwt(private_pem, {"plan": "startup"})
+        token = _sign_jwt(private_pem, {"plan": "team"})
 
         with patch(
             "hexawyn.infrastructure.license.license_manager._read_license_key",
@@ -296,7 +296,7 @@ class TestBackwardCompatibility:
             ):
                 from hexawyn.infrastructure.license.license_manager import get_license_tier
 
-                assert get_license_tier() == LicenseTier.STARTUP
+                assert get_license_tier() == LicenseTier.TEAM
 
     def test_get_current_tier_alias(self) -> None:
         with patch(
@@ -305,11 +305,11 @@ class TestBackwardCompatibility:
         ):
             from hexawyn.infrastructure.license.license_manager import get_current_tier
 
-            assert get_current_tier() == LicenseTier.FREE
+            assert get_current_tier() == LicenseTier.STARTER
 
     def test_is_pro_returns_true_for_paid_plan(self) -> None:
         private_pem, public_pem = _generate_rsa_keypair()
-        token = _sign_jwt(private_pem, {"plan": "dev"})
+        token = _sign_jwt(private_pem, {"plan": "team"})
 
         with patch(
             "hexawyn.infrastructure.license.license_manager._read_license_key",
@@ -346,7 +346,7 @@ class TestBackwardCompatibility:
             ):
                 from hexawyn.infrastructure.license.license_manager import get_license_tier
 
-                assert get_license_tier() == LicenseTier.FREE
+                assert get_license_tier() == LicenseTier.STARTER
 
     def test_read_license_key_from_file(self, tmp_path: Path) -> None:
         private_pem, public_pem = _generate_rsa_keypair()
