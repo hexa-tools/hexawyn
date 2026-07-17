@@ -1,0 +1,31 @@
+"""Unit tests for KedaScaledObjectStatusUseCase."""
+
+from __future__ import annotations
+
+from unittest.mock import MagicMock
+
+import pytest
+from hexawyn.application.ports.driving.keda_scaledobject_status.keda_scaledobject_status_service_port import (
+    KedaScaledObjectStatusServicePort,
+)
+from hexawyn.application.use_case.keda_scaledobject_status.keda_scaledobject_status_use_case import (
+    KedaScaledObjectStatusUseCase,
+)
+
+
+class TestKedaScaledObjectStatusUseCase:
+    def test_execute_delegates_to_service(self) -> None:
+        mock_service = MagicMock(spec=KedaScaledObjectStatusServicePort)
+        use_case = KedaScaledObjectStatusUseCase(service=mock_service)
+
+        use_case.execute(MagicMock())
+
+        mock_service.get_status.assert_called_once()
+
+    def test_service_error_propagates(self) -> None:
+        mock_service = MagicMock(spec=KedaScaledObjectStatusServicePort)
+        mock_service.get_status.side_effect = RuntimeError("test error")
+        use_case = KedaScaledObjectStatusUseCase(service=mock_service)
+
+        with pytest.raises(RuntimeError, match="test error"):
+            use_case.execute(MagicMock())

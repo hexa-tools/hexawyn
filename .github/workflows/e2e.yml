@@ -1,0 +1,51 @@
+name: E2E Tests
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  release:
+    types: [published]
+
+jobs:
+  e2e:
+    name: E2E Tests (k3d)
+    if: github.event.pull_request.merged == true || github.event_name == 'release'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
+        run: poetry install --with dev --extras "aws gcp azure datadog"
+
+      - name: Setup k3d cluster
+        run: |
+          curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+          k3d cluster create hexawyn-e2e \
+            --wait \
+            --timeout 120s \
+            --k3s-arg "--disable=traefik@server:0" \
+            --k3s-arg "--disable=servicelb@server:0"
+          kubectl wait --for=condition=Ready nodes --all --timeout=120s
+
+      - name: Run E2E tests
+        run: |
+          poetry run pytest tests/e2e/ \
+            -v \
+            -m e2e \
+            --strict-markers \
+            --tb=short \
+            --durations=10
+
+      - name: Cleanup k3d
+        if: always()
+        run: k3d cluster delete hexawyn-e2e || true

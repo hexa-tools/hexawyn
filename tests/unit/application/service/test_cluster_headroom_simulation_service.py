@@ -1,0 +1,155 @@
+"""Unit tests for ClusterHeadroomSimulationService (mocks the new
+ClusterResourceMetricsPort + HeadroomSimulationPort)."""
+
+from __future__ import annotations
+
+from unittest.mock import MagicMock
+
+from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
+    ClusterResourceMetricsPort,
+)
+from hexawyn.application.ports.driving.cluster_headroom_simulation.cluster_headroom_simulation_command import (
+    ClusterHeadroomSimulationCommand,
+)
+from hexawyn.application.service.cluster_headroom_simulation_service import (
+    ClusterHeadroomSimulationService,
+)
+
+
+def _capacity_info(
+    total_cpu: float = 80.0,
+    total_memory: float = 320.0,
+    node_count: int = 10,
+    largest_cpu: float = 8.0,
+    largest_memory: float = 32.0,
+    autoscaler_enabled: bool = False,
+) -> dict:
+    return {
+        "total_allocatable_cpu_cores": total_cpu,
+        "total_allocatable_memory_gb": total_memory,
+        "node_count": node_count,
+        "largest_node_cpu_cores": largest_cpu,
+        "largest_node_memory_gb": largest_memory,
+        "autoscaler_enabled": autoscaler_enabled,
+    }
+
+
+def _make_service(
+    metrics_port: MagicMock | None = None, headroom_port: MagicMock | None = None
+) -> tuple[ClusterHeadroomSimulationService, MagicMock, MagicMock]:
+    if metrics_port is None:
+        metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+        metrics_port.get_current_usage.return_value = {"cpu_cores": 48.0, "memory_gb": 192.0}
+    if headroom_port is None:
+        headroom_port = MagicMock()
+        headroom_port.get_node_capacity_info.return_value = _capacity_info()
+    service = ClusterHeadroomSimulationService(
+        metrics_port=metrics_port, headroom_port=headroom_port
+    )
+    return service, metrics_port, headroom_port
+
+
+class TestMetricsQuery:
+    def test_calls_get_current_usage_once(self) -> None:
+        service, metrics_port, _ = _make_service()
+
+        service.simulate(ClusterHeadroomSimulationCommand())
+
+        metrics_port.get_current_usage.assert_called_once()
+
+    def test_missing_metrics_data_defaults_to_zero_usage(self) -> None:
+        metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+        metrics_port.get_current_usage.return_value = {"cpu_cores": 0.0, "memory_gb": 0.0}
+        service, _, _ = _make_service(metrics_port=metrics_port)
+
+        response = service.simulate(ClusterHeadroomSimulationCommand())
+
+        assert response.current_cpu_utilization_percent == 0.0
+
+
+class TestHeadroomPort:
+    def test_calls_capacity_port_once(self) -> None:
+        service, _, headroom_port = _make_service()
+
+        service.simulate(ClusterHeadroomSimulationCommand())
+
+        headroom_port.get_node_capacity_info.assert_called_once()
+
+
+class TestWorkloadMapping:
+    def test_default_replicas_applied_when_omitted(self) -> None:
+        service, _, _ = _make_service()
+
+        response = service.simulate(
+            ClusterHeadroomSimulationCommand(
+                proposed_workloads=[
+                    {
+                        "name": "solo-service",
+                        "cpu_request_per_pod": "500m",
+                        "memory_request_per_pod": "512Mi",
+                    }
+                ]
+            )
+        )
+
+        assert response.total_new_cpu_cores == 1.0
+        assert response.total_new_memory_gb == 1.0
+
+    def test_explicit_replicas_respected(self) -> None:
+        service, _, _ = _make_service()
+
+        response = service.simulate(
+            ClusterHeadroomSimulationCommand(
+                proposed_workloads=[
+                    {
+                        "name": "solo-service",
+                        "cpu_request_per_pod": "500m",
+                        "memory_request_per_pod": "512Mi",
+                        "replicas": 3,
+                    }
+                ]
+            )
+        )
+
+        assert response.total_new_cpu_cores == 1.5
+
+
+class TestResponseComposition:
+    def test_fits_scenario(self) -> None:
+        service, _, _ = _make_service()
+
+        response = service.simulate(ClusterHeadroomSimulationCommand())
+
+        assert response.error is None
+        assert response.current_cpu_utilization_percent == 60.0
+        assert response.verdict == "fits"
+
+
+class TestClusterHeadroomSimulationServiceEdgeCases:
+    def test_metrics_port_failure_propagates(self) -> None:
+        import pytest
+
+        metrics_port = MagicMock(spec=ClusterResourceMetricsPort)
+        metrics_port.get_current_usage.side_effect = RuntimeError("metrics timeout")
+        service, _, _ = _make_service(metrics_port=metrics_port)
+
+        with pytest.raises(RuntimeError, match="metrics timeout"):
+            service.simulate(ClusterHeadroomSimulationCommand())
+
+    def test_headroom_port_failure_propagates(self) -> None:
+        import pytest
+
+        headroom_port = MagicMock()
+        headroom_port.get_node_capacity_info.side_effect = RuntimeError("node capacity fail")
+        service, _, _ = _make_service(headroom_port=headroom_port)
+
+        with pytest.raises(RuntimeError, match="node capacity fail"):
+            service.simulate(ClusterHeadroomSimulationCommand())
+
+    def test_empty_workloads_produces_zero_total(self) -> None:
+        service, _, _ = _make_service()
+
+        response = service.simulate(ClusterHeadroomSimulationCommand(proposed_workloads=[]))
+
+        assert response.total_new_cpu_cores == 0.0
+        assert response.total_new_memory_gb == 0.0
