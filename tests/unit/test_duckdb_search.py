@@ -19,27 +19,17 @@ class TestSearchSimilarHistoryDays:
             conn=self.mock_conn,
             embedding=self.embedding,
             cluster_name="prod-eu",
-            history_days=get_history_days(LicenseTier.FREE),
+            history_days=get_history_days(LicenseTier.STARTER),
         )
         call_args = self.mock_conn.execute.call_args[0]
         assert 7 in call_args[1]
 
-    def test_dev_tier_uses_30_days(self) -> None:
+    def test_team_tier_uses_90_days(self) -> None:
         search_similar(
             conn=self.mock_conn,
             embedding=self.embedding,
             cluster_name="prod-eu",
-            history_days=get_history_days(LicenseTier.DEV),
-        )
-        call_args = self.mock_conn.execute.call_args[0]
-        assert 30 in call_args[1]
-
-    def test_startup_tier_uses_90_days(self) -> None:
-        search_similar(
-            conn=self.mock_conn,
-            embedding=self.embedding,
-            cluster_name="prod-eu",
-            history_days=get_history_days(LicenseTier.STARTUP),
+            history_days=get_history_days(LicenseTier.TEAM),
         )
         call_args = self.mock_conn.execute.call_args[0]
         assert 90 in call_args[1]

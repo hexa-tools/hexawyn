@@ -1,3 +1,4 @@
+import logging
 import time
 from datetime import UTC, datetime
 
@@ -17,6 +18,8 @@ from hexawyn.application.use_case.chat_cli.chat_cli_use_case import ChatCliUseCa
 from hexawyn.domain.models.cluster import ClusterContext as DomainClusterContext
 from hexawyn.domain.models.incident_memory import IncidentMemoryRecord
 from hexawyn.domain.models.usage import InvestigationUsage
+
+logger = logging.getLogger(__name__)
 
 
 class ChatCliService(ChatCliUseCase):
@@ -59,6 +62,7 @@ class ChatCliService(ChatCliUseCase):
         duration_ms = int((time.monotonic() - start) * 1000)
         self._store_incident(output, k8s_ctx)
         self._record_usage(query, k8s_ctx, output, duration_ms)
+        self._increment_quota()
         return _build_response(output)
 
     def _store_incident(self, output: InvestigationOutput, k8s_ctx: ClusterContext) -> None:
@@ -105,6 +109,18 @@ class ChatCliService(ChatCliUseCase):
             )
         except Exception:
             pass
+
+    def _increment_quota(self) -> None:
+        try:
+            from hexawyn.infrastructure.config.quota_manager import increment_quota
+
+            increment_quota()
+        except Exception as exc:
+            logger.debug("increment_quota local failed: %s", exc)
+        try:
+            self._runtime.increment_quota()
+        except Exception as exc:
+            logger.debug("increment_quota remote failed: %s", exc)
 
     def list_pods(self) -> ChatCliResponse:
         pods = self._k8s.list_pods()

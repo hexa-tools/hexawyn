@@ -8,7 +8,7 @@ class TestLicenseKey:
     def test_valid_when_not_expired(self) -> None:
         future = datetime.now(UTC) + timedelta(days=365)
         key = LicenseKey(
-            tier=LicenseTier.DEV,
+            tier=LicenseTier.TEAM,
             expires_at=future,
             licensee="dev@company.com",
         )
@@ -18,7 +18,7 @@ class TestLicenseKey:
     def test_expired_when_past_date(self) -> None:
         past = datetime.now(UTC) - timedelta(days=1)
         key = LicenseKey(
-            tier=LicenseTier.STARTUP,
+            tier=LicenseTier.TEAM,
             expires_at=past,
             licensee="expired@company.com",
         )
@@ -27,7 +27,7 @@ class TestLicenseKey:
 
     def test_perpetual_never_expires(self) -> None:
         key = LicenseKey(
-            tier=LicenseTier.ENTERPRISE,
+            tier=LicenseTier.SCALE_UP,
             expires_at=None,
             licensee="enterprise@bigcorp.com",
         )
@@ -44,7 +44,7 @@ class TestLicenseKey:
 
     def test_stores_licensee(self) -> None:
         key = LicenseKey(
-            tier=LicenseTier.FREE,
+            tier=LicenseTier.STARTER,
             expires_at=None,
             licensee="free@opensource.org",
         )

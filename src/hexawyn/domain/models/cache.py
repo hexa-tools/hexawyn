@@ -38,9 +38,9 @@ class CacheEntry:
 # ── Investigation Cache (DuckDB, RGPD-compliant) ─────────────────────────
 
 _CACHE_TTL_BY_LICENSE: dict[str, int] = {
-    "free": 6 * 3600,
-    "dev": 24 * 3600,
-    "pro": 48 * 3600,
+    "starter": 6 * 3600,
+    "team": 24 * 3600,
+    "scale_up": 48 * 3600,
 }
 
 
@@ -68,7 +68,7 @@ class CachedInvestigation:
     def __post_init__(self) -> None:
         if self.expires_at is None:
             self.expires_at = self.created_at + timedelta(
-                seconds=_CACHE_TTL_BY_LICENSE.get("free", 21600)
+                seconds=_CACHE_TTL_BY_LICENSE.get("starter", 21600)
             )
 
     @property

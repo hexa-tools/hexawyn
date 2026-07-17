@@ -9,21 +9,32 @@ DEFAULT_POLL_INTERVAL = 1.0
 
 
 class RuntimeClient:
-    def __init__(self, endpoint: str) -> None:
+    def __init__(self, endpoint: str, api_key: str | None = None) -> None:
         self._endpoint = endpoint.rstrip("/")
+        self._headers: dict[str, str] = {}
+        if api_key:
+            self._headers["X-API-Key"] = api_key
+        try:
+            from hexawyn.infrastructure.config.machine_id import get_machine_id
+
+            self._headers["X-Machine-ID"] = get_machine_id()
+        except Exception:
+            pass
         self._client = httpx.Client(timeout=30.0)
 
     def close(self) -> None:
         self._client.close()
 
     def check_quota(self) -> dict[str, object]:
-        response = self._client.get(f"{self._endpoint}/api/v1/quota")
+        response = self._client.get(f"{self._endpoint}/api/v1/quota", headers=self._headers)
         response.raise_for_status()
         data: dict[str, object] = response.json()
         return data
 
     def increment_quota(self) -> None:
-        response = self._client.post(f"{self._endpoint}/api/v1/quota/increment")
+        response = self._client.post(
+            f"{self._endpoint}/api/v1/quota/increment", headers=self._headers
+        )
         response.raise_for_status()
 
     def post_investigation(
@@ -41,6 +52,7 @@ class RuntimeClient:
                 "provider": provider,
                 "pods": pods or [],
             },
+            headers=self._headers,
         )
         response.raise_for_status()
         data: dict[str, object] = response.json()
@@ -49,6 +61,7 @@ class RuntimeClient:
     def get_investigation(self, job_id: str) -> dict[str, object]:
         response = self._client.get(
             f"{self._endpoint}/api/v1/investigations/{job_id}",
+            headers=self._headers,
         )
         response.raise_for_status()
         data: dict[str, object] = response.json()
@@ -89,6 +102,7 @@ class RuntimeClient:
                 "pods": pods or [],
                 "conversation_history": conversation_history or [],
             },
+            headers=self._headers,
         ) as response:
             response.raise_for_status()
             for line in response.iter_lines():
@@ -107,13 +121,15 @@ class RuntimeClient:
                 yield (event.get("node", "unknown"), event.get("output", {}))
 
     def list_custom_tools(self) -> list[dict[str, object]]:
-        response = self._client.get(f"{self._endpoint}/api/v1/custom-tools")
+        response = self._client.get(f"{self._endpoint}/api/v1/custom-tools", headers=self._headers)
         response.raise_for_status()
         data: list[dict[str, object]] = response.json()
         return data
 
     def describe_custom_tool(self, name: str) -> dict[str, object]:
-        response = self._client.get(f"{self._endpoint}/api/v1/custom-tools/{name}")
+        response = self._client.get(
+            f"{self._endpoint}/api/v1/custom-tools/{name}", headers=self._headers
+        )
         response.raise_for_status()
         data: dict[str, object] = response.json()
         return data
@@ -122,6 +138,19 @@ class RuntimeClient:
         response = self._client.post(
             f"{self._endpoint}/api/v1/custom-tools/{name}/run",
             json=params,
+            headers=self._headers,
+        )
+        response.raise_for_status()
+        data: dict[str, object] = response.json()
+        return data
+
+    def startup_scan(
+        self, cluster_name: str, pods: list[dict[str, object]] | None = None
+    ) -> dict[str, object]:
+        response = self._client.post(
+            f"{self._endpoint}/api/v1/startup-scan",
+            json={"cluster_name": cluster_name, "pods": pods or []},
+            headers=self._headers,
         )
         response.raise_for_status()
         data: dict[str, object] = response.json()

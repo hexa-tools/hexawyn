@@ -32,7 +32,7 @@ def _generate_keypair() -> tuple[str, str]:
 
 def _make_jwt(
     private_pem: str,
-    plan: str = "free",
+    plan: str = "starter",
     exp: int | None = 4102444800,
     sub: str = "test@hexawyn.com",
 ) -> str:
@@ -60,7 +60,7 @@ class TestLicenseKeyValidation:
 
     def test_expired_token_falls_back_to_free(self) -> None:
         sk, pk = _generate_keypair()
-        token = _make_jwt(sk, plan="startup", exp=1000000000)
+        token = _make_jwt(sk, plan="team", exp=1000000000)
 
         with patch(
             "hexawyn.infrastructure.license.license_manager._read_license_key",
@@ -69,7 +69,7 @@ class TestLicenseKeyValidation:
             with patch("hexawyn.infrastructure.license.license_manager.PUBLIC_KEY_PEM", pk):
                 from hexawyn.infrastructure.license.license_manager import get_license_tier
 
-                assert get_license_tier() == LicenseTier.FREE
+                assert get_license_tier() == LicenseTier.STARTER
 
     def test_wrong_signature_falls_back_to_free(self) -> None:
         sk1, pk1 = _generate_keypair()
@@ -84,7 +84,7 @@ class TestLicenseKeyValidation:
                 from hexawyn.infrastructure.license.license_manager import verify_license
 
                 claims = verify_license()
-                assert claims.plan == "free"
+                assert claims.plan == "starter"
 
     def test_invalid_format_falls_back_to_free(self) -> None:
         _, pk = _generate_keypair()
@@ -96,7 +96,7 @@ class TestLicenseKeyValidation:
                 from hexawyn.infrastructure.license.license_manager import verify_license
 
                 claims = verify_license()
-                assert claims.plan == "free"
+                assert claims.plan == "starter"
 
 
 class TestGetLicenseTier:
@@ -105,18 +105,18 @@ class TestGetLicenseTier:
             "hexawyn.infrastructure.license.license_manager._read_license_key",
             return_value=None,
         ):
-            assert get_license_tier() == LicenseTier.FREE
+            assert get_license_tier() == LicenseTier.STARTER
 
     def test_returns_tier_from_valid_license(self) -> None:
         sk, pk = _generate_keypair()
-        token = _make_jwt(sk, plan="startup")
+        token = _make_jwt(sk, plan="team")
 
         with patch("hexawyn.infrastructure.license.license_manager.PUBLIC_KEY_PEM", pk):
             with patch(
                 "hexawyn.infrastructure.license.license_manager._read_license_key",
                 return_value=token,
             ):
-                assert get_license_tier() == LicenseTier.STARTUP
+                assert get_license_tier() == LicenseTier.TEAM
 
 
 class TestActivateLicense:
@@ -159,7 +159,7 @@ class TestLicenseBackwardCompat:
             "hexawyn.infrastructure.license.license_manager._read_license_key",
             return_value=None,
         ):
-            assert get_current_tier() == LicenseTier.FREE
+            assert get_current_tier() == LicenseTier.STARTER
 
     def test_is_pro_returns_false_for_free(self) -> None:
         with patch(

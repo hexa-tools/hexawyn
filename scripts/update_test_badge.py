@@ -15,9 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
 README = ROOT / "README.md"
-BADGE_PATTERN = re.compile(
-    r"https://img\.shields\.io/badge/tests-\d+_passed-brightgreen\.svg"
-)
+BADGE_PATTERN = re.compile(r"https://img\.shields\.io/badge/tests-\d+_passed-brightgreen\.svg")
 
 
 def count_tests() -> int:

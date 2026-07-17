@@ -40,10 +40,10 @@ class LicenseClaims:
 
     @classmethod
     def free(cls) -> "LicenseClaims":
-        """Default claims when no license is present (Free tier)."""
+        """Default claims when no license is present (Starter tier)."""
         return cls(
             sub="anonymous",
-            plan="free",
+            plan="starter",
             clusters_max=1,
             users_max=1,
             investigations_monthly=50,
