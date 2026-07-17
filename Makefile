@@ -118,7 +118,7 @@ run-mcp:
 
 run-cli:
 	@echo "🖥️  Starting CLI Textual against your kubeconfig..."
-	HEXAWYN_DEMO_MODE=false $(POETRY) run hexa start
+	HEXAWYN_DISABLE_ENCRYPTION=true HEXAWYN_DEMO_MODE=false $(POETRY) run hexa start
 
 run-demo:
 	@echo "🎭 Starting MCP server in demo mode (no cluster)..."

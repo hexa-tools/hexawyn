@@ -50,21 +50,21 @@ class TestQuotaRepositoryIntegration:
         quota = repo.get_investigation_quota(month="2026-06")
         assert quota.month == "2026-06"
         assert quota.count == 0
-        assert quota.limit == get_investigation_limit(LicenseTier.FREE)
+        assert quota.limit == get_investigation_limit(LicenseTier.STARTER)
 
     @pytest.mark.integration
     def test_increment_creates_row_on_first_call(self, repo: QuotaRepository) -> None:
         repo.increment_investigation(
             month="2026-06",
-            tier=LicenseTier.FREE,
-            limit=get_investigation_limit(LicenseTier.FREE),
+            tier=LicenseTier.STARTER,
+            limit=get_investigation_limit(LicenseTier.STARTER),
         )
         quota = repo.get_investigation_quota(month="2026-06")
         assert quota.count == 1
 
     @pytest.mark.integration
     def test_multiple_increments_accumulate(self, repo: QuotaRepository) -> None:
-        tier = LicenseTier.FREE
+        tier = LicenseTier.STARTER
         limit = get_investigation_limit(tier)
         for _ in range(5):
             repo.increment_investigation(month="2026-06", tier=tier, limit=limit)
@@ -73,7 +73,7 @@ class TestQuotaRepositoryIntegration:
 
     @pytest.mark.integration
     def test_different_months_are_independent(self, repo: QuotaRepository) -> None:
-        tier = LicenseTier.FREE
+        tier = LicenseTier.STARTER
         limit = get_investigation_limit(tier)
         repo.increment_investigation(month="2026-06", tier=tier, limit=limit)
         repo.increment_investigation(month="2026-06", tier=tier, limit=limit)
@@ -86,7 +86,7 @@ class TestQuotaRepositoryIntegration:
 
     @pytest.mark.integration
     def test_reset_sets_count_to_zero(self, repo: QuotaRepository) -> None:
-        tier = LicenseTier.FREE
+        tier = LicenseTier.STARTER
         limit = get_investigation_limit(tier)
         for _ in range(10):
             repo.increment_investigation(month="2026-06", tier=tier, limit=limit)
@@ -98,18 +98,18 @@ class TestQuotaRepositoryIntegration:
     def test_slack_quota_independent_from_investigation(self, repo: QuotaRepository) -> None:
         repo.increment_investigation(
             month="2026-06",
-            tier=LicenseTier.FREE,
-            limit=get_investigation_limit(LicenseTier.FREE),
+            tier=LicenseTier.STARTER,
+            limit=get_investigation_limit(LicenseTier.STARTER),
         )
         repo.increment_investigation(
             month="2026-06",
-            tier=LicenseTier.FREE,
-            limit=get_investigation_limit(LicenseTier.FREE),
+            tier=LicenseTier.STARTER,
+            limit=get_investigation_limit(LicenseTier.STARTER),
         )
         repo.increment_slack(
             month="2026-06",
-            tier=LicenseTier.FREE,
-            limit=get_slack_limit(LicenseTier.FREE),
+            tier=LicenseTier.STARTER,
+            limit=get_slack_limit(LicenseTier.STARTER),
         )
 
         inv = repo.get_investigation_quota(month="2026-06")
@@ -119,15 +119,15 @@ class TestQuotaRepositoryIntegration:
 
     @pytest.mark.integration
     def test_quota_exceeded_at_limit(self, repo: QuotaRepository) -> None:
-        limit = get_investigation_limit(LicenseTier.FREE)
-        _fill_investigations(repo, "2026-06", LicenseTier.FREE, limit)
+        limit = get_investigation_limit(LicenseTier.STARTER)
+        _fill_investigations(repo, "2026-06", LicenseTier.STARTER, limit)
         quota = repo.get_investigation_quota(month="2026-06")
         assert quota.is_exceeded is True
         assert quota.remaining == 0
 
     @pytest.mark.integration
     def test_slack_quota_exceeded_at_limit(self, repo: QuotaRepository) -> None:
-        tier = LicenseTier.FREE
+        tier = LicenseTier.STARTER
         limit = get_slack_limit(tier)
         for _ in range(limit):
             repo.increment_slack(month="2026-06", tier=tier, limit=limit)
@@ -140,8 +140,8 @@ class TestTierSpecificIntegration:
     @pytest.mark.integration
     def test_free_tier_quota_full_cycle(self, repo: QuotaRepository) -> None:
         """Real DuckDB — 50 increments → is_exceeded."""
-        limit = get_investigation_limit(LicenseTier.FREE)
-        _fill_investigations(repo, "2026-06", LicenseTier.FREE, limit)
+        limit = get_investigation_limit(LicenseTier.STARTER)
+        _fill_investigations(repo, "2026-06", LicenseTier.STARTER, limit)
         quota = repo.get_investigation_quota(month="2026-06")
         assert quota.is_exceeded is True
         assert quota.limit == 50
@@ -149,8 +149,8 @@ class TestTierSpecificIntegration:
     @pytest.mark.integration
     def test_dev_tier_quota_full_cycle(self, repo: QuotaRepository) -> None:
         """Real DuckDB — 200 increments → is_exceeded."""
-        limit = get_investigation_limit(LicenseTier.DEV)
-        _fill_investigations(repo, "2026-06", LicenseTier.DEV, limit)
+        limit = get_investigation_limit(LicenseTier.TEAM)
+        _fill_investigations(repo, "2026-06", LicenseTier.TEAM, limit)
         quota = repo.get_investigation_quota(month="2026-06")
         assert quota.is_exceeded is True
         assert quota.limit == 200
@@ -160,13 +160,13 @@ class TestTierSpecificIntegration:
         """Free=50, Dev=200, Startup=500 all enforced correctly."""
         repo.increment_investigation(
             month="2026-06",
-            tier=LicenseTier.DEV,
-            limit=get_investigation_limit(LicenseTier.DEV),
+            tier=LicenseTier.TEAM,
+            limit=get_investigation_limit(LicenseTier.TEAM),
         )
         repo.increment_investigation(
             month="2026-07",
-            tier=LicenseTier.STARTUP,
-            limit=get_investigation_limit(LicenseTier.STARTUP),
+            tier=LicenseTier.TEAM,
+            limit=get_investigation_limit(LicenseTier.TEAM),
         )
 
         q_dev = repo.get_investigation_quota(month="2026-06")
@@ -179,13 +179,13 @@ class TestTierSpecificIntegration:
     def test_slack_quota_independent_from_investigation(self, repo: QuotaRepository) -> None:
         repo.increment_investigation(
             month="2026-06",
-            tier=LicenseTier.DEV,
-            limit=get_investigation_limit(LicenseTier.DEV),
+            tier=LicenseTier.TEAM,
+            limit=get_investigation_limit(LicenseTier.TEAM),
         )
         repo.increment_slack(
             month="2026-06",
-            tier=LicenseTier.DEV,
-            limit=get_slack_limit(LicenseTier.DEV),
+            tier=LicenseTier.TEAM,
+            limit=get_slack_limit(LicenseTier.TEAM),
         )
 
         inv = repo.get_investigation_quota(month="2026-06")
@@ -198,9 +198,9 @@ class TestTierSpecificIntegration:
     @pytest.mark.integration
     def test_history_days_by_tier(self) -> None:
         """Free=7, Dev=30, Startup=90, Scale-up=unlimited."""
-        assert get_history_days(LicenseTier.FREE) == 7
-        assert get_history_days(LicenseTier.DEV) == 30
-        assert get_history_days(LicenseTier.STARTUP) == 90
+        assert get_history_days(LicenseTier.STARTER) == 7
+        assert get_history_days(LicenseTier.TEAM) == 30
+        assert get_history_days(LicenseTier.TEAM) == 90
         assert get_history_days(LicenseTier.SCALE_UP) == UNLIMITED
 
 
@@ -225,12 +225,12 @@ class TestQuotaManagerIntegration:
         )
         repo = QuotaRepository(conn=test_conn)
         month = _get_current_month()
-        limit = get_investigation_limit(LicenseTier.FREE)
+        limit = get_investigation_limit(LicenseTier.STARTER)
 
         for _ in range(limit):
             repo.increment_investigation(
                 month=month,
-                tier=LicenseTier.FREE,
+                tier=LicenseTier.STARTER,
                 limit=limit,
             )
 
@@ -249,12 +249,12 @@ class TestQuotaManagerIntegration:
         )
         repo = QuotaRepository(conn=test_conn)
         month = _get_current_month()
-        limit = get_investigation_limit(LicenseTier.FREE)
+        limit = get_investigation_limit(LicenseTier.STARTER)
 
         for _ in range(10):
             repo.increment_investigation(
                 month=month,
-                tier=LicenseTier.FREE,
+                tier=LicenseTier.STARTER,
                 limit=limit,
             )
 

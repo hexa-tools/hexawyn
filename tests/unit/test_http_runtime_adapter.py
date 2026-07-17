@@ -224,11 +224,43 @@ class TestHttpRuntimeAdapter:
         assert call_kwargs["pods"][0]["namespace"] == "airflow"
 
     def test_run_startup_scan_not_supported(self) -> None:
-        adapter = HttpRuntimeAdapter(endpoint="http://localhost:8000")
-        result = adapter.run_startup_scan(cluster_name="test")
+        mock_client = MagicMock()
+        mock_client.startup_scan.side_effect = Exception("connection refused")
+
+        with patch(
+            "hexawyn.application.service.http_runtime_adapter.RuntimeClient",
+            return_value=mock_client,
+        ):
+            adapter = HttpRuntimeAdapter(endpoint="http://localhost:8000")
+            result = adapter.run_startup_scan(cluster_name="test")
 
         assert result.health_score == 0
-        assert "not available" in result.narrative_summary.lower()
+        assert "unavailable" in result.narrative_summary.lower()
+
+    def test_run_startup_scan_returns_real_data(self) -> None:
+        mock_client = MagicMock()
+        mock_client.startup_scan.return_value = {
+            "health_score": 85,
+            "narrative_summary": "Cluster healthy",
+            "provider_badge": "[AWS EKS]",
+            "top_issues": ["2 CrashLoopBackOff pods"],
+            "suggestions": [{"label": "debug payments-api", "value": "debug payments-api"}],
+            "provider": "aws",
+            "provider_display": "AWS EKS",
+        }
+
+        with patch(
+            "hexawyn.application.service.http_runtime_adapter.RuntimeClient",
+            return_value=mock_client,
+        ):
+            adapter = HttpRuntimeAdapter(endpoint="http://localhost:8000")
+            result = adapter.run_startup_scan(cluster_name="prod-eu")
+
+        assert result.health_score == 85
+        assert result.narrative_summary == "Cluster healthy"
+        assert result.provider == "aws"
+        assert len(result.suggestions) == 1
+        assert result.suggestions[0]["value"] == "debug payments-api"
 
     def test_close_closes_client(self) -> None:
         mock_client = MagicMock()

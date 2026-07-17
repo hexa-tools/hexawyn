@@ -21,7 +21,7 @@ class TestQuotaRepository:
         assert isinstance(quota, UsageQuota)
         assert quota.month == "2026-06"
         assert quota.count == 0
-        assert quota.limit == get_investigation_limit(LicenseTier.FREE)
+        assert quota.limit == get_investigation_limit(LicenseTier.STARTER)
 
     def test_get_investigation_quota_returns_row_when_exists(self) -> None:
         self.mock_conn.execute.return_value.fetchone.return_value = (
@@ -45,7 +45,7 @@ class TestQuotaRepository:
         quota = self.repo.get_slack_quota(month="2026-06")
         assert isinstance(quota, SlackQuota)
         assert quota.count == 0
-        assert quota.limit == get_slack_limit(LicenseTier.FREE)
+        assert quota.limit == get_slack_limit(LicenseTier.STARTER)
 
     def test_get_slack_quota_returns_dev_limits(self) -> None:
         self.mock_conn.execute.return_value.fetchone.return_value = (
@@ -67,7 +67,7 @@ class TestQuotaRepository:
     def test_increment_investigation_calls_upsert(self) -> None:
         self.repo.increment_investigation(
             month="2026-06",
-            tier=LicenseTier.DEV,
+            tier=LicenseTier.TEAM,
             limit=200,
         )
         self.mock_conn.execute.assert_called_once()
@@ -75,7 +75,7 @@ class TestQuotaRepository:
     def test_increment_slack_calls_upsert(self) -> None:
         self.repo.increment_slack(
             month="2026-06",
-            tier=LicenseTier.FREE,
+            tier=LicenseTier.STARTER,
             limit=5,
         )
         self.mock_conn.execute.assert_called_once()

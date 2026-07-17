@@ -1,8 +1,6 @@
-import os
 from collections.abc import Callable
 from typing import Any, Protocol
 
-import httpx
 from textual.app import App
 from textual.binding import Binding
 
@@ -76,54 +74,64 @@ class HexawynTUI(App[None]):
         self.ai_suggestion: str | None = None
 
     def _generate_ai_suggestion(self) -> None:
-        api_key = os.environ.get("LLM_API_KEY", "")
-        base_url = os.environ.get("LLM_BASE_URL", "https://api.deepseek.com")
-        if not api_key:
-            return
-
-        pods = safe_pods(self.adapter)
-        total = len(pods)
-        running = running_pod_count(pods)
-        pending = pending_pod_count(pods)
-        failed = failed_pod_count(pods)
-
-        prompt = (
-            f"Cluster has {total} pods: {running} Running, "
-            f"{pending} Pending, {failed} Failed. "
-            "Based on this state, give ONE short, actionable suggestion (max 120 chars) "
-            "for the Kubernetes operator. Be specific and concise. "
-            "Output ONLY the suggestion text, no prefix, no markdown."
-        )
-
         try:
-            with httpx.Client(timeout=15.0) as client:
-                response = client.post(
-                    f"{base_url}/chat/completions",
-                    json={
-                        "model": "deepseek-chat",
-                        "messages": [{"role": "user", "content": prompt}],
-                        "max_tokens": 80,
-                        "temperature": 0.5,
-                    },
-                    headers={
-                        "Authorization": f"Bearer {api_key}",
-                        "Content-Type": "application/json",
-                    },
-                )
-                data = response.json()
-                content = data["choices"][0]["message"]["content"].strip()
-                if content:
-                    self.ai_suggestion = content
+            from hexawyn.application.service.runtime_adapter import get_runtime
 
-                    def _refresh() -> None:
-                        from hexawyn.cli.screens.session import SessionScreen
+            runtime = get_runtime()
+            pods = safe_pods(self.adapter)
+            pod_dicts: list[dict[str, object]] = [
+                {
+                    "name": str(p.get("name", "")),
+                    "namespace": str(p.get("namespace", "")),
+                    "status": str(p.get("status", "")),
+                    "restarts": int(str(p.get("restarts", 0))),
+                }
+                for p in pods
+            ]
+            scan = runtime.run_startup_scan(self.cluster_name, pods=pod_dicts)
+            if scan.suggestions:
+                self.ai_suggestion = scan.suggestions[0].get("value", "")
 
-                        if isinstance(self.screen, SessionScreen):
-                            self.screen._refresh_aside()
+            if not self.ai_suggestion and scan.health_score > 0 and scan.narrative_summary:
+                from hexawyn.cli.screens.session import _is_error_narrative
 
-                    self.call_from_thread(_refresh)
+                if not _is_error_narrative(scan.narrative_summary):
+                    self.ai_suggestion = scan.narrative_summary
+
+            if not self.ai_suggestion:
+                self.ai_suggestion = self._fallback_suggestion()
+
+            if self.ai_suggestion:
+
+                def _refresh() -> None:
+                    from hexawyn.cli.screens.session import SessionScreen
+
+                    if isinstance(self.screen, SessionScreen):
+                        self.screen._refresh_aside()
+
+                self.call_from_thread(_refresh)
         except Exception:
             pass
+
+    def _fallback_suggestion(self) -> str | None:
+        try:
+            pods = safe_pods(self.adapter)
+            total = len(pods)
+            running = running_pod_count(pods)
+            pending = pending_pod_count(pods)
+            failed = failed_pod_count(pods)
+
+            if total == 0:
+                return None
+            if failed > 0:
+                return f"{failed} pod(s) in failed state — run a health check to investigate"
+            if pending > 0:
+                return f"{pending} pod(s) pending — check resource quotas or node capacity"
+            if running == total:
+                return f"All {total} pods healthy — no issues detected"
+            return None
+        except Exception:
+            return None
 
     def on_mount(self) -> None:
         from hexawyn.cli.screens.session import SessionScreen

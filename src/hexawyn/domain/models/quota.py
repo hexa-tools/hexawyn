@@ -5,38 +5,101 @@ UNLIMITED = -1  # sentinel: no limit
 
 
 class LicenseTier(Enum):
-    FREE = "free"
-    DEV = "dev"
-    STARTUP = "startup"
+    STARTER = "starter"
+    TEAM = "team"
     SCALE_UP = "scale_up"
-    ENTERPRISE = "enterprise"
+
+
+class QuotaState(Enum):
+    NORMAL = "normal"
+    WARNING = "warning"
+    CRITICAL = "critical"
+    EXHAUSTED = "exhausted"
+    UNLIMITED = "unlimited"
+    LOCKED = "locked"
+
+
+@dataclass(frozen=True)
+class QuotaUsage:
+    resource: str
+    used: int
+    limit: int | None
+    state: QuotaState
+    available_from_tier: str | None = None
+
+    @property
+    def percentage(self) -> float | None:
+        if self.limit is None or self.limit <= 0:
+            return None
+        return min(100.0, (self.used / self.limit) * 100)
+
+    @property
+    def should_render_bar(self) -> bool:
+        return self.state not in (QuotaState.UNLIMITED, QuotaState.LOCKED)
+
+    @staticmethod
+    def compute_state(used: int, limit: int | None) -> QuotaState:
+        if limit is None or limit == UNLIMITED:
+            return QuotaState.UNLIMITED
+        if limit <= 0:
+            return QuotaState.LOCKED
+        if used >= limit:
+            return QuotaState.EXHAUSTED
+        pct = (used / limit) * 100
+        if pct >= 90:
+            return QuotaState.CRITICAL
+        if pct >= 70:
+            return QuotaState.WARNING
+        return QuotaState.NORMAL
 
 
 # ── Investigation limits ───────────────────────────────────
 _INVESTIGATION_LIMITS: dict[LicenseTier, int] = {
-    LicenseTier.FREE: 50,
-    LicenseTier.DEV: 200,
-    LicenseTier.STARTUP: 500,
+    LicenseTier.STARTER: 50,
+    LicenseTier.TEAM: 500,
     LicenseTier.SCALE_UP: UNLIMITED,
-    LicenseTier.ENTERPRISE: UNLIMITED,
 }
 
 # ── Slack alert limits ─────────────────────────────────────
 _SLACK_LIMITS: dict[LicenseTier, int] = {
-    LicenseTier.FREE: 5,
-    LicenseTier.DEV: 50,
-    LicenseTier.STARTUP: UNLIMITED,
+    LicenseTier.STARTER: 5,
+    LicenseTier.TEAM: UNLIMITED,
     LicenseTier.SCALE_UP: UNLIMITED,
-    LicenseTier.ENTERPRISE: UNLIMITED,
 }
 
 # ── DuckDB history days ────────────────────────────────────
 _HISTORY_DAYS: dict[LicenseTier, int] = {
-    LicenseTier.FREE: 7,
-    LicenseTier.DEV: 30,
-    LicenseTier.STARTUP: 90,
+    LicenseTier.STARTER: 7,
+    LicenseTier.TEAM: 90,
     LicenseTier.SCALE_UP: UNLIMITED,
-    LicenseTier.ENTERPRISE: UNLIMITED,
+}
+
+# ── Cluster limits ─────────────────────────────────────────
+_CLUSTER_LIMITS: dict[LicenseTier, int] = {
+    LicenseTier.STARTER: 1,
+    LicenseTier.TEAM: 3,
+    LicenseTier.SCALE_UP: UNLIMITED,
+}
+
+# ── User limits ────────────────────────────────────────────
+_USER_LIMITS: dict[LicenseTier, int] = {
+    LicenseTier.STARTER: 1,
+    LicenseTier.TEAM: 5,
+    LicenseTier.SCALE_UP: 20,
+}
+
+# ── Slack channel limits ───────────────────────────────────
+_SLACK_CHANNEL_LIMITS: dict[LicenseTier, int] = {
+    LicenseTier.STARTER: 1,
+    LicenseTier.TEAM: 3,
+    LicenseTier.SCALE_UP: UNLIMITED,
+}
+
+# ── Billing API call limits (cost tracking) ────────────────
+_BILLING_API_LIMITS: dict[LicenseTier, int] = {
+    LicenseTier.STARTER: 2,
+    LicenseTier.TEAM: UNLIMITED,
+    LicenseTier.SCALE_UP: UNLIMITED,
 }
 
 
@@ -52,11 +115,30 @@ def get_history_days(tier: LicenseTier) -> int:
     return _HISTORY_DAYS[tier]
 
 
+def get_cluster_limit(tier: LicenseTier) -> int:
+    return _CLUSTER_LIMITS[tier]
+
+
+def get_user_limit(tier: LicenseTier) -> int:
+    return _USER_LIMITS[tier]
+
+
+def get_slack_channel_limit(tier: LicenseTier) -> int:
+    return _SLACK_CHANNEL_LIMITS[tier]
+
+
+def get_billing_api_limit(tier: LicenseTier) -> int:
+    return _BILLING_API_LIMITS[tier]
+
+
 # ── Backward-compatible constants ──────────────────────────
-FREE_MONTHLY_LIMIT = get_investigation_limit(LicenseTier.FREE)
-FREE_SLACK_LIMIT = get_slack_limit(LicenseTier.FREE)
-FREE_HISTORY_DAYS = get_history_days(LicenseTier.FREE)
-PRO_HISTORY_DAYS = 90  # kept for backward compat (Startup/Scale-up/Enterprise)
+STARTER_MONTHLY_LIMIT = get_investigation_limit(LicenseTier.STARTER)
+STARTER_SLACK_LIMIT = get_slack_limit(LicenseTier.STARTER)
+STARTER_HISTORY_DAYS = get_history_days(LicenseTier.STARTER)
+FREE_MONTHLY_LIMIT = STARTER_MONTHLY_LIMIT  # backward compat
+FREE_SLACK_LIMIT = STARTER_SLACK_LIMIT  # backward compat
+FREE_HISTORY_DAYS = STARTER_HISTORY_DAYS  # backward compat
+PRO_HISTORY_DAYS = 90  # kept for backward compat (Team/Scale-up)
 
 
 @dataclass
@@ -64,12 +146,12 @@ class UsageQuota:
     """
     Monthly investigation usage.
     Limit depends on license tier:
-    Free=50 / Dev=200 / Startup=500 / Scale-up=unlimited / Enterprise=unlimited
+    Starter=50 / Team=500 / Scale-up=unlimited
     """
 
     month: str
     count: int
-    limit: int = FREE_MONTHLY_LIMIT
+    limit: int = STARTER_MONTHLY_LIMIT
 
     @property
     def remaining(self) -> int:
@@ -93,12 +175,12 @@ class SlackQuota:
     """
     Monthly Slack alert usage.
     Limit depends on license tier:
-    Free=5 / Dev=50 / Startup=unlimited / Scale-up=unlimited / Enterprise=unlimited
+    Starter=5 / Team=unlimited / Scale-up=unlimited
     """
 
     month: str
     count: int
-    limit: int = FREE_SLACK_LIMIT
+    limit: int = STARTER_SLACK_LIMIT
 
     @property
     def remaining(self) -> int:

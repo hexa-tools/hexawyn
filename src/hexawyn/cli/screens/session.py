@@ -48,6 +48,23 @@ from hexawyn.infrastructure.config.kubernetes_context import (
 )
 
 
+def _is_error_narrative(text: str) -> bool:
+    skip = [
+        "not available",
+        "unavailable",
+        "install hexawyn",
+        "is down",
+        "no node",
+        "no pods",
+        "0 pods",
+        "Runtime not available",
+        "startup scan requires",
+        "empty and inactive",
+    ]
+    text_lower = text.lower()
+    return any(p.lower() in text_lower for p in skip)
+
+
 class SessionScreen(Screen[None]):
     CSS = """
     SessionScreen {
@@ -65,6 +82,10 @@ class SessionScreen(Screen[None]):
         height: 1fr;
         background: #05070d;
         scrollbar-size: 0 0;
+    }
+
+    #status-bar {
+        height: 1;
     }
 
     #chips {
@@ -86,6 +107,7 @@ class SessionScreen(Screen[None]):
     }
 
     #cmd-input {
+        height: 3;
         border: round #2b3850;
         margin-top: 1;
     }
@@ -126,6 +148,12 @@ class SessionScreen(Screen[None]):
         margin-bottom: 0;
     }
 
+    #quota-bar {
+        height: auto;
+        color: #c7d0e0;
+        margin-bottom: 1;
+    }
+
     .aside-heading {
         color: #5b6472;
         text-style: bold;
@@ -160,6 +188,7 @@ class SessionScreen(Screen[None]):
             with Vertical(id="aside"):
                 with VerticalScroll(id="aside-content"):
                     yield Static("", id="aside-body")
+                yield Static("", id="quota-bar")
                 yield Static(compact_project_directory(), id="aside-project")
                 yield Static(
                     f"hexa[bold #3B82F6]wyn[/bold #3B82F6] [dim]{app_version()}[/dim]",
@@ -196,6 +225,7 @@ class SessionScreen(Screen[None]):
 
     def _refresh_aside(self) -> None:
         self.query_one("#aside-body", Static).update("\n".join(self._aside_lines()))
+        self._refresh_quota_bar()
 
     def _aside_lines(self) -> list[str]:
         app = self._tui_app()
@@ -258,6 +288,52 @@ class SessionScreen(Screen[None]):
 
         return lines
 
+    def _refresh_quota_bar(self) -> None:
+        try:
+            from hexawyn.adapters.secondary.pricing_plan_adapter import (
+                PricingPlanAdapter,
+            )
+            from hexawyn.adapters.secondary.usage_meter_adapter import (
+                UsageMeterAdapter,
+            )
+            from hexawyn.application.ports.driving.get_quota_usage.get_quota_usage_command import (
+                GetQuotaUsageCommand,
+            )
+            from hexawyn.application.service.get_quota_usage_service import (
+                GetQuotaUsageService,
+            )
+            from hexawyn.application.use_case.get_quota_usage.get_quota_usage_use_case import (
+                GetQuotaUsageUseCase,
+            )
+            from hexawyn.cli.widgets.quota_bar import _quota_bar
+            from hexawyn.infrastructure.config.quota_manager import (
+                _get_current_investigation_quota,
+                _get_current_slack_quota,
+            )
+
+            plan = PricingPlanAdapter()
+            meter = UsageMeterAdapter()
+
+            try:
+                inv = _get_current_investigation_quota()
+                slack = _get_current_slack_quota()
+                meter.set_usage("investigations", inv.count)
+                meter.set_usage("slack_alerts", slack.count)
+            except Exception:
+                pass
+
+            service = GetQuotaUsageService(plan_port=plan, usage_meter=meter)
+            use_case = GetQuotaUsageUseCase(service=service)
+            response = use_case.execute(GetQuotaUsageCommand())
+
+            lines: list[str] = ["", "[bold]Quota[/bold]", "\u2500" * 18]
+            for quota in response.quotas:
+                lines.append(_quota_bar(quota))
+
+            self.query_one("#quota-bar", Static).update("\n".join(lines))
+        except Exception as exc:
+            self.query_one("#quota-bar", Static).update(f"[dim]Quota unavailable — {exc}[/dim]")
+
     def _finding_warning_lines(self, findings: list[Any]) -> list[str]:
         lines: list[str] = []
         cl_count = crashloop_finding_count(findings)
@@ -304,7 +380,7 @@ class SessionScreen(Screen[None]):
                             lines.append(f"{sev_icon} {label}")
 
             narrative = str(app.startup_result.get("narrative_summary", ""))
-            if narrative:
+            if narrative and not _is_error_narrative(narrative):
                 lines.append("")
                 lines.append(f"[dim italic]{narrative}[/dim italic]")
 
@@ -600,9 +676,17 @@ class SessionScreen(Screen[None]):
             return
 
         accumulated: dict[str, object] = dict(_asdict(result))
+        health_score = accumulated.get("health_score", 0)
+        narrative = str(accumulated.get("narrative_summary", ""))
+        cluster_summary = accumulated.get("cluster_summary", {})
+        total_pods = (
+            cluster_summary.get("total_pods", 0) if isinstance(cluster_summary, dict) else 0
+        )
         if (
-            str(accumulated.get("narrative_summary", ""))
-            != "Startup scan not available via HTTP runtime."
+            isinstance(health_score, int)
+            and health_score > 0
+            and total_pods > 0
+            and not _is_error_narrative(narrative)
         ):
             app.startup_result = accumulated
 

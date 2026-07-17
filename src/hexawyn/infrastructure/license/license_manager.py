@@ -70,20 +70,18 @@ def has_provider_access(claims: LicenseClaims, provider: str) -> bool:
 
 
 def get_license_tier() -> LicenseTier:
-    """Return the current LicenseTier from the license or FREE fallback."""
+    """Return the current LicenseTier from the license or STARTER fallback."""
     try:
         claims = verify_license()
     except LicenseExpiredError:
-        return LicenseTier.FREE
+        return LicenseTier.STARTER
 
     tier_map: dict[str, LicenseTier] = {
-        "free": LicenseTier.FREE,
-        "dev": LicenseTier.DEV,
-        "startup": LicenseTier.STARTUP,
+        "starter": LicenseTier.STARTER,
+        "team": LicenseTier.TEAM,
         "scale-up": LicenseTier.SCALE_UP,
-        "enterprise": LicenseTier.ENTERPRISE,
     }
-    return tier_map.get(claims.plan, LicenseTier.FREE)
+    return tier_map.get(claims.plan, LicenseTier.STARTER)
 
 
 def activate_license(key: str) -> LicenseClaims:
@@ -112,5 +110,5 @@ def get_current_tier() -> LicenseTier:
 
 
 def is_pro() -> bool:
-    """Check if the current installation has a valid Pro license."""
-    return get_license_tier() != LicenseTier.FREE
+    """Check if the current installation has a paid Team or Scale-up license."""
+    return get_license_tier() != LicenseTier.STARTER

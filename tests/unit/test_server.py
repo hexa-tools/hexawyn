@@ -1846,3 +1846,19 @@ class TestMCPLogSearchFactory:
         result = build_machine_config_pool_adapter()
 
         assert isinstance(result, MachineConfigPoolPort)
+
+    def test_build_pricing_plan_adapter_returns_plan_port(self) -> None:
+        from hexawyn.application.ports.driven.plan_port import PlanPort
+        from hexawyn.mcp.server import build_pricing_plan_adapter
+
+        result = build_pricing_plan_adapter()
+
+        assert isinstance(result, PlanPort)
+
+    def test_build_usage_meter_adapter_returns_usage_meter_port(self) -> None:
+        from hexawyn.application.ports.driven.usage_meter_port import UsageMeterPort
+        from hexawyn.mcp.server import build_usage_meter_adapter
+
+        result = build_usage_meter_adapter()
+
+        assert isinstance(result, UsageMeterPort)

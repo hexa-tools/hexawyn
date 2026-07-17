@@ -35,7 +35,7 @@ class QuotaRepository(QuotaStorePort):
             return UsageQuota(
                 month=month,
                 count=0,
-                limit=get_investigation_limit(LicenseTier.FREE),
+                limit=get_investigation_limit(LicenseTier.STARTER),
             )
 
         return UsageQuota(
@@ -51,7 +51,7 @@ class QuotaRepository(QuotaStorePort):
             return SlackQuota(
                 month=month,
                 count=0,
-                limit=get_slack_limit(LicenseTier.FREE),
+                limit=get_slack_limit(LicenseTier.STARTER),
             )
 
         return SlackQuota(

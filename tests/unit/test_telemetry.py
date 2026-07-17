@@ -36,7 +36,7 @@ class TestSendTelemetry:
         with patch.dict("os.environ", {"HEXAWYN_TELEMETRY": "true"}):
             with patch(
                 "hexawyn.infrastructure.config.telemetry.get_license_tier",
-                return_value=MagicMock(value="free"),
+                return_value=MagicMock(value="starter"),
             ):
                 with patch("threading.Thread.start") as mock_start:
                     send_startup_telemetry()
@@ -62,13 +62,13 @@ class TestSendTelemetry:
         with patch.dict("os.environ", {"HEXAWYN_TELEMETRY": "true"}):
             with patch(
                 "hexawyn.infrastructure.config.telemetry.get_license_tier",
-                return_value=MagicMock(value="startup"),
+                return_value=MagicMock(value="team"),
             ):
                 with patch("threading.Thread") as mock_thread_cls:
                     send_investigation_telemetry(investigation_count=300)
                     args = mock_thread_cls.call_args[1]["args"]
                     payload = args[0]
                     assert payload["event"] == "investigation"
-                    assert payload["tier"] == "startup"
+                    assert payload["tier"] == "team"
                     assert payload["monthly_count"] == 300
                     assert payload["version"] == "0.1.0"

@@ -216,7 +216,7 @@ class TestCacheAndQuotaIntegration:
         assert entry is not None
 
         repo = QuotaRepository(conn=conn)
-        tier = LicenseTier.FREE
+        tier = LicenseTier.STARTER
         repo.increment_investigation(
             month=_get_current_month(),
             tier=tier,

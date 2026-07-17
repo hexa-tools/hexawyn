@@ -485,3 +485,17 @@ class TestChatCliServiceUsageLedger:
 
         entry = self.ledger.record.call_args[0][0]
         assert entry["namespace"] == "default"
+
+    def test_increment_quota_called_after_investigation(self) -> None:
+        self.runtime.run_investigation.return_value = _make_output()
+        with __import__("unittest").mock.patch.object(self.service, "_increment_quota") as mock_inc:
+            self.service.execute(ChatCliCommand(query="investigate"))
+            mock_inc.assert_called_once()
+
+    def test_increment_quota_exception_does_not_block(self) -> None:
+        self.runtime.run_investigation.return_value = _make_output(answer="OOM detected")
+        self.runtime.increment_quota.side_effect = RuntimeError("quota failed")
+
+        result = self.service.execute(ChatCliCommand(query="debug"))
+        assert isinstance(result, ChatCliResponse)
+        assert any("OOM detected" in line[0] for line in result.lines)
