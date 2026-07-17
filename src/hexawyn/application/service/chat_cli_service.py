@@ -1,6 +1,7 @@
 import logging
 import time
 from datetime import UTC, datetime
+from typing import Any
 
 from hexawyn.application.ports.driven.incident_memory_port import IncidentMemoryPort
 from hexawyn.application.ports.driven.k8s_port import (
@@ -30,12 +31,14 @@ class ChatCliService(ChatCliUseCase):
         logs_port: LogsPort | None = None,
         incident_memory_port: IncidentMemoryPort | None = None,
         usage_ledger: UsageLedgerPort | None = None,
+        retrieval_gate: Any = None,
     ) -> None:
         self._k8s = k8s_port
         self._runtime = runtime
         self._logs = logs_port
         self._incident_memory = incident_memory_port
         self._usage_ledger = usage_ledger
+        self._retrieval_gate = retrieval_gate
 
     def execute(self, command: ChatCliCommand) -> ChatCliResponse:
         normalized = command.query.strip().lower()
@@ -49,6 +52,9 @@ class ChatCliService(ChatCliUseCase):
     def _investigate(
         self, query: str, conversation_history: list[dict[str, str]] | None = None
     ) -> ChatCliResponse:
+        if self._retrieval_gate is not None and not self._retrieval_gate.should_retrieve(query):
+            conversation_history = None
+
         k8s_ctx: ClusterContext = self._k8s.get_cluster_context()
         domain_ctx = DomainClusterContext(
             name=k8s_ctx["name"],

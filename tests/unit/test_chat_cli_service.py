@@ -508,3 +508,30 @@ class TestChatCliServiceUsageLedger:
         ):
             result = self.service.execute(ChatCliCommand(query="test"))
             assert isinstance(result, ChatCliResponse)
+
+    def test_retrieval_gate_skip_clears_history(self) -> None:
+        from hexawyn.domain.services.retrieval_gate import RetrievalGate
+
+        self.runtime.run_investigation.return_value = _make_output(answer="direct")
+        gate = RetrievalGate()
+        self.service._retrieval_gate = gate
+        result = self.service.execute(
+            ChatCliCommand(
+                query="list pods", conversation_history=[{"role": "user", "content": "old"}]
+            )
+        )
+        assert isinstance(result, ChatCliResponse)
+
+    def test_retrieval_gate_keep_history_for_investigation(self) -> None:
+        from hexawyn.domain.services.retrieval_gate import RetrievalGate
+
+        self.runtime.run_investigation.return_value = _make_output(answer="inv")
+        gate = RetrievalGate()
+        self.service._retrieval_gate = gate
+        result = self.service.execute(
+            ChatCliCommand(
+                query="why is payments-api crashing",
+                conversation_history=[{"role": "user", "content": "old"}],
+            )
+        )
+        assert isinstance(result, ChatCliResponse)
