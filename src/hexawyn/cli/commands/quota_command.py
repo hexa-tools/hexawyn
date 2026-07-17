@@ -38,17 +38,6 @@ def _state_color(state: QuotaState) -> str:
     }.get(state, "")
 
 
-def _state_label(state: QuotaState) -> str:
-    return {
-        QuotaState.NORMAL: "normal",
-        QuotaState.WARNING: "warning",
-        QuotaState.CRITICAL: "critical",
-        QuotaState.EXHAUSTED: "exhausted",
-        QuotaState.UNLIMITED: "unlimited",
-        QuotaState.LOCKED: "locked",
-    }.get(state, "unknown")
-
-
 def _render_bar(used: int, limit: int | None, state: QuotaState) -> str:
     if state in (QuotaState.UNLIMITED,):
         return "\u221e Illimit\u00e9"

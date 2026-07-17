@@ -50,6 +50,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.compliance_audit_port import (
         ComplianceAuditPort,
     )
+    from hexawyn.application.ports.driven.consolidation_port import (
+        ConsolidationPort,
+    )
     from hexawyn.application.ports.driven.cost_estimation_port import (
         CostEstimationPort,
     )
@@ -1296,6 +1299,14 @@ def build_usage_meter_adapter() -> UsageMeterPort:
     from hexawyn.adapters.secondary.usage_meter_adapter import UsageMeterAdapter
 
     return UsageMeterAdapter()
+
+
+def build_consolidation_adapter() -> ConsolidationPort:
+    from hexawyn.infrastructure.memory.consolidation_repository import (
+        DuckDBConsolidationRepository,
+    )
+
+    return DuckDBConsolidationRepository(conn=get_connection())
 
 
 def register_tools(server: FastMCP) -> None:
