@@ -38,37 +38,40 @@ def _kubectl(args: str, namespace: str | None = None) -> str:
     return result.stdout + result.stderr
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def k8s_cluster_ready() -> bool:
-    """Ensure a K8s cluster is available (k3d, kind, or existing)."""
-    # Try existing kubectl connection
+    """Ensure a K8s cluster is available and kubeconfig is loaded."""
     try:
-        subprocess.run(["kubectl", "cluster-info"], capture_output=True, timeout=10, check=True)
+        from kubernetes import config
+
+        config.load_kube_config()
         return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except Exception:
         pass
 
-    # Try k3d
     try:
         subprocess.run(
-            ["k3d", "cluster", "create", _K3D_CLUSTER_NAME, "--wait", "--timeout", "120s"],
+            [
+                "k3d",
+                "cluster",
+                "create",
+                _K3D_CLUSTER_NAME,
+                "--wait",
+                "--timeout",
+                "120s",
+                "--k3s-arg",
+                "--disable=traefik@server:0",
+                "--k3s-arg",
+                "--disable=servicelb@server:0",
+            ],
             capture_output=True,
             check=True,
             timeout=180,
         )
         time.sleep(5)
-        return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        pass
+        from kubernetes import config
 
-    # Try kind
-    try:
-        subprocess.run(
-            ["kind", "create", "cluster", "--name", _K3D_CLUSTER_NAME, "--wait", "120s"],
-            capture_output=True,
-            check=True,
-            timeout=180,
-        )
+        config.load_kube_config()
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
