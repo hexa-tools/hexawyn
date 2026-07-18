@@ -8,6 +8,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import Button, Input, RichLog, Static
@@ -67,6 +68,9 @@ def _is_error_narrative(text: str) -> bool:
 
 
 class SessionScreen(Screen[None]):
+    BINDINGS = [
+        Binding("ctrl+b", "manage_subscription", "Manage subscription"),
+    ]
     CSS = """
     SessionScreen {
         layout: horizontal;
@@ -430,9 +434,24 @@ class SessionScreen(Screen[None]):
                 "",
                 f"[bold green]License: {plan.title()}[/]",
                 f"[dim]Expires: {expiry}[/dim]",
+                "",
+                "[dim]Ctrl+B to manage subscription[/dim]",
             ]
         except Exception:
             return ["", "[dim]License: unknown[/dim]"]
+
+    def action_manage_subscription(self) -> None:
+        import webbrowser
+
+        from hexawyn.infrastructure.config.config_manager import load_config
+
+        config = load_config()
+        token = config.get("hexawyn_token")
+        if token:
+            webbrowser.open(f"https://hexawyn.com/account/manage?key={token}")
+        else:
+            webbrowser.open("https://hexawyn.com/account/manage")
+        self.notify("Opening account page...", title="Subscription")
 
     def action_clear_input(self) -> None:
         cmd_input = self.query_one("#cmd-input", CommandInput)

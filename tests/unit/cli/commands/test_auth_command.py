@@ -332,3 +332,112 @@ class TestFormatExpiryFromTimestampEdgeCases:
 
         result = _format_expiry_from_timestamp(99999999999)
         assert isinstance(result, str)
+
+
+class TestAuthAccount:
+    def setup_method(self) -> None:
+        self.runner = CliRunner()
+
+    def test_account_requires_token(self) -> None:
+        with patch(
+            "hexawyn.infrastructure.config.config_manager.load_config",
+            return_value={},
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 1
+        assert "No license configured" in result.output
+
+    def test_account_opens_portal_on_success(self) -> None:
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = {"url": "https://polar.sh/portal/123"}
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "hxw_live_test"},
+            ),
+            patch("httpx.post", return_value=mock_resp),
+            patch("webbrowser.open") as mock_browser,
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 0
+        assert "Opening subscription portal" in result.output
+        mock_browser.assert_called_once_with("https://polar.sh/portal/123")
+
+    def test_account_shows_404_message(self) -> None:
+        mock_resp = MagicMock()
+        mock_resp.status_code = 404
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "hxw_live_test"},
+            ),
+            patch("httpx.post", return_value=mock_resp),
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 1
+        assert "polar.sh/purchases" in result.output
+
+    def test_account_handles_connection_error(self) -> None:
+        import httpx
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "hxw_live_test"},
+            ),
+            patch("httpx.post", side_effect=httpx.ConnectError("refused")),
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 1
+        assert "Cannot reach hexa-cloud" in result.output
+
+    def test_account_handles_other_http_error(self) -> None:
+        mock_resp = MagicMock()
+        mock_resp.status_code = 500
+        mock_resp.json.return_value = {"detail": "Server error"}
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "hxw_live_test"},
+            ),
+            patch("httpx.post", return_value=mock_resp),
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 1
+        assert "Server error" in result.output
+
+    def test_account_handles_error_with_corrupt_json(self) -> None:
+        mock_resp = MagicMock()
+        mock_resp.status_code = 500
+        mock_resp.json.side_effect = ValueError("bad json")
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "hxw_live_test"},
+            ),
+            patch("httpx.post", return_value=mock_resp),
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 1
+        assert "Unknown error" in result.output
+
+    def test_account_handles_missing_url_in_response(self) -> None:
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = {}
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "hxw_live_test"},
+            ),
+            patch("httpx.post", return_value=mock_resp),
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 1
+        assert "No portal URL returned" in result.output

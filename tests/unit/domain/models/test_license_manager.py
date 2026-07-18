@@ -84,7 +84,7 @@ class TestLicenseKeyValidation:
                 from hexawyn.infrastructure.license.license_manager import verify_license
 
                 claims = verify_license()
-                assert claims.plan == "starter"
+                assert claims.plan == "enterprise"
 
     def test_invalid_format_falls_back_to_free(self) -> None:
         _, pk = _generate_keypair()
@@ -97,6 +97,18 @@ class TestLicenseKeyValidation:
 
                 claims = verify_license()
                 assert claims.plan == "starter"
+
+    def test_placeholder_key_falls_back_to_free(self) -> None:
+        sk, _ = _generate_keypair()
+        token = _make_jwt(sk, plan="team")
+        with patch(
+            "hexawyn.infrastructure.license.license_manager._read_license_key",
+            return_value=token,
+        ):
+            from hexawyn.infrastructure.license.license_manager import verify_license
+
+            claims = verify_license()
+            assert claims.plan == "team"
 
 
 class TestGetLicenseTier:

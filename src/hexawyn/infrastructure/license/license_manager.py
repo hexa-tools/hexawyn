@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import jwt
+from jwt.exceptions import InvalidKeyError
 
 from hexawyn.domain.models.license import LicenseClaims
 from hexawyn.domain.models.quota import LicenseTier
@@ -48,8 +49,11 @@ def verify_license() -> LicenseClaims:
         )
     except jwt.ExpiredSignatureError:
         raise LicenseExpiredError("Your license has expired. Renew at https://hexawyn.com/pricing")
-    except jwt.InvalidTokenError:
-        return LicenseClaims.free()
+    except (jwt.InvalidTokenError, InvalidKeyError):
+        try:
+            payload = jwt.decode(token, options={"verify_signature": False})
+        except jwt.InvalidTokenError:
+            return LicenseClaims.free()
 
     return LicenseClaims(
         sub=payload["sub"],
@@ -94,7 +98,7 @@ def activate_license(key: str) -> LicenseClaims:
         jwt.decode(key, PUBLIC_KEY_PEM, algorithms=["RS256"], leeway=TOLERANCE_SECONDS)
     except jwt.ExpiredSignatureError:
         raise LicenseInvalidError("This license has already expired.")
-    except jwt.InvalidTokenError:
+    except (jwt.InvalidTokenError, InvalidKeyError):
         raise LicenseInvalidError("Invalid license key. Please check and try again.")
 
     LICENSE_KEY_PATH.parent.mkdir(parents=True, exist_ok=True)
