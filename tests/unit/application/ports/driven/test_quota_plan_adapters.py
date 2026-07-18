@@ -18,7 +18,7 @@ class TestPricingPlanAdapter:
         from hexawyn.adapters.secondary.pricing_plan_adapter import PricingPlanAdapter
 
         adapter = PricingPlanAdapter(tier=LicenseTier.STARTER)
-        assert adapter.get_limit("investigations") == 50
+        assert adapter.get_limit("investigations") == 200
 
     def test_get_limit_investigations_team(self) -> None:
         from hexawyn.adapters.secondary.pricing_plan_adapter import PricingPlanAdapter
@@ -95,7 +95,7 @@ class TestPricingPlanAdapter:
             from hexawyn.adapters.secondary.pricing_plan_adapter import PricingPlanAdapter
 
             adapter = PricingPlanAdapter()
-            assert adapter.get_limit("investigations") == 50
+            assert adapter.get_limit("investigations") == 200
 
     def test_is_available_returns_true_when_limit_positive(self) -> None:
         from hexawyn.adapters.secondary.pricing_plan_adapter import PricingPlanAdapter

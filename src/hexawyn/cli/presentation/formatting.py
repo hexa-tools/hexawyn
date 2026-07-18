@@ -102,3 +102,13 @@ def startup_lines(startup_status: KubernetesStartupStatus | None) -> list[str]:
         f"[green]✓[/green] Namespace: [bold]{current_ctx.namespace}[/bold]",
         conn,
     ]
+
+
+def format_size(size_bytes: int) -> str:
+    if size_bytes < 1024:
+        return f"{size_bytes} B"
+    if size_bytes < 1_048_576:
+        return f"{size_bytes / 1024:.1f} KB"
+    if size_bytes < 1_073_741_824:
+        return f"{size_bytes / 1_048_576:.1f} MB"
+    return f"{size_bytes / 1_073_741_824:.2f} GB"

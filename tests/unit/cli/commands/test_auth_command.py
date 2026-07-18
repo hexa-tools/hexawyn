@@ -66,138 +66,70 @@ class TestAuthStatus:
         self.runner = CliRunner()
 
     def test_status_shows_not_configured_when_no_license(self) -> None:
+        from hexawyn.domain.services.license_state import LicenseState
+
         with patch(
-            "hexawyn.cli.commands.auth_command._read_license_key",
-            return_value=None,
+            "hexawyn.cli.commands.auth_command.read_license_state",
+            return_value=LicenseState(
+                state="missing", plan="unknown", days_remaining=0, expiry_date=""
+            ),
         ):
             result = self.runner.invoke(app, ["auth", "status"])
         assert result.exit_code == 0
         assert "not configured" in result.output.lower()
 
     def test_status_shows_plan_when_license_exists(self) -> None:
+        from hexawyn.domain.services.license_state import LicenseState
+
         with patch(
-            "hexawyn.cli.commands.auth_command._read_license_key",
-            return_value="eyJhbGci.eyJwbGFuIjoic3RhcnRlciJ9.signature",
+            "hexawyn.cli.commands.auth_command.read_license_state",
+            return_value=LicenseState(
+                state="active", plan="starter", days_remaining=30, expiry_date="19 Aug 2026"
+            ),
         ):
-            with patch(
-                "hexawyn.cli.commands.auth_command._decode_jwt_payload",
-                return_value={"plan": "starter", "exp": 1780000000},
-            ):
-                with patch(
-                    "hexawyn.cli.commands.auth_command._is_jwt_expired",
-                    return_value=False,
-                ):
-                    result = self.runner.invoke(app, ["auth", "status"])
+            result = self.runner.invoke(app, ["auth", "status"])
         assert result.exit_code == 0
-        assert "starter" in result.output
+        assert "starter" in result.output.lower()
 
     def test_status_shows_expiry_when_license_exists(self) -> None:
+        from hexawyn.domain.services.license_state import LicenseState
+
         with patch(
-            "hexawyn.cli.commands.auth_command._read_license_key",
-            return_value="jwt",
+            "hexawyn.cli.commands.auth_command.read_license_state",
+            return_value=LicenseState(
+                state="active", plan="team", days_remaining=60, expiry_date="18 Sep 2026"
+            ),
         ):
-            with patch(
-                "hexawyn.cli.commands.auth_command._decode_jwt_payload",
-                return_value={"plan": "team", "exp": 1780000000},
-            ):
-                with patch(
-                    "hexawyn.cli.commands.auth_command._is_jwt_expired",
-                    return_value=False,
-                ):
-                    result = self.runner.invoke(app, ["auth", "status"])
+            result = self.runner.invoke(app, ["auth", "status"])
         assert result.exit_code == 0
-        assert "team" in result.output
+        assert "Team" in result.output
         assert "Expires" in result.output
 
     def test_status_shows_expired_when_license_expired(self) -> None:
+        from hexawyn.domain.services.license_state import LicenseState
+
         with patch(
-            "hexawyn.cli.commands.auth_command._read_license_key",
-            return_value="jwt",
+            "hexawyn.cli.commands.auth_command.read_license_state",
+            return_value=LicenseState(
+                state="expired", plan="starter", days_remaining=-1, expiry_date="19 Jul 2026"
+            ),
         ):
-            with patch(
-                "hexawyn.cli.commands.auth_command._decode_jwt_payload",
-                return_value={"plan": "starter", "exp": 1000000000},
-            ):
-                with patch(
-                    "hexawyn.cli.commands.auth_command._is_jwt_expired",
-                    return_value=True,
-                ):
-                    result = self.runner.invoke(app, ["auth", "status"])
+            result = self.runner.invoke(app, ["auth", "status"])
         assert result.exit_code == 0
         assert "expired" in result.output.lower()
 
-    def test_status_shows_error_on_corrupted_jwt(self) -> None:
+    def test_status_shows_error_on_invalid_license(self) -> None:
+        from hexawyn.domain.services.license_state import LicenseState
+
         with patch(
-            "hexawyn.cli.commands.auth_command._read_license_key",
-            return_value="not.valid.jwt",
+            "hexawyn.cli.commands.auth_command.read_license_state",
+            return_value=LicenseState(
+                state="invalid", plan="unknown", days_remaining=0, expiry_date=""
+            ),
         ):
-            with patch(
-                "hexawyn.cli.commands.auth_command._decode_jwt_payload",
-                return_value=None,
-            ):
-                result = self.runner.invoke(app, ["auth", "status"])
+            result = self.runner.invoke(app, ["auth", "status"])
         assert result.exit_code == 0
-        assert "not read" in result.output.lower() or "error" in result.output.lower()
-
-
-class TestDecodeJwtPayload:
-    def test_decodes_valid_jwt(self) -> None:
-        import base64
-        import json
-
-        payload = {"plan": "starter", "exp": 1780000000}
-        payload_b64 = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
-        jwt = f"header.{payload_b64}.signature"
-
-        from hexawyn.cli.commands.auth_command import _decode_jwt_payload
-
-        result = _decode_jwt_payload(jwt)
-        assert result is not None
-        assert result["plan"] == "starter"
-
-    def test_returns_none_for_short_string(self) -> None:
-        from hexawyn.cli.commands.auth_command import _decode_jwt_payload
-
-        assert _decode_jwt_payload("notajwt") is None
-        assert _decode_jwt_payload("") is None
-
-    def test_returns_none_for_invalid_base64(self) -> None:
-        from hexawyn.cli.commands.auth_command import _decode_jwt_payload
-
-        assert _decode_jwt_payload("a.!!!.c") is None
-
-    def test_returns_none_for_non_dict_json(self) -> None:
-        import base64
-
-        payload_b64 = base64.urlsafe_b64encode(b'"just a string"').decode().rstrip("=")
-        jwt = f"header.{payload_b64}.signature"
-
-        from hexawyn.cli.commands.auth_command import _decode_jwt_payload
-
-        assert _decode_jwt_payload(jwt) is None
-
-
-class TestIsJwtExpired:
-    def test_expired_in_past(self) -> None:
-        from datetime import UTC, datetime
-
-        from hexawyn.cli.commands.auth_command import _is_jwt_expired
-
-        past = int((datetime.now(UTC).timestamp()) - 3600)
-        assert _is_jwt_expired(past) is True
-
-    def test_not_expired_in_future(self) -> None:
-        from datetime import UTC, datetime
-
-        from hexawyn.cli.commands.auth_command import _is_jwt_expired
-
-        future = int((datetime.now(UTC).timestamp()) + 86400 * 365)
-        assert _is_jwt_expired(future) is False
-
-    def test_zero_exp_returns_false(self) -> None:
-        from hexawyn.cli.commands.auth_command import _is_jwt_expired
-
-        assert _is_jwt_expired(0) is False
+        assert "not read" in result.output.lower() or "could not" in result.output.lower()
 
 
 class TestFormatExpiry:
@@ -205,7 +137,7 @@ class TestFormatExpiry:
         from hexawyn.cli.commands.auth_command import _format_expiry
 
         result = _format_expiry("2026-08-17T00:00:00Z")
-        assert "2026-08-17" in result
+        assert "Aug 2026" in result
         assert "days" in result
 
     def test_empty_string_returns_unknown(self) -> None:
@@ -217,53 +149,6 @@ class TestFormatExpiry:
         from hexawyn.cli.commands.auth_command import _format_expiry
 
         assert _format_expiry("not-a-date") == "not-a-date"
-
-
-class TestFormatExpiryFromTimestamp:
-    def test_valid_timestamp(self) -> None:
-        from datetime import UTC, datetime
-
-        from hexawyn.cli.commands.auth_command import _format_expiry_from_timestamp
-
-        future = int((datetime.now(UTC).timestamp()) + 86400 * 30)
-        result = _format_expiry_from_timestamp(future)
-        assert "days" in result
-
-    def test_zero_timestamp_returns_unknown(self) -> None:
-        from hexawyn.cli.commands.auth_command import _format_expiry_from_timestamp
-
-        assert _format_expiry_from_timestamp(0) == "unknown"
-
-
-class TestReadLicenseKey:
-    def test_returns_none_when_file_missing(self) -> None:
-        from pathlib import Path
-
-        with patch(
-            "hexawyn.cli.commands.auth_command.LICENSE_KEY_PATH",
-            Path("/tmp/nonexistent_license.key"),
-        ):
-            from hexawyn.cli.commands.auth_command import _read_license_key
-
-            assert _read_license_key() is None
-
-    def test_returns_content_when_file_exists(self) -> None:
-        import tempfile
-        from pathlib import Path
-
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".key", delete=False) as f:
-            f.write("test-token\n")
-            f.flush()
-            try:
-                with patch(
-                    "hexawyn.cli.commands.auth_command.LICENSE_KEY_PATH",
-                    Path(f.name),
-                ):
-                    from hexawyn.cli.commands.auth_command import _read_license_key
-
-                    assert _read_license_key() == "test-token"
-            finally:
-                Path(f.name).unlink()
 
 
 class TestActivateLicense:
@@ -319,16 +204,110 @@ class TestSetTokenErrorHandling:
         assert result.exit_code == 1
 
 
-class TestIsJwtExpiredEdgeCases:
-    def test_overflow_timestamp_returns_false(self) -> None:
-        from hexawyn.cli.commands.auth_command import _is_jwt_expired
+class TestAuthAccount:
+    def setup_method(self) -> None:
+        self.runner = CliRunner()
 
-        assert _is_jwt_expired(99999999999) is False
+    def test_account_requires_token(self) -> None:
+        with patch(
+            "hexawyn.infrastructure.config.config_manager.load_config",
+            return_value={},
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 1
+        assert "No license configured" in result.output
 
+    def test_account_opens_portal_on_success(self) -> None:
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = {"url": "https://polar.sh/portal/123"}
 
-class TestFormatExpiryFromTimestampEdgeCases:
-    def test_overflow_timestamp_returns_string(self) -> None:
-        from hexawyn.cli.commands.auth_command import _format_expiry_from_timestamp
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "hxw_live_test"},
+            ),
+            patch("httpx.post", return_value=mock_resp),
+            patch("webbrowser.open") as mock_browser,
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 0
+        assert "Opening subscription portal" in result.output
+        mock_browser.assert_called_once_with("https://polar.sh/portal/123")
 
-        result = _format_expiry_from_timestamp(99999999999)
-        assert isinstance(result, str)
+    def test_account_shows_404_message(self) -> None:
+        mock_resp = MagicMock()
+        mock_resp.status_code = 404
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "hxw_live_test"},
+            ),
+            patch("httpx.post", return_value=mock_resp),
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 1
+        assert "polar.sh/purchases" in result.output
+
+    def test_account_handles_connection_error(self) -> None:
+        import httpx
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "hxw_live_test"},
+            ),
+            patch("httpx.post", side_effect=httpx.ConnectError("refused")),
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 1
+        assert "Cannot reach hexa-cloud" in result.output
+
+    def test_account_handles_other_http_error(self) -> None:
+        mock_resp = MagicMock()
+        mock_resp.status_code = 500
+        mock_resp.json.return_value = {"detail": "Server error"}
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "hxw_live_test"},
+            ),
+            patch("httpx.post", return_value=mock_resp),
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 1
+        assert "Server error" in result.output
+
+    def test_account_handles_error_with_corrupt_json(self) -> None:
+        mock_resp = MagicMock()
+        mock_resp.status_code = 500
+        mock_resp.json.side_effect = ValueError("bad json")
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "hxw_live_test"},
+            ),
+            patch("httpx.post", return_value=mock_resp),
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 1
+        assert "Unknown error" in result.output
+
+    def test_account_handles_missing_url_in_response(self) -> None:
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = {}
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "hxw_live_test"},
+            ),
+            patch("httpx.post", return_value=mock_resp),
+        ):
+            result = self.runner.invoke(app, ["auth", "account"])
+        assert result.exit_code == 1
+        assert "No portal URL returned" in result.output

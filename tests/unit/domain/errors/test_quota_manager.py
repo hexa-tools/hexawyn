@@ -108,7 +108,7 @@ class TestGetHistoryDays:
         ):
             from hexawyn.infrastructure.config.quota_manager import get_history_days
 
-            assert get_history_days() == 7
+            assert get_history_days() == 30
 
     def test_team_returns_90(self) -> None:
         with patch(

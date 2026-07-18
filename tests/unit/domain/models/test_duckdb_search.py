@@ -22,7 +22,7 @@ class TestSearchSimilarHistoryDays:
             history_days=get_history_days(LicenseTier.STARTER),
         )
         call_args = self.mock_conn.execute.call_args[0]
-        assert 7 in call_args[1]
+        assert 30 in call_args[1]
 
     def test_team_tier_uses_90_days(self) -> None:
         search_similar(

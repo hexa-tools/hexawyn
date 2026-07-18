@@ -64,7 +64,7 @@ class TestGetQuotaUsageService:
         result = service.execute(GetQuotaUsageCommand())
 
         inv = next(q for q in result.quotas if q.resource == "investigations")
-        assert inv.limit == 50
+        assert inv.limit == 200
         assert inv.used == 10
 
     def test_scale_up_returns_unlimited_state(self) -> None:
@@ -113,7 +113,7 @@ class TestGetQuotaUsageService:
         plan = self._mock_plan_port(LicenseTier.STARTER)
         meter = MagicMock()
         meter.get_usage.side_effect = lambda resource: {
-            "investigations": 50,
+            "investigations": 200,
             "slack_alerts": 0,
         }.get(resource, 0)
 
@@ -126,8 +126,8 @@ class TestGetQuotaUsageService:
     def test_exhausted_state_from_compute_state(self) -> None:
         for used, limit, expected in [
             (0, 50, QuotaState.NORMAL),
-            (30, 50, QuotaState.NORMAL),
-            (35, 50, QuotaState.WARNING),
+            (35, 50, QuotaState.NORMAL),
+            (40, 50, QuotaState.WARNING),
             (45, 50, QuotaState.CRITICAL),
             (50, 50, QuotaState.EXHAUSTED),
             (9999, UNLIMITED, QuotaState.UNLIMITED),
