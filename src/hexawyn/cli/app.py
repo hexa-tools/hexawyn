@@ -1,3 +1,4 @@
+import logging
 import os
 
 from hexawyn.adapters.secondary.adapter_factory import build_adapters
@@ -9,6 +10,8 @@ from hexawyn.infrastructure.memory.duckdb_client import (
     DB_PATH,
     get_db_size_bytes,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _format_size(size_bytes: int) -> str:
@@ -94,7 +97,7 @@ class HexawynApp:
             from hexawyn.infrastructure.config.machine_id import get_machine_id
 
             machine_id = get_machine_id()
-            with httpx.Client(timeout=3) as client:
+            with httpx.Client(timeout=10.0) as client:
                 resp = client.post(
                     "https://api.hexawyn.com/api/v1/license/refresh",
                     json={
@@ -110,8 +113,8 @@ class HexawynApp:
                         license_dir = Path.home() / ".hexawyn"
                         license_dir.mkdir(parents=True, exist_ok=True)
                         (license_dir / "license.key").write_text(jwt_token)
-        except Exception:
-            pass  # fail silently — startup continues regardless
+        except Exception as exc:
+            logger.debug("License auto-refresh skipped: %s", exc)
 
     def _run_tui(self, needs_setup: bool = False) -> None:
         from hexawyn.cli.tui import HexawynTUI
