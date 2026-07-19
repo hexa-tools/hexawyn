@@ -68,11 +68,50 @@ class HexawynApp:
         demo_mode = os.environ.get("HEXAWYN_DEMO_MODE", "false").lower() == "true"
         _load_api_key_to_env()
 
+        if not demo_mode:
+            self._auto_refresh_license()
+
         if self.force_setup and not demo_mode:
             self._run_tui(needs_setup=True)
             return
 
         self._run_tui()
+
+    def _auto_refresh_license(self) -> None:
+        """Silently refresh the JWT license before TUI startup."""
+        try:
+            from pathlib import Path
+
+            from hexawyn.infrastructure.config.config_manager import load_config
+
+            config = load_config()
+            token = config.get("hexawyn_token")
+            if not token:
+                return
+
+            import httpx
+
+            from hexawyn.infrastructure.config.machine_id import get_machine_id
+
+            machine_id = get_machine_id()
+            with httpx.Client(timeout=3) as client:
+                resp = client.post(
+                    "https://api.hexawyn.com/api/v1/license/refresh",
+                    json={
+                        "api_key": token,
+                        "machine_id": machine_id,
+                        "client_version": "1.0.0",
+                    },
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    jwt_token = data.get("token", "")
+                    if jwt_token:
+                        license_dir = Path.home() / ".hexawyn"
+                        license_dir.mkdir(parents=True, exist_ok=True)
+                        (license_dir / "license.key").write_text(jwt_token)
+        except Exception:
+            pass  # fail silently — startup continues regardless
 
     def _run_tui(self, needs_setup: bool = False) -> None:
         from hexawyn.cli.tui import HexawynTUI
