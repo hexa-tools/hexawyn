@@ -170,3 +170,55 @@ def _format_expiry_from_timestamp(exp: int) -> str:
         return f"{dt.isoformat()} ({days} days)"
     except (ValueError, OverflowError):
         return str(exp)
+
+
+@auth.command()
+def account() -> None:
+    """Open the subscription management portal in your browser."""
+    import webbrowser
+
+    from hexawyn.infrastructure.config.config_manager import load_config
+
+    config = load_config()
+    token = config.get("hexawyn_token")
+
+    if not token:
+        click.echo(
+            "❌ No license configured. Run `hexa auth set-token <TOKEN>` first.",
+            err=True,
+        )
+        raise SystemExit(1)
+
+    import httpx
+
+    try:
+        resp = httpx.post(
+            "https://api.hexawyn.com/api/v1/billing/portal",
+            json={"api_key": token},
+            timeout=10,
+        )
+    except httpx.ConnectError:
+        click.echo("❌ Cannot reach hexa-cloud. Visit polar.sh/purchases directly.")
+        raise SystemExit(1)
+
+    if resp.status_code != 200:
+        if resp.status_code == 404:
+            click.echo(
+                "❌ Portal not available yet. Visit [link]https://polar.sh/purchases/subscriptions[/link]"
+            )
+        else:
+            detail = "Unknown error"
+            try:
+                detail = resp.json().get("detail", detail)
+            except Exception:
+                pass
+            click.echo(f"❌ {detail}")
+        raise SystemExit(1)
+
+    url = resp.json().get("url", "")
+    if not url:
+        click.echo("❌ No portal URL returned.", err=True)
+        raise SystemExit(1)
+
+    click.echo(f"Opening subscription portal: {url}")
+    webbrowser.open(url)

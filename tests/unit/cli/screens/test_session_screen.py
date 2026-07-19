@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from hexawyn.cli.screens.session import SessionScreen
@@ -342,3 +344,176 @@ class TestAvailableContexts:
         result = screen._available_contexts()
 
         assert result == []
+
+
+class TestActionManageSubscription:
+    def test_opens_with_token(self) -> None:
+        screen = SessionScreen()
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "hxw_live_test"},
+            ),
+            patch("webbrowser.open") as mock_browser,
+            patch.object(screen, "notify") as mock_notify,
+        ):
+            screen.action_manage_subscription()
+        mock_browser.assert_called_once_with("https://hexawyn.com/account/manage?key=hxw_live_test")
+        mock_notify.assert_called_once()
+
+    def test_opens_without_token(self) -> None:
+        screen = SessionScreen()
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={},
+            ),
+            patch("webbrowser.open") as mock_browser,
+            patch.object(screen, "notify") as mock_notify,
+        ):
+            screen.action_manage_subscription()
+        mock_browser.assert_called_once_with("https://hexawyn.com/account/manage")
+        mock_notify.assert_called_once()
+
+
+class TestLicenseAsideLines:
+    def test_no_license_file(self) -> None:
+        screen = SessionScreen()
+        with patch.object(Path, "exists", return_value=False):
+            lines = screen._license_aside_lines()
+        assert any("not configured" in line for line in lines)
+
+    def test_invalid_jwt_format(self) -> None:
+        screen = SessionScreen()
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "read_text", return_value="invalid_token"),
+        ):
+            lines = screen._license_aside_lines()
+        assert any("invalid" in line for line in lines)
+
+    def test_valid_license(self) -> None:
+        import base64
+        import json
+
+        future = int((datetime.now(UTC).timestamp()) + 86400 * 30)
+        payload = json.dumps({"plan": "starter", "exp": future})
+        payload_b64 = base64.urlsafe_b64encode(payload.encode()).decode().rstrip("=")
+        jwt = f"header.{payload_b64}.signature"
+
+        screen = SessionScreen()
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "read_text", return_value=jwt),
+        ):
+            lines = screen._license_aside_lines()
+        assert any("License: Starter" in line for line in lines)
+        assert any("Expires:" in line for line in lines)
+        assert any("Ctrl+B to manage subscription" in line for line in lines)
+
+    def test_expired_license(self) -> None:
+        import base64
+        import json
+
+        past = int((datetime.now(UTC).timestamp()) - 86400)
+        payload = json.dumps({"plan": "starter", "exp": past})
+        payload_b64 = base64.urlsafe_b64encode(payload.encode()).decode().rstrip("=")
+        jwt = f"header.{payload_b64}.signature"
+
+        screen = SessionScreen()
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "read_text", return_value=jwt),
+        ):
+            lines = screen._license_aside_lines()
+        assert any("expired" in line for line in lines)
+
+    def test_error_returns_unknown(self) -> None:
+        screen = SessionScreen()
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "read_text", side_effect=OSError()),
+        ):
+            lines = screen._license_aside_lines()
+        assert any("unknown" in line for line in lines)
+
+
+class TestSuggestionLines:
+    def test_ai_suggestion(self) -> None:
+        screen = SessionScreen()
+        app = MagicMock()
+        app.ai_suggestion = "Try checking your pod limits"
+        app.startup_result = None
+
+        lines = screen._suggestion_lines(app, [])
+        assert any("Try checking your pod limits" in line for line in lines)
+
+    def test_startup_suggestions(self) -> None:
+        screen = SessionScreen()
+        app = MagicMock()
+        app.ai_suggestion = None
+        app.startup_result = {
+            "suggestions": [
+                {
+                    "label": "Fix CrashLoop",
+                    "explanation": "Pod is crashing",
+                    "severity": "critical",
+                },
+                {"label": "Scale up", "explanation": "Need more resources", "severity": "warning"},
+                {"label": "Just info", "explanation": "", "severity": "info"},
+            ]
+        }
+
+        lines = screen._suggestion_lines(app, [])
+        assert any("Fix CrashLoop" in line for line in lines)
+        assert any("Pod is crashing" in line for line in lines)
+        assert any("🔴" in line for line in lines)
+        assert any("🟡" in line for line in lines)
+        assert any("Scale up" in line for line in lines)
+        assert any("Just info" in line for line in lines)
+
+    def test_startup_suggestion_with_label_only(self) -> None:
+        screen = SessionScreen()
+        app = MagicMock()
+        app.ai_suggestion = None
+        app.startup_result = {
+            "suggestions": [
+                {"label": "Restart needed", "explanation": "", "severity": "info"},
+            ]
+        }
+
+        lines = screen._suggestion_lines(app, [])
+        assert any("Restart needed" in line for line in lines)
+
+    def test_narrative_summary(self) -> None:
+        screen = SessionScreen()
+        app = MagicMock()
+        app.ai_suggestion = None
+        app.startup_result = {
+            "narrative_summary": "Cluster looks healthy overall",
+        }
+
+        lines = screen._suggestion_lines(app, [])
+        assert any("Cluster looks healthy overall" in line for line in lines)
+
+    def test_skips_error_narrative(self) -> None:
+        screen = SessionScreen()
+        app = MagicMock()
+        app.ai_suggestion = None
+        app.startup_result = {
+            "narrative_summary": "Runtime not available. Please check your configuration.",
+        }
+
+        lines = screen._suggestion_lines(app, [])
+        assert not any("Runtime not available" in line for line in lines)
+
+    def test_fallback_suggestions(self) -> None:
+        screen = SessionScreen()
+        app = MagicMock()
+        app.ai_suggestion = None
+        app.startup_result = None
+
+        lines = screen._suggestion_lines(app, ["sug1", "sug2", "sug3", "sug4", "sug5"])
+        assert any("sug1" in line for line in lines)
+        assert any("sug4" in line for line in lines)
+        assert not any("sug5" in line for line in lines)

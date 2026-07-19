@@ -14,7 +14,7 @@ class TestQuotaCommand:
         inv: UsageQuota,
         slack: SlackQuota,
         tier: LicenseTier,
-        history: int = 7,
+        history: int = 30,
     ) -> list[object]:
         return [
             patch(
@@ -91,8 +91,8 @@ class TestQuotaCommand:
 
     def test_shows_upgrade_when_exceeded(self) -> None:
         patches = self._patch_quota(
-            inv=UsageQuota(month="2026-06", count=50, limit=50),
-            slack=SlackQuota(month="2026-06", count=0, limit=5),
+            inv=UsageQuota(month="2026-06", count=200, limit=200),
+            slack=SlackQuota(month="2026-06", count=0, limit=50),
             tier=LicenseTier.STARTER,
         )
         with patches[0], patches[1], patches[2], patches[3], patches[4]:
@@ -123,8 +123,8 @@ class TestQuotaCommand:
 
     def test_shows_critical_warning_when_low(self) -> None:
         patches = self._patch_quota(
-            inv=UsageQuota(month="2026-06", count=47, limit=50),
-            slack=SlackQuota(month="2026-06", count=3, limit=5),
+            inv=UsageQuota(month="2026-06", count=190, limit=200),
+            slack=SlackQuota(month="2026-06", count=3, limit=50),
             tier=LicenseTier.STARTER,
             history=7,
         )
@@ -152,8 +152,8 @@ class TestQuotaCommand:
 
     def test_shows_critical_warning_when_above_90pc(self) -> None:
         patches = self._patch_quota(
-            inv=UsageQuota(month="2026-06", count=47, limit=50),
-            slack=SlackQuota(month="2026-06", count=0, limit=5),
+            inv=UsageQuota(month="2026-06", count=190, limit=200),
+            slack=SlackQuota(month="2026-06", count=0, limit=50),
             tier=LicenseTier.STARTER,
         )
         with patches[0], patches[1], patches[2], patches[3], patches[4]:

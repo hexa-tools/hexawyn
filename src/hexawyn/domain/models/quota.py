@@ -55,21 +55,21 @@ class QuotaUsage:
 
 # ── Investigation limits ───────────────────────────────────
 _INVESTIGATION_LIMITS: dict[LicenseTier, int] = {
-    LicenseTier.STARTER: 50,
+    LicenseTier.STARTER: 200,
     LicenseTier.TEAM: 500,
     LicenseTier.SCALE_UP: UNLIMITED,
 }
 
 # ── Slack alert limits ─────────────────────────────────────
 _SLACK_LIMITS: dict[LicenseTier, int] = {
-    LicenseTier.STARTER: 5,
+    LicenseTier.STARTER: 50,
     LicenseTier.TEAM: UNLIMITED,
     LicenseTier.SCALE_UP: UNLIMITED,
 }
 
 # ── DuckDB history days ────────────────────────────────────
 _HISTORY_DAYS: dict[LicenseTier, int] = {
-    LicenseTier.STARTER: 7,
+    LicenseTier.STARTER: 30,
     LicenseTier.TEAM: 90,
     LicenseTier.SCALE_UP: UNLIMITED,
 }
