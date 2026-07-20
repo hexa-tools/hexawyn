@@ -93,9 +93,9 @@ class HexawynTUI(App[None]):
                 self.ai_suggestion = scan.suggestions[0].get("value", "")
 
             if not self.ai_suggestion and scan.health_score > 0 and scan.narrative_summary:
-                from hexawyn.cli.screens.session import _is_error_narrative
+                from hexawyn.cli.presentation.findings import is_error_narrative
 
-                if not _is_error_narrative(scan.narrative_summary):
+                if not is_error_narrative(scan.narrative_summary):
                     self.ai_suggestion = scan.narrative_summary
 
             if not self.ai_suggestion:

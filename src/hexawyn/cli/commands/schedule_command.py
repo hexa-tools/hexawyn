@@ -7,8 +7,8 @@ import json
 import click
 
 from hexawyn.domain.models.schedule import CronCheck
-from hexawyn.domain.services.schedule.check_runner import UseCaseRegistry
-from hexawyn.domain.services.schedule.cron_shortcut import shortcut_to_cron
+from hexawyn.domain.services.schedule.cron_shortcut import cron_to_minutes, shortcut_to_cron
+from hexawyn.infrastructure.config.schedule_registry import build_registry
 
 
 @click.group()
@@ -235,7 +235,7 @@ def run(name: str) -> None:
     runner = CheckRunnerUseCase(
         store=store,
         alert_port=alert_port,
-        use_case_registry=_build_registry(),
+        use_case_registry=build_registry(),
     )
 
     result = runner.execute(check)
@@ -274,7 +274,7 @@ def start(dry_run: bool) -> None:
     if dry_run:
         click.echo("Dry-run — checks that would be executed:")
         for check in checks:
-            interval = _interval_minutes(check.schedule)
+            interval = cron_to_minutes(check.schedule)
             click.echo(f"  {check.name}: every ~{interval}min → {check.use_case}")
         return
 
@@ -287,7 +287,7 @@ def start(dry_run: bool) -> None:
     runner = CheckRunnerUseCase(
         store=store,
         alert_port=alert_port,
-        use_case_registry=_build_registry(),
+        use_case_registry=build_registry(),
     )
 
     last_run: dict[str, datetime] = {c.name: datetime.now(UTC) for c in checks}
@@ -296,14 +296,14 @@ def start(dry_run: bool) -> None:
     )
     click.echo(f"{'CHECK':<25} {'INTERVAL':<10} {'NEXT RUN':<20}")
     for check in checks:
-        interval = _interval_minutes(check.schedule)
+        interval = cron_to_minutes(check.schedule)
         click.echo(f"{check.name:<25} ~{interval}min     in ~{interval}min")
 
     try:
         while True:
             now = datetime.now(UTC)
             for check in checks:
-                interval = _interval_minutes(check.schedule)
+                interval = cron_to_minutes(check.schedule)
                 if interval <= 0:
                     continue
                 elapsed = (now - last_run[check.name]).total_seconds() / 60
@@ -315,36 +315,3 @@ def start(dry_run: bool) -> None:
             time.sleep(60)
     except KeyboardInterrupt:
         click.echo("\nScheduler stopped.")
-
-
-def _interval_minutes(schedule: str) -> int:
-    """Extract interval in minutes from a cron shortcut expression."""
-    mapping: dict[str, int] = {
-        "*/15 * * * *": 15,
-        "*/30 * * * *": 30,
-        "0 * * * *": 60,
-        "0 */6 * * *": 360,
-        "0 */12 * * *": 720,
-        "0 0 * * *": 1440,
-    }
-    return mapping.get(schedule.strip(), 0)
-
-
-def _build_registry() -> UseCaseRegistry:
-    """Build the use-case registry mapping tool names to their functions."""
-    registry: UseCaseRegistry = {}
-    registry["certs_list"] = _certs_list
-    registry["global_health_check"] = _global_health
-    return registry
-
-
-def _certs_list(params: dict[str, str]) -> dict[str, object]:
-    from hexawyn.mcp.tools.check_cluster_certificate_health import check_cluster_certificate_health
-
-    return check_cluster_certificate_health()
-
-
-def _global_health(params: dict[str, str]) -> dict[str, object]:
-    from hexawyn.mcp.tools.global_health_check import global_health_check
-
-    return global_health_check()

@@ -69,11 +69,11 @@ class TestQuotaUsage:
         )
         assert usage.should_render_bar is False
 
-    def test_state_from_usage_below_70(self) -> None:
-        assert QuotaUsage.compute_state(10, 50) == QuotaState.NORMAL
+    def test_state_from_usage_below_80(self) -> None:
+        assert QuotaUsage.compute_state(30, 50) == QuotaState.NORMAL
 
     def test_state_from_usage_warning_boundary(self) -> None:
-        assert QuotaUsage.compute_state(35, 50) == QuotaState.WARNING
+        assert QuotaUsage.compute_state(40, 50) == QuotaState.WARNING
 
     def test_state_from_usage_critical_boundary(self) -> None:
         assert QuotaUsage.compute_state(45, 50) == QuotaState.CRITICAL

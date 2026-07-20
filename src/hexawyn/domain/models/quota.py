@@ -48,7 +48,7 @@ class QuotaUsage:
         pct = (used / limit) * 100
         if pct >= 90:
             return QuotaState.CRITICAL
-        if pct >= 70:
+        if pct >= 80:
             return QuotaState.WARNING
         return QuotaState.NORMAL
 

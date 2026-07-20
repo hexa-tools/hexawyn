@@ -126,8 +126,8 @@ class TestGetQuotaUsageService:
     def test_exhausted_state_from_compute_state(self) -> None:
         for used, limit, expected in [
             (0, 50, QuotaState.NORMAL),
-            (30, 50, QuotaState.NORMAL),
-            (35, 50, QuotaState.WARNING),
+            (35, 50, QuotaState.NORMAL),
+            (40, 50, QuotaState.WARNING),
             (45, 50, QuotaState.CRITICAL),
             (50, 50, QuotaState.EXHAUSTED),
             (9999, UNLIMITED, QuotaState.UNLIMITED),

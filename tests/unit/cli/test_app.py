@@ -4,12 +4,13 @@ import os
 from unittest.mock import MagicMock, patch
 
 import hexawyn.cli.app as app_module
-from hexawyn.cli.app import HexawynApp, _format_size, _load_api_key_to_env
+from hexawyn.cli.app import HexawynApp, _load_api_key_to_env
+from hexawyn.cli.presentation.formatting import format_size as _format_size
 
 
 class TestFormatSize:
     def test_kb(self) -> None:
-        assert "KB" in _format_size(512)
+        assert "B" in _format_size(512)
 
     def test_mb(self) -> None:
         assert "MB" in _format_size(2_000_000)

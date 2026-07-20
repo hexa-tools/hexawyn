@@ -1230,33 +1230,33 @@ generate_sla_report:
 report_platform_reliability:
   tool: report_platform_reliability
   questions:
-  - Quelle est la fiabilité de notre plateforme ce mois-ci ?
-  - Combien d'incidents avons-nous eu ce mois, et de quelle gravité ?
-  - Notre temps de résolution s'améliore-t-il par rapport au mois dernier ?
-  - Quel a été l'impact financier des indisponibilités ce mois-ci ?
-  - Donne-moi un résumé de santé de la plateforme en langage clair pour la direction.
+  - How reliable has our platform been this month?
+  - How many incidents did we have this month, and what severity?
+  - Is our resolution time improving compared to last month?
+  - What was the financial impact of downtime this month?
+  - Give me a platform health summary in plain language for management.
   - How reliable was our platform this month in plain business terms?
   - What's our platform uptime this month versus last month?
   - How many incidents did we have this month, and what severity?
 analyze_incident_cost:
   tool: analyze_incident_cost
   questions:
-  - Combien nous a coûté la panne d'hier ?
-  - Quel a été l'impact financier de l'incident du service Paiement ?
-  - Combien de chiffre d'affaires avons-nous perdu pendant l'indisponibilité ?
-  - Quel est le coût métier de l'incident de ce matin ?
+  - How much did yesterday's outage cost us?
+  - What was the financial impact of the payment service incident?
+  - How much revenue did we lose during the downtime?
+  - What is the business cost of this morning's incident?
   - How much did yesterday's outage cost us in euros?
-  - Chiffre-moi l'impact business de la dernière interruption de service.
+  - Give me the business impact of the last service interruption.
   - How much did yesterday's outage cost us?
   - What was the financial impact of the payment service downtime?
   - How much revenue did we lose during the service interruption?
 compute_prediction_roi:
   tool: compute_prediction_roi
   questions:
-  - Combien avons-nous économisé grâce aux prédictions ce mois-ci ?
-  - Quel est le ROI des alertes automatiques ?
-  - Combien d'incidents potentiels avons-nous détectés et évités ?
-  - Montre-moi les pertes évitées grâce à Hexawyn ce mois.
+  - How much did we save from predictions this month?
+  - What is the ROI of our automatic alerts?
+  - How many potential incidents were detected and prevented?
+  - Show me the losses avoided thanks to Hexawyn this month.
   - How much did predictions save us this month?
   - How much did we save from predictions this month?
   - What is the ROI of our automatic alerts?
@@ -1264,59 +1264,57 @@ compute_prediction_roi:
 compute_budget_intelligence:
   tool: compute_budget_intelligence
   questions:
-  - Allons-nous dépasser notre budget cloud mensuel ?
-  - Quel est l'état de notre budget cloud ce mois ?
-  - Suis-je en train de dépasser mon budget infrastructure ?
-  - Devrais-je m'inquiéter de la hausse de nos coûts cloud ?
+  - Are we going to exceed our monthly cloud budget?
+  - What is the state of our cloud budget this month?
+  - Am I on track to overspend on infrastructure?
+  - Should I be worried about our cloud cost increase?
   - Are we going to exceed our monthly cloud budget?
   - What's the state of our cloud budget this month?
   - Am I on track to overspend on infrastructure?
 report_night_interventions:
   tool: report_night_interventions
   questions:
-  - L'équipe SRE est-elle moins sollicitée la nuit ?
-  - Combien d'interventions nocturnes avons-nous ce mois versus le trimestre dernier
-    ?
-  - La charge d'astreinte nocturne s'améliore-t-elle ?
-  - Quelle est la moyenne d'interventions par nuit ce mois ?
+  - Is the SRE team less called at night?
+  - How many night interventions do we have this month vs last quarter?
+  - Is our on-call nighttime load improving?
+  - What is the average number of interventions per night this month?
   - Is the SRE team less called at night?
   - How many night interventions do we have this month vs last quarter?
   - Is our on-call nighttime load improving?
 check_disruption_risks:
   tool: check_disruption_risks
   questions:
-  - Avons-nous des risques de rupture de service dans la semaine ?
-  - Y a-t-il des risques de saturation mémoire ou de breach SLO prochainement ?
-  - Quels services risquent une interruption dans les 7 prochains jours ?
-  - Dois-je planifier une intervention cette semaine pour éviter une panne ?
+  - Do we have any service disruption risks this week?
+  - Are there upcoming memory saturation or SLO breach risks?
+  - Which services risk an interruption in the next 7 days?
+  - Should I plan an intervention this week to avoid an outage?
   - Are there any service disruption risks this week?
   - Are there upcoming memory saturation or SLO breach risks?
   - Which services are at risk in the next 7 days?
 report_critical_vulnerabilities:
   tool: report_critical_vulnerabilities
   questions:
-  - Avons-nous des vulnérabilités critiques non résolues sur notre plateforme ?
-  - Combien de CVEs critiques sont encore ouvertes, et sur quels services ?
-  - Quelle est la plus ancienne vulnérabilité critique non résolue ?
+  - Do we have unresolved critical vulnerabilities on our platform?
+  - How many critical CVEs are still open, and on which services?
+  - What is the oldest unresolved critical vulnerability?
   - Do we have unresolved critical vulnerabilities on our platform?
   - How many critical CVEs are still open, and on which services?
   - What is the oldest unresolved critical vulnerability?
 report_stale_credentials:
   tool: report_stale_credentials
   questions:
-  - Y a-t-il des identifiants d'accès qui n'ont pas été renouvelés depuis 90 jours
-    ?
-  - Combien de crédentiels n'ont pas été renouvelés, et lesquels sont critiques ?
-  - Quels secrets faut-il renouveler cette semaine pour la conformité ?
+  - Are there access credentials that haven't been rotated in 90 days?
+  - How many credentials are overdue for rotation, and which are critical?
+  - Which secrets should we rotate this week for compliance?
   - Are there access credentials that haven't been rotated in 90 days?
   - How many credentials are overdue for rotation, and which are critical?
   - Which secrets should we rotate this week for compliance?
 report_unauthorized_access:
   tool: report_unauthorized_access
   questions:
-  - Y a-t-il eu des tentatives d'accès non autorisées récemment ?
-  - Quel est le niveau d'alerte sur les accès non autorisés ?
-  - D'où viennent les tentatives d'accès bloquées ?
+  - Have there been recent unauthorized access attempts?
+  - What is the alert level on blocked access attempts?
+  - Where are the blocked access attempts coming from?
   - Have there been recent unauthorized access attempts?
   - What is the alert level on blocked access attempts?
   - Where are the blocked access attempts coming from?
