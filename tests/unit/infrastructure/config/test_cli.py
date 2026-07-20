@@ -710,70 +710,69 @@ class TestSessionScreen:
 
 class TestSessionHelpers:
     def test_is_error_narrative_true_for_error_texts(self) -> None:
-        from hexawyn.cli.screens.session import _is_error_narrative
+        from hexawyn.cli.presentation.findings import is_error_narrative
 
-        assert _is_error_narrative("metrics not available") is True
-        assert _is_error_narrative("Kubernetes is down") is True
-        assert _is_error_narrative("no pods found") is True
-        assert _is_error_narrative("empty and inactive") is True
+        assert is_error_narrative("metrics not available") is True
+        assert is_error_narrative("Kubernetes is down") is True
+        assert is_error_narrative("no pods found") is True
+        assert is_error_narrative("empty and inactive") is True
 
     def test_is_error_narrative_false_for_healthy_texts(self) -> None:
-        from hexawyn.cli.screens.session import _is_error_narrative
+        from hexawyn.cli.presentation.findings import is_error_narrative
 
-        assert _is_error_narrative("Cluster is healthy with 42 pods running") is False
-        assert _is_error_narrative("All systems operational") is False
+        assert is_error_narrative("Cluster is healthy with 42 pods running") is False
+        assert is_error_narrative("All systems operational") is False
 
     def test_is_context_command_detects_commands(self) -> None:
-        from hexawyn.cli.screens.session import SessionScreen
+        from hexawyn.cli.presentation.command_router import is_context_command
 
-        screen = SessionScreen.__new__(SessionScreen)
-        assert screen._is_context_command("/context") is True
-        assert screen._is_context_command("/ctx kind-ecom") is True
-        assert screen._is_context_command("just a query") is False
+        assert is_context_command("/context") is True
+        assert is_context_command("/ctx kind-ecom") is True
+        assert is_context_command("just a query") is False
 
     def test_is_token_command_detects_commands(self) -> None:
-        from hexawyn.cli.screens.session import SessionScreen
+        from hexawyn.cli.presentation.command_router import is_token_command
 
-        screen = SessionScreen.__new__(SessionScreen)
-        assert screen._is_token_command("/token") is True
-        assert screen._is_token_command("my token query") is False
+        assert is_token_command("/token") is True
+        assert is_token_command("my token query") is False
 
     def test_is_stack_command_detects_commands(self) -> None:
-        from hexawyn.cli.screens.session import SessionScreen
+        from hexawyn.cli.presentation.command_router import is_stack_command
 
-        screen = SessionScreen.__new__(SessionScreen)
-        assert screen._is_stack_command("/stack") is True
-        assert screen._is_stack_command("/stack aws") is True
-        assert screen._is_stack_command("/stack-vanilla") is False
+        assert is_stack_command("/stack") is True
+        assert is_stack_command("/stack aws") is True
+        assert is_stack_command("/stack-vanilla") is False
 
     def test_license_aside_lines_returns_unknown(self) -> None:
-        from pathlib import Path
         from unittest.mock import patch
 
-        with patch.object(Path, "exists", return_value=False):
-            from hexawyn.cli.screens.session import SessionScreen
+        from hexawyn.cli.presentation.license_display import format_license_aside_lines
+        from hexawyn.domain.services.license_state import LicenseState
 
-            screen = SessionScreen.__new__(SessionScreen)
-            lines = screen._license_aside_lines()
+        with patch(
+            "hexawyn.cli.presentation.license_display.read_license_state",
+            return_value=LicenseState(
+                state="missing", plan="unknown", days_remaining=0, expiry_date=""
+            ),
+        ):
+            lines = format_license_aside_lines()
             assert any("not configured" in line for line in lines)
 
     def test_finding_warning_lines_empty_returns_healthy(self) -> None:
-        from hexawyn.cli.screens.session import SessionScreen
+        from hexawyn.cli.presentation.findings import format_finding_warnings
 
-        screen = SessionScreen.__new__(SessionScreen)
-        lines = screen._finding_warning_lines([])
+        lines = format_finding_warnings([])
         assert any("No active warnings" in line for line in lines)
 
     def test_finding_warning_lines_crashloop(self) -> None:
-        from hexawyn.cli.screens.session import SessionScreen
+        from hexawyn.cli.presentation.findings import format_finding_warnings
 
-        screen = SessionScreen.__new__(SessionScreen)
-        findings = [
+        findings: list[dict[str, object]] = [
             {
                 "severity": "critical",
                 "message": "Pod ns/pod1 is CrashLoopBackOff",
                 "remediation": "",
             }
         ]
-        lines = screen._finding_warning_lines(findings)
+        lines = format_finding_warnings(findings)
         assert any("CrashLoopBackOff" in line for line in lines)

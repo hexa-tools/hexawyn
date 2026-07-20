@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from hexawyn.application.ports.driven.tekton_port import NamespacedPipelineRunInfo, TektonPort
 from hexawyn.application.ports.driving.list_pipeline_runs_in_namespace.list_pipeline_runs_in_namespace_command import (
     ListPipelineRunsInNamespaceCommand,
@@ -40,8 +42,6 @@ def _sort_by_status_then_time(
 
 
 def _find_stuck_runs(runs: list[NamespacedPipelineRunInfo]) -> list[str]:
-    from datetime import UTC, datetime
-
     now = datetime.now(UTC)
     stuck: list[str] = []
     for run in runs:

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
+
 from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
 from hexawyn.domain.errors import ClusterUnreachableError
 from hexawyn.domain.models.fleet_health import ClusterRawMetrics
@@ -152,8 +154,6 @@ def _get_resource_utilization(
 
 
 def _get_cert_counts(api: object) -> tuple[int, int]:
-    from datetime import UTC, datetime, timedelta
-
     try:
         secret_list = getattr(api, "list_secret_for_all_namespaces")(timeout_seconds=_K8S_TIMEOUT)
         secrets = _items(secret_list)

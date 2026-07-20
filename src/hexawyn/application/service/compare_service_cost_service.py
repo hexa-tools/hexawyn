@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from calendar import monthrange
 from datetime import UTC, datetime
 
 from hexawyn.application.ports.driven.service_cost_port import ServiceCostPort
@@ -32,8 +33,6 @@ class CompareServiceCostService(CompareServiceCostServicePort):
             previous_days = 31
         else:
             previous_month = f"{now.year}-{now.month - 1:02d}"
-            from calendar import monthrange
-
             previous_days = monthrange(now.year, now.month - 1)[1]
 
         current_pods_raw = self._port.fetch_pod_resources(command.service_name, current_month)

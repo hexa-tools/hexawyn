@@ -1,24 +1,25 @@
 from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
-from hexawyn.cli.commands.db_command import _format_size, db
+from hexawyn.cli.commands.db_command import db
+from hexawyn.cli.presentation.formatting import format_size
 
 
 class TestFormatSize:
     def test_formats_bytes(self) -> None:
-        assert _format_size(512) == "512 B"
+        assert format_size(512) == "512 B"
 
     def test_formats_kilobytes(self) -> None:
-        assert _format_size(2048) == "2.0 KB"
+        assert format_size(2048) == "2.0 KB"
 
     def test_formats_megabytes(self) -> None:
-        assert _format_size(5_242_880) == "5.0 MB"
+        assert format_size(5_242_880) == "5.0 MB"
 
     def test_formats_gigabytes(self) -> None:
-        assert _format_size(2_147_483_648) == "2.00 GB"
+        assert format_size(2_147_483_648) == "2.00 GB"
 
     def test_boundary_exactly_1kb(self) -> None:
-        assert "KB" in _format_size(1024)
+        assert "KB" in format_size(1024)
 
 
 class TestSizeCommand:

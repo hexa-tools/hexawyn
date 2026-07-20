@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from calendar import monthrange
 from datetime import UTC, datetime
 
 from hexawyn.application.ports.driven.team_cost_port import TeamCostPort
@@ -47,8 +48,6 @@ class ComputeTeamCostService(ComputeTeamCostServicePort):
 
 
 def _days_in_month(year: int, month: int) -> int:
-    from calendar import monthrange
-
     return monthrange(year, month)[1]
 
 
