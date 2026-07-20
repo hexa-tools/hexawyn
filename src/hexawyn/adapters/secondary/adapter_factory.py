@@ -27,12 +27,14 @@ def build_adapters(cluster_name: str) -> K8sPort:
     """
     demo_mode = os.environ.get("HEXAWYN_DEMO_MODE", "false").lower() == "true"
     if demo_mode:
-        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter  # hexa-lazy-import
 
         scenario = os.environ.get("HEXAWYN_DEMO_SCENARIO", "aws_eks")
         return DemoAdapter(scenario=scenario)
 
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import (
+        VanillaAdapter,  # hexa-lazy-import
+    )
 
     context: ClusterContext = {
         "name": cluster_name,

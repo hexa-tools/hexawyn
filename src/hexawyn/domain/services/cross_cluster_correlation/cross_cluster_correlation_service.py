@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from hexawyn.application.ports.driven.cross_cluster_incident_port import (
     ClusterFailureSignature,
@@ -83,8 +83,6 @@ def _filter_within_window(
 
 
 def _timedelta(minutes: int):  # type: ignore[no-untyped-def]  # returns timedelta
-    from datetime import timedelta
-
     return timedelta(minutes=minutes)
 
 

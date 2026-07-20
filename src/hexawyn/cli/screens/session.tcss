@@ -1,0 +1,81 @@
+/* ══════════════════════════════════════════
+   Screen layout
+   ══════════════════════════════════════════ */
+
+SessionScreen {
+    layout: horizontal;
+    background: #05070d;
+}
+
+/* ── Left column (chat area) ── */
+
+#main-col {
+    width: 1fr;
+    height: 100%;
+    padding: 0 2 0 2;
+}
+
+#conversation {
+    height: 1fr;
+    background: #05070d;
+    scrollbar-size: 0 0;
+}
+
+#status-bar {
+    height: 1;
+}
+
+#cmd-input {
+    height: 3;
+    border: round #2b3850;
+    margin-top: 1;
+}
+
+#cmd-input:focus {
+    border: round #3B82F6;
+}
+
+#footer {
+    height: 1;
+    color: #5b6472;
+    margin-top: 1;
+}
+
+/* ── Right column (aside) ── */
+
+#aside {
+    width: 46;
+    height: 100%;
+    background: #0b0f17;
+    border-left: solid #2b3850;
+    padding: 1 2;
+}
+
+#aside-content {
+    height: 1fr;
+}
+
+#aside Static {
+    margin-bottom: 1;
+}
+
+#aside-project {
+    color: #8a93a6;
+    margin-bottom: 1;
+}
+
+#aside-brand {
+    color: #c7d0e0;
+    margin-bottom: 0;
+}
+
+#quota-bar {
+    height: auto;
+    color: #c7d0e0;
+    margin-bottom: 1;
+}
+
+.aside-heading {
+    color: #5b6472;
+    text-style: bold;
+}

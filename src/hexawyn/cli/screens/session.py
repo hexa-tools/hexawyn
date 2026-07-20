@@ -1,174 +1,72 @@
 import asyncio
 from dataclasses import asdict as _asdict
-from datetime import UTC
 from typing import Any
 
 from rich import box
 from rich.panel import Panel
-from rich.table import Table
 from rich.text import Text
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
-from textual.widgets import Button, Input, RichLog, Static
+from textual.widgets import Input, RichLog, Static
 
 from hexawyn.application.use_case.chat_cli.chat_cli_response import ChatCliResponse
 from hexawyn.cli.command_router import route_command
+from hexawyn.cli.presentation.aside_builder import build_aside_lines
 from hexawyn.cli.presentation.asides import (
-    crashloop_finding_count,
-    failed_pod_count,
-    kubectl_current_context,
-    mapping_int,
-    namespace_count,
-    pending_pod_count,
-    restarting_finding_count,
-    running_pod_count,
     safe_findings,
-    safe_health_score,
-    safe_metrics,
-    safe_pods,
-    safe_suggestions,
 )
-from hexawyn.cli.presentation.constants import _LOGO_BANNER, _POD_STATUS_COLORS
+from hexawyn.cli.presentation.command_router import (
+    extract_requested_context,
+)
+from hexawyn.cli.presentation.command_router import (
+    is_context_command as _is_context_command,
+)
+from hexawyn.cli.presentation.command_router import (
+    is_setup_command as _is_setup_command,
+)
+from hexawyn.cli.presentation.command_router import (
+    is_stack_command as _is_stack_command,
+)
+from hexawyn.cli.presentation.command_router import (
+    is_token_command as _is_token_command,
+)
+from hexawyn.cli.presentation.constants import _LOGO_BANNER
+from hexawyn.cli.presentation.context_display import format_context_switch_lines
 from hexawyn.cli.presentation.formatting import (
     app_version,
     compact_project_directory,
-    connection_line,
     context_line,
     missing_context_lines,
     startup_lines,
     startup_status_from_switch,
 )
+from hexawyn.cli.presentation.license_display import (
+    format_license_aside_lines,
+    format_license_footer_hint,
+)
+from hexawyn.cli.presentation.response_renderer import render_lines, render_result
+from hexawyn.cli.presentation.setup_info import render_setup_info
+from hexawyn.cli.presentation.startup_scan import is_valid_startup_result
 from hexawyn.cli.screens.context_picker import ContextPickerScreen
 from hexawyn.cli.widgets.command_input import CommandInput
 from hexawyn.infrastructure.config.kubernetes_context import (
     ClusterContext as KubernetesClusterContext,
 )
-from hexawyn.infrastructure.config.kubernetes_context import (
-    KubernetesContextSwitchResult,
-)
-
-
-def _is_error_narrative(text: str) -> bool:
-    skip = [
-        "not available",
-        "unavailable",
-        "install hexawyn",
-        "is down",
-        "no node",
-        "no pods",
-        "0 pods",
-        "Runtime not available",
-        "startup scan requires",
-        "empty and inactive",
-    ]
-    text_lower = text.lower()
-    return any(p.lower() in text_lower for p in skip)
 
 
 class SessionScreen(Screen[None]):
+    CSS_PATH = "session.tcss"
     BINDINGS = [
         Binding("ctrl+b", "manage_subscription", "Manage subscription"),
     ]
-    CSS = """
-    SessionScreen {
-        layout: horizontal;
-        background: #05070d;
-    }
-
-    #main-col {
-        width: 1fr;
-        height: 100%;
-        padding: 0 2 1 2;
-    }
-
-    #conversation {
-        height: 1fr;
-        background: #05070d;
-        scrollbar-size: 0 0;
-    }
-
-    #status-bar {
-        height: 1;
-    }
-
-    #chips {
-        height: 3;
-        margin-top: 1;
-    }
-
-    Button.chip {
-        background: #131826;
-        color: #c7d0e0;
-        border: round #2b3850;
-        min-width: 0;
-        margin-right: 1;
-    }
-
-    Button.chip:hover {
-        border: round #3B82F6;
-        color: #ffffff;
-    }
-
-    #cmd-input {
-        height: 3;
-        border: round #2b3850;
-        margin-top: 1;
-    }
-
-    #cmd-input:focus {
-        border: round #3B82F6;
-    }
-
-    #footer {
-        height: 1;
-        color: #5b6472;
-        margin-top: 1;
-    }
-
-    #aside {
-        width: 46;
-        height: 100%;
-        background: #0b0f17;
-        border-left: solid #2b3850;
-        padding: 1 2;
-    }
-
-    #aside-content {
-        height: 1fr;
-    }
-
-    #aside Static {
-        margin-bottom: 1;
-    }
-
-    #aside-project {
-        color: #8a93a6;
-        margin-bottom: 1;
-    }
-
-    #aside-brand {
-        color: #c7d0e0;
-        margin-bottom: 0;
-    }
-
-    #quota-bar {
-        height: auto;
-        color: #c7d0e0;
-        margin-bottom: 1;
-    }
-
-    .aside-heading {
-        color: #5b6472;
-        text-style: bold;
-    }
-    """
 
     def __init__(self, initial_command: str | None = None) -> None:
         super().__init__()
         self.initial_command = initial_command
         self._history: list[dict[str, str]] = []
+        self._refresh_task: asyncio.Task[None] | None = None
 
     def _tui_app(self) -> Any:
         from hexawyn.cli.tui import HexawynTUI
@@ -182,14 +80,9 @@ class SessionScreen(Screen[None]):
             with Vertical(id="main-col"):
                 yield RichLog(id="conversation", wrap=True, markup=True)
                 yield Static("", id="status-bar")
-                yield Horizontal(id="chips")
                 yield CommandInput(placeholder="Describe what you want to do…", id="cmd-input")
                 with Horizontal(id="footer"):
-                    yield Static(
-                        "[bold]Enter[/bold] send   [bold]↑↓[/bold] history   "
-                        "[bold]Ctrl+C[/bold] cancel   [bold]Ctrl+Q[/bold] quit",
-                        id="footer-hints",
-                    )
+                    yield Static("", id="footer-hints")
             with Vertical(id="aside"):
                 with VerticalScroll(id="aside-content"):
                     yield Static("", id="aside-body")
@@ -203,6 +96,7 @@ class SessionScreen(Screen[None]):
     async def on_mount(self) -> None:
         self.query_one("#cmd-input", CommandInput).focus()
         self._refresh_aside()
+        self._refresh_footer()
 
         app = self._tui_app()
         log = self.query_one("#conversation", RichLog)
@@ -217,82 +111,36 @@ class SessionScreen(Screen[None]):
         if app.run_startup_scan:
             self.run_worker(self._run_startup_scan, thread=True)  # type: ignore[arg-type]
 
-        if not app.expert_mode and hasattr(app.adapter, "get_suggestion_chips"):
-            chips = list(app.adapter.get_suggestion_chips())[:4]
-            if app.extra_chip:
-                chips.append(app.extra_chip)
-            chips = chips[:4]
-            if chips:
-                await self._update_chips(chips)
-
         if self.initial_command:
             await self._handle_command(self.initial_command)
+
+        self._start_background_license_refresh()
+
+    def _start_background_license_refresh(self) -> None:
+        async def _periodic_refresh() -> None:
+            try:
+                await asyncio.sleep(300)
+            except asyncio.CancelledError:
+                return
+            while True:
+                from hexawyn.infrastructure.license.license_reader import refresh_license
+
+                refresh_license()
+                self._refresh_aside()
+                try:
+                    await asyncio.sleep(6 * 3600)
+                except asyncio.CancelledError:
+                    return
+
+        self._refresh_task = asyncio.create_task(_periodic_refresh())
 
     def _refresh_aside(self) -> None:
         self.query_one("#aside-body", Static).update("\n".join(self._aside_lines()))
         self._refresh_quota_bar()
+        self._refresh_footer()
 
     def _aside_lines(self) -> list[str]:
-        app = self._tui_app()
-        ctx = app.adapter.get_cluster_context()
-        pods = safe_pods(app.adapter)
-        metrics = safe_metrics(app.adapter)
-        findings = safe_findings(app.adapter)
-        suggestions = safe_suggestions(app.adapter)
-
-        cluster_name = str(ctx.get("name", "unknown"))
-        namespace = str(ctx.get("namespace", "default"))
-        pod_count = mapping_int(metrics, "pod_count", len(pods))
-        node_count = mapping_int(metrics, "node_count", 0)
-        kubectl_ctx = kubectl_current_context()
-
-        lines = [
-            "[bold]HEXAWYN[/bold]",
-            "",
-            connection_line(app.startup_status),
-            "",
-            f"Cluster: [bold]{cluster_name}[/bold]",
-            f"Context: [dim]{kubectl_ctx}[/dim]",
-            f"Namespaces: [bold]{namespace_count(pods, namespace)}[/bold]",
-            f"Nodes: [bold]{node_count}[/bold]",
-            f"Pods: [bold]{pod_count}[/bold]",
-        ]
-
-        if app.startup_result is not None:
-            health_score = app.startup_result.get("health_score", 100)
-            if isinstance(health_score, int) and health_score > 0:
-                if health_score >= 80:
-                    score_color = "green"
-                elif health_score >= 50:
-                    score_color = "yellow"
-                else:
-                    score_color = "red"
-                lines.append("")
-                lines.append(
-                    f"Health Score: [bold {score_color}]{health_score}/100[/bold {score_color}]"
-                )
-            else:
-                lines.append("")
-                adapter_score = safe_health_score(app.adapter)
-                lines.append(f"Health Score: [bold]{adapter_score}/100[/bold]")
-        else:
-            lines.append("")
-            lines.append(f"Health Score: [bold]{safe_health_score(app.adapter)}/100[/bold]")
-
-        lines.extend(
-            [
-                "",
-                f"🟢 Running Pods      {running_pod_count(pods)}",
-                f"🟡 Pending Pods       {pending_pod_count(pods)}",
-                f"🔴 Failed Pods        {failed_pod_count(pods)}",
-            ]
-        )
-        lines.extend(self._license_aside_lines())
-        lines.append("")
-        lines.extend(self._finding_warning_lines(findings))
-        lines.extend(self._suggestion_lines(app, suggestions))
-
-        return lines
+        return build_aside_lines(self._tui_app())
 
     def _refresh_quota_bar(self) -> None:
         try:
@@ -334,111 +182,28 @@ class SessionScreen(Screen[None]):
 
             lines: list[str] = ["", "[bold]Quota[/bold]", "\u2500" * 18]
             for quota in response.quotas:
+                if quota.state.value == "unlimited":
+                    continue
                 lines.append(_quota_bar(quota))
 
             self.query_one("#quota-bar", Static).update("\n".join(lines))
         except Exception as exc:
             self.query_one("#quota-bar", Static).update(f"[dim]Quota unavailable — {exc}[/dim]")
 
-    def _finding_warning_lines(self, findings: list[Any]) -> list[str]:
-        lines: list[str] = []
-        cl_count = crashloop_finding_count(findings)
-        r_count = restarting_finding_count(findings)
-        if cl_count:
-            lines.append(f"⚠ {cl_count} CrashLoopBackOff detected")
-        if r_count:
-            lines.append(f"⚠ {r_count} pods with high restart count")
-        if not lines:
-            lines.append("[green]No active warnings[/green]")
-        return lines
+    def _refresh_footer(self) -> None:
+        from hexawyn.infrastructure.license.license_reader import read_license_state
 
-    def _suggestion_lines(self, app: Any, suggestions: list[str]) -> list[str]:
-        lines: list[str] = [
-            "[dim]─────────────────────────────[/dim]",
-            "",
-            "[bold]Suggestions[/bold]",
-            "",
-        ]
+        state_info = read_license_state()
+        ctrl_b = format_license_footer_hint(state_info.state)
 
-        if app.ai_suggestion:
-            lines.append(f"[bold #3B82F6]💡 {app.ai_suggestion}[/bold #3B82F6]")
-            lines.append("")
-
-        if app.startup_result is not None:
-            startup_suggestions = app.startup_result.get("suggestions", [])
-            if isinstance(startup_suggestions, list):
-                for sug in startup_suggestions:
-                    if isinstance(sug, dict):
-                        label = str(sug.get("label", ""))
-                        explanation = str(sug.get("explanation", ""))
-                        severity = str(sug.get("severity", "info"))
-                        sev_icon = (
-                            "🔴"
-                            if severity == "critical"
-                            else "🟡"
-                            if severity == "warning"
-                            else "⚪"
-                        )
-                        if label and explanation:
-                            lines.append(f"{sev_icon} {label}")
-                            lines.append(f"   [dim]{explanation}[/dim]")
-                        elif label:
-                            lines.append(f"{sev_icon} {label}")
-
-            narrative = str(app.startup_result.get("narrative_summary", ""))
-            if narrative and not _is_error_narrative(narrative):
-                lines.append("")
-                lines.append(f"[dim italic]{narrative}[/dim italic]")
-
-        if not lines or len(lines) <= 5:
-            if suggestions:
-                lines.extend(f"• {s}" for s in suggestions[:4])
-
-        return lines
+        self.query_one("#footer-hints", Static).update(
+            "[bold]Enter[/bold] send   [bold]↑↓[/bold] history   "
+            "[bold]Ctrl+C[/bold] cancel   [bold]Ctrl+Q[/bold] quit   "
+            f"{ctrl_b}"
+        )
 
     def _license_aside_lines(self) -> list[str]:
-        try:
-            import base64
-            import json
-            from pathlib import Path
-
-            license_path = Path.home() / ".hexawyn" / "license.key"
-            if not license_path.exists():
-                return ["", "[dim]License: not configured[/dim]"]
-
-            parts = license_path.read_text().strip().split(".")
-            if len(parts) < 2:
-                return ["", "[dim]License: invalid[/dim]"]
-
-            payload = parts[1]
-            padding = 4 - len(payload) % 4
-            if padding != 4:
-                payload += "=" * padding
-            claims = json.loads(base64.urlsafe_b64decode(payload).decode())
-
-            plan = claims.get("plan", "unknown")
-            exp = claims.get("exp", 0)
-            from datetime import datetime
-
-            try:
-                dt = datetime.fromtimestamp(exp, tz=UTC)
-                days = (dt - datetime.now(UTC)).days
-                if days > 0:
-                    expiry = f"{dt.strftime('%d %b')} ({days}d)"
-                else:
-                    expiry = "[red]expired[/]"
-            except (ValueError, OverflowError, OSError):
-                expiry = "unknown"
-
-            return [
-                "",
-                f"[bold green]License: {plan.title()}[/]",
-                f"[dim]Expires: {expiry}[/dim]",
-                "",
-                "[dim]Ctrl+B to manage subscription[/dim]",
-            ]
-        except Exception:
-            return ["", "[dim]License: unknown[/dim]"]
+        return format_license_aside_lines()
 
     def action_manage_subscription(self) -> None:
         import webbrowser
@@ -460,14 +225,12 @@ class SessionScreen(Screen[None]):
         else:
             self.app.exit()
 
-    async def on_input_changed(self, event: Input.Changed) -> None:
-        if event.input.id == "cmd-input" and event.value.strip():
-            await self._clear_chips()
+    def on_unmount(self) -> None:
+        if self._refresh_task:
+            self._refresh_task.cancel()
 
-    async def _clear_chips(self) -> None:
-        container = self.query_one("#chips", Horizontal)
-        if container.children:
-            await container.remove_children()
+    async def on_input_changed(self, event: Input.Changed) -> None:
+        pass
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
         text = event.value.strip()
@@ -479,21 +242,17 @@ class SessionScreen(Screen[None]):
         cmd_input.action_delete_left_all()
         asyncio.create_task(self._handle_command(text))
 
-    async def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id and event.button.id.startswith("chip-"):
-            await self._handle_command(str(event.button.label))
-
     async def _show_spinner(self, log: RichLog, stages: list[str]) -> None:
-        icons = ["🎯", "📡", "🔍", "📝"]
+        spinner_chars = ["⬡", "⬢", "⬡", "⬢"]
         status = self.query_one("#status-bar", Static)
         try:
             for i, stage in enumerate(stages):
-                icon = icons[i] if i < len(icons) else "⏳"
-                status.update(f"[dim #5b6472]  {icon} {stage}...[/dim #5b6472]")
-                await asyncio.sleep(0.3)
+                for char in spinner_chars:
+                    status.update(f"[bold #3B82F6]  {char}[/] [dim #8a93a6]{stage}...[/]")
+                    await asyncio.sleep(0.15)
                 if i < len(stages) - 1:
-                    status.update(f"[dim #3B82F6]  ✓ {stage}[/dim #3B82F6]")
-                    await asyncio.sleep(0.3)
+                    status.update(f"[bold #22c55e]  ✓[/] [dim #5b6472]{stage}[/]")
+                    await asyncio.sleep(0.4)
         except asyncio.CancelledError:
             pass
         finally:
@@ -511,26 +270,57 @@ class SessionScreen(Screen[None]):
             padding=(0, 2),
         )
         log.write(panel, expand=True)
-        log.write("")
 
-        if text.strip() == "/setup":
-            self._render_setup_info(log)
+        if _is_setup_command(text.strip()):
+            render_setup_info(log)
             return
 
-        if self._is_token_command(text.strip()):
+        if _is_token_command(text.strip()):
             await self._open_token_input()
             return
 
-        if self._is_context_command(text.strip()):
+        if _is_context_command(text.strip()):
             await self._handle_context_command(text.strip(), log)
             return
 
-        if self._is_stack_command(text.strip()):
+        if _is_stack_command(text.strip()):
             self._handle_stack_command(text.strip(), log)
             return
 
-        stages = ["Planning", "Fetching pods", "Diagnosing", "Formatting"]
-        spinner_task = asyncio.create_task(self._show_spinner(log, stages))
+        if text.strip() == "/refresh":
+            from hexawyn.infrastructure.license.license_reader import refresh_license
+
+            if refresh_license():
+                log.write("[green]✓ License refreshed successfully.[/]")
+            else:
+                log.write("[yellow]⚠ Could not refresh license. Run /token to re-activate.[/]")
+            self._refresh_aside()
+            return
+
+        status = self.query_one("#status-bar", Static)
+        seen_steps: list[str] = []
+
+        def _on_progress(_node_name: str, label: str) -> None:
+            if label not in seen_steps:
+                seen_steps.append(label)
+            line = " · ".join(seen_steps)
+            self.app.call_from_thread(
+                status.update, f"[bold #3B82F6]  ⬡[/] [dim #8a93a6]{line}...[/]"
+            )
+
+        async def _continuous_spinner() -> None:
+            chars = ["⬡", "⬢", "⬡", "⬢"]
+            i = 0
+            try:
+                while True:
+                    line = " · ".join(seen_steps) if seen_steps else "Thinking"
+                    status.update(f"[bold #3B82F6]  {chars[i % 4]}[/] [dim #8a93a6]{line}...[/]")
+                    i += 1
+                    await asyncio.sleep(0.3)
+            except asyncio.CancelledError:
+                pass
+
+        spinner_task = asyncio.create_task(_continuous_spinner())
 
         loop = asyncio.get_running_loop()
         history_with_context = list(self._history)
@@ -554,7 +344,10 @@ class SessionScreen(Screen[None]):
                 },
             )
         result: ChatCliResponse = await loop.run_in_executor(
-            None, route_command, text, app.adapter, history_with_context
+            None,
+            lambda: route_command(
+                text, app.adapter, history_with_context, on_progress=_on_progress
+            ),
         )
 
         spinner_task.cancel()
@@ -563,67 +356,35 @@ class SessionScreen(Screen[None]):
         except asyncio.CancelledError:
             pass
 
-        log.write("")
+        if seen_steps:
+            status.update(f"[bold #22c55e]  ✓[/] [dim #5b6472]{' · '.join(seen_steps)}[/]")
+        else:
+            status.update("")
 
         if app.expert_mode:
             log.write(f"[dim]{result!r}[/dim]")
             return
 
-        self._render_result(log, result)
+        render_result(log, result)
+        if result.duration_ms:
+            seconds = result.duration_ms / 1000
+            log.write(f"[dim #5b6472]{seconds:.1f}s[/]")
         answer_text = "\n".join(line[0] for line in result.lines if line[0].strip())
         self._history.append({"role": "user", "content": text})
         self._history.append({"role": "assistant", "content": answer_text[:2000]})
-        if result.suggestions:
-            await self._update_chips(result.suggestions)
         self._refresh_aside()
-
-    def _is_context_command(self, text: str) -> bool:
-        command_name = text.split(maxsplit=1)[0] if text else ""
-        return command_name in {"/context", "/ctx"}
-
-    def _is_token_command(self, text: str) -> bool:
-        command_name = text.split(maxsplit=1)[0] if text else ""
-        return command_name == "/token"
-
-    def _is_stack_command(self, text: str) -> bool:
-        command_name = text.split(maxsplit=1)[0] if text else ""
-        return command_name == "/stack"
 
     def _handle_stack_command(self, text: str, log: RichLog) -> None:
         from hexawyn.cli.presentation.stack_view import run_stack_command
 
         app = self._tui_app()
         context_name = app.cluster_name or "default"
-        self._render_lines(log, run_stack_command(text, context_name))
-
-    def _render_setup_info(self, log: RichLog) -> None:
-        from hexawyn.infrastructure.config.config_manager import get_llm_config
-
-        cfg = get_llm_config()
-        provider = cfg.get("provider", "Not configured")
-        base_url = cfg.get("base_url", "N/A")
-        has_key = bool(cfg.get("api_key"))
-
-        log.write("[bold]LLM Configuration[/bold]")
-        log.write("")
-        log.write(f"Provider: [bold]{provider}[/bold]")
-        log.write(f"Base URL: [dim]{base_url}[/dim]")
-        log.write(
-            f"API Key: {'[green]✓ configured[/green]' if has_key else '[red]✗ missing[/red]'}"
-        )
-        log.write("")
-
-        if not has_key:
-            log.write(
-                "[yellow]Run [bold]hexa setup[/bold] from your terminal to configure.[/yellow]"
-            )
-        else:
-            log.write("[dim]To change provider, exit and run [bold]hexa setup[/bold].[/dim]")
+        render_lines(log, run_stack_command(text, context_name))
 
     async def _handle_context_command(self, text: str, log: RichLog) -> None:
         app = self._tui_app()
         if app.context_service is None:
-            self._render_lines(log, [("Kubernetes context switching is unavailable.", "yellow")])
+            render_lines(log, [("Kubernetes context switching is unavailable.", "yellow")])
             return
 
         context_name = self._requested_context_name(text)
@@ -640,19 +401,19 @@ class SessionScreen(Screen[None]):
         app = self._tui_app()
         log = self.query_one("#conversation", RichLog)
         if app.context_service is None:
-            self._render_lines(log, [("Kubernetes context switching is unavailable.", "yellow")])
+            render_lines(log, [("Kubernetes context switching is unavailable.", "yellow")])
             return
 
         switch_result = app.context_service.switch_context(context_name)
         if not switch_result.switched or switch_result.current_context is None:
-            self._render_lines(log, missing_context_lines(switch_result.contexts))
+            render_lines(log, missing_context_lines(switch_result.contexts))
             return
 
         app.startup_status = startup_status_from_switch(switch_result)
         app.adapter = app.adapter_builder(switch_result.current_context.name)
         app.cluster_name = switch_result.current_context.name
         self._refresh_aside()
-        self._render_lines(log, self._context_switch_lines(switch_result))
+        render_lines(log, format_context_switch_lines(switch_result))
         log.write(context_line(app.adapter))
 
     async def _open_context_picker(self) -> None:
@@ -676,11 +437,7 @@ class SessionScreen(Screen[None]):
         app.push_screen(TokenInputScreen(), callback=_on_done)
 
     def _requested_context_name(self, text: str) -> str | None:
-        parts = text.split(maxsplit=1)
-        if len(parts) == 1:
-            return None
-        requested_context_name = parts[1].strip()
-        return requested_context_name if requested_context_name else None
+        return extract_requested_context(text)
 
     def _available_contexts(self) -> list[KubernetesClusterContext]:
         app = self._tui_app()
@@ -689,62 +446,6 @@ class SessionScreen(Screen[None]):
         if app.startup_status is not None:
             return app.startup_status.contexts  # type: ignore[no-any-return]
         return []
-
-    def _context_switch_lines(
-        self,
-        switch_result: KubernetesContextSwitchResult,
-    ) -> list[tuple[str, str]]:
-        current_context = switch_result.current_context
-        if current_context is None:
-            return [("✗ Context switch failed", "red")]
-
-        conn_result = "Connection successful" if switch_result.connected else "Connection failed"
-        conn_style = "green" if switch_result.connected else "yellow"
-        lines = [
-            ("✓ Context switched", "green"),
-            ("", "dim"),
-            (f"Current context: {current_context.name}", "bold"),
-            (f"Namespace: {current_context.namespace}", "dim"),
-            (conn_result, conn_style),
-        ]
-        if switch_result.connection_error and not switch_result.connected:
-            lines.append((switch_result.connection_error, "dim"))
-        return lines
-
-    def _render_lines(self, log: RichLog, lines: list[tuple[str, str]]) -> None:
-        for text, style in lines:
-            if text:
-                log.write(f"[{style}]{text}[/{style}]")
-            else:
-                log.write("")
-
-    def _render_result(self, log: RichLog, result: ChatCliResponse) -> None:
-        if result.kind == "pods" and result.pods is not None:
-            table = Table(show_header=True, header_style="bold #8a93a6", box=box.SIMPLE)
-            table.add_column("NAME")
-            table.add_column("NAMESPACE")
-            table.add_column("STATUS")
-            table.add_column("RESTARTS", justify="right")
-            for pod in result.pods:
-                color = _POD_STATUS_COLORS.get(str(pod["status"]), "white")
-                table.add_row(
-                    str(pod["name"]),
-                    str(pod["namespace"]),
-                    f"[{color}]{pod['status']}[/{color}]",
-                    str(pod["restarts"]),
-                )
-            log.write(table)
-            if result.summary:
-                log.write(f"[dim]{result.summary}[/dim]")
-            return
-
-        self._render_lines(log, result.lines)
-
-    async def _update_chips(self, chips: list[str]) -> None:
-        container = self.query_one("#chips", Horizontal)
-        await container.remove_children()
-        for i, chip in enumerate(chips[:4]):
-            await container.mount(Button(chip, id=f"chip-{i}", classes="chip"))
 
     async def _run_startup_scan(self) -> None:
         from hexawyn.application.service.runtime_adapter import get_runtime
@@ -760,18 +461,7 @@ class SessionScreen(Screen[None]):
             return
 
         accumulated: dict[str, object] = dict(_asdict(result))
-        health_score = accumulated.get("health_score", 0)
-        narrative = str(accumulated.get("narrative_summary", ""))
-        cluster_summary = accumulated.get("cluster_summary", {})
-        total_pods = (
-            cluster_summary.get("total_pods", 0) if isinstance(cluster_summary, dict) else 0
-        )
-        if (
-            isinstance(health_score, int)
-            and health_score > 0
-            and total_pods > 0
-            and not _is_error_narrative(narrative)
-        ):
+        if is_valid_startup_result(accumulated):
             app.startup_result = accumulated
 
         def _update_ui() -> None:

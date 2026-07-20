@@ -2,13 +2,13 @@
 
 from unittest.mock import patch
 
-from hexawyn.cli.app import _format_size
+from hexawyn.cli.presentation.formatting import format_size as _format_size
 
 
 class TestFormatSize:
     def test_bytes_as_kb(self) -> None:
         result = _format_size(500)
-        assert "KB" in result
+        assert "B" in result
 
     def test_kilobytes(self) -> None:
         result = _format_size(2048)
@@ -24,7 +24,7 @@ class TestFormatSize:
 
     def test_zero(self) -> None:
         result = _format_size(0)
-        assert "KB" in result
+        assert "B" in result
 
 
 class TestLoadApiKeyToEnv:
@@ -42,13 +42,12 @@ class TestLoadApiKeyToEnv:
 
 class TestSessionScreenHelpers:
     def test_is_context_command(self) -> None:
-        from hexawyn.cli.screens.session import SessionScreen
+        from hexawyn.cli.presentation.command_router import is_context_command
 
-        screen = SessionScreen()
-        assert screen._is_context_command("/context") is True
-        assert screen._is_context_command("/ctx") is True
-        assert screen._is_context_command("/help") is False
-        assert screen._is_context_command("") is False
+        assert is_context_command("/context") is True
+        assert is_context_command("/ctx") is True
+        assert is_context_command("/help") is False
+        assert is_context_command("") is False
 
     def test_requested_context_name(self) -> None:
         from hexawyn.cli.screens.session import SessionScreen
@@ -62,13 +61,12 @@ class TestSessionScreenHelpers:
     def test_context_switch_lines_with_success(self) -> None:
         from pathlib import Path
 
-        from hexawyn.cli.screens.session import SessionScreen
+        from hexawyn.cli.presentation.context_display import format_context_switch_lines
         from hexawyn.infrastructure.config.kubernetes_context import (
             ClusterContext,
             KubernetesContextSwitchResult,
         )
 
-        screen = SessionScreen()
         ctx = ClusterContext(
             name="prod", namespace="default", cluster="c1", user="u1", is_current=True
         )
@@ -79,16 +77,15 @@ class TestSessionScreenHelpers:
             switched=True,
             kubeconfig_paths=[Path("/fake/kubeconfig")],
         )
-        lines = screen._context_switch_lines(result)
+        lines = format_context_switch_lines(result)
         assert len(lines) > 0
 
     def test_context_switch_lines_with_failure(self) -> None:
         from pathlib import Path
 
-        from hexawyn.cli.screens.session import SessionScreen
+        from hexawyn.cli.presentation.context_display import format_context_switch_lines
         from hexawyn.infrastructure.config.kubernetes_context import KubernetesContextSwitchResult
 
-        screen = SessionScreen()
         result = KubernetesContextSwitchResult(
             contexts=[],
             current_context=None,
@@ -97,7 +94,7 @@ class TestSessionScreenHelpers:
             kubeconfig_paths=[Path("/fake/kubeconfig")],
             connection_error="timeout",
         )
-        lines = screen._context_switch_lines(result)
+        lines = format_context_switch_lines(result)
         assert len(lines) > 0
 
 

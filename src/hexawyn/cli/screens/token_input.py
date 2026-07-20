@@ -10,27 +10,30 @@ from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Static
 
 
+def _format_expiry(expires_at: str) -> str:
+    if not expires_at:
+        return "unknown"
+    try:
+        from datetime import UTC, datetime
+
+        if expires_at.isdigit():
+            dt = datetime.fromtimestamp(int(expires_at), tz=UTC)
+        else:
+            dt = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+        days = (dt - datetime.now(UTC)).days
+        return f"{dt.strftime('%d %b %Y')} ({days} days)"
+    except (ValueError, OverflowError):
+        return expires_at
+
+
 def _get_current_plan() -> str | None:
     """Read current license plan from ~/.hexawyn/license.key if it exists."""
-    try:
-        license_path = Path.home() / ".hexawyn" / "license.key"
-        if not license_path.exists():
-            return None
-        parts = license_path.read_text().strip().split(".")
-        if len(parts) < 2:
-            return None
-        import base64
-        import json
+    from hexawyn.infrastructure.license.license_reader import read_license_state
 
-        payload = parts[1]
-        padding = 4 - len(payload) % 4
-        if padding != 4:
-            payload += "=" * padding
-        decoded = base64.urlsafe_b64decode(payload).decode()
-        claims = json.loads(decoded)
-        return str(claims.get("plan", "unknown"))
-    except Exception:
+    state = read_license_state()
+    if state.state in ("missing", "invalid"):
         return None
+    return state.plan
 
 
 class TokenInputScreen(ModalScreen[str | None]):
@@ -188,8 +191,6 @@ class TokenInputScreen(ModalScreen[str | None]):
         plan = data.get("plan", "unknown")
         expires_at = data.get("expires_at", "")
 
-        from pathlib import Path
-
         license_dir = Path.home() / ".hexawyn"
         license_dir.mkdir(parents=True, exist_ok=True)
         (license_dir / "license.key").write_text(jwt_token)
@@ -202,10 +203,11 @@ class TokenInputScreen(ModalScreen[str | None]):
         save_config(cfg)
 
         status.update(
-            f"[bold green]✓ License activated — Plan: {plan}[/]\n" f"[dim]Expires: {expires_at}[/]"
+            f"[bold green]✓ License activated — Plan: {plan}[/]\n"
+            f"[dim]Expires: {_format_expiry(expires_at)}[/]"
         )
 
         import asyncio
 
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
         self.dismiss(token[:16])

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any, TypedDict
 
@@ -51,6 +52,7 @@ class RuntimePort(ABC):
         query: str,
         cluster_context: ClusterContext,
         conversation_history: list[dict[str, str]] | None = None,
+        on_progress: Callable[[str, str], None] | None = None,
     ) -> InvestigationOutput: ...
 
     @abstractmethod

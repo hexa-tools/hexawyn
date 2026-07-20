@@ -12,6 +12,18 @@ from hexawyn.adapters.secondary.slack.slack_http_publisher import SlackHttpPubli
 from hexawyn.infrastructure.config.quota_manager import _get_current_slack_quota
 
 
+def _require_env_token(env_var: str, display_name: str) -> str | None:
+    token = os.environ.get(env_var)
+    if not token:
+        click.echo(
+            f"❌ {env_var} not set.\n"
+            "Add it to your .env file or run:\n"
+            f"  export {env_var}={display_name}"
+        )
+        return None
+    return token
+
+
 @click.group()
 def slack() -> None:
     """Manage Slack integration."""
@@ -67,13 +79,8 @@ def listen(use_http: bool, port: int, cluster: str | None) -> None:
 
 
 def _start_http_listener(port: int) -> None:
-    bot_token = os.environ.get("SLACK_BOT_TOKEN")
+    bot_token = _require_env_token("SLACK_BOT_TOKEN", "xoxb-...")
     if not bot_token:
-        click.echo(
-            "❌ SLACK_BOT_TOKEN not set.\n"
-            "Add it to your .env file or run:\n"
-            "  export SLACK_BOT_TOKEN=xoxb-..."
-        )
         return
 
     http_client = SlackHttpClient(bot_token=bot_token)
@@ -89,22 +96,11 @@ def _start_http_listener(port: int) -> None:
 
 
 async def _start_socket_listener(cluster_name: str | None = None) -> None:
-    app_token = os.environ.get("SLACK_APP_TOKEN")
-    bot_token = os.environ.get("SLACK_BOT_TOKEN")
-
+    app_token = _require_env_token("SLACK_APP_TOKEN", "xapp-...")
     if not app_token:
-        click.echo(
-            "❌ SLACK_APP_TOKEN not set.\n"
-            "Add it to your .env file or run:\n"
-            "  export SLACK_APP_TOKEN=xapp-..."
-        )
         return
+    bot_token = _require_env_token("SLACK_BOT_TOKEN", "xoxb-...")
     if not bot_token:
-        click.echo(
-            "❌ SLACK_BOT_TOKEN not set.\n"
-            "Add it to your .env file or run:\n"
-            "  export SLACK_BOT_TOKEN=xoxb-..."
-        )
         return
 
     http_client = SlackHttpClient(bot_token=bot_token)

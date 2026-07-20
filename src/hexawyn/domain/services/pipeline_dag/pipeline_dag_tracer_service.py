@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 from hexawyn.application.ports.driven.pipeline_tracer_port import TaskRunRecord
 from hexawyn.domain.models.pipeline_dag import PipelineDAG, TaskRunNode
 
@@ -101,8 +103,6 @@ def _compute_duration(start: str | None, end: str | None) -> float:
     if not start or not end:
         return 0.0
     try:
-        from datetime import datetime
-
         s = datetime.fromisoformat(start.replace("Z", "+00:00"))
         e = datetime.fromisoformat(end.replace("Z", "+00:00"))
         return (e - s).total_seconds()

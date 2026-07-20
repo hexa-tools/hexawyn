@@ -7,6 +7,15 @@ from hexawyn.application.service.get_quota_usage_service import GetQuotaUsageSer
 from hexawyn.application.use_case.get_quota_usage.get_quota_usage_use_case import (
     GetQuotaUsageUseCase,
 )
+from hexawyn.cli.presentation.quota_renderer import (
+    BAR_WIDTH,
+    EMPTY_CHAR,
+    FILL_CHAR,
+    QUOTA_RESOURCE_LABELS,
+    QUOTA_STATE_ICONS,
+    UPGRADE_URL,
+    compute_bar_fill,
+)
 from hexawyn.domain.models.quota import QuotaState
 
 TIER_LABELS: dict[str, str] = {
@@ -15,27 +24,12 @@ TIER_LABELS: dict[str, str] = {
     "scale_up": "\U0001f680 Scale-up ($199/month)",
 }
 
-RESOURCE_LABELS: dict[str, str] = {
-    "investigations": "Investigations",
-    "slack_alerts": "Slack alerts  ",
+_BAR_COLORS: dict[str, str] = {
+    "normal": "green",
+    "warning": "yellow",
+    "critical": "red",
+    "exhausted": "red",
 }
-
-TIER_EXCEEDED_URL = "https://hexawyn.com/pricing"
-
-BAR_WIDTH = 20
-FILL_CHAR = chr(9608)
-EMPTY_CHAR = chr(9617)
-
-
-def _state_color(state: QuotaState) -> str:
-    return {
-        QuotaState.NORMAL: "",
-        QuotaState.WARNING: "\u26a0\ufe0f ",
-        QuotaState.CRITICAL: "\U0001f534 ",
-        QuotaState.EXHAUSTED: "\u274c ",
-        QuotaState.UNLIMITED: "",
-        QuotaState.LOCKED: "\U0001f512 ",
-    }.get(state, "")
 
 
 def _render_bar(used: int, limit: int | None, state: QuotaState) -> str:
@@ -45,9 +39,10 @@ def _render_bar(used: int, limit: int | None, state: QuotaState) -> str:
         return ""
     if limit is None or limit <= 0:
         return ""
-    pct = min(100.0, (used / limit) * 100)
-    filled = int((pct / 100.0) * BAR_WIDTH)
-    return f"[{FILL_CHAR * filled}{EMPTY_CHAR * (BAR_WIDTH - filled)}]"
+    filled, _ = compute_bar_fill(used, limit, BAR_WIDTH)
+    color = _BAR_COLORS.get(state.value, _BAR_COLORS["normal"])
+    empty_part = EMPTY_CHAR * (BAR_WIDTH - filled)
+    return f"{click.style(FILL_CHAR * filled, fg=color)}{empty_part}"
 
 
 def _render_line(
@@ -56,7 +51,7 @@ def _render_line(
     limit: int | None,
     state: QuotaState,
 ) -> str:
-    color = _state_color(state)
+    icon = QUOTA_STATE_ICONS.get(state, "")
     bar = _render_bar(used, limit, state)
 
     if state == QuotaState.UNLIMITED:
@@ -67,7 +62,7 @@ def _render_line(
         remaining = (limit or 0) - used
         extra = f"{used}/{limit}  {bar}  {remaining} remaining"
 
-    return f"{label}: {color}{extra}"
+    return f"{label}: {icon}{extra}"
 
 
 def _get_tier_label() -> str:
@@ -116,15 +111,17 @@ def quota() -> None:
     click.echo(f"Tier          : {tier_label}")
 
     any_exhausted = False
-    any_critical = False
+    any_above_normal = False
 
     for quota_usage in response.quotas:
-        label = RESOURCE_LABELS.get(quota_usage.resource, quota_usage.resource)
+        if quota_usage.state == QuotaState.UNLIMITED:
+            continue
+        label = QUOTA_RESOURCE_LABELS.get(quota_usage.resource, quota_usage.resource)
 
         if quota_usage.state == QuotaState.EXHAUSTED:
             any_exhausted = True
-        if quota_usage.state == QuotaState.CRITICAL:
-            any_critical = True
+        if quota_usage.state in (QuotaState.WARNING, QuotaState.CRITICAL):
+            any_above_normal = True
 
         click.echo(
             _render_line(
@@ -146,6 +143,6 @@ def quota() -> None:
     click.echo("Reset         : 1st of next month")
 
     if any_exhausted:
-        click.echo(f"\n\u274c Quota exceeded! Upgrade: {TIER_EXCEEDED_URL}")
-    elif any_critical:
-        click.echo(f"\n\U0001f534 Running low on quota! Upgrade: {TIER_EXCEEDED_URL}")
+        click.echo(f"\n\u274c Quota exceeded! Upgrade: {UPGRADE_URL}")
+    elif any_above_normal:
+        click.echo(f"\n\U0001f680 Running low on quota! Upgrade: {UPGRADE_URL}")

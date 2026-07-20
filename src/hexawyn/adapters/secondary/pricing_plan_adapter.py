@@ -22,7 +22,9 @@ _RESOURCE_LIMIT_MAP: dict[str, object] = {
 
 def _resolve_tier() -> LicenseTier:
     try:
-        from hexawyn.infrastructure.config.license_manager import get_license_tier
+        from hexawyn.infrastructure.config.license_manager import (
+            get_license_tier,  # hexa-lazy-import
+        )
 
         return get_license_tier()
     except ImportError:
