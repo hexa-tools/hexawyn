@@ -17,8 +17,10 @@ LOG_BACKUP_COUNT: int = 5
 
 def _anonymize_log(record: logging.LogRecord) -> None:
     try:
-        from hexawyn.domain.models.anonymization import RedactionPolicy
-        from hexawyn.runtime.adapters.anonymize.regex_anonymizer import RegexAnonymizerAdapter
+        from hexawyn.domain.models.anonymization import RedactionPolicy  # hexa-lazy-import
+        from hexawyn.runtime.adapters.anonymize.regex_anonymizer import (
+            RegexAnonymizerAdapter,  # hexa-lazy-import
+        )
 
         adapter = RegexAnonymizerAdapter()
         policy = RedactionPolicy()

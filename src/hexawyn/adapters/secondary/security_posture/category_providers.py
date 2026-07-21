@@ -19,7 +19,7 @@ class TLSComplianceProvider:
         return "tls"
 
     def fetch(self) -> list[WorkloadComplianceRaw]:
-        from hexawyn.application.ports.driving.audit_tls_compliance.audit_tls_compliance_command import (  # noqa: E501
+        from hexawyn.application.ports.driving.audit_tls_compliance.audit_tls_compliance_command import (  # noqa: E501  # hexa-lazy-import
             AuditTLSComplianceCommand,
         )
 
@@ -51,7 +51,7 @@ class PodSecurityProvider:
         return "pod_security"
 
     def fetch(self) -> list[WorkloadComplianceRaw]:
-        from hexawyn.application.ports.driving.detect_privileged_pods.detect_privileged_pods_command import (  # noqa: E501
+        from hexawyn.application.ports.driving.detect_privileged_pods.detect_privileged_pods_command import (  # noqa: E501  # hexa-lazy-import
             DetectPrivilegedPodsCommand,
         )
 

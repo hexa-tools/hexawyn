@@ -64,7 +64,7 @@ class TestQuotaCommand:
             assert "99" in result.output
             assert "300" in result.output
             assert "500" in result.output
-            assert "Illimit" in result.output
+            assert "90 days" in result.output
 
     def test_scale_up_shows_unlimited(self) -> None:
         patches = self._patch_quota(
@@ -77,7 +77,7 @@ class TestQuotaCommand:
             result = self.runner.invoke(app, ["quota"])
             assert "Scale-up" in result.output
             assert "199" in result.output
-            assert "Illimit" in result.output
+            assert "Unlimited" in result.output
 
     def test_shows_remaining(self) -> None:
         patches = self._patch_quota(
@@ -119,7 +119,7 @@ class TestQuotaCommand:
         )
         with patches[0], patches[1], patches[2], patches[3], patches[4]:
             result = self.runner.invoke(app, ["quota"])
-            assert "Illimit" in result.output
+            assert "\u221e" in result.output
 
     def test_shows_critical_warning_when_low(self) -> None:
         patches = self._patch_quota(

@@ -7,6 +7,7 @@ from hexawyn.cli.presentation.constants import _POD_STATUS_COLORS
 
 
 def render_result(log: RichLog, result: ChatCliResponse) -> None:
+    log.write("")
     if result.kind == "pods" and result.pods is not None:
         _render_pod_table(log, result)
         return
@@ -34,8 +35,5 @@ def _render_pod_table(log: RichLog, result: ChatCliResponse) -> None:
 
 
 def render_lines(log: RichLog, lines: list[tuple[str, str]]) -> None:
-    for text, style in lines:
-        if text:
-            log.write(f"[{style}]{text}[/{style}]")
-        else:
-            log.write("")
+    parts = [f"[{style}]{text}[/{style}]" if text else "" for text, style in lines]
+    log.write("\n".join(parts))

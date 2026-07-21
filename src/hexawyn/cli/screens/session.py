@@ -9,7 +9,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
-from textual.widgets import Button, Input, RichLog, Static
+from textual.widgets import Input, RichLog, Static
 
 from hexawyn.application.use_case.chat_cli.chat_cli_response import ChatCliResponse
 from hexawyn.cli.command_router import route_command
@@ -66,6 +66,7 @@ class SessionScreen(Screen[None]):
         super().__init__()
         self.initial_command = initial_command
         self._history: list[dict[str, str]] = []
+        self._refresh_task: asyncio.Task[None] | None = None
 
     def _tui_app(self) -> Any:
         from hexawyn.cli.tui import HexawynTUI
@@ -79,7 +80,6 @@ class SessionScreen(Screen[None]):
             with Vertical(id="main-col"):
                 yield RichLog(id="conversation", wrap=True, markup=True)
                 yield Static("", id="status-bar")
-                yield Horizontal(id="chips")
                 yield CommandInput(placeholder="Describe what you want to do…", id="cmd-input")
                 with Horizontal(id="footer"):
                     yield Static("", id="footer-hints")
@@ -111,16 +111,28 @@ class SessionScreen(Screen[None]):
         if app.run_startup_scan:
             self.run_worker(self._run_startup_scan, thread=True)  # type: ignore[arg-type]
 
-        if not app.expert_mode and hasattr(app.adapter, "get_suggestion_chips"):
-            chips = list(app.adapter.get_suggestion_chips())[:4]
-            if app.extra_chip:
-                chips.append(app.extra_chip)
-            chips = chips[:4]
-            if chips:
-                await self._update_chips(chips)
-
         if self.initial_command:
             await self._handle_command(self.initial_command)
+
+        self._start_background_license_refresh()
+
+    def _start_background_license_refresh(self) -> None:
+        async def _periodic_refresh() -> None:
+            try:
+                await asyncio.sleep(300)
+            except asyncio.CancelledError:
+                return
+            while True:
+                from hexawyn.infrastructure.license.license_reader import refresh_license
+
+                refresh_license()
+                self._refresh_aside()
+                try:
+                    await asyncio.sleep(6 * 3600)
+                except asyncio.CancelledError:
+                    return
+
+        self._refresh_task = asyncio.create_task(_periodic_refresh())
 
     def _refresh_aside(self) -> None:
         self.query_one("#aside-body", Static).update("\n".join(self._aside_lines()))
@@ -170,6 +182,8 @@ class SessionScreen(Screen[None]):
 
             lines: list[str] = ["", "[bold]Quota[/bold]", "\u2500" * 18]
             for quota in response.quotas:
+                if quota.state.value == "unlimited":
+                    continue
                 lines.append(_quota_bar(quota))
 
             self.query_one("#quota-bar", Static).update("\n".join(lines))
@@ -211,14 +225,12 @@ class SessionScreen(Screen[None]):
         else:
             self.app.exit()
 
-    async def on_input_changed(self, event: Input.Changed) -> None:
-        if event.input.id == "cmd-input" and event.value.strip():
-            await self._clear_chips()
+    def on_unmount(self) -> None:
+        if self._refresh_task:
+            self._refresh_task.cancel()
 
-    async def _clear_chips(self) -> None:
-        container = self.query_one("#chips", Horizontal)
-        if container.children:
-            await container.remove_children()
+    async def on_input_changed(self, event: Input.Changed) -> None:
+        pass
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
         text = event.value.strip()
@@ -230,21 +242,17 @@ class SessionScreen(Screen[None]):
         cmd_input.action_delete_left_all()
         asyncio.create_task(self._handle_command(text))
 
-    async def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id and event.button.id.startswith("chip-"):
-            await self._handle_command(str(event.button.label))
-
     async def _show_spinner(self, log: RichLog, stages: list[str]) -> None:
-        icons = ["🎯", "📡", "🔍", "📝"]
+        spinner_chars = ["⬡", "⬢", "⬡", "⬢"]
         status = self.query_one("#status-bar", Static)
         try:
             for i, stage in enumerate(stages):
-                icon = icons[i] if i < len(icons) else "⏳"
-                status.update(f"[dim #5b6472]  {icon} {stage}...[/dim #5b6472]")
-                await asyncio.sleep(0.3)
+                for char in spinner_chars:
+                    status.update(f"[bold #3B82F6]  {char}[/] [dim #8a93a6]{stage}...[/]")
+                    await asyncio.sleep(0.15)
                 if i < len(stages) - 1:
-                    status.update(f"[dim #3B82F6]  ✓ {stage}[/dim #3B82F6]")
-                    await asyncio.sleep(0.3)
+                    status.update(f"[bold #22c55e]  ✓[/] [dim #5b6472]{stage}[/]")
+                    await asyncio.sleep(0.4)
         except asyncio.CancelledError:
             pass
         finally:
@@ -262,7 +270,6 @@ class SessionScreen(Screen[None]):
             padding=(0, 2),
         )
         log.write(panel, expand=True)
-        log.write("")
 
         if _is_setup_command(text.strip()):
             render_setup_info(log)
@@ -290,8 +297,30 @@ class SessionScreen(Screen[None]):
             self._refresh_aside()
             return
 
-        stages = ["Planning", "Fetching pods", "Diagnosing", "Formatting"]
-        spinner_task = asyncio.create_task(self._show_spinner(log, stages))
+        status = self.query_one("#status-bar", Static)
+        seen_steps: list[str] = []
+
+        def _on_progress(_node_name: str, label: str) -> None:
+            if label not in seen_steps:
+                seen_steps.append(label)
+            line = " · ".join(seen_steps)
+            self.app.call_from_thread(
+                status.update, f"[bold #3B82F6]  ⬡[/] [dim #8a93a6]{line}...[/]"
+            )
+
+        async def _continuous_spinner() -> None:
+            chars = ["⬡", "⬢", "⬡", "⬢"]
+            i = 0
+            try:
+                while True:
+                    line = " · ".join(seen_steps) if seen_steps else "Thinking"
+                    status.update(f"[bold #3B82F6]  {chars[i % 4]}[/] [dim #8a93a6]{line}...[/]")
+                    i += 1
+                    await asyncio.sleep(0.3)
+            except asyncio.CancelledError:
+                pass
+
+        spinner_task = asyncio.create_task(_continuous_spinner())
 
         loop = asyncio.get_running_loop()
         history_with_context = list(self._history)
@@ -315,7 +344,10 @@ class SessionScreen(Screen[None]):
                 },
             )
         result: ChatCliResponse = await loop.run_in_executor(
-            None, route_command, text, app.adapter, history_with_context
+            None,
+            lambda: route_command(
+                text, app.adapter, history_with_context, on_progress=_on_progress
+            ),
         )
 
         spinner_task.cancel()
@@ -324,18 +356,22 @@ class SessionScreen(Screen[None]):
         except asyncio.CancelledError:
             pass
 
-        log.write("")
+        if seen_steps:
+            status.update(f"[bold #22c55e]  ✓[/] [dim #5b6472]{' · '.join(seen_steps)}[/]")
+        else:
+            status.update("")
 
         if app.expert_mode:
             log.write(f"[dim]{result!r}[/dim]")
             return
 
         render_result(log, result)
+        if result.duration_ms:
+            seconds = result.duration_ms / 1000
+            log.write(f"[dim #5b6472]{seconds:.1f}s[/]")
         answer_text = "\n".join(line[0] for line in result.lines if line[0].strip())
         self._history.append({"role": "user", "content": text})
         self._history.append({"role": "assistant", "content": answer_text[:2000]})
-        if result.suggestions:
-            await self._update_chips(result.suggestions)
         self._refresh_aside()
 
     def _handle_stack_command(self, text: str, log: RichLog) -> None:
@@ -410,12 +446,6 @@ class SessionScreen(Screen[None]):
         if app.startup_status is not None:
             return app.startup_status.contexts  # type: ignore[no-any-return]
         return []
-
-    async def _update_chips(self, chips: list[str]) -> None:
-        container = self.query_one("#chips", Horizontal)
-        await container.remove_children()
-        for i, chip in enumerate(chips[:4]):
-            await container.mount(Button(chip, id=f"chip-{i}", classes="chip"))
 
     async def _run_startup_scan(self) -> None:
         from hexawyn.application.service.runtime_adapter import get_runtime

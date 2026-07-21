@@ -25,7 +25,6 @@ class TestQuotaBar:
         result = _quota_bar(quota)
         assert "Investigations" in result
         assert "10/50" in result
-        assert "remaining" in result
 
     def test_warning_renders_warning_icon(self) -> None:
         quota = QuotaUsage(

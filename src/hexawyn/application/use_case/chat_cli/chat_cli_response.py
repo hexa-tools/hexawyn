@@ -10,3 +10,4 @@ class ChatCliResponse:
     pods: list[PodInfo] | None = None
     summary: str | None = None
     suggestions: list[str] = field(default_factory=list)
+    duration_ms: int = 0

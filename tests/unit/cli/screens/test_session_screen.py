@@ -241,8 +241,9 @@ class TestRenderLines:
 
         render_lines(mock_log, lines)
 
-        assert mock_log.write.call_count == 2
-        assert str(mock_log.write.call_args_list[0][0][0]) == ""
+        assert mock_log.write.call_count == 1
+        output = str(mock_log.write.call_args[0][0])
+        assert "[green]visible[/green]" in output
 
     def test_renders_multiple_lines(self) -> None:
         from hexawyn.cli.presentation.response_renderer import render_lines
@@ -252,7 +253,10 @@ class TestRenderLines:
 
         render_lines(mock_log, lines)
 
-        assert mock_log.write.call_count == 3
+        assert mock_log.write.call_count == 1
+        output = str(mock_log.write.call_args[0][0])
+        assert "line1" in output
+        assert "line2" in output
 
 
 class TestRenderSetupInfo:

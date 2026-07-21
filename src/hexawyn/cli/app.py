@@ -50,7 +50,10 @@ class HexawynApp:
     def _auto_refresh_license(self) -> None:
         from hexawyn.infrastructure.license.license_reader import refresh_license
 
-        refresh_license()
+        if refresh_license():
+            logger.debug("License auto-refreshed successfully")
+        else:
+            logger.debug("License auto-refresh skipped (no token or API unreachable)")
 
     def _run_tui(self, needs_setup: bool = False) -> None:
         from hexawyn.cli.tui import HexawynTUI

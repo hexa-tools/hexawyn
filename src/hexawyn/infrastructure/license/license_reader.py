@@ -10,7 +10,7 @@ from hexawyn.domain.models.license import LicenseClaims
 from hexawyn.domain.services.license_state import LicenseState, compute_license_state
 
 LICENSE_KEY_PATH = Path.home() / ".hexawyn" / "license.key"
-HEXA_CLOUD_URL = "https://api.hexawyn.com"
+HEXA_CLOUD_URL = os.environ.get("HEXAWYN_CLOUD_ENDPOINT", "https://api.hexawyn.com")
 REFRESH_INTERVAL_SECONDS = 6 * 3600
 
 logger = logging.getLogger(__name__)
@@ -72,8 +72,8 @@ def _read_license_key() -> str | None:
 
 def refresh_license() -> bool:
     try:
-        from hexawyn.infrastructure.config.config_manager import load_config
-        from hexawyn.infrastructure.config.machine_id import get_machine_id
+        from hexawyn.infrastructure.config.config_manager import load_config  # hexa-lazy-import
+        from hexawyn.infrastructure.config.machine_id import get_machine_id  # hexa-lazy-import
 
         config = load_config()
         token = config.get("hexawyn_token")

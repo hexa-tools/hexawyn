@@ -1,5 +1,6 @@
 import logging
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
@@ -41,16 +42,26 @@ class ChatCliService(ChatCliUseCase):
         self._retrieval_gate = retrieval_gate
 
     def execute(self, command: ChatCliCommand) -> ChatCliResponse:
+        return self._execute(command, on_progress=None)
+
+    def _execute(
+        self,
+        command: ChatCliCommand,
+        on_progress: Callable[[str, str], None] | None = None,
+    ) -> ChatCliResponse:
         normalized = command.query.strip().lower()
         if not normalized:
             return ChatCliResponse(
                 kind="unknown",
                 lines=[("Type a command or click a suggestion.", "dim")],
             )
-        return self._investigate(normalized, command.conversation_history)
+        return self._investigate(normalized, command.conversation_history, on_progress)
 
     def _investigate(
-        self, query: str, conversation_history: list[dict[str, str]] | None = None
+        self,
+        query: str,
+        conversation_history: list[dict[str, str]] | None = None,
+        on_progress: Callable[[str, str], None] | None = None,
     ) -> ChatCliResponse:
         if self._retrieval_gate is not None and not self._retrieval_gate.should_retrieve(query):
             conversation_history = None
@@ -63,13 +74,13 @@ class ChatCliService(ChatCliUseCase):
         self._runtime.set_adapter(self._k8s)
         start = time.monotonic()
         output: InvestigationOutput = self._runtime.run_investigation(
-            query, domain_ctx, conversation_history
+            query, domain_ctx, conversation_history, on_progress=on_progress
         )
         duration_ms = int((time.monotonic() - start) * 1000)
         self._store_incident(output, k8s_ctx)
         self._record_usage(query, k8s_ctx, output, duration_ms)
         self._increment_quota()
-        return _build_response(output)
+        return _build_response(output, duration_ms)
 
     def _store_incident(self, output: InvestigationOutput, k8s_ctx: ClusterContext) -> None:
         if self._incident_memory is None:
@@ -118,7 +129,9 @@ class ChatCliService(ChatCliUseCase):
 
     def _increment_quota(self) -> None:
         try:
-            from hexawyn.infrastructure.config.quota_manager import increment_quota
+            from hexawyn.infrastructure.config.quota_manager import (
+                increment_quota,  # hexa-lazy-import
+            )
 
             increment_quota()
         except Exception as exc:
@@ -213,7 +226,7 @@ def _suggested_chips(pods: list[PodInfo]) -> list[str]:
     return chips
 
 
-def _build_response(output: InvestigationOutput) -> ChatCliResponse:
+def _build_response(output: InvestigationOutput, duration_ms: int = 0) -> ChatCliResponse:
     lines: list[tuple[str, str]] = []
     answer = output["answer"]
     if answer:
@@ -223,4 +236,6 @@ def _build_response(output: InvestigationOutput) -> ChatCliResponse:
         lines.append((f"Error: {error_msg}", "red"))
     raw_suggestions = output["suggestions"]
     suggestions = list(raw_suggestions)[:4] if raw_suggestions else []
-    return ChatCliResponse(kind="debug", lines=lines, suggestions=suggestions)
+    return ChatCliResponse(
+        kind="debug", lines=lines, suggestions=suggestions, duration_ms=duration_ms
+    )
