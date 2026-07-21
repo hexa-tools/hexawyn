@@ -77,8 +77,8 @@ check:
 .PHONY: test test-integration test-all coverage update-badge
 
 test:
-	@echo "🧪 Running unit tests..."
-	$(PYTEST) tests/unit/ -v --tb=short
+	@echo "🧪 Running unit tests (parallel)..."
+	$(PYTEST) tests/unit/ -q --tb=short -n auto
 	@echo "✅ Unit tests passed"
 
 test-integration:

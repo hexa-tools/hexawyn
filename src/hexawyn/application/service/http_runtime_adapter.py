@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import Any
 
 from hexawyn.adapters.secondary.runtime_client import RuntimeClient
@@ -12,7 +13,7 @@ from hexawyn.domain.models.cluster import ClusterContext
 
 class HttpRuntimeAdapter(RuntimePort):
     def __init__(self, endpoint: str) -> None:
-        from hexawyn.infrastructure.config.config_manager import get_api_key
+        from hexawyn.infrastructure.config.config_manager import get_api_key  # hexa-lazy-import
 
         self._client = RuntimeClient(endpoint=endpoint, api_key=get_api_key())
         self._adapter: Any = None
@@ -24,18 +25,26 @@ class HttpRuntimeAdapter(RuntimePort):
         self._adapter = adapter
 
     def _fetch_pods(self) -> list[dict[str, object]]:
+        result: list[dict[str, object]] = []
         if self._adapter is None or not hasattr(self._adapter, "list_pods"):
-            return []
-        try:
-            return [dict(p) for p in self._adapter.list_pods()]
-        except Exception:
-            return []
+            result = []
+        else:
+            try:
+                result = [dict(p) for p in self._adapter.list_pods()]
+            except Exception:
+                pass
+        with open("/tmp/hexawyn_pods.log", "a") as f:
+            f.write(
+                f"adapter={type(self._adapter).__name__ if self._adapter else 'None'} pods={len(result)}\n"
+            )
+        return result
 
     def run_investigation(
         self,
         query: str,
         cluster_context: ClusterContext,
         conversation_history: list[dict[str, str]] | None = None,
+        on_progress: Callable[[str, str], None] | None = None,
     ) -> InvestigationOutput:
         try:
             provider_raw = getattr(cluster_context, "provider", "vanilla")
@@ -49,6 +58,9 @@ class HttpRuntimeAdapter(RuntimePort):
                 pods=self._fetch_pods(),
                 conversation_history=conversation_history,
             ):
+                if on_progress:
+                    label = node_name.title()
+                    on_progress(node_name, label)
                 if node_name == "report":
                     report_output = output if isinstance(output, dict) else {}
                 elif node_name == "error":

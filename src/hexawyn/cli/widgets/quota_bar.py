@@ -35,16 +35,16 @@ def _quota_bar(quota: QuotaUsage, width: int = 20) -> str:
     bar = f"[{color}]{FILL_CHAR * filled}[/][{EMPTY_CHAR * (width - filled)}]"
 
     state_icon = QUOTA_STATE_ICONS.get(quota.state, "")
-    remaining = limit - quota.used
-    return f"  {label}: {state_icon}{quota.used}/{limit} {bar} {remaining} remaining"
+    return f"  {label}: {state_icon}{quota.used}/{limit}    {bar}"
 
 
 class QuotaProgressBar(Static):
     def update_quotas(self, quotas: list[QuotaUsage]) -> None:
+        visible_quotas = [q for q in quotas if q.state != QuotaState.UNLIMITED]
         lines = ["\n[bold]Quota Usage[/bold]", "\u2500" * 52]
         any_above_normal = False
 
-        for quota in quotas:
+        for quota in visible_quotas:
             lines.append(_quota_bar(quota))
             if quota.state in (QuotaState.WARNING, QuotaState.CRITICAL, QuotaState.EXHAUSTED):
                 any_above_normal = True

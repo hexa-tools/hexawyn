@@ -209,5 +209,5 @@ class TokenInputScreen(ModalScreen[str | None]):
 
         import asyncio
 
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
         self.dismiss(token[:16])

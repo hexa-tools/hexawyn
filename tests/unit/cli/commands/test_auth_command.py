@@ -24,10 +24,17 @@ class TestAuthSetToken:
         fake_client.__aexit__ = AsyncMock(return_value=None)
         fake_client.post = AsyncMock(return_value=mock_response)
 
-        with patch("httpx.AsyncClient", return_value=fake_client):
+        with (
+            patch("httpx.AsyncClient", return_value=fake_client),
+            patch("hexawyn.cli.commands.auth_command.save_config") as mock_save,
+            patch("pathlib.Path.mkdir"),
+            patch("pathlib.Path.write_text") as mock_write,
+        ):
             result = self.runner.invoke(app, ["auth", "set-token", "hxw_test_abc123"])
         assert result.exit_code == 0
         assert "starter" in result.output
+        mock_save.assert_called_once()
+        mock_write.assert_called_once()
 
     def test_set_token_prints_error_on_401(self) -> None:
         mock_response = MagicMock()
