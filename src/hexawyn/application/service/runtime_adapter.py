@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import Any
 
 from hexawyn.application.ports.driven.runtime_port import (
@@ -22,6 +23,7 @@ class StubRuntimeAdapter(RuntimePort):
         query: str,
         cluster_context: ClusterContext,
         conversation_history: list[dict[str, str]] | None = None,
+        on_progress: Callable[[str, str], None] | None = None,
     ) -> InvestigationOutput:
         return InvestigationOutput(
             answer="Runtime not available — install hexawyn-control-plane for AI-powered investigations.",
@@ -75,7 +77,9 @@ def _resolve_runtime() -> RuntimePort:
                 "Runtime mode is 'remote' but no endpoint configured.\n"
                 "Add 'endpoint: http://localhost:8000' under 'runtime:' in config.yaml."
             )
-        from hexawyn.application.service.http_runtime_adapter import HttpRuntimeAdapter
+        from hexawyn.application.service.http_runtime_adapter import (
+            HttpRuntimeAdapter,  # hexa-lazy-import
+        )
 
         return HttpRuntimeAdapter(endpoint=endpoint)
     return StubRuntimeAdapter()

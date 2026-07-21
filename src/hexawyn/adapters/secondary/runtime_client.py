@@ -4,7 +4,7 @@ from collections.abc import Generator
 
 import httpx
 
-DEFAULT_TIMEOUT = 60.0
+DEFAULT_TIMEOUT = 300.0
 DEFAULT_POLL_INTERVAL = 1.0
 
 
@@ -15,12 +15,12 @@ class RuntimeClient:
         if api_key:
             self._headers["X-API-Key"] = api_key
         try:
-            from hexawyn.infrastructure.config.machine_id import get_machine_id
+            from hexawyn.infrastructure.config.machine_id import get_machine_id  # hexa-lazy-import
 
             self._headers["X-Machine-ID"] = get_machine_id()
         except Exception:
             pass
-        self._client = httpx.Client(timeout=30.0)
+        self._client = httpx.Client(timeout=300.0)
 
     def close(self) -> None:
         self._client.close()
@@ -118,7 +118,9 @@ class RuntimeClient:
                 if "error" in event:
                     yield ("error", event)
                     break
-                yield (event.get("node", "unknown"), event.get("output", {}))
+                if "node" not in event:
+                    continue
+                yield (event["node"], event.get("output", {}))
 
     def list_custom_tools(self) -> list[dict[str, object]]:
         response = self._client.get(f"{self._endpoint}/api/v1/custom-tools", headers=self._headers)

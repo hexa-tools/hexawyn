@@ -114,6 +114,8 @@ def quota() -> None:
     any_above_normal = False
 
     for quota_usage in response.quotas:
+        if quota_usage.state == QuotaState.UNLIMITED:
+            continue
         label = QUOTA_RESOURCE_LABELS.get(quota_usage.resource, quota_usage.resource)
 
         if quota_usage.state == QuotaState.EXHAUSTED:

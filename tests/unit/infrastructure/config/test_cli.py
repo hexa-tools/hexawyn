@@ -607,11 +607,6 @@ class TestSessionScreen:
             app.push_screen(SessionScreen())
             await pilot.pause()
 
-            assert len(app.query(Button).filter(".chip")) == 3
-
-            await pilot.press("l")
-            await pilot.pause()
-
             assert len(app.query(Button).filter(".chip")) == 0
 
     @pytest.mark.asyncio

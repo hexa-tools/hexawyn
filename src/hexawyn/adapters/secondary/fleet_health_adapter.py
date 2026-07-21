@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 from datetime import UTC, datetime, timedelta
 
 from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
@@ -171,8 +172,6 @@ def _get_cert_counts(api: object) -> tuple[int, int]:
             if not cert_b64:
                 continue
             try:
-                import base64
-
                 from cryptography import x509
 
                 cert_bytes = base64.b64decode(cert_b64)
