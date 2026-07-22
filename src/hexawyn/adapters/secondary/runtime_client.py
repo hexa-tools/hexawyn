@@ -118,7 +118,9 @@ class RuntimeClient:
                 if "error" in event:
                     yield ("error", event)
                     break
-                yield (event.get("node", "unknown"), event.get("output", {}))
+                if "node" not in event:
+                    continue
+                yield (event["node"], event.get("output", {}))
 
     def list_custom_tools(self) -> list[dict[str, object]]:
         response = self._client.get(f"{self._endpoint}/api/v1/custom-tools", headers=self._headers)
