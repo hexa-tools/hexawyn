@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.detect_network_segmentation_gaps.detect_network_segmentation_gaps_command import (
+from hexawyn.application.use_case.detect_network_segmentation_gaps.command import (
     DetectNetworkSegmentationGapsCommand,
 )
-from hexawyn.application.ports.driving.detect_network_segmentation_gaps.detect_network_segmentation_gaps_response import (
+from hexawyn.application.use_case.detect_network_segmentation_gaps.response import (
     DetectNetworkSegmentationGapsResponse,
 )
 

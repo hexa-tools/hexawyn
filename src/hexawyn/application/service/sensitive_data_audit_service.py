@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.compliance_audit_port import ComplianceAuditPort
-from hexawyn.application.ports.driving.sensitive_data_audit.sensitive_data_audit_command import (
+from hexawyn.application.use_case.sensitive_data_audit.command import (
     SensitiveDataAuditCommand,
 )
-from hexawyn.application.ports.driving.sensitive_data_audit.sensitive_data_audit_response import (
+from hexawyn.application.use_case.sensitive_data_audit.response import (
     SensitiveDataAuditResponse,
 )
 from hexawyn.application.ports.driving.sensitive_data_audit.sensitive_data_audit_service_port import (

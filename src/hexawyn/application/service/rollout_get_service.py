@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
-from hexawyn.application.ports.driving.rollout_get.rollout_get_command import (
+from hexawyn.application.use_case.rollout_get.command import (
     RolloutGetCommand,
 )
-from hexawyn.application.ports.driving.rollout_get.rollout_get_response import (
+from hexawyn.application.use_case.rollout_get.response import (
     RolloutGetResponse,
 )
 from hexawyn.application.ports.driving.rollout_get.rollout_get_service_port import (

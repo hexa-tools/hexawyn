@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.slo_breach_prediction.slo_breach_prediction_command import (
+from hexawyn.application.use_case.slo_breach_prediction.command import (
     SLOBreachPredictionCommand,
 )
-from hexawyn.application.ports.driving.slo_breach_prediction.slo_breach_prediction_response import (
+from hexawyn.application.use_case.slo_breach_prediction.response import (
     SLOBreachPredictionResponse,
 )
 

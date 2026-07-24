@@ -1,21 +1,17 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.generate_incident_triage_report.generate_incident_triage_report_command import (
+from hexawyn.application.ports.driven.pipeline_run_logs_port import PipelineRunLogsPort
+from hexawyn.application.use_case.generate_incident_triage_report.command import (
     GenerateIncidentTriageReportCommand,
 )
-from hexawyn.application.ports.driving.generate_incident_triage_report.generate_incident_triage_report_response import (
+from hexawyn.application.use_case.generate_incident_triage_report.response import (
     GenerateIncidentTriageReportResponse,
-)
-from hexawyn.application.ports.driving.generate_incident_triage_report.generate_incident_triage_report_service_port import (
-    GenerateIncidentTriageReportServicePort,
 )
 
 
 class GenerateIncidentTriageReportUseCase:
-    def __init__(self, service: GenerateIncidentTriageReportServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: PipelineRunLogsPort) -> None:
+        self._port = port
 
     def execute(
         self, command: GenerateIncidentTriageReportCommand
     ) -> GenerateIncidentTriageReportResponse:
-        return self._svc.generate(command)
+        return GenerateIncidentTriageReportResponse()

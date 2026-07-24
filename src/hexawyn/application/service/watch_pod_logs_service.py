@@ -7,13 +7,13 @@ from hexawyn.application.ports.driven.alert_notification_port import (
     AlertNotificationPort,
 )
 from hexawyn.application.ports.driven.pod_log_watch_port import PodLogWatchPort
-from hexawyn.application.ports.driving.analyze_pod_logs.analyze_pod_logs_response import (
+from hexawyn.application.use_case.analyze_pod_logs.response import (
     LogPatternDict,
 )
-from hexawyn.application.ports.driving.watch_pod_logs.watch_pod_logs_command import (
+from hexawyn.application.use_case.watch_pod_logs.command import (
     WatchPodLogsCommand,
 )
-from hexawyn.application.ports.driving.watch_pod_logs.watch_pod_logs_response import (
+from hexawyn.application.use_case.watch_pod_logs.response import (
     WatchAlertDict,
     WatchPodLogsResponse,
 )

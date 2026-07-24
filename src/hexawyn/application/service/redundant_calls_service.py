@@ -5,10 +5,10 @@ from dataclasses import asdict
 from hexawyn.application.ports.driven.redundant_call_detection_port import (
     RedundantCallDetectionPort,
 )
-from hexawyn.application.ports.driving.redundant_calls.redundant_calls_command import (
+from hexawyn.application.use_case.redundant_calls.command import (
     RedundantCallsCommand,
 )
-from hexawyn.application.ports.driving.redundant_calls.redundant_calls_response import (
+from hexawyn.application.use_case.redundant_calls.response import (
     RedundantCallsResponse,
 )
 from hexawyn.application.ports.driving.redundant_calls.redundant_calls_service_port import (

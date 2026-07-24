@@ -3,10 +3,10 @@ from __future__ import annotations
 from hexawyn.application.ports.driven.recurring_incident_port import (
     RecurringIncidentPort,
 )
-from hexawyn.application.ports.driving.detect_recurring_incidents.detect_recurring_incidents_command import (
+from hexawyn.application.use_case.detect_recurring_incidents.command import (
     DetectRecurringIncidentsCommand,
 )
-from hexawyn.application.ports.driving.detect_recurring_incidents.detect_recurring_incidents_response import (
+from hexawyn.application.use_case.detect_recurring_incidents.response import (
     DetectRecurringIncidentsResponse,
 )
 from hexawyn.application.ports.driving.detect_recurring_incidents.detect_recurring_incidents_service_port import (

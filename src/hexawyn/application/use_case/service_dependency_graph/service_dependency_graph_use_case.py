@@ -1,19 +1,22 @@
-from __future__ import annotations
+from dataclasses import asdict
 
-from hexawyn.application.ports.driving.service_dependency_graph.service_dependency_graph_command import (
+from hexawyn.application.ports.driven.service_dependency_graph_port import (
+    ServiceDependencyGraphPort,
+)
+from hexawyn.application.use_case.service_dependency_graph.command import (
     ServiceDependencyGraphCommand,
 )
-from hexawyn.application.ports.driving.service_dependency_graph.service_dependency_graph_response import (
+from hexawyn.application.use_case.service_dependency_graph.response import (
     ServiceDependencyGraphResponse,
-)
-from hexawyn.application.ports.driving.service_dependency_graph.service_dependency_graph_service_port import (
-    ServiceDependencyGraphServicePort,
 )
 
 
 class ServiceDependencyGraphUseCase:
-    def __init__(self, service: ServiceDependencyGraphServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: ServiceDependencyGraphPort) -> None:
+        self._port = port
 
-    def execute(self, cmd: ServiceDependencyGraphCommand) -> ServiceDependencyGraphResponse:
-        return self._svc.build(cmd)
+    def execute(self, command: ServiceDependencyGraphCommand) -> ServiceDependencyGraphResponse:
+        graph = self._port.get_service_dependency_graph(namespace=command.namespace)
+        return ServiceDependencyGraphResponse(
+            nodes=[asdict(n) for n in graph.nodes], edges=[asdict(e) for e in graph.edges]
+        )

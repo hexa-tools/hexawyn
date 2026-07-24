@@ -4,11 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.compute_mttr_trend.compute_mttr_trend_command import (
-    ComputeMTTRTrendCommand,
-)
+from hexawyn.application.use_case.compute_mttr_trend.command import ComputeMttrTrendCommand
 from hexawyn.application.use_case.compute_mttr_trend.compute_mttr_trend_use_case import (
-    ComputeMTTRTrendUseCase,
+    ComputeMttrTrendUseCase,
 )
 
 if TYPE_CHECKING:
@@ -25,16 +23,12 @@ def compute_mttr_trend(months: list[str] | None = None) -> dict[str, object]:
     Args:
         months: List of months in YYYY-MM format. Defaults to last 3 months.
     """
-    from hexawyn.application.service.compute_mttr_trend_service import (
-        ComputeMTTRTrendService,
-    )
     from hexawyn.mcp.server import build_mttr_trend_adapter
 
     try:
         adapter = build_mttr_trend_adapter()
-        service = ComputeMTTRTrendService(mttr_port=adapter)
-        use_case = ComputeMTTRTrendUseCase(service=service)
-        response = use_case.execute(ComputeMTTRTrendCommand(months=months or []))
+        use_case = ComputeMttrTrendUseCase(port=adapter)
+        response = use_case.execute(ComputeMttrTrendCommand(months=months or []))
         r = response.result
         return {
             "trend": r.trend,

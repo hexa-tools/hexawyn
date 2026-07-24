@@ -247,11 +247,11 @@ class TestCheckerCase5SourceRangesMustBeNoted:
     def test_note_present_when_source_ranges_set(self) -> None:
         from unittest.mock import MagicMock
 
-        from hexawyn.application.ports.driving.detect_unintended_external_exposure.detect_unintended_external_exposure_command import (
-            DetectUnintendedExternalExposureCommand,
-        )
         from hexawyn.application.service.unintended_external_exposure_service import (
             UnintendedExternalExposureService,
+        )
+        from hexawyn.application.use_case.detect_unintended_external_exposure.command import (
+            DetectUnintendedExternalExposureCommand,
         )
 
         port = MagicMock()

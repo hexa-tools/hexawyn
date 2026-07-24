@@ -1,31 +1,43 @@
-"""Unit tests for ListNamespacesUseCase."""
-
-from __future__ import annotations
+"""Unit tests for ListNamespacesUseCase (post-refacto)."""
 
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.application.ports.driving.list_namespaces.list_namespaces_service_port import (
-    ListNamespacesServicePort,
-)
+from hexawyn.application.ports.driven.k8s_port import NamespaceInfo
+from hexawyn.application.use_case.list_namespaces.command import ListNamespacesCommand
 from hexawyn.application.use_case.list_namespaces.list_namespaces_use_case import (
     ListNamespacesUseCase,
 )
+from hexawyn.application.use_case.list_namespaces.response import ListNamespacesResponse
 
 
 class TestListNamespacesUseCase:
-    def test_execute_delegates_to_service(self) -> None:
-        mock_service = MagicMock(spec=ListNamespacesServicePort)
-        use_case = ListNamespacesUseCase(service=mock_service)
+    def test_returns_namespaces_from_port(self) -> None:
+        k8s = MagicMock()
+        ns = NamespaceInfo(name="default", status="Active", age="30d")
+        k8s.list_namespaces.return_value = [ns]
+        use_case = ListNamespacesUseCase(k8s_port=k8s)
 
-        use_case.execute(MagicMock())
+        result = use_case.execute(ListNamespacesCommand())
 
-        mock_service.list_namespaces.assert_called_once()
+        assert isinstance(result, ListNamespacesResponse)
+        assert len(result.namespaces) == 1
+        assert result.namespaces[0]["name"] == "default"
+        k8s.list_namespaces.assert_called_once()
 
-    def test_service_error_propagates(self) -> None:
-        mock_service = MagicMock(spec=ListNamespacesServicePort)
-        mock_service.list_namespaces.side_effect = RuntimeError("test error")
-        use_case = ListNamespacesUseCase(service=mock_service)
+    def test_empty_cluster(self) -> None:
+        k8s = MagicMock()
+        k8s.list_namespaces.return_value = []
+        use_case = ListNamespacesUseCase(k8s_port=k8s)
 
-        with pytest.raises(RuntimeError, match="test error"):
-            use_case.execute(MagicMock())
+        result = use_case.execute(ListNamespacesCommand())
+
+        assert result.namespaces == []
+
+    def test_k8s_port_failure_propagates(self) -> None:
+        k8s = MagicMock()
+        k8s.list_namespaces.side_effect = RuntimeError("connection refused")
+        use_case = ListNamespacesUseCase(k8s_port=k8s)
+
+        with pytest.raises(RuntimeError, match="connection refused"):
+            use_case.execute(ListNamespacesCommand())

@@ -3,10 +3,10 @@ from __future__ import annotations
 from hexawyn.application.ports.driven.kustomize_patch_analysis_port import (
     KustomizePatchAnalysisPort,
 )
-from hexawyn.application.ports.driving.detect_kustomize_patch_conflicts.detect_kustomize_patch_conflicts_command import (
+from hexawyn.application.use_case.detect_kustomize_patch_conflicts.command import (
     DetectKustomizePatchConflictsCommand,
 )
-from hexawyn.application.ports.driving.detect_kustomize_patch_conflicts.detect_kustomize_patch_conflicts_response import (
+from hexawyn.application.use_case.detect_kustomize_patch_conflicts.response import (
     DetectKustomizePatchConflictsResponse,
 )
 from hexawyn.application.ports.driving.detect_kustomize_patch_conflicts.detect_kustomize_patch_conflicts_service_port import (

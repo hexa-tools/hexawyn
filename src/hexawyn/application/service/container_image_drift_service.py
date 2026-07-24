@@ -9,10 +9,10 @@ from hexawyn.application.ports.driven.image_drift_port import (
     ResolvedContainerImageRaw,
 )
 from hexawyn.application.ports.driven.live_resource_port import LiveResourcePort
-from hexawyn.application.ports.driving.container_image_drift.container_image_drift_command import (
+from hexawyn.application.use_case.detect_container_image_drift.command import (
     ContainerImageDriftCommand,
 )
-from hexawyn.application.ports.driving.container_image_drift.container_image_drift_response import (
+from hexawyn.application.use_case.detect_container_image_drift.response import (
     ContainerImageDriftDict,
     ContainerImageDriftResponse,
 )

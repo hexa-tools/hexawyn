@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.span_bottleneck_port import SpanBottleneckPort
-from hexawyn.application.ports.driving.span_bottleneck_analysis.span_bottleneck_analysis_command import (
+from hexawyn.application.use_case.span_bottleneck_analysis.command import (
     SpanBottleneckAnalysisCommand,
 )
-from hexawyn.application.ports.driving.span_bottleneck_analysis.span_bottleneck_analysis_response import (
+from hexawyn.application.use_case.span_bottleneck_analysis.response import (
     SpanBottleneckAnalysisResponse,
 )
 from hexawyn.application.ports.driving.span_bottleneck_analysis.span_bottleneck_analysis_service_port import (

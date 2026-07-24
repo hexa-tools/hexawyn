@@ -1,17 +1,26 @@
-from __future__ import annotations
+from hexawyn.application.ports.driven.k8s_port import K8sPort, PodInfo
+from hexawyn.application.use_case.list_pods.command import ListPodsCommand
+from hexawyn.application.use_case.list_pods.response import ListPodsResponse
 
-from hexawyn.application.ports.driving.list_pods.list_pods_command import ListPodsCommand
-from hexawyn.application.ports.driving.list_pods.list_pods_response import ListPodsResponse
-from hexawyn.application.ports.driving.list_pods.list_pods_service_port import (
-    ListPodsServicePort,
-)
+_UNHEALTHY: dict[str, int] = {
+    "CrashLoop": 0,
+    "CrashLoopBackOff": 0,
+    "Error": 1,
+    "ImagePullBackOff": 1,
+    "Pending": 2,
+    "Unknown": 3,
+    "Terminating": 4,
+}
 
 
 class ListPodsUseCase:
-    """Entry point — depends on the service port abstraction."""
-
-    def __init__(self, service: ListPodsServicePort) -> None:
-        self._service = service
+    def __init__(self, k8s_port: K8sPort) -> None:
+        self._k8s = k8s_port
 
     def execute(self, command: ListPodsCommand) -> ListPodsResponse:
-        return self._service.list_pods(command)
+        pods = self._k8s.list_pods(namespace=command.namespace)
+        return ListPodsResponse(pods=sorted(pods, key=_sort_key))
+
+
+def _sort_key(pod: PodInfo) -> tuple[int, str]:
+    return (_UNHEALTHY.get(pod["status"], 99), pod["name"])

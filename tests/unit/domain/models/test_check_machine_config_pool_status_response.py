@@ -5,7 +5,7 @@ from hexawyn.domain.models.machine_config_pool_health import (
 
 class TestCheckMachineConfigPoolStatusResponse:
     def test_wraps_report(self) -> None:
-        from hexawyn.application.ports.driving.check_machine_config_pool_status.check_machine_config_pool_status_response import (  # noqa: E501
+        from hexawyn.application.use_case.check_machine_config_pool_status.response import (  # noqa: E501
             CheckMachineConfigPoolStatusResponse,
         )
 

@@ -1,19 +1,20 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.certs_issuer_get.certs_issuer_get_command import (
-    CertsIssuerGetCommand,
-)
-from hexawyn.application.ports.driving.certs_issuer_get.certs_issuer_get_response import (
-    CertsIssuerGetResponse,
-)
-from hexawyn.application.ports.driving.certs_issuer_get.certs_issuer_get_service_port import (
-    CertsIssuerGetServicePort,
-)
+from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
+from hexawyn.application.use_case.certs_issuer_get.command import CertsIssuerGetCommand
+from hexawyn.application.use_case.certs_issuer_get.response import CertsIssuerGetResponse
 
 
 class CertsIssuerGetUseCase:
-    def __init__(self, service: CertsIssuerGetServicePort) -> None:
-        self._service = service
+    def __init__(self, cert_manager_port: CertManagerPort) -> None:
+        self._port = cert_manager_port
 
     def execute(self, command: CertsIssuerGetCommand) -> CertsIssuerGetResponse:
-        return self._service.get_issuer(command)
+        i = self._port.get_issuer(name=command.name, namespace=command.namespace)
+        return CertsIssuerGetResponse(
+            name=i.name,
+            namespace=i.namespace,
+            kind=i.kind,
+            issuer_type=i.issuer_type.value,
+            ready=i.ready,
+            server=i.server,
+            message=i.message,
+        )

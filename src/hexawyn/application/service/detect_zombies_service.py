@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.zombie_detection_port import ZombieDetectionPort
-from hexawyn.application.ports.driving.detect_zombies.detect_zombies_command import (
+from hexawyn.application.use_case.detect_zombies.command import (
     DetectZombiesCommand,
 )
-from hexawyn.application.ports.driving.detect_zombies.detect_zombies_response import (
+from hexawyn.application.use_case.detect_zombies.response import (
     DetectZombiesResponse,
 )
 from hexawyn.application.ports.driving.detect_zombies.detect_zombies_service_port import (

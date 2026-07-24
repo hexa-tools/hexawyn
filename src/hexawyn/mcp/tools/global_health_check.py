@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.global_health_check.global_health_check_command import (
-    GlobalHealthCheckCommand,
-)
+from hexawyn.application.use_case.global_health_check.command import GlobalHealthCheckCommand
 from hexawyn.application.use_case.global_health_check.global_health_check_use_case import (
     GlobalHealthCheckUseCase,
 )
@@ -16,9 +14,7 @@ if TYPE_CHECKING:
 
 
 def global_health_check(
-    max_clusters: int = 10,
-    timeout_seconds: float = 8.0,
-    previous_fleet_score: float | None = None,
+    max_clusters: int = 10, timeout_seconds: float = 8.0, previous_fleet_score: float | None = None
 ) -> dict[str, object]:
     """Return a global health overview for all clusters in the kubeconfig.
 
@@ -30,13 +26,11 @@ def global_health_check(
         timeout_seconds: Per-fleet timeout in seconds (default: 8.0).
         previous_fleet_score: Previous fleet score for trend computation (optional).
     """
-    from hexawyn.application.service.global_health_check_service import GlobalHealthCheckService
     from hexawyn.mcp.server import build_fleet_health_adapter
 
     try:
         adapter = build_fleet_health_adapter()
-        service = GlobalHealthCheckService(port=adapter)
-        use_case = GlobalHealthCheckUseCase(service=service)
+        use_case = GlobalHealthCheckUseCase(port=adapter)
         response = use_case.execute(
             GlobalHealthCheckCommand(
                 max_clusters=max_clusters,

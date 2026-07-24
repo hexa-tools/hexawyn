@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.check_cluster_certificate_health.check_cluster_certificate_health_command import (
+from hexawyn.application.use_case.check_cluster_certificate_health.command import (
     CheckClusterCertificateHealthCommand,
 )
-from hexawyn.application.ports.driving.check_cluster_certificate_health.check_cluster_certificate_health_response import (
+from hexawyn.application.use_case.check_cluster_certificate_health.response import (
     CheckClusterCertificateHealthResponse,
 )
 

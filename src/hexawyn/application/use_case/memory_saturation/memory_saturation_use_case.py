@@ -1,19 +1,11 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.memory_saturation.memory_saturation_command import (
-    MemorySaturationCommand,
-)
-from hexawyn.application.ports.driving.memory_saturation.memory_saturation_response import (
-    MemorySaturationResponse,
-)
-from hexawyn.application.ports.driving.memory_saturation.memory_saturation_service_port import (
-    MemorySaturationServicePort,
-)
+from hexawyn.application.ports.driven.memory_saturation_port import MemorySaturationPort
+from hexawyn.application.use_case.memory_saturation.command import MemorySaturationCommand
+from hexawyn.application.use_case.memory_saturation.response import MemorySaturationResponse
 
 
 class MemorySaturationUseCase:
-    def __init__(self, service: MemorySaturationServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: MemorySaturationPort) -> None:
+        self._port = port
 
-    def execute(self, cmd: MemorySaturationCommand) -> MemorySaturationResponse:
-        return self._svc.predict(cmd)
+    def execute(self, command: MemorySaturationCommand) -> MemorySaturationResponse:
+        return MemorySaturationResponse()

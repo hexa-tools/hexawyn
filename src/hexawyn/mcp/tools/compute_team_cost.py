@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.compute_team_cost.compute_team_cost_command import (
-    ComputeTeamCostCommand,
-)
+from hexawyn.application.use_case.compute_team_cost.command import ComputeTeamCostCommand
 from hexawyn.application.use_case.compute_team_cost.compute_team_cost_use_case import (
     ComputeTeamCostUseCase,
 )
@@ -31,15 +29,11 @@ def compute_team_cost(
         memory_price_per_gb_hour: Memory pricing per GB per hour.
         storage_price_per_gb_month: Storage pricing per GB per month.
     """
-    from hexawyn.application.service.compute_team_cost_service import (
-        ComputeTeamCostService,
-    )
     from hexawyn.mcp.server import build_team_cost_adapter
 
     try:
         adapter = build_team_cost_adapter()
-        service = ComputeTeamCostService(cost_port=adapter)
-        use_case = ComputeTeamCostUseCase(service=service)
+        use_case = ComputeTeamCostUseCase(port=adapter)
         response = use_case.execute(
             ComputeTeamCostCommand(
                 cpu_price_per_core_hour=cpu_price_per_core_hour,

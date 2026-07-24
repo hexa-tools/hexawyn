@@ -1,19 +1,15 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.analyze_failed_pipeline.analyze_failed_pipeline_command import (
+from hexawyn.application.ports.driven.pipeline_run_logs_port import PipelineRunLogsPort
+from hexawyn.application.use_case.analyze_failed_pipeline.command import (
     AnalyzeFailedPipelineCommand,
 )
-from hexawyn.application.ports.driving.analyze_failed_pipeline.analyze_failed_pipeline_response import (
+from hexawyn.application.use_case.analyze_failed_pipeline.response import (
     AnalyzeFailedPipelineResponse,
-)
-from hexawyn.application.ports.driving.analyze_failed_pipeline.analyze_failed_pipeline_service_port import (
-    AnalyzeFailedPipelineServicePort,
 )
 
 
 class AnalyzeFailedPipelineUseCase:
-    def __init__(self, service: AnalyzeFailedPipelineServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: PipelineRunLogsPort) -> None:
+        self._port = port
 
     def execute(self, command: AnalyzeFailedPipelineCommand) -> AnalyzeFailedPipelineResponse:
-        return self._svc.analyze(command)
+        return AnalyzeFailedPipelineResponse()

@@ -1,19 +1,14 @@
-from __future__ import annotations
+from dataclasses import asdict
 
-from hexawyn.application.ports.driving.certs_requests_list.certs_requests_list_command import (
-    CertsRequestsListCommand,
-)
-from hexawyn.application.ports.driving.certs_requests_list.certs_requests_list_response import (
-    CertsRequestsListResponse,
-)
-from hexawyn.application.ports.driving.certs_requests_list.certs_requests_list_service_port import (
-    CertsRequestsListServicePort,
-)
+from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
+from hexawyn.application.use_case.certs_requests_list.command import CertsRequestsListCommand
+from hexawyn.application.use_case.certs_requests_list.response import CertsRequestsListResponse
 
 
 class CertsRequestsListUseCase:
-    def __init__(self, service: CertsRequestsListServicePort) -> None:
-        self._service = service
+    def __init__(self, cert_manager_port: CertManagerPort) -> None:
+        self._port = cert_manager_port
 
     def execute(self, command: CertsRequestsListCommand) -> CertsRequestsListResponse:
-        return self._service.list_requests(command)
+        reqs = self._port.list_requests(namespace=command.namespace)
+        return CertsRequestsListResponse(requests=[asdict(r) for r in reqs])

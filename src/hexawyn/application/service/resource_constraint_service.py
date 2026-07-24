@@ -4,10 +4,10 @@ from hexawyn.application.ports.driven.pod_resource_metrics_port import (
     ContainerMetricsRecord,
     PodResourceMetricsPort,
 )
-from hexawyn.application.ports.driving.check_resource_constraints.check_resource_constraints_command import (
+from hexawyn.application.use_case.check_resource_constraints.command import (
     CheckResourceConstraintsCommand,
 )
-from hexawyn.application.ports.driving.check_resource_constraints.check_resource_constraints_response import (
+from hexawyn.application.use_case.check_resource_constraints.response import (
     CheckResourceConstraintsResponse,
 )
 from hexawyn.application.ports.driving.check_resource_constraints.check_resource_constraints_service_port import (

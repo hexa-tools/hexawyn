@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from hexawyn.application.ports.driven.k8s_port import K8sPort
 from hexawyn.application.ports.driven.pod_metrics_baseline_port import PodMetricsBaselinePort
-from hexawyn.application.ports.driving.detect_pod_anomalies.detect_pod_anomalies_command import (
+from hexawyn.application.use_case.detect_pod_anomalies.command import (
     DetectPodAnomaliesCommand,
 )
-from hexawyn.application.ports.driving.detect_pod_anomalies.detect_pod_anomalies_response import (
+from hexawyn.application.use_case.detect_pod_anomalies.response import (
     DetectPodAnomaliesResponse,
     ExcludedPodDict,
     PodAnomalyDict,

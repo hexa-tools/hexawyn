@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.pipeline_for_service_port import PipelineForServicePort
-from hexawyn.application.ports.driving.pipeline_for_service.pipeline_for_service_command import (
+from hexawyn.application.use_case.pipeline_for_service.command import (
     PipelineForServiceCommand,
 )
-from hexawyn.application.ports.driving.pipeline_for_service.pipeline_for_service_response import (
+from hexawyn.application.use_case.pipeline_for_service.response import (
     PipelineForServiceResponse,
 )
 from hexawyn.application.ports.driving.pipeline_for_service.pipeline_for_service_service_port import (

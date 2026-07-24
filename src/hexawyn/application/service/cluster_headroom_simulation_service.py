@@ -4,11 +4,11 @@ from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
     ClusterResourceMetricsPort,
 )
 from hexawyn.application.ports.driven.headroom_simulation_port import HeadroomSimulationPort
-from hexawyn.application.ports.driving.cluster_headroom_simulation.cluster_headroom_simulation_command import (
+from hexawyn.application.use_case.cluster_headroom_simulation.command import (
     ClusterHeadroomSimulationCommand,
     ProposedWorkloadDict,
 )
-from hexawyn.application.ports.driving.cluster_headroom_simulation.cluster_headroom_simulation_response import (
+from hexawyn.application.use_case.cluster_headroom_simulation.response import (
     ClusterHeadroomSimulationResponse,
 )
 from hexawyn.application.ports.driving.cluster_headroom_simulation.cluster_headroom_simulation_service_port import (

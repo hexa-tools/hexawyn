@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.pod_logs_port import PodLogsPort
-from hexawyn.application.ports.driving.analyze_pod_logs.analyze_pod_logs_command import (
+from hexawyn.application.use_case.analyze_pod_logs.command import (
     AnalyzePodLogsCommand,
 )
-from hexawyn.application.ports.driving.analyze_pod_logs.analyze_pod_logs_response import (
+from hexawyn.application.use_case.analyze_pod_logs.response import (
     AnalyzePodLogsResponse,
     ConnectionIssueDict,
     LogPatternDict,

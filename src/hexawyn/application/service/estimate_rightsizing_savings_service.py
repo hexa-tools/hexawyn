@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort, WorkloadRawData
-from hexawyn.application.ports.driving.estimate_rightsizing_savings.estimate_rightsizing_savings_command import (
+from hexawyn.application.use_case.estimate_rightsizing_savings.command import (
     EstimateRightsizingSavingsCommand,
 )
-from hexawyn.application.ports.driving.estimate_rightsizing_savings.estimate_rightsizing_savings_response import (
+from hexawyn.application.use_case.estimate_rightsizing_savings.response import (
     EstimateRightsizingSavingsResponse,
 )
 from hexawyn.application.ports.driving.estimate_rightsizing_savings.estimate_rightsizing_savings_service_port import (

@@ -4,10 +4,10 @@ from hexawyn.application.ports.driven.spike_provisioning_port import (
     ClusterCapacityRaw,
     SpikeProvisioningPort,
 )
-from hexawyn.application.ports.driving.plan_spike_provisioning.plan_spike_provisioning_command import (  # noqa: E501
+from hexawyn.application.use_case.plan_spike_provisioning.command import (  # noqa: E501
     PlanSpikeProvisioningCommand,
 )
-from hexawyn.application.ports.driving.plan_spike_provisioning.plan_spike_provisioning_response import (  # noqa: E501
+from hexawyn.application.use_case.plan_spike_provisioning.response import (  # noqa: E501
     PlanSpikeProvisioningResponse,
 )
 from hexawyn.application.ports.driving.plan_spike_provisioning.plan_spike_provisioning_service_port import (  # noqa: E501

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.detect_outdated_helm_releases.detect_outdated_helm_releases_command import (
+from hexawyn.application.use_case.detect_outdated_helm_releases.command import (
     DetectOutdatedHelmReleasesCommand,
 )
 from hexawyn.application.use_case.detect_outdated_helm_releases.detect_outdated_helm_releases_use_case import (
@@ -15,9 +15,7 @@ if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def detect_outdated_helm_releases(
-    namespace: str | None = None,
-) -> dict[str, object]:
+def detect_outdated_helm_releases(namespace: str | None = None) -> dict[str, object]:
     """Detect Helm releases that are outdated compared to the latest chart version.
 
     Lists all Helm releases with their current version, queries repositories
@@ -26,15 +24,11 @@ def detect_outdated_helm_releases(
     Args:
         namespace: Optional namespace filter. If omitted, scans all namespaces.
     """
-    from hexawyn.application.service.detect_outdated_helm_releases_service import (
-        DetectOutdatedHelmReleasesService,
-    )
     from hexawyn.mcp.server import build_helm_release_version_adapter
 
     try:
         adapter = build_helm_release_version_adapter()
-        service = DetectOutdatedHelmReleasesService(helm_port=adapter)
-        use_case = DetectOutdatedHelmReleasesUseCase(service=service)
+        use_case = DetectOutdatedHelmReleasesUseCase(port=adapter)
         response = use_case.execute(DetectOutdatedHelmReleasesCommand(namespace=namespace))
         r = response.result
         return {

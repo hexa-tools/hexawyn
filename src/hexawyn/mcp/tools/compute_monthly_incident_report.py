@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.compute_monthly_incident_report.compute_monthly_incident_report_command import (
+from hexawyn.application.use_case.compute_monthly_incident_report.command import (
     ComputeMonthlyIncidentReportCommand,
 )
 from hexawyn.application.use_case.compute_monthly_incident_report.compute_monthly_incident_report_use_case import (
@@ -15,9 +15,7 @@ if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def compute_monthly_incident_report(
-    month: str | None = None,
-) -> dict[str, object]:
+def compute_monthly_incident_report(month: str | None = None) -> dict[str, object]:
     """Monthly incident report: count, downtime, severity breakdown, most impacted services.
 
     Returns total incident count and downtime broken down by severity (P1/P2/P3),
@@ -26,15 +24,11 @@ def compute_monthly_incident_report(
     Args:
         month: Month in YYYY-MM format. Defaults to current month.
     """
-    from hexawyn.application.service.compute_monthly_incident_report_service import (
-        ComputeMonthlyIncidentReportService,
-    )
     from hexawyn.mcp.server import build_monthly_incident_adapter
 
     try:
         adapter = build_monthly_incident_adapter()
-        service = ComputeMonthlyIncidentReportService(incident_port=adapter)
-        use_case = ComputeMonthlyIncidentReportUseCase(service=service)
+        use_case = ComputeMonthlyIncidentReportUseCase(port=adapter)
         response = use_case.execute(ComputeMonthlyIncidentReportCommand(month=month))
         r = response.result
         return {

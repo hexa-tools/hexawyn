@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.budget_projection_port import BudgetProjectionPort
-from hexawyn.application.ports.driving.project_budget.project_budget_command import (
+from hexawyn.application.use_case.project_budget.command import (
     ProjectBudgetCommand,
 )
-from hexawyn.application.ports.driving.project_budget.project_budget_response import (
+from hexawyn.application.use_case.project_budget.response import (
     ProjectBudgetResponse,
 )
 from hexawyn.application.ports.driving.project_budget.project_budget_service_port import (

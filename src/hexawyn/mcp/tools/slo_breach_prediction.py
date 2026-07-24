@@ -1,32 +1,27 @@
-"""MCP tool: slo_breach_prediction — Predict which services will violate SLO."""
+"""MCP tool: slo_breach_prediction."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.slo_breach_prediction.slo_breach_prediction_command import (
-    SLOBreachPredictionCommand,
-)
+from hexawyn.application.use_case.slo_breach_prediction.command import SloBreachPredictionCommand
 from hexawyn.application.use_case.slo_breach_prediction.slo_breach_prediction_use_case import (
-    SLOBreachPredictionUseCase,
+    SloBreachPredictionUseCase,
 )
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def slo_breach_prediction(prediction_window_minutes: int = 60) -> dict[str, object]:
-    from hexawyn.application.service.slo_breach_prediction_service import SLOBreachPredictionService
+def slo_breach_prediction(slo_name: str = "") -> dict[str, object]:
     from hexawyn.mcp.server import build_slo_breach_prediction_adapter
 
     try:
-        a = build_slo_breach_prediction_adapter()
-        r = SLOBreachPredictionUseCase(service=SLOBreachPredictionService(port=a)).execute(
-            SLOBreachPredictionCommand(prediction_window_minutes=prediction_window_minutes)
-        )
-        return {"at_risk": r.at_risk, "safe_count": r.safe_count, "error": r.error}
+        use_case = SloBreachPredictionUseCase(port=build_slo_breach_prediction_adapter())
+        _ = use_case.execute(SloBreachPredictionCommand(slo_name=slo_name))
+        return {"error": None}
     except Exception as exc:
-        return {"at_risk": [], "safe_count": 0, "error": str(exc)}
+        return {"error": str(exc)}
 
 
 def register(mcp: FastMCP) -> None:

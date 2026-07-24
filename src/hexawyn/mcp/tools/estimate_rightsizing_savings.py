@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.estimate_rightsizing_savings.estimate_rightsizing_savings_command import (
+from hexawyn.application.use_case.estimate_rightsizing_savings.command import (
     EstimateRightsizingSavingsCommand,
 )
 from hexawyn.application.use_case.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case import (
@@ -21,15 +21,11 @@ def estimate_rightsizing_savings(top_n: int = 5) -> dict[str, object]:
     Args:
         top_n: Maximum recommendations to return, ranked by savings (default: 5).
     """
-    from hexawyn.application.service.estimate_rightsizing_savings_service import (
-        EstimateRightsizingSavingsService,
-    )
     from hexawyn.mcp.server import build_rightsizing_adapter
 
     try:
         adapter = build_rightsizing_adapter()
-        service = EstimateRightsizingSavingsService(rightsizing_port=adapter)
-        use_case = EstimateRightsizingSavingsUseCase(service=service)
+        use_case = EstimateRightsizingSavingsUseCase(port=adapter)
         response = use_case.execute(EstimateRightsizingSavingsCommand(top_n=top_n))
         report = response.report
         return {

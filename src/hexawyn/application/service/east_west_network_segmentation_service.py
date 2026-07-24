@@ -4,10 +4,10 @@ from hexawyn.application.ports.driven.network_policy_audit_port import (
     NetworkPolicyAuditPort,
     NetworkPolicyRaw,
 )
-from hexawyn.application.ports.driving.detect_network_segmentation_gaps.detect_network_segmentation_gaps_command import (
+from hexawyn.application.use_case.detect_network_segmentation_gaps.command import (
     DetectNetworkSegmentationGapsCommand,
 )
-from hexawyn.application.ports.driving.detect_network_segmentation_gaps.detect_network_segmentation_gaps_response import (
+from hexawyn.application.use_case.detect_network_segmentation_gaps.response import (
     DetectNetworkSegmentationGapsResponse,
     ExcludedNamespaceDict,
     NamespaceNetworkFindingDict,

@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.ports.driven.tekton_port import PipelineRunInfo, TektonPort
-from hexawyn.application.ports.driving.list_pipeline_runs.list_pipeline_runs_command import (
+from hexawyn.application.use_case.list_pipeline_runs.command import (
     ListPipelineRunsCommand,
 )
 from hexawyn.application.service.list_pipeline_runs_service import ListPipelineRunsService

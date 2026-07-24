@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.unauthorized_access_port import UnauthorizedAccessPort
-from hexawyn.application.ports.driving.report_unauthorized_access.report_unauthorized_access_command import (  # noqa: E501
+from hexawyn.application.use_case.report_unauthorized_access.command import (  # noqa: E501
     ReportUnauthorizedAccessCommand,
 )
-from hexawyn.application.ports.driving.report_unauthorized_access.report_unauthorized_access_response import (  # noqa: E501
+from hexawyn.application.use_case.report_unauthorized_access.response import (  # noqa: E501
     ReportUnauthorizedAccessResponse,
 )
 from hexawyn.application.ports.driving.report_unauthorized_access.report_unauthorized_access_service_port import (  # noqa: E501

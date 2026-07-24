@@ -3,10 +3,10 @@ from __future__ import annotations
 from hexawyn.application.ports.driven.platform_reliability_port import (
     PlatformReliabilityPort,
 )
-from hexawyn.application.ports.driving.report_platform_reliability.report_platform_reliability_command import (  # noqa: E501
+from hexawyn.application.use_case.report_platform_reliability.command import (  # noqa: E501
     ReportPlatformReliabilityCommand,
 )
-from hexawyn.application.ports.driving.report_platform_reliability.report_platform_reliability_response import (  # noqa: E501
+from hexawyn.application.use_case.report_platform_reliability.response import (  # noqa: E501
     ReportPlatformReliabilityResponse,
 )
 from hexawyn.application.ports.driving.report_platform_reliability.report_platform_reliability_service_port import (  # noqa: E501

@@ -4,10 +4,10 @@ from calendar import monthrange
 from datetime import UTC, datetime
 
 from hexawyn.application.ports.driven.service_cost_port import ServiceCostPort
-from hexawyn.application.ports.driving.compare_service_cost.compare_service_cost_command import (
+from hexawyn.application.use_case.compare_service_cost.command import (
     CompareServiceCostCommand,
 )
-from hexawyn.application.ports.driving.compare_service_cost.compare_service_cost_response import (
+from hexawyn.application.use_case.compare_service_cost.response import (
     CompareServiceCostResponse,
 )
 from hexawyn.application.ports.driving.compare_service_cost.compare_service_cost_service_port import (

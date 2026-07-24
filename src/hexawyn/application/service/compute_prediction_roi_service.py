@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.prediction_roi_port import PredictionRoiPort
-from hexawyn.application.ports.driving.compute_prediction_roi.compute_prediction_roi_command import (  # noqa: E501
+from hexawyn.application.use_case.compute_prediction_roi.command import (  # noqa: E501
     ComputePredictionRoiCommand,
 )
-from hexawyn.application.ports.driving.compute_prediction_roi.compute_prediction_roi_response import (  # noqa: E501
+from hexawyn.application.use_case.compute_prediction_roi.response import (  # noqa: E501
     ComputePredictionRoiResponse,
 )
 from hexawyn.application.ports.driving.compute_prediction_roi.compute_prediction_roi_service_port import (  # noqa: E501

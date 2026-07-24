@@ -4,12 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.rollout_get.rollout_get_command import (
-    RolloutGetCommand,
-)
-from hexawyn.application.use_case.rollout_get.rollout_get_use_case import (
-    RolloutGetUseCase,
-)
+from hexawyn.application.use_case.rollout_get.command import RolloutGetCommand
+from hexawyn.application.use_case.rollout_get.rollout_get_use_case import RolloutGetUseCase
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -22,13 +18,11 @@ def rollout_get(name: str, namespace: str) -> dict[str, object]:
         name: Rollout name.
         namespace: Rollout namespace.
     """
-    from hexawyn.application.service.rollout_get_service import RolloutGetService
     from hexawyn.mcp.server import build_rollouts_adapter
 
     try:
         adapter = build_rollouts_adapter()
-        service = RolloutGetService(rollouts_port=adapter)
-        use_case = RolloutGetUseCase(service=service)
+        use_case = RolloutGetUseCase(port=adapter)
         response = use_case.execute(RolloutGetCommand(name=name, namespace=namespace))
         return {
             "name": response.name,

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.keda_port import KedaPort
-from hexawyn.application.ports.driving.keda_detect.keda_detect_command import KedaDetectCommand
-from hexawyn.application.ports.driving.keda_detect.keda_detect_response import KedaDetectResponse
+from hexawyn.application.use_case.keda_detect.command import KedaDetectCommand
+from hexawyn.application.use_case.keda_detect.response import KedaDetectResponse
 from hexawyn.application.ports.driving.keda_detect.keda_detect_service_port import (
     KedaDetectServicePort,
 )

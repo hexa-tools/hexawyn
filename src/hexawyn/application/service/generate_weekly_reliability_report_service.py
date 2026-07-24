@@ -3,10 +3,10 @@ from __future__ import annotations
 from hexawyn.application.ports.driven.weekly_reliability_report_port import (
     WeeklyReliabilityReportPort,
 )
-from hexawyn.application.ports.driving.generate_weekly_reliability_report.generate_weekly_reliability_report_command import (
+from hexawyn.application.use_case.generate_weekly_reliability_report.command import (
     GenerateWeeklyReliabilityReportCommand,
 )
-from hexawyn.application.ports.driving.generate_weekly_reliability_report.generate_weekly_reliability_report_response import (
+from hexawyn.application.use_case.generate_weekly_reliability_report.response import (
     GenerateWeeklyReliabilityReportResponse,
 )
 from hexawyn.application.ports.driving.generate_weekly_reliability_report.generate_weekly_reliability_report_service_port import (

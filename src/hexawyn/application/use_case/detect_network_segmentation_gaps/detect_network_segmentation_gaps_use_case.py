@@ -1,21 +1,17 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.detect_network_segmentation_gaps.detect_network_segmentation_gaps_command import (
+from hexawyn.application.ports.driven.network_policy_audit_port import NetworkPolicyAuditPort
+from hexawyn.application.use_case.detect_network_segmentation_gaps.command import (
     DetectNetworkSegmentationGapsCommand,
 )
-from hexawyn.application.ports.driving.detect_network_segmentation_gaps.detect_network_segmentation_gaps_response import (
+from hexawyn.application.use_case.detect_network_segmentation_gaps.response import (
     DetectNetworkSegmentationGapsResponse,
-)
-from hexawyn.application.ports.driving.detect_network_segmentation_gaps.detect_network_segmentation_gaps_service_port import (
-    DetectNetworkSegmentationGapsServicePort,
 )
 
 
 class DetectNetworkSegmentationGapsUseCase:
-    def __init__(self, service: DetectNetworkSegmentationGapsServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: NetworkPolicyAuditPort) -> None:
+        self._port = port
 
     def execute(
         self, command: DetectNetworkSegmentationGapsCommand
     ) -> DetectNetworkSegmentationGapsResponse:
-        return self._svc.detect_segmentation_gaps(command)
+        return DetectNetworkSegmentationGapsResponse()

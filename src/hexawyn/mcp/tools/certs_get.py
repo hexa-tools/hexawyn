@@ -4,21 +4,19 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.certs_get.certs_get_command import CertsGetCommand
 from hexawyn.application.use_case.certs_get.certs_get_use_case import CertsGetUseCase
+from hexawyn.application.use_case.certs_get.command import CertsGetCommand
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
 def certs_get(name: str, namespace: str) -> dict[str, object]:
-    from hexawyn.application.service.certs_get_service import CertsGetService
     from hexawyn.mcp.server import build_cert_manager_adapter
 
     try:
         adapter = build_cert_manager_adapter()
-        svc = CertsGetService(port=adapter)
-        uc = CertsGetUseCase(service=svc)
+        uc = CertsGetUseCase(cert_manager_port=adapter)
         r = uc.execute(CertsGetCommand(name=name, namespace=namespace))
         return {
             "name": r.name,

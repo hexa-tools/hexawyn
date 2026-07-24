@@ -1,19 +1,16 @@
-from __future__ import annotations
+from dataclasses import asdict
 
-from hexawyn.application.ports.driving.metric_correlation.metric_correlation_command import (
-    MetricCorrelationCommand,
-)
-from hexawyn.application.ports.driving.metric_correlation.metric_correlation_response import (
-    MetricCorrelationResponse,
-)
-from hexawyn.application.ports.driving.metric_correlation.metric_correlation_service_port import (
-    MetricCorrelationServicePort,
-)
+from hexawyn.application.ports.driven.metric_correlation_port import MetricCorrelationPort
+from hexawyn.application.use_case.metric_correlation.command import MetricCorrelationCommand
+from hexawyn.application.use_case.metric_correlation.response import MetricCorrelationResponse
 
 
 class MetricCorrelationUseCase:
-    def __init__(self, service: MetricCorrelationServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: MetricCorrelationPort) -> None:
+        self._port = port
 
-    def execute(self, cmd: MetricCorrelationCommand) -> MetricCorrelationResponse:
-        return self._svc.correlate(cmd)
+    def execute(self, c: MetricCorrelationCommand) -> MetricCorrelationResponse:
+        results = self._port.correlate(
+            service_name=c.service_name, lookback_minutes=c.lookback_minutes
+        )
+        return MetricCorrelationResponse(correlations=[asdict(r) for r in results])

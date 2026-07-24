@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.project_budget.project_budget_command import (
+from hexawyn.application.use_case.project_budget.command import (
     ProjectBudgetCommand,
 )
-from hexawyn.application.ports.driving.project_budget.project_budget_response import (
+from hexawyn.application.use_case.project_budget.response import (
     ProjectBudgetResponse,
 )
 

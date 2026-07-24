@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.metric_correlation_port import MetricCorrelationPort
-from hexawyn.application.ports.driving.metric_correlation.metric_correlation_command import (
+from hexawyn.application.use_case.metric_correlation.command import (
     MetricCorrelationCommand,
 )
-from hexawyn.application.ports.driving.metric_correlation.metric_correlation_response import (
+from hexawyn.application.use_case.metric_correlation.response import (
     MetricCorrelationResponse,
 )
 from hexawyn.application.ports.driving.metric_correlation.metric_correlation_service_port import (

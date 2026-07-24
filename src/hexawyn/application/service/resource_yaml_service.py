@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.resource_yaml_port import ResourceYAMLPort
-from hexawyn.application.ports.driving.resource_yaml.resource_yaml_command import (
+from hexawyn.application.use_case.resource_yaml.command import (
     ResourceYAMLCommand,
 )
-from hexawyn.application.ports.driving.resource_yaml.resource_yaml_response import (
+from hexawyn.application.use_case.resource_yaml.response import (
     ResourceYAMLResponse,
 )
 from hexawyn.application.ports.driving.resource_yaml.resource_yaml_service_port import (

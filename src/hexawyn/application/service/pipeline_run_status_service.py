@@ -6,10 +6,10 @@ from hexawyn.application.ports.driven.tekton_pipeline_status_port import (
     PipelineRunRecord,
     TektonPipelineStatusPort,
 )
-from hexawyn.application.ports.driving.get_pipeline_run_status.get_pipeline_run_status_command import (
+from hexawyn.application.use_case.get_pipeline_run_status.command import (
     GetPipelineRunStatusCommand,
 )
-from hexawyn.application.ports.driving.get_pipeline_run_status.get_pipeline_run_status_response import (
+from hexawyn.application.use_case.get_pipeline_run_status.response import (
     GetPipelineRunStatusResponse,
 )
 from hexawyn.application.ports.driving.get_pipeline_run_status.get_pipeline_run_status_service_port import (

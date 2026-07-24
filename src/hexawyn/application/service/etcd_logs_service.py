@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.etcd_logs_port import ETCDLogsPort
-from hexawyn.application.ports.driving.etcd_logs.etcd_logs_command import ETCDLogsCommand
-from hexawyn.application.ports.driving.etcd_logs.etcd_logs_response import ETCDLogsResponse
+from hexawyn.application.use_case.etcd_logs.command import ETCDLogsCommand
+from hexawyn.application.use_case.etcd_logs.response import ETCDLogsResponse
 from hexawyn.application.ports.driving.etcd_logs.etcd_logs_service_port import ETCDLogsServicePort
 from hexawyn.domain.models.etcd_logs import ETCDLogsRequest, ETCDLogsResult
 

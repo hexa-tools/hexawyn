@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.detect_log_anomalies.detect_log_anomalies_command import (
-    DetectLogAnomaliesCommand,
-)
+from hexawyn.application.use_case.detect_log_anomalies.command import DetectLogAnomaliesCommand
 from hexawyn.application.use_case.detect_log_anomalies.detect_log_anomalies_use_case import (
     DetectLogAnomaliesUseCase,
 )
@@ -16,17 +14,13 @@ if TYPE_CHECKING:
 
 
 def detect_log_anomalies(
-    pod_name: str,
-    namespace: str,
-    time_window_minutes: int = 240,
-    zscore_threshold: float = 3.0,
+    pod_name: str, namespace: str, time_window_minutes: int = 240, zscore_threshold: float = 3.0
 ) -> dict[str, object]:
-    from hexawyn.application.service.detect_log_anomalies_service import DetectLogAnomaliesService
     from hexawyn.mcp.server import build_pod_logs_adapter
 
     try:
         adapter = build_pod_logs_adapter()
-        r = DetectLogAnomaliesUseCase(service=DetectLogAnomaliesService(port=adapter)).execute(
+        r = DetectLogAnomaliesUseCase(port=adapter).execute(
             DetectLogAnomaliesCommand(
                 pod_name=pod_name,
                 namespace=namespace,

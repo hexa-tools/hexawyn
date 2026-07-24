@@ -4,10 +4,10 @@ from datetime import UTC, datetime
 
 from hexawyn.application.ports.driven.k8s_port import K8sPort
 from hexawyn.application.ports.driven.namespace_events_port import NamespaceEventsPort
-from hexawyn.application.ports.driving.get_namespace_events.get_namespace_events_command import (
+from hexawyn.application.use_case.get_namespace_events.command import (
     GetNamespaceEventsCommand,
 )
-from hexawyn.application.ports.driving.get_namespace_events.get_namespace_events_response import (
+from hexawyn.application.use_case.get_namespace_events.response import (
     GetNamespaceEventsResponse,
     NamespaceEventDict,
 )

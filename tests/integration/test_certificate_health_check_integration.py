@@ -14,7 +14,7 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
-from hexawyn.application.ports.driving.check_cluster_certificate_health.check_cluster_certificate_health_command import (
+from hexawyn.application.use_case.check_cluster_certificate_health.command import (
     CheckClusterCertificateHealthCommand,
 )
 

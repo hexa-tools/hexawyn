@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
-from hexawyn.application.ports.driving.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_command import (
+from hexawyn.application.use_case.detect_over_provisioned_namespaces.command import (
     DetectOverProvisionedNamespacesCommand,
 )
 from hexawyn.application.service.detect_over_provisioned_namespaces_service import (

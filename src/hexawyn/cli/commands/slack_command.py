@@ -147,5 +147,5 @@ def status() -> None:
         click.echo("Alerts   : ⭐ Pro — unlimited")
     else:
         click.echo(
-            f"Alerts   : {quota.count}/{quota.limit} this month" f" · {quota.remaining} remaining"
+            f"Alerts   : {quota.count}/{quota.limit} this month · {quota.remaining} remaining"
         )

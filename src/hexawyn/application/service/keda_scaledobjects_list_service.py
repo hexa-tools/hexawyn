@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.keda_port import KedaPort
-from hexawyn.application.ports.driving.keda_scaledobjects_list.keda_scaledobjects_list_command import (
+from hexawyn.application.use_case.keda_scaledobjects_list.command import (
     KedaScaledObjectsListCommand,
 )
-from hexawyn.application.ports.driving.keda_scaledobjects_list.keda_scaledobjects_list_response import (
+from hexawyn.application.use_case.keda_scaledobjects_list.response import (
     KedaScaledObjectsListResponse,
 )
 from hexawyn.application.ports.driving.keda_scaledobjects_list.keda_scaledobjects_list_service_port import (

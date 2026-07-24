@@ -1,19 +1,15 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.detect_privileged_pods.detect_privileged_pods_command import (
-    DetectPrivilegedPodsCommand,
+from hexawyn.application.ports.driven.pod_security_context_audit_port import (
+    PodSecurityContextAuditPort,
 )
-from hexawyn.application.ports.driving.detect_privileged_pods.detect_privileged_pods_response import (
+from hexawyn.application.use_case.detect_privileged_pods.command import DetectPrivilegedPodsCommand
+from hexawyn.application.use_case.detect_privileged_pods.response import (
     DetectPrivilegedPodsResponse,
-)
-from hexawyn.application.ports.driving.detect_privileged_pods.detect_privileged_pods_service_port import (
-    DetectPrivilegedPodsServicePort,
 )
 
 
 class DetectPrivilegedPodsUseCase:
-    def __init__(self, service: DetectPrivilegedPodsServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: PodSecurityContextAuditPort) -> None:
+        self._port = port
 
     def execute(self, command: DetectPrivilegedPodsCommand) -> DetectPrivilegedPodsResponse:
-        return self._svc.audit_pod_security(command)
+        return DetectPrivilegedPodsResponse()

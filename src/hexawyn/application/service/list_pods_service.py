@@ -1,6 +1,6 @@
 from hexawyn.application.ports.driven.k8s_port import K8sPort, PodInfo
-from hexawyn.application.ports.driving.list_pods.list_pods_command import ListPodsCommand
-from hexawyn.application.ports.driving.list_pods.list_pods_response import ListPodsResponse
+from hexawyn.application.use_case.list_pods.command import ListPodsCommand
+from hexawyn.application.use_case.list_pods.response import ListPodsResponse
 from hexawyn.application.ports.driving.list_pods.list_pods_service_port import (
     ListPodsServicePort,
 )

@@ -1,12 +1,10 @@
-"""keda_triggerauth_list.py"""
+"""MCP tool: keda_triggerauth_list — List KEDA TriggerAuthentications."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.keda_triggerauth_list.keda_triggerauth_list_command import (
-    KedaTriggerAuthListCommand,
-)
+from hexawyn.application.use_case.keda_triggerauth_list.command import KedaTriggerauthListCommand
 from hexawyn.application.use_case.keda_triggerauth_list.keda_triggerauth_list_use_case import (
     KedaTriggerAuthListUseCase,
 )
@@ -16,15 +14,13 @@ if TYPE_CHECKING:
 
 
 def keda_triggerauth_list(namespace: str | None = None) -> dict[str, object]:
-    from hexawyn.application.service.keda_triggerauth_list_service import KedaTriggerAuthListService
     from hexawyn.mcp.server import build_keda_adapter
 
     try:
-        a = build_keda_adapter()
-        svc = KedaTriggerAuthListService(port=a)
-        uc = KedaTriggerAuthListUseCase(service=svc)
-        r = uc.execute(KedaTriggerAuthListCommand(namespace))
-        return {k: v for k, v in r.__dict__.items()}
+        adapter = build_keda_adapter()
+        use_case = KedaTriggerAuthListUseCase(keda_port=adapter)
+        response = use_case.execute(KedaTriggerauthListCommand(namespace=namespace))
+        return {"trigger_auths": response.trigger_auths, "error": response.error}
     except Exception as exc:
         return {"error": str(exc)}
 

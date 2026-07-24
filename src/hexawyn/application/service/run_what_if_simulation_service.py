@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.what_if_simulation_port import WhatIfSimulationPort
-from hexawyn.application.ports.driving.run_what_if_simulation.run_what_if_simulation_command import (
+from hexawyn.application.use_case.run_what_if_simulation.command import (
     RunWhatIfSimulationCommand,
 )
-from hexawyn.application.ports.driving.run_what_if_simulation.run_what_if_simulation_response import (
+from hexawyn.application.use_case.run_what_if_simulation.response import (
     RunWhatIfSimulationResponse,
 )
 from hexawyn.application.ports.driving.run_what_if_simulation.run_what_if_simulation_service_port import (

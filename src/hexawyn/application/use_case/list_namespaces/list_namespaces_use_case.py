@@ -1,21 +1,12 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.list_namespaces.list_namespaces_command import (
-    ListNamespacesCommand,
-)
-from hexawyn.application.ports.driving.list_namespaces.list_namespaces_response import (
-    ListNamespacesResponse,
-)
-from hexawyn.application.ports.driving.list_namespaces.list_namespaces_service_port import (
-    ListNamespacesServicePort,
-)
+from hexawyn.application.ports.driven.k8s_port import K8sPort
+from hexawyn.application.use_case.list_namespaces.command import ListNamespacesCommand
+from hexawyn.application.use_case.list_namespaces.response import ListNamespacesResponse
 
 
 class ListNamespacesUseCase:
-    """Entry point — depends on the service port abstraction, not the concrete service."""
-
-    def __init__(self, service: ListNamespacesServicePort) -> None:
-        self._service = service
+    def __init__(self, k8s_port: K8sPort) -> None:
+        self._k8s = k8s_port
 
     def execute(self, command: ListNamespacesCommand) -> ListNamespacesResponse:
-        return self._service.list_namespaces(command)
+        namespaces = self._k8s.list_namespaces()
+        return ListNamespacesResponse(namespaces=namespaces)

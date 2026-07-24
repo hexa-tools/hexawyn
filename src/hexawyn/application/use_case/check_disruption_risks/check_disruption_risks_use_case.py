@@ -1,19 +1,17 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.check_disruption_risks.check_disruption_risks_command import (  # noqa: E501
-    CheckDisruptionRisksCommand,
-)
-from hexawyn.application.ports.driving.check_disruption_risks.check_disruption_risks_response import (  # noqa: E501
+from hexawyn.application.ports.driven.disruption_risk_port import DisruptionRiskPort
+from hexawyn.application.use_case.check_disruption_risks.command import CheckDisruptionRisksCommand
+from hexawyn.application.use_case.check_disruption_risks.response import (
     CheckDisruptionRisksResponse,
 )
-from hexawyn.application.ports.driving.check_disruption_risks.check_disruption_risks_service_port import (  # noqa: E501
-    CheckDisruptionRisksServicePort,
-)
+from hexawyn.domain.services.disruption_risk.disruption_risk_service import compute_disruption_risks
 
 
 class CheckDisruptionRisksUseCase:
-    def __init__(self, service: CheckDisruptionRisksServicePort) -> None:
-        self._service = service
+    def __init__(self, disruption_risk_port: DisruptionRiskPort) -> None:
+        self._port = disruption_risk_port
 
     def execute(self, command: CheckDisruptionRisksCommand) -> CheckDisruptionRisksResponse:
-        return self._service.check(command)
+        raw = self._port.get_disruption_risks(command.warning_days)
+        has_data = bool(raw)
+        result = compute_disruption_risks(raw, period="Semaine en cours", has_data=has_data)
+        return CheckDisruptionRisksResponse(result=result)

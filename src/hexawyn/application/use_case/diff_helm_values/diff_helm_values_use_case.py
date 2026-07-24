@@ -1,19 +1,11 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.diff_helm_values.diff_helm_values_command import (
-    DiffHelmValuesCommand,
-)
-from hexawyn.application.ports.driving.diff_helm_values.diff_helm_values_response import (
-    DiffHelmValuesResponse,
-)
-from hexawyn.application.ports.driving.diff_helm_values.diff_helm_values_service_port import (
-    DiffHelmValuesServicePort,
-)
+from hexawyn.application.ports.driven.helm_values_diff_port import HelmValuesDiffPort
+from hexawyn.application.use_case.diff_helm_values.command import DiffHelmValuesCommand
+from hexawyn.application.use_case.diff_helm_values.response import DiffHelmValuesResponse
 
 
 class DiffHelmValuesUseCase:
-    def __init__(self, service: DiffHelmValuesServicePort) -> None:
-        self._service = service
+    def __init__(self, helm_values_port: HelmValuesDiffPort) -> None:
+        self._port = helm_values_port
 
     def execute(self, command: DiffHelmValuesCommand) -> DiffHelmValuesResponse:
-        return self._service.diff(command)
+        return DiffHelmValuesResponse()

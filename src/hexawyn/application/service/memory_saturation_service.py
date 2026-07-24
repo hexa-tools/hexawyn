@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.memory_saturation_port import MemorySaturationPort
-from hexawyn.application.ports.driving.memory_saturation.memory_saturation_command import (
+from hexawyn.application.use_case.memory_saturation.command import (
     MemorySaturationCommand,
 )
-from hexawyn.application.ports.driving.memory_saturation.memory_saturation_response import (
+from hexawyn.application.use_case.memory_saturation.response import (
     MemorySaturationResponse,
 )
 from hexawyn.application.ports.driving.memory_saturation.memory_saturation_service_port import (

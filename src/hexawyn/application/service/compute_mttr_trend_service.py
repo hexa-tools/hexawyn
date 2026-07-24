@@ -3,10 +3,10 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 from hexawyn.application.ports.driven.mttr_trend_port import MTTRTrendPort
-from hexawyn.application.ports.driving.compute_mttr_trend.compute_mttr_trend_command import (
+from hexawyn.application.use_case.compute_mttr_trend.command import (
     ComputeMTTRTrendCommand,
 )
-from hexawyn.application.ports.driving.compute_mttr_trend.compute_mttr_trend_response import (
+from hexawyn.application.use_case.compute_mttr_trend.response import (
     ComputeMTTRTrendResponse,
 )
 from hexawyn.application.ports.driving.compute_mttr_trend.compute_mttr_trend_service_port import (

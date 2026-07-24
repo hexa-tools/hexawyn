@@ -7,10 +7,10 @@ from hexawyn.application.ports.driven.kubearchive_port import (
     KubeArchivePort,
     KubeArchiveQuery,
 )
-from hexawyn.application.ports.driving.query_kubearchive.query_kubearchive_command import (
+from hexawyn.application.use_case.query_kubearchive.command import (
     QueryKubeArchiveCommand,
 )
-from hexawyn.application.ports.driving.query_kubearchive.query_kubearchive_response import (
+from hexawyn.application.use_case.query_kubearchive.response import (
     QueryKubeArchiveResponse,
 )
 from hexawyn.application.ports.driving.query_kubearchive.query_kubearchive_service_port import (

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.cluster_diff_port import ClusterDiffPort
-from hexawyn.application.ports.driving.diff_cluster_resources.diff_cluster_resources_command import (  # noqa: E501
+from hexawyn.application.use_case.diff_cluster_resources.command import (  # noqa: E501
     DiffClusterResourcesCommand,
 )
-from hexawyn.application.ports.driving.diff_cluster_resources.diff_cluster_resources_response import (  # noqa: E501
+from hexawyn.application.use_case.diff_cluster_resources.response import (  # noqa: E501
     DiffClusterResourcesResponse,
 )
 from hexawyn.application.ports.driving.diff_cluster_resources.diff_cluster_resources_service_port import (  # noqa: E501

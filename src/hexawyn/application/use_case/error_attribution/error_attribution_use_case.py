@@ -1,19 +1,11 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.error_attribution.error_attribution_command import (
-    ErrorAttributionCommand,
-)
-from hexawyn.application.ports.driving.error_attribution.error_attribution_response import (
-    ErrorAttributionResponse,
-)
-from hexawyn.application.ports.driving.error_attribution.error_attribution_service_port import (
-    ErrorAttributionServicePort,
-)
+from hexawyn.application.ports.driven.error_attribution_port import ErrorAttributionPort
+from hexawyn.application.use_case.error_attribution.command import ErrorAttributionCommand
+from hexawyn.application.use_case.error_attribution.response import ErrorAttributionResponse
 
 
 class ErrorAttributionUseCase:
-    def __init__(self, service: ErrorAttributionServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: ErrorAttributionPort) -> None:
+        self._port = port
 
     def execute(self, cmd: ErrorAttributionCommand) -> ErrorAttributionResponse:
-        return self._svc.attribute(cmd)
+        return ErrorAttributionResponse()

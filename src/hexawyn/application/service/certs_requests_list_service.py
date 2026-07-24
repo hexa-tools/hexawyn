@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
-from hexawyn.application.ports.driving.certs_requests_list.certs_requests_list_command import (
+from hexawyn.application.use_case.certs_requests_list.command import (
     CertsRequestsListCommand,
 )
-from hexawyn.application.ports.driving.certs_requests_list.certs_requests_list_response import (
+from hexawyn.application.use_case.certs_requests_list.response import (
     CertsRequestsListResponse,
 )
 from hexawyn.application.ports.driving.certs_requests_list.certs_requests_list_service_port import (

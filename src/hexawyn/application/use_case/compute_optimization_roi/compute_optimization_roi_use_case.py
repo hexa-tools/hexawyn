@@ -1,19 +1,19 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.compute_optimization_roi.compute_optimization_roi_command import (  # noqa: E501
+from hexawyn.application.ports.driven.optimization_roi_port import OptimizationRoiPort
+from hexawyn.application.use_case.compute_optimization_roi.command import (
     ComputeOptimizationRoiCommand,
 )
-from hexawyn.application.ports.driving.compute_optimization_roi.compute_optimization_roi_response import (  # noqa: E501
+from hexawyn.application.use_case.compute_optimization_roi.response import (
     ComputeOptimizationRoiResponse,
 )
-from hexawyn.application.ports.driving.compute_optimization_roi.compute_optimization_roi_service_port import (  # noqa: E501
-    ComputeOptimizationRoiServicePort,
-)
+from hexawyn.domain.services.optimization_roi.optimization_roi_service import OptimizationRoiService
 
 
 class ComputeOptimizationRoiUseCase:
-    def __init__(self, service: ComputeOptimizationRoiServicePort) -> None:
-        self._service = service
+    def __init__(self, roi_port: OptimizationRoiPort) -> None:
+        self._port = roi_port
+        self._engine = OptimizationRoiService()
 
     def execute(self, command: ComputeOptimizationRoiCommand) -> ComputeOptimizationRoiResponse:
-        return self._service.compute(command)
+        data = self._port.get_sprint_roi_data(command.sprint_id)
+        result = self._engine.compute(data, traffic_growth_pct=command.traffic_growth_pct)
+        return ComputeOptimizationRoiResponse(result=result)

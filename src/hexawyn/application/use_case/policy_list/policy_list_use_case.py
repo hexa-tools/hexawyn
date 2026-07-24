@@ -1,19 +1,14 @@
-from __future__ import annotations
+from dataclasses import asdict
 
-from hexawyn.application.ports.driving.policy_list.policy_list_command import (
-    PolicyListCommand,
-)
-from hexawyn.application.ports.driving.policy_list.policy_list_response import (
-    PolicyListResponse,
-)
-from hexawyn.application.ports.driving.policy_list.policy_list_service_port import (
-    PolicyListServicePort,
-)
+from hexawyn.application.ports.driven.policy_port import PolicyPort
+from hexawyn.application.use_case.policy_list.command import PolicyListCommand
+from hexawyn.application.use_case.policy_list.response import PolicyListResponse
 
 
 class PolicyListUseCase:
-    def __init__(self, service: PolicyListServicePort) -> None:
-        self._service = service
+    def __init__(self, policy_port: PolicyPort) -> None:
+        self._policy = policy_port
 
     def execute(self, command: PolicyListCommand) -> PolicyListResponse:
-        return self._service.list_policies(command)
+        policies = self._policy.list_policies(namespace=command.namespace)
+        return PolicyListResponse(policies=[asdict(p) for p in policies])

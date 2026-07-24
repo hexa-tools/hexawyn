@@ -1,7 +1,15 @@
+import json
 from unittest.mock import MagicMock, patch
 
 import httpx
 from hexawyn.adapters.secondary.runtime_client import RuntimeClient
+
+
+def _mock_response_raw(status_code: int) -> MagicMock:
+    resp = MagicMock(spec=httpx.Response)
+    resp.status_code = status_code
+    resp.headers = {}
+    return resp
 
 
 def _mock_response(status_code: int, json_data: dict[str, object]) -> MagicMock:
@@ -238,6 +246,116 @@ class TestRuntimeClient:
             client = RuntimeClient(endpoint="http://localhost:8000")
             client.close()
         mock_client.close.assert_called_once()
+
+    def test_post_investigation_http_401_raises_http_status_error(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.post.return_value = _mock_response(401, {"detail": "Invalid API key"})
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+
+            try:
+                client.post_investigation("test", "cluster", "vanilla")
+            except httpx.HTTPStatusError as exc:
+                assert exc.response.status_code == 401
+            else:
+                raise AssertionError("Expected HTTPStatusError")
+
+    def test_post_investigation_http_500_raises_http_status_error(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.post.return_value = _mock_response(500, {"detail": "Internal server error"})
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+
+            try:
+                client.post_investigation("test", "cluster", "vanilla")
+            except httpx.HTTPStatusError as exc:
+                assert exc.response.status_code == 500
+            else:
+                raise AssertionError("Expected HTTPStatusError")
+
+    def test_get_investigation_http_503_raises_http_status_error(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.get.return_value = _mock_response(503, {"detail": "Service unavailable"})
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+
+            try:
+                client.get_investigation("job-1")
+            except httpx.HTTPStatusError as exc:
+                assert exc.response.status_code == 503
+            else:
+                raise AssertionError("Expected HTTPStatusError")
+
+    def test_post_investigation_read_timeout_propagates(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.post.side_effect = httpx.ReadTimeout("read timed out")
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+
+            try:
+                client.post_investigation("test", "cluster", "vanilla")
+            except httpx.ReadTimeout as exc:
+                assert "read timed out" in str(exc)
+            else:
+                raise AssertionError("Expected ReadTimeout")
+
+    def test_check_quota_http_429_raises_http_status_error(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_client.get.return_value = _mock_response(429, {"detail": "Rate limit exceeded"})
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+
+            try:
+                client.check_quota()
+            except httpx.HTTPStatusError as exc:
+                assert exc.response.status_code == 429
+            else:
+                raise AssertionError("Expected HTTPStatusError")
+
+    def test_post_investigation_invalid_json_raises_error(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_resp = MagicMock(spec=httpx.Response)
+        mock_resp.status_code = 200
+        mock_resp.raise_for_status = MagicMock()
+        mock_resp.json.side_effect = json.JSONDecodeError("Expecting value", "not json", 0)
+        mock_client.post.return_value = mock_resp
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+
+            try:
+                client.post_investigation("test", "cluster", "vanilla")
+            except json.JSONDecodeError:
+                pass
+            else:
+                raise AssertionError("Expected JSONDecodeError")
+
+    def test_stream_investigation_http_500_before_stream_raises(self) -> None:
+        mock_client = MagicMock(spec=httpx.Client)
+        mock_stream = MagicMock()
+        mock_stream.__enter__.return_value = mock_stream
+        mock_stream.__exit__.return_value = None
+        mock_stream.raise_for_status.side_effect = httpx.HTTPStatusError(
+            "Internal Server Error",
+            request=MagicMock(),
+            response=_mock_response_raw(500),
+        )
+        mock_client.stream.return_value = mock_stream
+
+        with patch("httpx.Client", return_value=mock_client):
+            client = RuntimeClient(endpoint="http://localhost:8000")
+
+            try:
+                list(client.stream_investigation(query="test query"))
+            except httpx.HTTPStatusError as exc:
+                assert exc.response.status_code == 500
+            else:
+                raise AssertionError("Expected HTTPStatusError")
 
     def test_stream_with_pods_and_history(self) -> None:
         mock_client = MagicMock(spec=httpx.Client)

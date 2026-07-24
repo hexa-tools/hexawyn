@@ -4,10 +4,10 @@ from calendar import monthrange
 from datetime import UTC, datetime
 
 from hexawyn.application.ports.driven.team_cost_port import TeamCostPort
-from hexawyn.application.ports.driving.compute_team_cost.compute_team_cost_command import (
+from hexawyn.application.use_case.compute_team_cost.command import (
     ComputeTeamCostCommand,
 )
-from hexawyn.application.ports.driving.compute_team_cost.compute_team_cost_response import (
+from hexawyn.application.use_case.compute_team_cost.response import (
     ComputeTeamCostResponse,
 )
 from hexawyn.application.ports.driving.compute_team_cost.compute_team_cost_service_port import (

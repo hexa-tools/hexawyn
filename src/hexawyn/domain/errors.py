@@ -253,8 +253,7 @@ class KedaNotFoundError(HexawynError):
 
     def __init__(self) -> None:
         super().__init__(
-            "KEDA is not installed in this cluster. "
-            "Install it first: https://keda.sh/docs/deploy/"
+            "KEDA is not installed in this cluster. Install it first: https://keda.sh/docs/deploy/"
         )
 
 

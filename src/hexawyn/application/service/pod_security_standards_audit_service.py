@@ -5,16 +5,16 @@ from hexawyn.application.ports.driven.pod_security_context_audit_port import (
     PodSecurityContextAuditPort,
     PodSecuritySpecRaw,
 )
-from hexawyn.application.ports.driving.detect_privileged_pods.detect_privileged_pods_command import (
+from hexawyn.application.ports.driving.detect_privileged_pods.detect_privileged_pods_service_port import (
+    DetectPrivilegedPodsServicePort,
+)
+from hexawyn.application.use_case.detect_privileged_pods.command import (
     DetectPrivilegedPodsCommand,
 )
-from hexawyn.application.ports.driving.detect_privileged_pods.detect_privileged_pods_response import (
+from hexawyn.application.use_case.detect_privileged_pods.response import (
     DetectPrivilegedPodsResponse,
     PodSecurityFindingDict,
     SecurityViolationDict,
-)
-from hexawyn.application.ports.driving.detect_privileged_pods.detect_privileged_pods_service_port import (
-    DetectPrivilegedPodsServicePort,
 )
 from hexawyn.domain.models.constants import PodSecurityConstants
 from hexawyn.domain.models.pod_security import (

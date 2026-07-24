@@ -4,21 +4,19 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.certs_detect.certs_detect_command import CertsDetectCommand
 from hexawyn.application.use_case.certs_detect.certs_detect_use_case import CertsDetectUseCase
+from hexawyn.application.use_case.certs_detect.command import CertsDetectCommand
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
 def certs_detect() -> dict[str, object]:
-    from hexawyn.application.service.certs_detect_service import CertsDetectService
     from hexawyn.mcp.server import build_cert_manager_adapter
 
     try:
         adapter = build_cert_manager_adapter()
-        svc = CertsDetectService(port=adapter)
-        uc = CertsDetectUseCase(service=svc)
+        uc = CertsDetectUseCase(cert_manager_port=adapter)
         r = uc.execute(CertsDetectCommand())
         return {
             "installed": r.installed,

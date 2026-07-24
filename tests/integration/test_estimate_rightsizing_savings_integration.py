@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
-from hexawyn.application.ports.driving.estimate_rightsizing_savings.estimate_rightsizing_savings_command import (
+from hexawyn.application.use_case.estimate_rightsizing_savings.command import (
     EstimateRightsizingSavingsCommand,
 )
 from hexawyn.application.service.estimate_rightsizing_savings_service import (

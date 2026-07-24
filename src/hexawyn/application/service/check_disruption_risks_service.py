@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.disruption_risk_port import DisruptionRiskPort
-from hexawyn.application.ports.driving.check_disruption_risks.check_disruption_risks_command import (  # noqa: E501
+from hexawyn.application.use_case.check_disruption_risks.command import (  # noqa: E501
     CheckDisruptionRisksCommand,
 )
-from hexawyn.application.ports.driving.check_disruption_risks.check_disruption_risks_response import (  # noqa: E501
+from hexawyn.application.use_case.check_disruption_risks.response import (  # noqa: E501
     CheckDisruptionRisksResponse,
 )
 from hexawyn.application.ports.driving.check_disruption_risks.check_disruption_risks_service_port import (  # noqa: E501

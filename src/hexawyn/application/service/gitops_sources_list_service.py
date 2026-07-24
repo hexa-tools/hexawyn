@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.gitops_port import GitOpsPort
-from hexawyn.application.ports.driving.gitops_sources_list.gitops_sources_list_command import (
+from hexawyn.application.use_case.gitops_sources_list.command import (
     GitOpsSourcesListCommand,
 )
-from hexawyn.application.ports.driving.gitops_sources_list.gitops_sources_list_response import (
+from hexawyn.application.use_case.gitops_sources_list.response import (
     GitOpsSourcesListResponse,
 )
 from hexawyn.application.ports.driving.gitops_sources_list.gitops_sources_list_service_port import (

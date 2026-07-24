@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.etcd_logs.etcd_logs_command import ETCDLogsCommand
+from hexawyn.application.use_case.etcd_logs.command import EtcdLogsCommand
 from hexawyn.application.use_case.etcd_logs.etcd_logs_use_case import ETCDLogsUseCase
 
 if TYPE_CHECKING:
@@ -12,13 +12,12 @@ if TYPE_CHECKING:
 
 
 def etcd_logs(time_window_minutes: int = 60) -> dict[str, object]:
-    from hexawyn.application.service.etcd_logs_service import ETCDLogsService
     from hexawyn.mcp.server import build_etcd_logs_adapter
 
     try:
         a = build_etcd_logs_adapter()
-        r = ETCDLogsUseCase(service=ETCDLogsService(port=a)).execute(
-            ETCDLogsCommand(time_window_minutes=time_window_minutes)
+        r = ETCDLogsUseCase(port=a).execute(
+            EtcdLogsCommand(time_window_minutes=time_window_minutes)
         )
         return {
             "etcd_accessible": r.etcd_accessible,

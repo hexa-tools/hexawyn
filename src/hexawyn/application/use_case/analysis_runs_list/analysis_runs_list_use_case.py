@@ -1,19 +1,16 @@
-from __future__ import annotations
+from dataclasses import asdict
 
-from hexawyn.application.ports.driving.analysis_runs_list.analysis_runs_list_command import (
-    AnalysisRunsListCommand,
-)
-from hexawyn.application.ports.driving.analysis_runs_list.analysis_runs_list_response import (
-    AnalysisRunsListResponse,
-)
-from hexawyn.application.ports.driving.analysis_runs_list.analysis_runs_list_service_port import (
-    AnalysisRunsListServicePort,
-)
+from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
+from hexawyn.application.use_case.analysis_runs_list.command import AnalysisRunsListCommand
+from hexawyn.application.use_case.analysis_runs_list.response import AnalysisRunsListResponse
 
 
 class AnalysisRunsListUseCase:
-    def __init__(self, service: AnalysisRunsListServicePort) -> None:
-        self._service = service
+    def __init__(self, rollouts_port: RolloutsPort) -> None:
+        self._rollouts = rollouts_port
 
     def execute(self, command: AnalysisRunsListCommand) -> AnalysisRunsListResponse:
-        return self._service.list_analysis_runs(command)
+        runs = self._rollouts.list_analysis_runs(
+            namespace=command.namespace, rollout_name=command.rollout_name
+        )
+        return AnalysisRunsListResponse(analysis_runs=[asdict(r) for r in runs])

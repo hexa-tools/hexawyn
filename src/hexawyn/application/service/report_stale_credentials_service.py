@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.stale_credentials_port import StaleCredentialsPort
-from hexawyn.application.ports.driving.report_stale_credentials.report_stale_credentials_command import (  # noqa: E501
+from hexawyn.application.use_case.report_stale_credentials.command import (  # noqa: E501
     ReportStaleCredentialsCommand,
 )
-from hexawyn.application.ports.driving.report_stale_credentials.report_stale_credentials_response import (  # noqa: E501
+from hexawyn.application.use_case.report_stale_credentials.response import (  # noqa: E501
     ReportStaleCredentialsResponse,
 )
 from hexawyn.application.ports.driving.report_stale_credentials.report_stale_credentials_service_port import (  # noqa: E501

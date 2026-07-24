@@ -1,19 +1,16 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.compute_prediction_roi.compute_prediction_roi_command import (  # noqa: E501
-    ComputePredictionRoiCommand,
-)
-from hexawyn.application.ports.driving.compute_prediction_roi.compute_prediction_roi_response import (  # noqa: E501
+from hexawyn.application.ports.driven.prediction_roi_port import PredictionRoiPort
+from hexawyn.application.use_case.compute_prediction_roi.command import ComputePredictionRoiCommand
+from hexawyn.application.use_case.compute_prediction_roi.response import (
     ComputePredictionRoiResponse,
 )
-from hexawyn.application.ports.driving.compute_prediction_roi.compute_prediction_roi_service_port import (  # noqa: E501
-    ComputePredictionRoiServicePort,
-)
+from hexawyn.domain.services.prediction_roi.prediction_roi_calculator import compute_prediction_roi
 
 
 class ComputePredictionRoiUseCase:
-    def __init__(self, service: ComputePredictionRoiServicePort) -> None:
-        self._service = service
+    def __init__(self, prediction_roi_port: PredictionRoiPort) -> None:
+        self._port = prediction_roi_port
 
     def execute(self, command: ComputePredictionRoiCommand) -> ComputePredictionRoiResponse:
-        return self._service.compute(command)
+        data = self._port.get_prediction_roi_data(command.period)
+        result = compute_prediction_roi(data, period=command.period)
+        return ComputePredictionRoiResponse(result=result)

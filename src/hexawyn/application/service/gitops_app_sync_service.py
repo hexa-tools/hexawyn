@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.gitops_port import GitOpsPort
-from hexawyn.application.ports.driving.gitops_app_sync.gitops_app_sync_command import (
+from hexawyn.application.use_case.gitops_app_sync.command import (
     GitOpsAppSyncCommand,
 )
-from hexawyn.application.ports.driving.gitops_app_sync.gitops_app_sync_response import (
+from hexawyn.application.use_case.gitops_app_sync.response import (
     GitOpsAppSyncResponse,
 )
 from hexawyn.application.ports.driving.gitops_app_sync.gitops_app_sync_service_port import (

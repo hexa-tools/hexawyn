@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.pipeline_tracer_port import PipelineTracerPort
-from hexawyn.application.ports.driving.trace_pipeline_run_dag.trace_pipeline_run_dag_command import (
+from hexawyn.application.use_case.trace_pipeline_run_dag.command import (
     TracePipelineRunDAGCommand,
 )
-from hexawyn.application.ports.driving.trace_pipeline_run_dag.trace_pipeline_run_dag_response import (
+from hexawyn.application.use_case.trace_pipeline_run_dag.response import (
     TracePipelineRunDAGResponse,
 )
 from hexawyn.application.ports.driving.trace_pipeline_run_dag.trace_pipeline_run_dag_service_port import (

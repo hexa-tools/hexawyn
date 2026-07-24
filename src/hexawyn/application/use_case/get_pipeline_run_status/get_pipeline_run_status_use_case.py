@@ -1,19 +1,13 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.get_pipeline_run_status.get_pipeline_run_status_command import (
-    GetPipelineRunStatusCommand,
-)
-from hexawyn.application.ports.driving.get_pipeline_run_status.get_pipeline_run_status_response import (
+from hexawyn.application.ports.driven.tekton_pipeline_status_port import TektonPipelineStatusPort
+from hexawyn.application.use_case.get_pipeline_run_status.command import GetPipelineRunStatusCommand
+from hexawyn.application.use_case.get_pipeline_run_status.response import (
     GetPipelineRunStatusResponse,
-)
-from hexawyn.application.ports.driving.get_pipeline_run_status.get_pipeline_run_status_service_port import (
-    GetPipelineRunStatusServicePort,
 )
 
 
 class GetPipelineRunStatusUseCase:
-    def __init__(self, service: GetPipelineRunStatusServicePort) -> None:
-        self._service = service
+    def __init__(self, port: TektonPipelineStatusPort) -> None:
+        self._port = port
 
     def execute(self, command: GetPipelineRunStatusCommand) -> GetPipelineRunStatusResponse:
-        return self._service.get_pipeline_run_status(command)
+        return GetPipelineRunStatusResponse()

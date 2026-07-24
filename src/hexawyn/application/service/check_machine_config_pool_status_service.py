@@ -3,10 +3,10 @@ from __future__ import annotations
 from hexawyn.application.ports.driven.machine_config_pool_port import (
     MachineConfigPoolPort,
 )
-from hexawyn.application.ports.driving.check_machine_config_pool_status.check_machine_config_pool_status_command import (  # noqa: E501
+from hexawyn.application.use_case.check_machine_config_pool_status.command import (  # noqa: E501
     CheckMachineConfigPoolStatusCommand,
 )
-from hexawyn.application.ports.driving.check_machine_config_pool_status.check_machine_config_pool_status_response import (  # noqa: E501
+from hexawyn.application.use_case.check_machine_config_pool_status.response import (  # noqa: E501
     CheckMachineConfigPoolStatusResponse,
 )
 from hexawyn.application.ports.driving.check_machine_config_pool_status.check_machine_config_pool_status_service_port import (  # noqa: E501

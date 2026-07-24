@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.optimization_roi_port import OptimizationRoiPort
-from hexawyn.application.ports.driving.compute_optimization_roi.compute_optimization_roi_command import (  # noqa: E501
+from hexawyn.application.use_case.compute_optimization_roi.command import (  # noqa: E501
     ComputeOptimizationRoiCommand,
 )
-from hexawyn.application.ports.driving.compute_optimization_roi.compute_optimization_roi_response import (  # noqa: E501
+from hexawyn.application.use_case.compute_optimization_roi.response import (  # noqa: E501
     ComputeOptimizationRoiResponse,
 )
 from hexawyn.application.ports.driving.compute_optimization_roi.compute_optimization_roi_service_port import (  # noqa: E501

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.list_pods.list_pods_command import ListPodsCommand
+from hexawyn.application.use_case.list_pods.command import ListPodsCommand
 from hexawyn.application.use_case.list_pods.list_pods_use_case import ListPodsUseCase
 
 if TYPE_CHECKING:
@@ -12,18 +12,12 @@ if TYPE_CHECKING:
 
 
 def list_pods(namespace: str) -> dict[str, object]:
-    """List all pods in a namespace with health overview.
-
-    Args:
-        namespace: The Kubernetes namespace to list pods from.
-    """
-    from hexawyn.application.service.list_pods_service import ListPodsService
+    """List all pods in a namespace with health overview."""
     from hexawyn.mcp.server import build_k8s_adapter
 
     try:
         adapter = build_k8s_adapter()
-        service = ListPodsService(k8s_port=adapter)
-        use_case = ListPodsUseCase(service=service)
+        use_case = ListPodsUseCase(k8s_port=adapter)
         response = use_case.execute(ListPodsCommand(namespace=namespace))
         return {"pods": list(response.pods), "error": None}
     except Exception as exc:
@@ -31,5 +25,4 @@ def list_pods(namespace: str) -> dict[str, object]:
 
 
 def register(mcp: FastMCP) -> None:
-    """Register list_pods as an MCP tool on the given FastMCP server."""
     mcp.tool()(list_pods)

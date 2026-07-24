@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.trace_query_port import TraceQueryPort
-from hexawyn.application.ports.driving.latency_diagnostic.latency_diagnostic_command import (
+from hexawyn.application.use_case.latency_diagnostic.command import (
     LatencyDiagnosticCommand,
 )
-from hexawyn.application.ports.driving.latency_diagnostic.latency_diagnostic_response import (
+from hexawyn.application.use_case.latency_diagnostic.response import (
     LatencyDiagnosticResponse,
 )
 from hexawyn.application.ports.driving.latency_diagnostic.latency_diagnostic_service_port import (

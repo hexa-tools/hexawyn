@@ -1,21 +1,19 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.generate_weekly_reliability_report.generate_weekly_reliability_report_command import (
+from hexawyn.application.ports.driven.weekly_reliability_report_port import (
+    WeeklyReliabilityReportPort,
+)
+from hexawyn.application.use_case.generate_weekly_reliability_report.command import (
     GenerateWeeklyReliabilityReportCommand,
 )
-from hexawyn.application.ports.driving.generate_weekly_reliability_report.generate_weekly_reliability_report_response import (
+from hexawyn.application.use_case.generate_weekly_reliability_report.response import (
     GenerateWeeklyReliabilityReportResponse,
-)
-from hexawyn.application.ports.driving.generate_weekly_reliability_report.generate_weekly_reliability_report_service_port import (
-    GenerateWeeklyReliabilityReportServicePort,
 )
 
 
 class GenerateWeeklyReliabilityReportUseCase:
-    def __init__(self, service: GenerateWeeklyReliabilityReportServicePort) -> None:
-        self._service = service
+    def __init__(self, reliability_port: WeeklyReliabilityReportPort) -> None:
+        self._port = reliability_port
 
     def execute(
         self, command: GenerateWeeklyReliabilityReportCommand
     ) -> GenerateWeeklyReliabilityReportResponse:
-        return self._service.generate_report(command)
+        return GenerateWeeklyReliabilityReportResponse()

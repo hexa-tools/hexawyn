@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from hexawyn.application.ports.driven.pipeline_run_logs_port import PipelineRunLogsPort
 from hexawyn.application.ports.driven.tekton_port import TektonPort
-from hexawyn.application.ports.driving.analyze_failed_pipeline.analyze_failed_pipeline_command import (
+from hexawyn.application.use_case.analyze_failed_pipeline.command import (
     AnalyzeFailedPipelineCommand,
 )
-from hexawyn.application.ports.driving.analyze_failed_pipeline.analyze_failed_pipeline_response import (
+from hexawyn.application.use_case.analyze_failed_pipeline.response import (
     AnalyzeFailedPipelineResponse,
     FailureAnalysisDict,
 )

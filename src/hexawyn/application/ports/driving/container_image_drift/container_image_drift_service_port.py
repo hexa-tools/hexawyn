@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.container_image_drift.container_image_drift_command import (
+from hexawyn.application.use_case.detect_container_image_drift.command import (
     ContainerImageDriftCommand,
 )
-from hexawyn.application.ports.driving.container_image_drift.container_image_drift_response import (
+from hexawyn.application.use_case.detect_container_image_drift.response import (
     ContainerImageDriftResponse,
 )
 

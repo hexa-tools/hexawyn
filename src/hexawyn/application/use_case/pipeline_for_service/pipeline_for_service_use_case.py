@@ -1,19 +1,11 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.pipeline_for_service.pipeline_for_service_command import (
-    PipelineForServiceCommand,
-)
-from hexawyn.application.ports.driving.pipeline_for_service.pipeline_for_service_response import (
-    PipelineForServiceResponse,
-)
-from hexawyn.application.ports.driving.pipeline_for_service.pipeline_for_service_service_port import (
-    PipelineForServiceServicePort,
-)
+from hexawyn.application.ports.driven.pipeline_for_service_port import PipelineForServicePort
+from hexawyn.application.use_case.pipeline_for_service.command import PipelineForServiceCommand
+from hexawyn.application.use_case.pipeline_for_service.response import PipelineForServiceResponse
 
 
 class PipelineForServiceUseCase:
-    def __init__(self, service: PipelineForServiceServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: PipelineForServicePort) -> None:
+        self._port = port
 
-    def execute(self, cmd: PipelineForServiceCommand) -> PipelineForServiceResponse:
-        return self._svc.find(cmd)
+    def execute(self, command: PipelineForServiceCommand) -> PipelineForServiceResponse:
+        return PipelineForServiceResponse()

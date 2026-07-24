@@ -2,10 +2,10 @@ from hexawyn.application.ports.driven.namespace_waste_port import (
     NamespaceRawData,
     NamespaceWasteAnalysisPort,
 )
-from hexawyn.application.ports.driving.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_command import (
+from hexawyn.application.use_case.detect_over_provisioned_namespaces.command import (
     DetectOverProvisionedNamespacesCommand,
 )
-from hexawyn.application.ports.driving.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_response import (
+from hexawyn.application.use_case.detect_over_provisioned_namespaces.response import (
     DetectOverProvisionedNamespacesResponse,
 )
 from hexawyn.application.ports.driving.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_service_port import (

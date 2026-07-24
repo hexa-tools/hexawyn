@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.latency_diagnostic.latency_diagnostic_command import (
-    LatencyDiagnosticCommand,
-)
+from hexawyn.application.use_case.latency_diagnostic.command import LatencyDiagnosticCommand
 from hexawyn.application.use_case.latency_diagnostic.latency_diagnostic_use_case import (
     LatencyDiagnosticUseCase,
 )
@@ -18,12 +16,11 @@ if TYPE_CHECKING:
 def latency_diagnostic(
     service_name: str, time_window_minutes: int = 15, threshold_ms: float = 500.0
 ) -> dict[str, object]:
-    from hexawyn.application.service.latency_diagnostic_service import LatencyDiagnosticService
     from hexawyn.mcp.server import build_trace_query_adapter
 
     try:
         a = build_trace_query_adapter()
-        r = LatencyDiagnosticUseCase(service=LatencyDiagnosticService(port=a)).execute(
+        r = LatencyDiagnosticUseCase(port=a).execute(
             LatencyDiagnosticCommand(
                 service_name=service_name,
                 time_window_minutes=time_window_minutes,

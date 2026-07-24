@@ -1,19 +1,12 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.policy_explain_denial.policy_explain_denial_command import (
-    PolicyExplainDenialCommand,
-)
-from hexawyn.application.ports.driving.policy_explain_denial.policy_explain_denial_response import (
-    PolicyExplainDenialResponse,
-)
-from hexawyn.application.ports.driving.policy_explain_denial.policy_explain_denial_service_port import (
-    PolicyExplainDenialServicePort,
-)
+from hexawyn.application.ports.driven.policy_port import PolicyPort
+from hexawyn.application.use_case.policy_explain_denial.command import PolicyExplainDenialCommand
+from hexawyn.application.use_case.policy_explain_denial.response import PolicyExplainDenialResponse
 
 
 class PolicyExplainDenialUseCase:
-    def __init__(self, service: PolicyExplainDenialServicePort) -> None:
-        self._service = service
+    def __init__(self, policy_port: PolicyPort) -> None:
+        self._policy = policy_port
 
     def execute(self, command: PolicyExplainDenialCommand) -> PolicyExplainDenialResponse:
-        return self._service.explain(command)
+        p = self._policy.get_policy(name=command.name, namespace=command.namespace)
+        return PolicyExplainDenialResponse(explanation=p.message or "No explanation available")

@@ -3,7 +3,7 @@ from hexawyn.domain.models.incident_cost import IncidentCostReport
 
 class TestAnalyzeIncidentCostResponse:
     def test_wraps_report(self) -> None:
-        from hexawyn.application.ports.driving.analyze_incident_cost.analyze_incident_cost_response import (  # noqa: E501
+        from hexawyn.application.use_case.analyze_incident_cost.response import (  # noqa: E501
             AnalyzeIncidentCostResponse,
         )
 

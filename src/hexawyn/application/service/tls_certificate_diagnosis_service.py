@@ -3,10 +3,10 @@ from __future__ import annotations
 from hexawyn.application.ports.driven.certificate_investigation_port import (
     CertificateInvestigationPort,
 )
-from hexawyn.application.ports.driving.tls_certificate_diagnosis.tls_certificate_diagnosis_command import (
+from hexawyn.application.use_case.tls_certificate_diagnosis.command import (
     TLSCertificateDiagnosisCommand,
 )
-from hexawyn.application.ports.driving.tls_certificate_diagnosis.tls_certificate_diagnosis_response import (
+from hexawyn.application.use_case.tls_certificate_diagnosis.response import (
     TLSCertificateDiagnosisResponse,
 )
 from hexawyn.application.ports.driving.tls_certificate_diagnosis.tls_certificate_diagnosis_service_port import (

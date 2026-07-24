@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.cost_profiling_port import CostProfilingPort
-from hexawyn.application.ports.driving.cost_profiling.cost_profiling_command import (
+from hexawyn.application.use_case.cost_profiling.command import (
     CostProfilingCommand,
 )
-from hexawyn.application.ports.driving.cost_profiling.cost_profiling_response import (
+from hexawyn.application.use_case.cost_profiling.response import (
     CostProfilingResponse,
 )
 from hexawyn.application.ports.driving.cost_profiling.cost_profiling_service_port import (

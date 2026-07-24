@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.keda_port import KedaPort
-from hexawyn.application.ports.driving.keda_scaledobject_triggers.keda_scaledobject_triggers_command import (
+from hexawyn.application.use_case.keda_scaledobject_triggers.command import (
     KedaScaledObjectTriggersCommand,
 )
-from hexawyn.application.ports.driving.keda_scaledobject_triggers.keda_scaledobject_triggers_response import (
+from hexawyn.application.use_case.keda_scaledobject_triggers.response import (
     KedaScaledObjectTriggersResponse,
 )
 from hexawyn.application.ports.driving.keda_scaledobject_triggers.keda_scaledobject_triggers_service_port import (

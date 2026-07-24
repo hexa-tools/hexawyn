@@ -1,19 +1,11 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.semantic_log_search.semantic_log_search_command import (
-    SemanticLogSearchCommand,
-)
-from hexawyn.application.ports.driving.semantic_log_search.semantic_log_search_response import (
-    SemanticLogSearchResponse,
-)
-from hexawyn.application.ports.driving.semantic_log_search.semantic_log_search_service_port import (
-    SemanticLogSearchServicePort,
-)
+from hexawyn.application.ports.driven.k8s_port import K8sPort
+from hexawyn.application.use_case.semantic_log_search.command import SemanticLogSearchCommand
+from hexawyn.application.use_case.semantic_log_search.response import SemanticLogSearchResponse
 
 
 class SemanticLogSearchUseCase:
-    def __init__(self, service: SemanticLogSearchServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: K8sPort) -> None:
+        self._port = port
 
     def execute(self, command: SemanticLogSearchCommand) -> SemanticLogSearchResponse:
-        return self._svc.search(command)
+        return SemanticLogSearchResponse()

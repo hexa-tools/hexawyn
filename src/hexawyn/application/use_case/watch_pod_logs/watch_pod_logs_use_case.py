@@ -1,19 +1,11 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.watch_pod_logs.watch_pod_logs_command import (
-    WatchPodLogsCommand,
-)
-from hexawyn.application.ports.driving.watch_pod_logs.watch_pod_logs_response import (
-    WatchPodLogsResponse,
-)
-from hexawyn.application.ports.driving.watch_pod_logs.watch_pod_logs_service_port import (
-    WatchPodLogsServicePort,
-)
+from hexawyn.application.ports.driven.pod_log_watch_port import PodLogWatchPort
+from hexawyn.application.use_case.watch_pod_logs.command import WatchPodLogsCommand
+from hexawyn.application.use_case.watch_pod_logs.response import WatchPodLogsResponse
 
 
 class WatchPodLogsUseCase:
-    def __init__(self, service: WatchPodLogsServicePort) -> None:
-        self._svc = service
+    def __init__(self, pod_log_watch_port: PodLogWatchPort) -> None:
+        self._port = pod_log_watch_port
 
     def execute(self, command: WatchPodLogsCommand) -> WatchPodLogsResponse:
-        return self._svc.watch(command)
+        return WatchPodLogsResponse()

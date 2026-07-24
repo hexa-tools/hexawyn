@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
-from hexawyn.application.ports.driving.forecast_cost.forecast_cost_command import (
+from hexawyn.application.use_case.forecast_cost.command import (
     ForecastCostCommand,
 )
 from hexawyn.application.service.forecast_cost_service import ForecastCostService

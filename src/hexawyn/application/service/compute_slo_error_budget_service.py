@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.error_budget_port import ErrorBudgetPort
-from hexawyn.application.ports.driving.compute_slo_error_budget.compute_slo_error_budget_command import (
+from hexawyn.application.use_case.compute_slo_error_budget.command import (
     ComputeSLOErrorBudgetCommand,
 )
-from hexawyn.application.ports.driving.compute_slo_error_budget.compute_slo_error_budget_response import (
+from hexawyn.application.use_case.compute_slo_error_budget.response import (
     ComputeSLOErrorBudgetResponse,
 )
 from hexawyn.application.ports.driving.compute_slo_error_budget.compute_slo_error_budget_service_port import (

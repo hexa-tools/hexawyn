@@ -3,10 +3,10 @@ from __future__ import annotations
 from hexawyn.application.ports.driven.cluster_operator_status_port import (
     ClusterOperatorStatusPort,
 )
-from hexawyn.application.ports.driving.check_cluster_operator_health.check_cluster_operator_health_command import (  # noqa: E501
+from hexawyn.application.use_case.check_cluster_operator_health.command import (  # noqa: E501
     CheckClusterOperatorHealthCommand,
 )
-from hexawyn.application.ports.driving.check_cluster_operator_health.check_cluster_operator_health_response import (  # noqa: E501
+from hexawyn.application.use_case.check_cluster_operator_health.response import (  # noqa: E501
     CheckClusterOperatorHealthResponse,
 )
 from hexawyn.application.ports.driving.check_cluster_operator_health.check_cluster_operator_health_service_port import (  # noqa: E501

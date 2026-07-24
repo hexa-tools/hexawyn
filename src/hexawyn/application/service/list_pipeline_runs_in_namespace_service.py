@@ -1,10 +1,10 @@
 from datetime import UTC, datetime
 
 from hexawyn.application.ports.driven.tekton_port import NamespacedPipelineRunInfo, TektonPort
-from hexawyn.application.ports.driving.list_pipeline_runs_in_namespace.list_pipeline_runs_in_namespace_command import (
+from hexawyn.application.use_case.list_pipeline_runs_in_namespace.command import (
     ListPipelineRunsInNamespaceCommand,
 )
-from hexawyn.application.ports.driving.list_pipeline_runs_in_namespace.list_pipeline_runs_in_namespace_response import (
+from hexawyn.application.use_case.list_pipeline_runs_in_namespace.response import (
     ListPipelineRunsInNamespaceResponse,
 )
 from hexawyn.application.ports.driving.list_pipeline_runs_in_namespace.list_pipeline_runs_in_namespace_service_port import (

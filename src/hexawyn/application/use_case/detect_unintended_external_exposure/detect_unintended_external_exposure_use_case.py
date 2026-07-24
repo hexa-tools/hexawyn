@@ -1,21 +1,17 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.detect_unintended_external_exposure.detect_unintended_external_exposure_command import (
+from hexawyn.application.ports.driven.external_exposure_audit_port import ExternalExposureAuditPort
+from hexawyn.application.use_case.detect_unintended_external_exposure.command import (
     DetectUnintendedExternalExposureCommand,
 )
-from hexawyn.application.ports.driving.detect_unintended_external_exposure.detect_unintended_external_exposure_response import (
+from hexawyn.application.use_case.detect_unintended_external_exposure.response import (
     DetectUnintendedExternalExposureResponse,
-)
-from hexawyn.application.ports.driving.detect_unintended_external_exposure.detect_unintended_external_exposure_service_port import (
-    DetectUnintendedExternalExposureServicePort,
 )
 
 
 class DetectUnintendedExternalExposureUseCase:
-    def __init__(self, service: DetectUnintendedExternalExposureServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: ExternalExposureAuditPort) -> None:
+        self._port = port
 
     def execute(
         self, command: DetectUnintendedExternalExposureCommand
     ) -> DetectUnintendedExternalExposureResponse:
-        return self._svc.detect_unintended_exposure(command)
+        return DetectUnintendedExternalExposureResponse()

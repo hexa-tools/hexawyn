@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.keda_port import KedaPort
-from hexawyn.application.ports.driving.keda_scaledobject_get.keda_scaledobject_get_command import (
+from hexawyn.application.use_case.keda_scaledobject_get.command import (
     KedaScaledObjectGetCommand,
 )
-from hexawyn.application.ports.driving.keda_scaledobject_get.keda_scaledobject_get_response import (
+from hexawyn.application.use_case.keda_scaledobject_get.response import (
     KedaScaledObjectGetResponse,
 )
 from hexawyn.application.ports.driving.keda_scaledobject_get.keda_scaledobject_get_service_port import (

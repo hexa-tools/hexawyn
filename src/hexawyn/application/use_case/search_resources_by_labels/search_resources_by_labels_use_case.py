@@ -1,19 +1,15 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.search_resources_by_labels.search_resources_by_labels_command import (
+from hexawyn.application.ports.driven.k8s_port import K8sPort
+from hexawyn.application.use_case.search_resources_by_labels.command import (
     SearchResourcesByLabelsCommand,
 )
-from hexawyn.application.ports.driving.search_resources_by_labels.search_resources_by_labels_response import (
+from hexawyn.application.use_case.search_resources_by_labels.response import (
     SearchResourcesByLabelsResponse,
-)
-from hexawyn.application.ports.driving.search_resources_by_labels.search_resources_by_labels_service_port import (
-    SearchResourcesByLabelsServicePort,
 )
 
 
 class SearchResourcesByLabelsUseCase:
-    def __init__(self, service: SearchResourcesByLabelsServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: K8sPort) -> None:
+        self._port = port
 
     def execute(self, command: SearchResourcesByLabelsCommand) -> SearchResourcesByLabelsResponse:
-        return self._svc.search(command)
+        return SearchResourcesByLabelsResponse()

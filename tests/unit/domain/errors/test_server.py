@@ -1144,6 +1144,35 @@ class TestMCPListPipelineRunsInNamespaceTool:
         assert result["note"] is not None
         assert result["error"] is None
 
+    def test_malformed_start_time_is_skipped(self) -> None:
+        from hexawyn.application.ports.driven.tekton_port import (
+            NamespacedPipelineRunInfo,
+            TektonPort,
+        )
+
+        runs: list[NamespacedPipelineRunInfo] = [
+            {
+                "name": "bad-date",
+                "status": "Running",
+                "start_time": "not-a-date",
+                "duration": None,
+                "duration_seconds": None,
+                "pipeline_ref": "unknown",
+            },
+        ]
+        mock_adapter = MagicMock(spec=TektonPort)
+        mock_adapter.list_pipeline_runs_in_namespace.return_value = runs
+
+        with patch("hexawyn.mcp.server.build_tekton_adapter", return_value=mock_adapter):
+            from hexawyn.mcp.tools.list_pipeline_runs_in_namespace import (
+                list_pipeline_runs_in_namespace,
+            )
+
+            result = list_pipeline_runs_in_namespace(namespace="tekton")
+
+        assert result["error"] is None
+        assert result["stuck_runs"] == []
+
     def test_rbac_error_returns_error_field(self) -> None:
         from hexawyn.application.ports.driven.tekton_port import TektonPort
         from hexawyn.domain.errors import InsufficientPermissionsError

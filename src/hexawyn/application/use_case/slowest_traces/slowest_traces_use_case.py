@@ -1,19 +1,14 @@
-from __future__ import annotations
+from dataclasses import asdict
 
-from hexawyn.application.ports.driving.slowest_traces.slowest_traces_command import (
-    SlowestTracesCommand,
-)
-from hexawyn.application.ports.driving.slowest_traces.slowest_traces_response import (
-    SlowestTracesResponse,
-)
-from hexawyn.application.ports.driving.slowest_traces.slowest_traces_service_port import (
-    SlowestTracesServicePort,
-)
+from hexawyn.application.ports.driven.slow_trace_search_port import SlowTraceSearchPort
+from hexawyn.application.use_case.slowest_traces.command import SlowestTracesCommand
+from hexawyn.application.use_case.slowest_traces.response import SlowestTracesResponse
 
 
 class SlowestTracesUseCase:
-    def __init__(self, service: SlowestTracesServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: SlowTraceSearchPort) -> None:
+        self._port = port
 
-    def execute(self, cmd: SlowestTracesCommand) -> SlowestTracesResponse:
-        return self._svc.find_slowest(cmd)
+    def execute(self, c: SlowestTracesCommand) -> SlowestTracesResponse:
+        traces = self._port.find_slowest_traces(limit=c.limit)
+        return SlowestTracesResponse(traces=[asdict(t) for t in traces])

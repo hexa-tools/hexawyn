@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.latency_percentile_port import LatencyPercentilePort
-from hexawyn.application.ports.driving.p99_latency.p99_latency_command import P99LatencyCommand
-from hexawyn.application.ports.driving.p99_latency.p99_latency_response import P99LatencyResponse
+from hexawyn.application.use_case.p99_latency.command import P99LatencyCommand
+from hexawyn.application.use_case.p99_latency.response import P99LatencyResponse
 from hexawyn.application.ports.driving.p99_latency.p99_latency_service_port import (
     P99LatencyServicePort,
 )

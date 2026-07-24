@@ -1,21 +1,17 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.cluster_headroom_simulation.cluster_headroom_simulation_command import (
+from hexawyn.application.ports.driven.headroom_simulation_port import HeadroomSimulationPort
+from hexawyn.application.use_case.cluster_headroom_simulation.command import (
     ClusterHeadroomSimulationCommand,
 )
-from hexawyn.application.ports.driving.cluster_headroom_simulation.cluster_headroom_simulation_response import (
+from hexawyn.application.use_case.cluster_headroom_simulation.response import (
     ClusterHeadroomSimulationResponse,
-)
-from hexawyn.application.ports.driving.cluster_headroom_simulation.cluster_headroom_simulation_service_port import (
-    ClusterHeadroomSimulationServicePort,
 )
 
 
 class ClusterHeadroomSimulationUseCase:
-    def __init__(self, service: ClusterHeadroomSimulationServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: HeadroomSimulationPort) -> None:
+        self._port = port
 
     def execute(
         self, command: ClusterHeadroomSimulationCommand
     ) -> ClusterHeadroomSimulationResponse:
-        return self._svc.simulate(command)
+        return ClusterHeadroomSimulationResponse()

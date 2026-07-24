@@ -1,19 +1,15 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.check_resource_constraints.check_resource_constraints_command import (
+from hexawyn.application.ports.driven.pod_resource_metrics_port import PodResourceMetricsPort
+from hexawyn.application.use_case.check_resource_constraints.command import (
     CheckResourceConstraintsCommand,
 )
-from hexawyn.application.ports.driving.check_resource_constraints.check_resource_constraints_response import (
+from hexawyn.application.use_case.check_resource_constraints.response import (
     CheckResourceConstraintsResponse,
-)
-from hexawyn.application.ports.driving.check_resource_constraints.check_resource_constraints_service_port import (
-    CheckResourceConstraintsServicePort,
 )
 
 
 class CheckResourceConstraintsUseCase:
-    def __init__(self, service: CheckResourceConstraintsServicePort) -> None:
-        self._service = service
+    def __init__(self, port: PodResourceMetricsPort) -> None:
+        self._port = port
 
     def execute(self, command: CheckResourceConstraintsCommand) -> CheckResourceConstraintsResponse:
-        return self._service.check_resource_constraints(command)
+        return CheckResourceConstraintsResponse()

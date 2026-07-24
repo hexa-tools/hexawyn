@@ -43,8 +43,7 @@ class GCPManagedPrometheusAdapter(MetricsQueryPort):
     ) -> None:
         self._project_id = project_id
         self._endpoint = (
-            f"https://monitoring.googleapis.com/v1/projects/"
-            f"{project_id}/location/global/prometheus"
+            f"https://monitoring.googleapis.com/v1/projects/{project_id}/location/global/prometheus"
         )
         self._http_client = http_client
         self._token_provider = token_provider

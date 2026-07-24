@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.trace_log_correlation_port import TraceLogCorrelationPort
-from hexawyn.application.ports.driving.trace_log_correlation.trace_log_correlation_command import (
+from hexawyn.application.use_case.trace_log_correlation.command import (
     TraceLogCorrelationCommand,
 )
-from hexawyn.application.ports.driving.trace_log_correlation.trace_log_correlation_response import (
+from hexawyn.application.use_case.trace_log_correlation.response import (
     TraceLogCorrelationResponse,
 )
 from hexawyn.application.ports.driving.trace_log_correlation.trace_log_correlation_service_port import (

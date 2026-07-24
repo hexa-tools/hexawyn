@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.trace_event_correlation_port import TraceEventCorrelationPort
-from hexawyn.application.ports.driving.trace_k8s_events.trace_k8s_events_command import (
+from hexawyn.application.use_case.trace_k8s_events.command import (
     TraceK8sEventsCommand,
 )
-from hexawyn.application.ports.driving.trace_k8s_events.trace_k8s_events_response import (
+from hexawyn.application.use_case.trace_k8s_events.response import (
     TraceK8sEventsResponse,
 )
 from hexawyn.application.ports.driving.trace_k8s_events.trace_k8s_events_service_port import (

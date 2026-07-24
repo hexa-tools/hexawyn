@@ -1,19 +1,11 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.audit_secret_rotation.audit_secret_rotation_command import (
-    AuditSecretRotationCommand,
-)
-from hexawyn.application.ports.driving.audit_secret_rotation.audit_secret_rotation_response import (
-    AuditSecretRotationResponse,
-)
-from hexawyn.application.ports.driving.audit_secret_rotation.audit_secret_rotation_service_port import (
-    AuditSecretRotationServicePort,
-)
+from hexawyn.application.ports.driven.secret_rotation_audit_port import SecretRotationAuditPort
+from hexawyn.application.use_case.audit_secret_rotation.command import AuditSecretRotationCommand
+from hexawyn.application.use_case.audit_secret_rotation.response import AuditSecretRotationResponse
 
 
 class AuditSecretRotationUseCase:
-    def __init__(self, service: AuditSecretRotationServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: SecretRotationAuditPort) -> None:
+        self._port = port
 
     def execute(self, command: AuditSecretRotationCommand) -> AuditSecretRotationResponse:
-        return self._svc.audit_secret_rotation(command)
+        return AuditSecretRotationResponse()

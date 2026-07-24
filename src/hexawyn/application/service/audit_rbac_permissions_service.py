@@ -10,10 +10,10 @@ from hexawyn.application.ports.driven.rbac_security_audit_port import (
     RoleRefRaw,
     ServiceAccountRaw,
 )
-from hexawyn.application.ports.driving.audit_rbac_permissions.audit_rbac_permissions_command import (
+from hexawyn.application.use_case.audit_rbac_permissions.command import (
     AuditRBACPermissionsCommand,
 )
-from hexawyn.application.ports.driving.audit_rbac_permissions.audit_rbac_permissions_response import (
+from hexawyn.application.use_case.audit_rbac_permissions.response import (
     AuditRBACPermissionsResponse,
     PolicyRuleDict,
     RBACFindingDict,

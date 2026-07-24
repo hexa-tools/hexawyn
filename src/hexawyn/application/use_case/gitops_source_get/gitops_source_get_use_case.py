@@ -1,19 +1,20 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.gitops_source_get.gitops_source_get_command import (
-    GitOpsSourceGetCommand,
-)
-from hexawyn.application.ports.driving.gitops_source_get.gitops_source_get_response import (
-    GitOpsSourceGetResponse,
-)
-from hexawyn.application.ports.driving.gitops_source_get.gitops_source_get_service_port import (
-    GitOpsSourceGetServicePort,
-)
+from hexawyn.application.ports.driven.gitops_port import GitOpsPort
+from hexawyn.application.use_case.gitops_source_get.command import GitopsSourceGetCommand
+from hexawyn.application.use_case.gitops_source_get.response import GitopsSourceGetResponse
 
 
-class GitOpsSourceGetUseCase:
-    def __init__(self, service: GitOpsSourceGetServicePort) -> None:
-        self._service = service
+class GitopsSourceGetUseCase:
+    def __init__(self, gitops_port: GitOpsPort) -> None:
+        self._gitops = gitops_port
 
-    def execute(self, command: GitOpsSourceGetCommand) -> GitOpsSourceGetResponse:
-        return self._service.get_source(command)
+    def execute(self, command: GitopsSourceGetCommand) -> GitopsSourceGetResponse:
+        s = self._gitops.get_source(name=command.name, namespace=command.namespace)
+        return GitopsSourceGetResponse(
+            name=s.name,
+            namespace=s.namespace,
+            kind=s.kind,
+            url=s.url,
+            ready=s.ready,
+            last_updated_at=s.last_updated_at,
+            message=s.message,
+        )

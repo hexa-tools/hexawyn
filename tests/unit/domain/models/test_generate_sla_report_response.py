@@ -3,7 +3,7 @@ from hexawyn.domain.models.sla_report import SlaReport
 
 class TestGenerateSlaReportResponse:
     def test_wraps_report(self) -> None:
-        from hexawyn.application.ports.driving.generate_sla_report.generate_sla_report_response import (  # noqa: E501
+        from hexawyn.application.use_case.generate_sla_report.response import (  # noqa: E501
             GenerateSlaReportResponse,
         )
 

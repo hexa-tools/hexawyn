@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.compute_slo_error_budget.compute_slo_error_budget_command import (
+from hexawyn.application.use_case.compute_slo_error_budget.command import (
     ComputeSLOErrorBudgetCommand,
 )
-from hexawyn.application.ports.driving.compute_slo_error_budget.compute_slo_error_budget_response import (
+from hexawyn.application.use_case.compute_slo_error_budget.response import (
     ComputeSLOErrorBudgetResponse,
 )
 

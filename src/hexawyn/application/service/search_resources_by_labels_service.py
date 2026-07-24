@@ -5,10 +5,10 @@ from hexawyn.application.ports.driven.resource_search_port import (
     MatchedResourceRaw,
     ResourceSearchPort,
 )
-from hexawyn.application.ports.driving.search_resources_by_labels.search_resources_by_labels_command import (
+from hexawyn.application.use_case.search_resources_by_labels.command import (
     SearchResourcesByLabelsCommand,
 )
-from hexawyn.application.ports.driving.search_resources_by_labels.search_resources_by_labels_response import (
+from hexawyn.application.use_case.search_resources_by_labels.response import (
     MatchedResourceDict,
     NamespaceGroupDict,
     SearchResourcesByLabelsResponse,

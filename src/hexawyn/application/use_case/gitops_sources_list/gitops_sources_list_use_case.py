@@ -1,19 +1,14 @@
-from __future__ import annotations
+from dataclasses import asdict
 
-from hexawyn.application.ports.driving.gitops_sources_list.gitops_sources_list_command import (
-    GitOpsSourcesListCommand,
-)
-from hexawyn.application.ports.driving.gitops_sources_list.gitops_sources_list_response import (
-    GitOpsSourcesListResponse,
-)
-from hexawyn.application.ports.driving.gitops_sources_list.gitops_sources_list_service_port import (
-    GitOpsSourcesListServicePort,
-)
+from hexawyn.application.ports.driven.gitops_port import GitOpsPort
+from hexawyn.application.use_case.gitops_sources_list.command import GitopsSourcesListCommand
+from hexawyn.application.use_case.gitops_sources_list.response import GitopsSourcesListResponse
 
 
-class GitOpsSourcesListUseCase:
-    def __init__(self, service: GitOpsSourcesListServicePort) -> None:
-        self._service = service
+class GitopsSourcesListUseCase:
+    def __init__(self, gitops_port: GitOpsPort) -> None:
+        self._gitops = gitops_port
 
-    def execute(self, command: GitOpsSourcesListCommand) -> GitOpsSourcesListResponse:
-        return self._service.list_sources(command)
+    def execute(self, command: GitopsSourcesListCommand) -> GitopsSourcesListResponse:
+        sources = self._gitops.list_sources(namespace=command.namespace)
+        return GitopsSourcesListResponse(sources=[asdict(s) for s in sources])

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.security_posture_port import SecurityPosturePort
-from hexawyn.application.ports.driving.compute_security_posture.compute_security_posture_command import (  # noqa: E501
+from hexawyn.application.use_case.compute_security_posture.command import (  # noqa: E501
     ComputeSecurityPostureCommand,
 )
-from hexawyn.application.ports.driving.compute_security_posture.compute_security_posture_response import (  # noqa: E501
+from hexawyn.application.use_case.compute_security_posture.response import (  # noqa: E501
     ComputeSecurityPostureResponse,
 )
 from hexawyn.application.ports.driving.compute_security_posture.compute_security_posture_service_port import (  # noqa: E501

@@ -1,19 +1,14 @@
-from __future__ import annotations
+from dataclasses import asdict
 
-from hexawyn.application.ports.driving.trace_log_correlation.trace_log_correlation_command import (
-    TraceLogCorrelationCommand,
-)
-from hexawyn.application.ports.driving.trace_log_correlation.trace_log_correlation_response import (
-    TraceLogCorrelationResponse,
-)
-from hexawyn.application.ports.driving.trace_log_correlation.trace_log_correlation_service_port import (
-    TraceLogCorrelationServicePort,
-)
+from hexawyn.application.ports.driven.trace_log_correlation_port import TraceLogCorrelationPort
+from hexawyn.application.use_case.trace_log_correlation.command import TraceLogCorrelationCommand
+from hexawyn.application.use_case.trace_log_correlation.response import TraceLogCorrelationResponse
 
 
 class TraceLogCorrelationUseCase:
-    def __init__(self, service: TraceLogCorrelationServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: TraceLogCorrelationPort) -> None:
+        self._port = port
 
-    def execute(self, cmd: TraceLogCorrelationCommand) -> TraceLogCorrelationResponse:
-        return self._svc.correlate(cmd)
+    def execute(self, c: TraceLogCorrelationCommand) -> TraceLogCorrelationResponse:
+        results = self._port.correlate(trace_id=c.trace_id)
+        return TraceLogCorrelationResponse(correlations=[asdict(r) for r in results])

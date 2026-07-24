@@ -1,21 +1,22 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.compute_budget_intelligence.compute_budget_intelligence_command import (  # noqa: E501
+from hexawyn.application.ports.driven.budget_intelligence_port import BudgetIntelligencePort
+from hexawyn.application.use_case.compute_budget_intelligence.command import (
     ComputeBudgetIntelligenceCommand,
 )
-from hexawyn.application.ports.driving.compute_budget_intelligence.compute_budget_intelligence_response import (  # noqa: E501
+from hexawyn.application.use_case.compute_budget_intelligence.response import (
     ComputeBudgetIntelligenceResponse,
 )
-from hexawyn.application.ports.driving.compute_budget_intelligence.compute_budget_intelligence_service_port import (  # noqa: E501
-    ComputeBudgetIntelligenceServicePort,
+from hexawyn.domain.services.budget_intelligence.budget_intelligence_service import (
+    compute_budget_intelligence,
 )
 
 
 class ComputeBudgetIntelligenceUseCase:
-    def __init__(self, service: ComputeBudgetIntelligenceServicePort) -> None:
-        self._service = service
+    def __init__(self, budget_intelligence_port: BudgetIntelligencePort) -> None:
+        self._port = budget_intelligence_port
 
     def execute(
         self, command: ComputeBudgetIntelligenceCommand
     ) -> ComputeBudgetIntelligenceResponse:
-        return self._service.compute(command)
+        data = self._port.get_budget_intelligence_data(command.period)
+        result = compute_budget_intelligence(data, period=command.period)
+        return ComputeBudgetIntelligenceResponse(result=result)

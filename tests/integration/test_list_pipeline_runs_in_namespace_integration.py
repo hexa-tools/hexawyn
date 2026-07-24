@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
-from hexawyn.application.ports.driving.list_pipeline_runs_in_namespace.list_pipeline_runs_in_namespace_command import (
+from hexawyn.application.use_case.list_pipeline_runs_in_namespace.command import (
     ListPipelineRunsInNamespaceCommand,
 )
 from hexawyn.application.service.list_pipeline_runs_in_namespace_service import (

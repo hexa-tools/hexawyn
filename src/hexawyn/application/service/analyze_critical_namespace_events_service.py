@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from hexawyn.application.ports.driven.k8s_port import K8sPort
 from hexawyn.application.ports.driven.namespace_events_port import NamespaceEventsPort
-from hexawyn.application.ports.driving.analyze_critical_namespace_events.analyze_critical_namespace_events_command import (
+from hexawyn.application.use_case.analyze_critical_namespace_events.command import (
     AnalyzeCriticalNamespaceEventsCommand,
 )
-from hexawyn.application.ports.driving.analyze_critical_namespace_events.analyze_critical_namespace_events_response import (
+from hexawyn.application.use_case.analyze_critical_namespace_events.response import (
     AnalyzeCriticalNamespaceEventsResponse,
     CriticalIncidentDict,
 )

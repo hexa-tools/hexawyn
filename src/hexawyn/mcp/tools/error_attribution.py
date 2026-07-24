@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.error_attribution.error_attribution_command import (
-    ErrorAttributionCommand,
-)
+from hexawyn.application.use_case.error_attribution.command import ErrorAttributionCommand
 from hexawyn.application.use_case.error_attribution.error_attribution_use_case import (
     ErrorAttributionUseCase,
 )
@@ -16,12 +14,11 @@ if TYPE_CHECKING:
 
 
 def error_attribution(gateway: str, time_window_minutes: int = 30) -> dict[str, object]:
-    from hexawyn.application.service.error_attribution_service import ErrorAttributionService
     from hexawyn.mcp.server import build_error_attribution_adapter
 
     try:
         a = build_error_attribution_adapter()
-        r = ErrorAttributionUseCase(service=ErrorAttributionService(port=a)).execute(
+        r = ErrorAttributionUseCase(port=a).execute(
             ErrorAttributionCommand(gateway=gateway, time_window_minutes=time_window_minutes)
         )
         return {

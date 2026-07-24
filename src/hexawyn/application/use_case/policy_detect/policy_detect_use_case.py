@@ -1,19 +1,21 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.policy_detect.policy_detect_command import (
-    PolicyDetectCommand,
-)
-from hexawyn.application.ports.driving.policy_detect.policy_detect_response import (
-    PolicyDetectResponse,
-)
-from hexawyn.application.ports.driving.policy_detect.policy_detect_service_port import (
-    PolicyDetectServicePort,
-)
+from hexawyn.application.ports.driven.policy_port import PolicyPort
+from hexawyn.application.use_case.policy_detect.command import PolicyDetectCommand
+from hexawyn.application.use_case.policy_detect.response import PolicyDetectResponse
 
 
 class PolicyDetectUseCase:
-    def __init__(self, service: PolicyDetectServicePort) -> None:
-        self._service = service
+    def __init__(self, policy_port: PolicyPort) -> None:
+        self._policy = policy_port
 
     def execute(self, command: PolicyDetectCommand) -> PolicyDetectResponse:
-        return self._service.detect(command)
+        r = self._policy.detect_engine()
+        return PolicyDetectResponse(
+            engine=r.engine.value,
+            version=r.version,
+            namespace=r.namespace,
+            total_policies=r.total_policies,
+            enforce_policies=r.enforce_policies,
+            audit_policies=r.audit_policies,
+            total_violations=r.total_violations,
+            high_severity=r.high_severity,
+        )

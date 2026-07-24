@@ -150,11 +150,11 @@ class SessionScreen(Screen[None]):
             from hexawyn.adapters.secondary.usage_meter_adapter import (
                 UsageMeterAdapter,
             )
-            from hexawyn.application.ports.driving.get_quota_usage.get_quota_usage_command import (
-                GetQuotaUsageCommand,
-            )
             from hexawyn.application.service.get_quota_usage_service import (
                 GetQuotaUsageService,
+            )
+            from hexawyn.application.use_case.get_quota_usage.command import (
+                GetQuotaUsageCommand,
             )
             from hexawyn.application.use_case.get_quota_usage.get_quota_usage_use_case import (
                 GetQuotaUsageUseCase,

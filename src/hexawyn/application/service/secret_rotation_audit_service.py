@@ -8,10 +8,10 @@ from hexawyn.application.ports.driven.secret_rotation_audit_port import (
     SecretReferenceRaw,
     SecretRotationAuditPort,
 )
-from hexawyn.application.ports.driving.audit_secret_rotation.audit_secret_rotation_command import (
+from hexawyn.application.use_case.audit_secret_rotation.command import (
     AuditSecretRotationCommand,
 )
-from hexawyn.application.ports.driving.audit_secret_rotation.audit_secret_rotation_response import (
+from hexawyn.application.use_case.audit_secret_rotation.response import (
     AuditSecretRotationResponse,
     ExcludedSecretDict,
     StaleSecretFindingDict,

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.helm_values_diff_port import HelmValuesDiffPort
-from hexawyn.application.ports.driving.diff_helm_values.diff_helm_values_command import (
+from hexawyn.application.use_case.diff_helm_values.command import (
     DiffHelmValuesCommand,
 )
-from hexawyn.application.ports.driving.diff_helm_values.diff_helm_values_response import (
+from hexawyn.application.use_case.diff_helm_values.response import (
     DiffHelmValuesResponse,
 )
 from hexawyn.application.ports.driving.diff_helm_values.diff_helm_values_service_port import (

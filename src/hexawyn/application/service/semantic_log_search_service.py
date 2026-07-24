@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from hexawyn.application.ports.driven.k8s_port import K8sPort, PodInfo
 from hexawyn.application.ports.driven.log_search_port import LogSearchPort, RawPodLogData
-from hexawyn.application.ports.driving.semantic_log_search.semantic_log_search_command import (
+from hexawyn.application.use_case.semantic_log_search.command import (
     SemanticLogSearchCommand,
 )
-from hexawyn.application.ports.driving.semantic_log_search.semantic_log_search_response import (
+from hexawyn.application.use_case.semantic_log_search.response import (
     MatchedLogLineDict,
     PodLogMatchDict,
     SemanticLogSearchResponse,

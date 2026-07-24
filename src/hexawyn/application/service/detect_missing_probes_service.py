@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.probe_audit_port import ProbeAuditPort
-from hexawyn.application.ports.driving.detect_missing_probes.detect_missing_probes_command import (
+from hexawyn.application.use_case.detect_missing_probes.command import (
     DetectMissingProbesCommand,
 )
-from hexawyn.application.ports.driving.detect_missing_probes.detect_missing_probes_response import (
+from hexawyn.application.use_case.detect_missing_probes.response import (
     DetectMissingProbesResponse,
 )
 from hexawyn.application.ports.driving.detect_missing_probes.detect_missing_probes_service_port import (

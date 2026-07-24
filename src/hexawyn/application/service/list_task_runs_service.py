@@ -1,8 +1,8 @@
 from hexawyn.application.ports.driven.tekton_port import TaskRunInfo, TektonPort
-from hexawyn.application.ports.driving.list_task_runs.list_task_runs_command import (
+from hexawyn.application.use_case.list_task_runs.command import (
     ListTaskRunsCommand,
 )
-from hexawyn.application.ports.driving.list_task_runs.list_task_runs_response import (
+from hexawyn.application.use_case.list_task_runs.response import (
     ListTaskRunsResponse,
 )
 from hexawyn.application.ports.driving.list_task_runs.list_task_runs_service_port import (

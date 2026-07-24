@@ -1,19 +1,14 @@
-from __future__ import annotations
+from dataclasses import asdict
 
-from hexawyn.application.ports.driving.sensitive_data_audit.sensitive_data_audit_command import (
-    SensitiveDataAuditCommand,
-)
-from hexawyn.application.ports.driving.sensitive_data_audit.sensitive_data_audit_response import (
-    SensitiveDataAuditResponse,
-)
-from hexawyn.application.ports.driving.sensitive_data_audit.sensitive_data_audit_service_port import (
-    SensitiveDataAuditServicePort,
-)
+from hexawyn.application.ports.driven.compliance_audit_port import ComplianceAuditPort
+from hexawyn.application.use_case.sensitive_data_audit.command import SensitiveDataAuditCommand
+from hexawyn.application.use_case.sensitive_data_audit.response import SensitiveDataAuditResponse
 
 
 class SensitiveDataAuditUseCase:
-    def __init__(self, service: SensitiveDataAuditServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: ComplianceAuditPort) -> None:
+        self._port = port
 
-    def execute(self, cmd: SensitiveDataAuditCommand) -> SensitiveDataAuditResponse:
-        return self._svc.audit(cmd)
+    def execute(self, command: SensitiveDataAuditCommand) -> SensitiveDataAuditResponse:
+        findings = self._port.audit_sensitive_data(namespace=command.namespace)
+        return SensitiveDataAuditResponse(findings=[asdict(f) for f in findings])

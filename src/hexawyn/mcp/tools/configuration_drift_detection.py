@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.configuration_drift_detection.configuration_drift_detection_command import (
+from hexawyn.application.use_case.configuration_drift_detection.command import (
     ConfigurationDriftDetectionCommand,
 )
 from hexawyn.application.use_case.configuration_drift_detection.configuration_drift_detection_use_case import (
@@ -20,9 +20,6 @@ if TYPE_CHECKING:
 def configuration_drift_detection(
     namespace: str, kustomize_paths: list[str] | None = None
 ) -> dict[str, object]:
-    from hexawyn.application.service.configuration_drift_detection_service import (
-        ConfigurationDriftDetectionService,
-    )
     from hexawyn.mcp.server import (
         build_helm_drift_adapter,
         build_kustomize_drift_adapter,
@@ -30,12 +27,12 @@ def configuration_drift_detection(
     )
 
     try:
-        service = ConfigurationDriftDetectionService(
+        use_case = ConfigurationDriftDetectionUseCase(
             live_resource_port=build_live_resource_adapter(),
-            helm_adapter=build_helm_drift_adapter(),
-            kustomize_adapter=build_kustomize_drift_adapter(),
+            helm_drift_port=build_helm_drift_adapter(),
+            kustomize_drift_port=build_kustomize_drift_adapter(),
         )
-        r = ConfigurationDriftDetectionUseCase(service=service).execute(
+        r = use_case.execute(
             ConfigurationDriftDetectionCommand(
                 namespace=namespace, kustomize_paths=kustomize_paths or []
             )

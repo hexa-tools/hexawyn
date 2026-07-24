@@ -87,8 +87,7 @@ class HelmValuesDiffService:
         parts = [self._base_suggestion(raw, source_env, target_env, secret)]
         if raw.type_mismatch:
             parts.append(
-                "Type mismatch may cause runtime issues (e.g. a quoted number "
-                "parsed as a string)."
+                "Type mismatch may cause runtime issues (e.g. a quoted number parsed as a string)."
             )
         age_note = self._age_note(raw, severity)
         if age_note:

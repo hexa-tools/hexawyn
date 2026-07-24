@@ -11,10 +11,10 @@ from hexawyn.application.ports.driven.hot_node_analysis_port import (
     HotNodeAnalysisPort,
     PodUsageRaw,
 )
-from hexawyn.application.ports.driving.hot_node_analysis.hot_node_analysis_command import (
+from hexawyn.application.use_case.hot_node_analysis.command import (
     HotNodeAnalysisCommand,
 )
-from hexawyn.application.ports.driving.hot_node_analysis.hot_node_analysis_response import (
+from hexawyn.application.use_case.hot_node_analysis.response import (
     HotNodeAnalysisResponse,
     HotNodeResultDict,
     TopConsumerDict,

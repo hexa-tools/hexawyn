@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
-from hexawyn.application.ports.driving.analysis_runs_list.analysis_runs_list_command import (
+from hexawyn.application.use_case.analysis_runs_list.command import (
     AnalysisRunsListCommand,
 )
-from hexawyn.application.ports.driving.analysis_runs_list.analysis_runs_list_response import (
+from hexawyn.application.use_case.analysis_runs_list.response import (
     AnalysisRunsListResponse,
 )
 from hexawyn.application.ports.driving.analysis_runs_list.analysis_runs_list_service_port import (

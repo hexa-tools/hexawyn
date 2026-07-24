@@ -1,21 +1,17 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.report_platform_reliability.report_platform_reliability_command import (  # noqa: E501
+from hexawyn.application.ports.driven.platform_reliability_port import PlatformReliabilityPort
+from hexawyn.application.use_case.report_platform_reliability.command import (
     ReportPlatformReliabilityCommand,
 )
-from hexawyn.application.ports.driving.report_platform_reliability.report_platform_reliability_response import (  # noqa: E501
+from hexawyn.application.use_case.report_platform_reliability.response import (
     ReportPlatformReliabilityResponse,
-)
-from hexawyn.application.ports.driving.report_platform_reliability.report_platform_reliability_service_port import (  # noqa: E501
-    ReportPlatformReliabilityServicePort,
 )
 
 
 class ReportPlatformReliabilityUseCase:
-    def __init__(self, service: ReportPlatformReliabilityServicePort) -> None:
-        self._service = service
+    def __init__(self, reliability_port: PlatformReliabilityPort) -> None:
+        self._port = reliability_port
 
     def execute(
         self, command: ReportPlatformReliabilityCommand
     ) -> ReportPlatformReliabilityResponse:
-        return self._service.report(command)
+        return ReportPlatformReliabilityResponse()

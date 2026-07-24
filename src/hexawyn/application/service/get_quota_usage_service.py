@@ -1,9 +1,9 @@
 from hexawyn.application.ports.driven.plan_port import PlanPort
 from hexawyn.application.ports.driven.usage_meter_port import UsageMeterPort
-from hexawyn.application.ports.driving.get_quota_usage.get_quota_usage_command import (
+from hexawyn.application.use_case.get_quota_usage.command import (
     GetQuotaUsageCommand,
 )
-from hexawyn.application.ports.driving.get_quota_usage.get_quota_usage_response import (
+from hexawyn.application.use_case.get_quota_usage.response import (
     GetQuotaUsageResponse,
 )
 from hexawyn.application.ports.driving.get_quota_usage.get_quota_usage_service_port import (

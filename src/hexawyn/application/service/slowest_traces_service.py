@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.slow_trace_search_port import SlowTraceSearchPort
-from hexawyn.application.ports.driving.slowest_traces.slowest_traces_command import (
+from hexawyn.application.use_case.slowest_traces.command import (
     SlowestTracesCommand,
 )
-from hexawyn.application.ports.driving.slowest_traces.slowest_traces_response import (
+from hexawyn.application.use_case.slowest_traces.response import (
     SlowestTracesResponse,
 )
 from hexawyn.application.ports.driving.slowest_traces.slowest_traces_service_port import (

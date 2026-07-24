@@ -1,19 +1,18 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.rollout_status.rollout_status_command import (
-    RolloutStatusCommand,
-)
-from hexawyn.application.ports.driving.rollout_status.rollout_status_response import (
-    RolloutStatusResponse,
-)
-from hexawyn.application.ports.driving.rollout_status.rollout_status_service_port import (
-    RolloutStatusServicePort,
-)
+from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
+from hexawyn.application.use_case.rollout_status.command import RolloutStatusCommand
+from hexawyn.application.use_case.rollout_status.response import RolloutStatusResponse
 
 
 class RolloutStatusUseCase:
-    def __init__(self, service: RolloutStatusServicePort) -> None:
-        self._service = service
+    def __init__(self, rollouts_port: RolloutsPort) -> None:
+        self._rollouts = rollouts_port
 
-    def execute(self, command: RolloutStatusCommand) -> RolloutStatusResponse:
-        return self._service.get_status(command)
+    def execute(self, c: RolloutStatusCommand) -> RolloutStatusResponse:
+        r = self._rollouts.get_rollout(name=c.name, namespace=c.namespace)
+        return RolloutStatusResponse(
+            name=r.name,
+            namespace=r.namespace,
+            phase=r.phase.value,
+            strategy=r.strategy.value,
+            message=r.message,
+        )

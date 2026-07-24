@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.engineer_workload_port import EngineerWorkloadPort
-from hexawyn.application.ports.driving.report_night_interventions.report_night_interventions_command import (  # noqa: E501
+from hexawyn.application.use_case.report_night_interventions.command import (  # noqa: E501
     ReportNightInterventionsCommand,
 )
-from hexawyn.application.ports.driving.report_night_interventions.report_night_interventions_response import (  # noqa: E501
+from hexawyn.application.use_case.report_night_interventions.response import (  # noqa: E501
     ReportNightInterventionsResponse,
 )
 from hexawyn.application.ports.driving.report_night_interventions.report_night_interventions_service_port import (  # noqa: E501

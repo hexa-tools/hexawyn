@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.sla_report_port import SlaReportPort
-from hexawyn.application.ports.driving.generate_sla_report.generate_sla_report_command import (
+from hexawyn.application.use_case.generate_sla_report.command import (
     GenerateSlaReportCommand,
 )
-from hexawyn.application.ports.driving.generate_sla_report.generate_sla_report_response import (
+from hexawyn.application.use_case.generate_sla_report.response import (
     GenerateSlaReportResponse,
 )
 from hexawyn.application.ports.driving.generate_sla_report.generate_sla_report_service_port import (

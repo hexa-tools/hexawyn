@@ -1,19 +1,13 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.audit_rbac_permissions.audit_rbac_permissions_command import (
-    AuditRBACPermissionsCommand,
-)
-from hexawyn.application.ports.driving.audit_rbac_permissions.audit_rbac_permissions_response import (
-    AuditRBACPermissionsResponse,
-)
-from hexawyn.application.ports.driving.audit_rbac_permissions.audit_rbac_permissions_service_port import (
-    AuditRBACPermissionsServicePort,
+from hexawyn.application.ports.driven.k8s_port import K8sPort
+from hexawyn.application.use_case.audit_rbac_permissions.command import AuditRbacPermissionsCommand
+from hexawyn.application.use_case.audit_rbac_permissions.response import (
+    AuditRbacPermissionsResponse,
 )
 
 
-class AuditRBACPermissionsUseCase:
-    def __init__(self, service: AuditRBACPermissionsServicePort) -> None:
-        self._svc = service
+class AuditRbacPermissionsUseCase:
+    def __init__(self, k8s_port: K8sPort) -> None:
+        self._port = k8s_port
 
-    def execute(self, command: AuditRBACPermissionsCommand) -> AuditRBACPermissionsResponse:
-        return self._svc.audit_permissions(command)
+    def execute(self, command: AuditRbacPermissionsCommand) -> AuditRbacPermissionsResponse:
+        return AuditRbacPermissionsResponse()

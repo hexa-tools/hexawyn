@@ -3,10 +3,10 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 from hexawyn.application.ports.driven.monthly_incident_port import MonthlyIncidentPort
-from hexawyn.application.ports.driving.compute_monthly_incident_report.compute_monthly_incident_report_command import (
+from hexawyn.application.use_case.compute_monthly_incident_report.command import (
     ComputeMonthlyIncidentReportCommand,
 )
-from hexawyn.application.ports.driving.compute_monthly_incident_report.compute_monthly_incident_report_response import (
+from hexawyn.application.use_case.compute_monthly_incident_report.response import (
     ComputeMonthlyIncidentReportResponse,
 )
 from hexawyn.application.ports.driving.compute_monthly_incident_report.compute_monthly_incident_report_service_port import (

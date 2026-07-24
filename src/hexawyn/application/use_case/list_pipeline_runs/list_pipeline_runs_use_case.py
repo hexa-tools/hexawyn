@@ -1,21 +1,14 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.list_pipeline_runs.list_pipeline_runs_command import (
-    ListPipelineRunsCommand,
-)
-from hexawyn.application.ports.driving.list_pipeline_runs.list_pipeline_runs_response import (
-    ListPipelineRunsResponse,
-)
-from hexawyn.application.ports.driving.list_pipeline_runs.list_pipeline_runs_service_port import (
-    ListPipelineRunsServicePort,
-)
+from hexawyn.application.use_case.list_pipeline_runs.command import ListPipelineRunsCommand
+from hexawyn.application.use_case.list_pipeline_runs.response import ListPipelineRunsResponse
 
 
 class ListPipelineRunsUseCase:
-    """Entry point — depends on the service port abstraction."""
-
-    def __init__(self, service: ListPipelineRunsServicePort) -> None:
-        self._service = service
+    def __init__(self, tekton_port) -> None:
+        self._port = tekton_port
 
     def execute(self, command: ListPipelineRunsCommand) -> ListPipelineRunsResponse:
-        return self._service.list_pipeline_runs(command)
+        runs = self._port.list_pipeline_runs(
+            service_name=command.service_name,
+            namespace=command.namespace,
+        )
+        return ListPipelineRunsResponse(pipeline_runs=list(runs))

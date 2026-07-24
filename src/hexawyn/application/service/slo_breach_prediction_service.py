@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.slo_breach_prediction_port import SLOBreachPredictionPort
-from hexawyn.application.ports.driving.slo_breach_prediction.slo_breach_prediction_command import (
+from hexawyn.application.use_case.slo_breach_prediction.command import (
     SLOBreachPredictionCommand,
 )
-from hexawyn.application.ports.driving.slo_breach_prediction.slo_breach_prediction_response import (
+from hexawyn.application.use_case.slo_breach_prediction.response import (
     SLOBreachPredictionResponse,
 )
 from hexawyn.application.ports.driving.slo_breach_prediction.slo_breach_prediction_service_port import (

@@ -1,16 +1,14 @@
-"""MCP tool: adaptive_namespace_investigation — starts with a conservative
-namespace overview, then automatically drills into the most critical failing
-resources."""
+"""MCP tool: adaptive_namespace_investigation — namespace investigation."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.adaptive_namespace_investigation.adaptive_namespace_investigation_command import (
-    AdaptiveNamespaceInvestigationCommand,
-)
 from hexawyn.application.use_case.adaptive_namespace_investigation.adaptive_namespace_investigation_use_case import (
     AdaptiveNamespaceInvestigationUseCase,
+)
+from hexawyn.application.use_case.adaptive_namespace_investigation.command import (
+    AdaptiveNamespaceInvestigationCommand,
 )
 
 if TYPE_CHECKING:
@@ -18,15 +16,6 @@ if TYPE_CHECKING:
 
 
 def adaptive_namespace_investigation(namespace: str, depth: int = 3) -> dict[str, object]:
-    from hexawyn.application.ports.driving.conservative_namespace_overview.conservative_namespace_overview_service_port import (
-        ConservativeNamespaceOverviewServicePort,
-    )
-    from hexawyn.application.service.adaptive_namespace_investigation_service import (
-        AdaptiveNamespaceInvestigationService,
-    )
-    from hexawyn.application.service.conservative_namespace_overview_service import (
-        ConservativeNamespaceOverviewService,
-    )
     from hexawyn.mcp.server import (
         build_adaptive_investigation_adapter,
         build_k8s_adapter,
@@ -34,17 +23,12 @@ def adaptive_namespace_investigation(namespace: str, depth: int = 3) -> dict[str
     )
 
     try:
-        overview_service: ConservativeNamespaceOverviewServicePort = (
-            ConservativeNamespaceOverviewService(
-                port=build_namespace_overview_adapter(), k8s_port=build_k8s_adapter()
-            )
-        )
-        service = AdaptiveNamespaceInvestigationService(
-            overview_service=overview_service,
-            k8s_port=build_k8s_adapter(),
+        use_case = AdaptiveNamespaceInvestigationUseCase(
             investigation_port=build_adaptive_investigation_adapter(),
+            k8s_port=build_k8s_adapter(),
+            overview_port=build_namespace_overview_adapter(),
         )
-        r = AdaptiveNamespaceInvestigationUseCase(service=service).execute(
+        r = use_case.execute(
             AdaptiveNamespaceInvestigationCommand(namespace=namespace, depth=depth)
         )
         return {

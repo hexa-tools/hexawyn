@@ -1,19 +1,15 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.compute_security_posture.compute_security_posture_command import (  # noqa: E501
+from hexawyn.application.ports.driven.security_posture_port import SecurityPosturePort
+from hexawyn.application.use_case.compute_security_posture.command import (
     ComputeSecurityPostureCommand,
 )
-from hexawyn.application.ports.driving.compute_security_posture.compute_security_posture_response import (  # noqa: E501
+from hexawyn.application.use_case.compute_security_posture.response import (
     ComputeSecurityPostureResponse,
-)
-from hexawyn.application.ports.driving.compute_security_posture.compute_security_posture_service_port import (  # noqa: E501
-    ComputeSecurityPostureServicePort,
 )
 
 
 class ComputeSecurityPostureUseCase:
-    def __init__(self, service: ComputeSecurityPostureServicePort) -> None:
-        self._service = service
+    def __init__(self, port: SecurityPosturePort) -> None:
+        self._port = port
 
     def execute(self, command: ComputeSecurityPostureCommand) -> ComputeSecurityPostureResponse:
-        return self._service.compute(command)
+        return ComputeSecurityPostureResponse()

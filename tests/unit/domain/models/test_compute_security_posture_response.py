@@ -3,7 +3,7 @@ from hexawyn.domain.models.security_posture import SecurityPostureReport
 
 class TestComputeSecurityPostureResponse:
     def test_wraps_report(self) -> None:
-        from hexawyn.application.ports.driving.compute_security_posture.compute_security_posture_response import (  # noqa: E501
+        from hexawyn.application.use_case.compute_security_posture.response import (
             ComputeSecurityPostureResponse,
         )
 

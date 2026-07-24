@@ -6,10 +6,10 @@ from hexawyn.application.ports.driven.capacity_forecast_port import CapacityFore
 from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
     ClusterResourceMetricsPort,
 )
-from hexawyn.application.ports.driving.cluster_capacity_ceiling_forecast.cluster_capacity_ceiling_forecast_command import (
+from hexawyn.application.use_case.cluster_capacity_ceiling_forecast.command import (
     ClusterCapacityCeilingForecastCommand,
 )
-from hexawyn.application.ports.driving.cluster_capacity_ceiling_forecast.cluster_capacity_ceiling_forecast_response import (
+from hexawyn.application.use_case.cluster_capacity_ceiling_forecast.response import (
     ClusterCapacityCeilingForecastResponse,
     ResourceForecastDict,
 )

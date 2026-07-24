@@ -5,10 +5,10 @@ from hexawyn.application.ports.driven.drift_detection_port import (
     ResourceManifestRaw,
 )
 from hexawyn.application.ports.driven.live_resource_port import LiveResourcePort, LiveResourceRaw
-from hexawyn.application.ports.driving.configuration_drift_detection.configuration_drift_detection_command import (
+from hexawyn.application.use_case.configuration_drift_detection.command import (
     ConfigurationDriftDetectionCommand,
 )
-from hexawyn.application.ports.driving.configuration_drift_detection.configuration_drift_detection_response import (
+from hexawyn.application.use_case.configuration_drift_detection.response import (
     ConfigurationDriftDetectionResponse,
     DriftedFieldDict,
     DriftResultDict,

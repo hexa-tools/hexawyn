@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.gitops_port import GitOpsPort
-from hexawyn.application.ports.driving.gitops_detect.gitops_detect_command import (
+from hexawyn.application.use_case.gitops_detect.command import (
     GitOpsDetectCommand,
 )
-from hexawyn.application.ports.driving.gitops_detect.gitops_detect_response import (
+from hexawyn.application.use_case.gitops_detect.response import (
     GitOpsDetectResponse,
 )
 from hexawyn.application.ports.driving.gitops_detect.gitops_detect_service_port import (

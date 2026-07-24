@@ -3,7 +3,7 @@ from hexawyn.domain.models.spike_provisioning import SpikeProvisioningReport
 
 class TestPlanSpikeProvisioningResponse:
     def test_wraps_report(self) -> None:
-        from hexawyn.application.ports.driving.plan_spike_provisioning.plan_spike_provisioning_response import (  # noqa: E501
+        from hexawyn.application.use_case.plan_spike_provisioning.response import (  # noqa: E501
             PlanSpikeProvisioningResponse,
         )
 

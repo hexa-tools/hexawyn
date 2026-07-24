@@ -1,19 +1,12 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.policy_get.policy_get_command import (
-    PolicyGetCommand,
-)
-from hexawyn.application.ports.driving.policy_get.policy_get_response import (
-    PolicyGetResponse,
-)
-from hexawyn.application.ports.driving.policy_get.policy_get_service_port import (
-    PolicyGetServicePort,
-)
+from hexawyn.application.ports.driven.policy_port import PolicyPort
+from hexawyn.application.use_case.policy_get.command import PolicyGetCommand
+from hexawyn.application.use_case.policy_get.response import PolicyGetResponse
 
 
 class PolicyGetUseCase:
-    def __init__(self, service: PolicyGetServicePort) -> None:
-        self._service = service
+    def __init__(self, policy_port: PolicyPort) -> None:
+        self._policy = policy_port
 
     def execute(self, command: PolicyGetCommand) -> PolicyGetResponse:
-        return self._service.get_policy(command)
+        p = self._policy.get_policy(name=command.name, namespace=command.namespace)
+        return PolicyGetResponse(name=p.name, kind=p.kind, action=p.action, status=p.status)

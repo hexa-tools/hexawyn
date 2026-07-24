@@ -1,19 +1,18 @@
-from __future__ import annotations
+from dataclasses import asdict
 
-from hexawyn.application.ports.driving.keda_scaledobject_triggers.keda_scaledobject_triggers_command import (
-    KedaScaledObjectTriggersCommand,
+from hexawyn.application.ports.driven.keda_port import KedaPort
+from hexawyn.application.use_case.keda_scaledobject_triggers.command import (
+    KedaScaledobjectTriggersCommand,
 )
-from hexawyn.application.ports.driving.keda_scaledobject_triggers.keda_scaledobject_triggers_response import (
-    KedaScaledObjectTriggersResponse,
-)
-from hexawyn.application.ports.driving.keda_scaledobject_triggers.keda_scaledobject_triggers_service_port import (
-    KedaScaledObjectTriggersServicePort,
+from hexawyn.application.use_case.keda_scaledobject_triggers.response import (
+    KedaScaledobjectTriggersResponse,
 )
 
 
 class KedaScaledObjectTriggersUseCase:
-    def __init__(self, service: KedaScaledObjectTriggersServicePort) -> None:
-        self._svc = service
+    def __init__(self, keda_port: KedaPort) -> None:
+        self._port = keda_port
 
-    def execute(self, cmd: KedaScaledObjectTriggersCommand) -> KedaScaledObjectTriggersResponse:
-        return self._svc.get_triggers(cmd)
+    def execute(self, command: KedaScaledobjectTriggersCommand) -> KedaScaledobjectTriggersResponse:
+        so = self._port.get_scaledobject(name=command.name, namespace=command.namespace)
+        return KedaScaledobjectTriggersResponse(triggers=[asdict(t) for t in so.triggers])

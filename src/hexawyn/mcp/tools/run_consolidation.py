@@ -1,32 +1,28 @@
-"""MCP tool — run memory consolidation."""
+"""MCP tool: run_consolidation."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from hexawyn.application.use_case.run_consolidation.command import RunConsolidationCommand
+from hexawyn.application.use_case.run_consolidation.run_consolidation_use_case import (
+    RunConsolidationUseCase,
+)
+
+if TYPE_CHECKING:
+    from fastmcp import FastMCP
 
 
-def run_consolidation(cluster_name: str = "unknown") -> dict[str, object]:
-    """Run memory consolidation to group similar incidents into reusable knowledge."""
-    from hexawyn.application.ports.driving.run_consolidation.run_consolidation_command import (
-        RunConsolidationCommand,
-    )
-    from hexawyn.application.service.run_consolidation_service import (
-        RunConsolidationService,
-    )
-    from hexawyn.application.use_case.run_consolidation.run_consolidation_use_case import (
-        RunConsolidationUseCase,
-    )
+def run_consolidation() -> dict[str, object]:
     from hexawyn.mcp.server import build_consolidation_adapter
 
     try:
-        adapter = build_consolidation_adapter()
-        service = RunConsolidationService(consolidation_port=adapter)
-        use_case = RunConsolidationUseCase(service=service)
-        response = use_case.execute(RunConsolidationCommand(cluster_name=cluster_name))
-        return {
-            "consolidated": response.groups_found,
-            "patterns": [k.pattern for k in response.consolidated],
-            "error": None,
-        }
+        use_case = RunConsolidationUseCase(consolidation_port=build_consolidation_adapter())
+        _ = use_case.execute(RunConsolidationCommand())
+        return {"error": None}
     except Exception as exc:
-        return {"consolidated": 0, "patterns": [], "error": str(exc)}
+        return {"error": str(exc)}
 
 
-def register(mcp: object) -> None:
-    mcp.tool()(run_consolidation)  # type: ignore[attr-defined]
+def register(mcp: FastMCP) -> None:
+    mcp.tool()(run_consolidation)

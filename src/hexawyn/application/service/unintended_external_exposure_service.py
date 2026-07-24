@@ -4,16 +4,16 @@ from hexawyn.application.ports.driven.external_exposure_audit_port import (
     ExternalExposureAuditPort,
     ServiceRaw,
 )
-from hexawyn.application.ports.driving.detect_unintended_external_exposure.detect_unintended_external_exposure_command import (
+from hexawyn.application.ports.driving.detect_unintended_external_exposure.detect_unintended_external_exposure_service_port import (
+    DetectUnintendedExternalExposureServicePort,
+)
+from hexawyn.application.use_case.detect_unintended_external_exposure.command import (
     DetectUnintendedExternalExposureCommand,
 )
-from hexawyn.application.ports.driving.detect_unintended_external_exposure.detect_unintended_external_exposure_response import (
+from hexawyn.application.use_case.detect_unintended_external_exposure.response import (
     DetectUnintendedExternalExposureResponse,
     ExcludedExposureDict,
     ExternalExposureFindingDict,
-)
-from hexawyn.application.ports.driving.detect_unintended_external_exposure.detect_unintended_external_exposure_service_port import (
-    DetectUnintendedExternalExposureServicePort,
 )
 from hexawyn.domain.models.constants import ExternalExposureConstants
 from hexawyn.domain.models.external_exposure import (

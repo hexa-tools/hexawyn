@@ -1,19 +1,11 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.slo_breach_prediction.slo_breach_prediction_command import (
-    SLOBreachPredictionCommand,
-)
-from hexawyn.application.ports.driving.slo_breach_prediction.slo_breach_prediction_response import (
-    SLOBreachPredictionResponse,
-)
-from hexawyn.application.ports.driving.slo_breach_prediction.slo_breach_prediction_service_port import (
-    SLOBreachPredictionServicePort,
-)
+from hexawyn.application.ports.driven.slo_breach_prediction_port import SLOBreachPredictionPort
+from hexawyn.application.use_case.slo_breach_prediction.command import SloBreachPredictionCommand
+from hexawyn.application.use_case.slo_breach_prediction.response import SloBreachPredictionResponse
 
 
-class SLOBreachPredictionUseCase:
-    def __init__(self, service: SLOBreachPredictionServicePort) -> None:
-        self._svc = service
+class SloBreachPredictionUseCase:
+    def __init__(self, port: SLOBreachPredictionPort) -> None:
+        self._port = port
 
-    def execute(self, cmd: SLOBreachPredictionCommand) -> SLOBreachPredictionResponse:
-        return self._svc.predict(cmd)
+    def execute(self, command: SloBreachPredictionCommand) -> SloBreachPredictionResponse:
+        return SloBreachPredictionResponse()

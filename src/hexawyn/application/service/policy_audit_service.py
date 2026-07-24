@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.policy_port import PolicyPort
-from hexawyn.application.ports.driving.policy_audit.policy_audit_command import (
+from hexawyn.application.use_case.policy_audit.command import (
     PolicyAuditCommand,
 )
-from hexawyn.application.ports.driving.policy_audit.policy_audit_response import (
+from hexawyn.application.use_case.policy_audit.response import (
     PolicyAuditResponse,
 )
 from hexawyn.application.ports.driving.policy_audit.policy_audit_service_port import (

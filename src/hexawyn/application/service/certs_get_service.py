@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
-from hexawyn.application.ports.driving.certs_get.certs_get_command import CertsGetCommand
-from hexawyn.application.ports.driving.certs_get.certs_get_response import CertsGetResponse
+from hexawyn.application.use_case.certs_get.command import CertsGetCommand
+from hexawyn.application.use_case.certs_get.response import CertsGetResponse
 from hexawyn.application.ports.driving.certs_get.certs_get_service_port import CertsGetServicePort
 
 

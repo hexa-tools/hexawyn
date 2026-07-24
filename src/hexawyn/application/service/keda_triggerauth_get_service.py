@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.keda_port import KedaPort
-from hexawyn.application.ports.driving.keda_triggerauth_get.keda_triggerauth_get_command import (
+from hexawyn.application.use_case.keda_triggerauth_get.command import (
     KedaTriggerAuthGetCommand,
 )
-from hexawyn.application.ports.driving.keda_triggerauth_get.keda_triggerauth_get_response import (
+from hexawyn.application.use_case.keda_triggerauth_get.response import (
     KedaTriggerAuthGetResponse,
 )
 from hexawyn.application.ports.driving.keda_triggerauth_get.keda_triggerauth_get_service_port import (

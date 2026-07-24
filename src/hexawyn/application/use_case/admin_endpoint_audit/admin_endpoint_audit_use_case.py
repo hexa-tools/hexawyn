@@ -1,19 +1,11 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.admin_endpoint_audit.admin_endpoint_audit_command import (
-    AdminEndpointAuditCommand,
-)
-from hexawyn.application.ports.driving.admin_endpoint_audit.admin_endpoint_audit_response import (
-    AdminEndpointAuditResponse,
-)
-from hexawyn.application.ports.driving.admin_endpoint_audit.admin_endpoint_audit_service_port import (
-    AdminEndpointAuditServicePort,
-)
+from hexawyn.application.ports.driven.security_audit_port import SecurityAuditPort
+from hexawyn.application.use_case.admin_endpoint_audit.command import AdminEndpointAuditCommand
+from hexawyn.application.use_case.admin_endpoint_audit.response import AdminEndpointAuditResponse
 
 
 class AdminEndpointAuditUseCase:
-    def __init__(self, service: AdminEndpointAuditServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: SecurityAuditPort) -> None:
+        self._port = port
 
-    def execute(self, cmd: AdminEndpointAuditCommand) -> AdminEndpointAuditResponse:
-        return self._svc.audit(cmd)
+    def execute(self, command: AdminEndpointAuditCommand) -> AdminEndpointAuditResponse:
+        return AdminEndpointAuditResponse()

@@ -6,10 +6,55 @@ on:
       - published
 
 jobs:
+  integration-tests:
+    name: Integration Tests (pre-release gate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Poetry
+        run: pip install poetry
+      - name: Install dependencies
+        run: poetry install --with dev --extras "aws gcp azure datadog"
+      - name: Run integration tests
+        run: |
+          poetry run pytest tests/integration/ \
+            -v \
+            -m integration \
+            --strict-markers \
+            --tb=short \
+            --durations=10
+
+  unit-tests:
+    name: Unit Tests (pre-release gate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Poetry
+        run: pip install poetry
+      - name: Install dependencies
+        run: poetry install --with dev --extras "aws gcp azure datadog"
+      - name: Run unit tests with coverage
+        run: |
+          poetry run pytest tests/unit/ \
+            --tb=short -q \
+            --ignore=tests/integration \
+            --ignore=tests/e2e \
+            --cov=src/hexawyn \
+            --cov-report=xml \
+            --cov-report=term \
+            --cov-fail-under=80
+
   # Pré-releases -> TestPyPI
   publish-testpypi:
     name: Publish to TestPyPI
     runs-on: ubuntu-latest
+    needs: [integration-tests, unit-tests]
     if: github.event.release.prerelease == true
     environment: testpypi
 
@@ -37,6 +82,7 @@ jobs:
   publish-pypi:
     name: Publish to PyPI
     runs-on: ubuntu-latest
+    needs: [integration-tests, unit-tests]
     if: github.event.release.prerelease == false
     environment: pypi
 

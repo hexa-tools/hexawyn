@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.forecast_cost.forecast_cost_command import (
+from hexawyn.application.use_case.forecast_cost.command import (
     ForecastCostCommand,
 )
 from hexawyn.application.use_case.forecast_cost.forecast_cost_use_case import ForecastCostUseCase
@@ -20,16 +20,11 @@ def forecast_cost(historical_days: int = 7, top_n_drivers: int = 3) -> dict[str,
         historical_days: Days of cost history to use (7 = Free, 30/90 = Pro).
         top_n_drivers: Number of top cost drivers to surface (default: 3).
     """
-    from hexawyn.application.service.forecast_cost_service import ForecastCostService
-    from hexawyn.mcp.server import build_cost_forecast_adapter, context_name
+    from hexawyn.mcp.server import build_cost_forecast_adapter
 
     try:
         adapter = build_cost_forecast_adapter()
-        service = ForecastCostService(
-            cost_forecast_port=adapter,
-            cluster_name=context_name if context_name != "unknown" else "default",
-        )
-        use_case = ForecastCostUseCase(service=service)
+        use_case = ForecastCostUseCase(port=adapter)
         response = use_case.execute(
             ForecastCostCommand(historical_days=historical_days, top_n_drivers=top_n_drivers)
         )

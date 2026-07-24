@@ -1,19 +1,16 @@
-from __future__ import annotations
+from dataclasses import asdict
 
-from hexawyn.application.ports.driving.redundant_calls.redundant_calls_command import (
-    RedundantCallsCommand,
+from hexawyn.application.ports.driven.redundant_call_detection_port import (
+    RedundantCallDetectionPort,
 )
-from hexawyn.application.ports.driving.redundant_calls.redundant_calls_response import (
-    RedundantCallsResponse,
-)
-from hexawyn.application.ports.driving.redundant_calls.redundant_calls_service_port import (
-    RedundantCallsServicePort,
-)
+from hexawyn.application.use_case.redundant_calls.command import RedundantCallsCommand
+from hexawyn.application.use_case.redundant_calls.response import RedundantCallsResponse
 
 
 class RedundantCallsUseCase:
-    def __init__(self, service: RedundantCallsServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: RedundantCallDetectionPort) -> None:
+        self._port = port
 
-    def execute(self, cmd: RedundantCallsCommand) -> RedundantCallsResponse:
-        return self._svc.detect(cmd)
+    def execute(self, command: RedundantCallsCommand) -> RedundantCallsResponse:
+        calls = self._port.detect_redundant_calls(namespace=command.namespace)
+        return RedundantCallsResponse(calls=[asdict(c) for c in calls])

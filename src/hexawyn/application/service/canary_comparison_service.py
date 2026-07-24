@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.canary_comparison_port import CanaryComparisonPort
-from hexawyn.application.ports.driving.canary_comparison.canary_comparison_command import (
+from hexawyn.application.use_case.canary_comparison.command import (
     CanaryComparisonCommand,
 )
-from hexawyn.application.ports.driving.canary_comparison.canary_comparison_response import (
+from hexawyn.application.use_case.canary_comparison.response import (
     CanaryComparisonResponse,
 )
 from hexawyn.application.ports.driving.canary_comparison.canary_comparison_service_port import (

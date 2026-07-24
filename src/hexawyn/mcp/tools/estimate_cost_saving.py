@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.estimate_cost_saving.estimate_cost_saving_command import (
-    EstimateCostSavingCommand,
-)
+from hexawyn.application.use_case.estimate_cost_saving.command import EstimateCostSavingCommand
 from hexawyn.application.use_case.estimate_cost_saving.estimate_cost_saving_use_case import (
     EstimateCostSavingUseCase,
 )
@@ -27,15 +25,11 @@ def estimate_cost_saving(
         cpu_per_core_per_hour_usd: CPU pricing in $/core/hour (e.g. 0.05). Omit for cores-only report.
         memory_per_gb_per_hour_usd: Memory pricing in $/GB/hour (e.g. 0.007). Omit for GB-only report.
     """
-    from hexawyn.application.service.estimate_cost_saving_service import (
-        EstimateCostSavingService,
-    )
     from hexawyn.mcp.server import build_cost_saving_adapter
 
     try:
         adapter = build_cost_saving_adapter()
-        service = EstimateCostSavingService(cost_saving_port=adapter)
-        use_case = EstimateCostSavingUseCase(service=service)
+        use_case = EstimateCostSavingUseCase(port=adapter)
         response = use_case.execute(
             EstimateCostSavingCommand(
                 top_n=top_n,

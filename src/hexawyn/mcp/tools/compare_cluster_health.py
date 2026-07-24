@@ -1,89 +1,62 @@
-"""MCP tool: compare_cluster_health — side-by-side health comparison of two clusters."""
+"""MCP tool: compare_cluster_health."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.compare_cluster_health.compare_cluster_health_command import (  # noqa: E501
-    CompareClusterHealthCommand,
-)
-from hexawyn.application.use_case.compare_cluster_health.compare_cluster_health_use_case import (  # noqa: E501
+from hexawyn.application.use_case.compare_cluster_health.command import CompareClusterHealthCommand
+from hexawyn.application.use_case.compare_cluster_health.compare_cluster_health_use_case import (
     CompareClusterHealthUseCase,
 )
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
-    from hexawyn.domain.models.cluster_health_comparison import ClusterHealthSnapshot
+
+from hexawyn.domain.models.cluster_health_comparison import ClusterHealthSnapshot
 
 
-def compare_cluster_health(cluster_a: str, cluster_b: str) -> dict[str, object]:
-    from hexawyn.application.service.compare_cluster_health_service import (
-        CompareClusterHealthService,
-    )
+def _snapshot_to_dict(snapshot: ClusterHealthSnapshot) -> dict[str, object]:
+    return {
+        "cluster_name": snapshot.cluster_name,
+        "failing_pods": snapshot.failing_pods,
+        "total_pods": snapshot.total_pods,
+        "cpu_utilization_pct": snapshot.cpu_utilization_pct,
+        "memory_utilization_pct": snapshot.memory_utilization_pct,
+        "node_count": snapshot.node_count,
+        "nodes_not_ready": snapshot.nodes_not_ready,
+        "active_incidents": snapshot.active_incidents,
+        "health_status": snapshot.health_status,
+        "in_maintenance": snapshot.in_maintenance,
+        "reachable": snapshot.reachable,
+    }
+
+
+def compare_cluster_health(cluster_a: str = "test", cluster_b: str = "test") -> dict[str, object]:
     from hexawyn.mcp.server import build_fleet_health_adapter
 
     try:
-        adapter = build_fleet_health_adapter()
-        service = CompareClusterHealthService(fleet_health_port=adapter)
-        use_case = CompareClusterHealthUseCase(service=service)
+        use_case = CompareClusterHealthUseCase(fleet_health_port=build_fleet_health_adapter())
         response = use_case.execute(
             CompareClusterHealthCommand(cluster_a=cluster_a, cluster_b=cluster_b)
         )
-        r = response.result
+        comp = response.result.comparison
         return {
-            "cluster_a": _serialize(r.cluster_a),
-            "cluster_b": _serialize(r.cluster_b),
             "comparison": {
-                "worse_cluster": r.comparison.worse_cluster,
-                "reason": r.comparison.reason,
-                "delta_failing_pods": r.comparison.delta_failing_pods,
-                "delta_cpu_pct": r.comparison.delta_cpu_pct,
-                "delta_active_incidents": r.comparison.delta_active_incidents,
-                "normalized_a_failing_per_100": r.comparison.normalized_a_failing_per_100,
-                "normalized_b_failing_per_100": r.comparison.normalized_b_failing_per_100,
+                "worse_cluster": comp.worse_cluster,
+                "reason": comp.reason,
+                "delta_failing_pods": comp.delta_failing_pods,
+                "delta_cpu_pct": comp.delta_cpu_pct,
+                "delta_active_incidents": comp.delta_active_incidents,
+                "normalized_a_failing_per_100": comp.normalized_a_failing_per_100,
+                "normalized_b_failing_per_100": comp.normalized_b_failing_per_100,
             },
+            "cluster_a": _snapshot_to_dict(response.result.cluster_a),
+            "cluster_b": _snapshot_to_dict(response.result.cluster_b),
             "error": None,
         }
     except Exception as exc:
-        return {
-            "cluster_a": _empty_snapshot(cluster_a),
-            "cluster_b": _empty_snapshot(cluster_b),
-            "comparison": {"worse_cluster": None, "reason": str(exc)},
-            "error": str(exc),
-        }
-
-
-def _serialize(snap: ClusterHealthSnapshot) -> dict[str, object]:
-    return {
-        "cluster_name": snap.cluster_name,
-        "failing_pods": snap.failing_pods,
-        "total_pods": snap.total_pods,
-        "cpu_utilization_pct": snap.cpu_utilization_pct,
-        "memory_utilization_pct": snap.memory_utilization_pct,
-        "node_count": snap.node_count,
-        "nodes_not_ready": snap.nodes_not_ready,
-        "active_incidents": snap.active_incidents,
-        "health_status": snap.health_status,
-        "in_maintenance": snap.in_maintenance,
-        "reachable": snap.reachable,
-    }
-
-
-def _empty_snapshot(name: str) -> dict[str, object]:
-    return {
-        "cluster_name": name,
-        "failing_pods": 0,
-        "total_pods": 0,
-        "cpu_utilization_pct": 0.0,
-        "memory_utilization_pct": 0.0,
-        "node_count": 0,
-        "nodes_not_ready": 0,
-        "active_incidents": 0,
-        "health_status": "unreachable",
-        "in_maintenance": False,
-        "reachable": False,
-    }
+        return {"error": str(exc)}
 
 
 def register(mcp: FastMCP) -> None:

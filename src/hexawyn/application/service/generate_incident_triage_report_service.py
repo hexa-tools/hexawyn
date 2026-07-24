@@ -7,10 +7,10 @@ from hexawyn.application.ports.driven.namespace_events_port import NamespaceEven
 from hexawyn.application.ports.driven.pipeline_run_logs_port import PipelineRunLogsPort
 from hexawyn.application.ports.driven.pod_logs_port import PodLogsPort
 from hexawyn.application.ports.driven.tekton_port import NamespacedPipelineRunInfo, TektonPort
-from hexawyn.application.ports.driving.generate_incident_triage_report.generate_incident_triage_report_command import (
+from hexawyn.application.use_case.generate_incident_triage_report.command import (
     GenerateIncidentTriageReportCommand,
 )
-from hexawyn.application.ports.driving.generate_incident_triage_report.generate_incident_triage_report_response import (
+from hexawyn.application.use_case.generate_incident_triage_report.response import (
     GenerateIncidentTriageReportResponse,
     ImpactAssessmentDict,
     RootCauseCandidateDict,

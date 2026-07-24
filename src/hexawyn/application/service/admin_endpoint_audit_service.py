@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.security_audit_port import SecurityAuditPort
-from hexawyn.application.ports.driving.admin_endpoint_audit.admin_endpoint_audit_command import (
+from hexawyn.application.use_case.admin_endpoint_audit.command import (
     AdminEndpointAuditCommand,
 )
-from hexawyn.application.ports.driving.admin_endpoint_audit.admin_endpoint_audit_response import (
+from hexawyn.application.use_case.admin_endpoint_audit.response import (
     AdminEndpointAuditResponse,
 )
 from hexawyn.application.ports.driving.admin_endpoint_audit.admin_endpoint_audit_service_port import (

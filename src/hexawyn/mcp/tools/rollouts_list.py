@@ -1,33 +1,22 @@
-"""MCP tool: rollouts_list — List all Argo Rollouts with strategy and phase."""
+"""MCP tool: rollouts_list — List all Argo Rollouts."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.rollouts_list.rollouts_list_command import (
-    RolloutsListCommand,
-)
-from hexawyn.application.use_case.rollouts_list.rollouts_list_use_case import (
-    RolloutsListUseCase,
-)
+from hexawyn.application.use_case.rollouts_list.command import RolloutsListCommand
+from hexawyn.application.use_case.rollouts_list.rollouts_list_use_case import RolloutsListUseCase
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
 def rollouts_list(namespace: str | None = None) -> dict[str, object]:
-    """List all Argo Rollouts with their strategy and current phase.
-
-    Args:
-        namespace: Optional namespace filter.
-    """
-    from hexawyn.application.service.rollouts_list_service import RolloutsListService
     from hexawyn.mcp.server import build_rollouts_adapter
 
     try:
         adapter = build_rollouts_adapter()
-        service = RolloutsListService(rollouts_port=adapter)
-        use_case = RolloutsListUseCase(service=service)
+        use_case = RolloutsListUseCase(rollouts_port=adapter)
         response = use_case.execute(RolloutsListCommand(namespace=namespace))
         return {"rollouts": response.rollouts, "error": response.error}
     except Exception as exc:

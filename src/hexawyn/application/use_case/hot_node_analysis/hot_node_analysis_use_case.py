@@ -1,19 +1,11 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.hot_node_analysis.hot_node_analysis_command import (
-    HotNodeAnalysisCommand,
-)
-from hexawyn.application.ports.driving.hot_node_analysis.hot_node_analysis_response import (
-    HotNodeAnalysisResponse,
-)
-from hexawyn.application.ports.driving.hot_node_analysis.hot_node_analysis_service_port import (
-    HotNodeAnalysisServicePort,
-)
+from hexawyn.application.ports.driven.hot_node_analysis_port import HotNodeAnalysisPort
+from hexawyn.application.use_case.hot_node_analysis.command import HotNodeAnalysisCommand
+from hexawyn.application.use_case.hot_node_analysis.response import HotNodeAnalysisResponse
 
 
 class HotNodeAnalysisUseCase:
-    def __init__(self, service: HotNodeAnalysisServicePort) -> None:
-        self._svc = service
+    def __init__(self, port: HotNodeAnalysisPort) -> None:
+        self._port = port
 
     def execute(self, command: HotNodeAnalysisCommand) -> HotNodeAnalysisResponse:
-        return self._svc.analyze(command)
+        return HotNodeAnalysisResponse()

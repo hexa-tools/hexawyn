@@ -3,10 +3,10 @@ from __future__ import annotations
 from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
 from hexawyn.application.ports.driven.kubernetes_topology_port import KubernetesTopologyPort
 from hexawyn.application.ports.driven.topology_snapshot_port import TopologySnapshotPort
-from hexawyn.application.ports.driving.live_topology_mapper.live_topology_mapper_command import (
+from hexawyn.application.use_case.live_topology_mapper.command import (
     LiveTopologyMapperCommand,
 )
-from hexawyn.application.ports.driving.live_topology_mapper.live_topology_mapper_response import (
+from hexawyn.application.use_case.live_topology_mapper.response import (
     LiveTopologyMapperResponse,
 )
 from hexawyn.application.ports.driving.live_topology_mapper.live_topology_mapper_service_port import (

@@ -3,10 +3,10 @@ from __future__ import annotations
 from hexawyn.application.ports.driven.cost_saving_estimation_port import (
     CostSavingEstimationPort,
 )
-from hexawyn.application.ports.driving.estimate_cost_saving.estimate_cost_saving_command import (
+from hexawyn.application.use_case.estimate_cost_saving.command import (
     EstimateCostSavingCommand,
 )
-from hexawyn.application.ports.driving.estimate_cost_saving.estimate_cost_saving_response import (
+from hexawyn.application.use_case.estimate_cost_saving.response import (
     EstimateCostSavingResponse,
 )
 from hexawyn.application.ports.driving.estimate_cost_saving.estimate_cost_saving_service_port import (

@@ -5,10 +5,10 @@ from dataclasses import asdict
 from hexawyn.application.ports.driven.service_dependency_graph_port import (
     ServiceDependencyGraphPort,
 )
-from hexawyn.application.ports.driving.service_dependency_graph.service_dependency_graph_command import (
+from hexawyn.application.use_case.service_dependency_graph.command import (
     ServiceDependencyGraphCommand,
 )
-from hexawyn.application.ports.driving.service_dependency_graph.service_dependency_graph_response import (
+from hexawyn.application.use_case.service_dependency_graph.response import (
     ServiceDependencyGraphResponse,
 )
 from hexawyn.application.ports.driving.service_dependency_graph.service_dependency_graph_service_port import (

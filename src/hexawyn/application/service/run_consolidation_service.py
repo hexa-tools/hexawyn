@@ -1,8 +1,8 @@
 from hexawyn.application.ports.driven.consolidation_port import ConsolidationPort
-from hexawyn.application.ports.driving.run_consolidation.run_consolidation_command import (
+from hexawyn.application.use_case.run_consolidation.command import (
     RunConsolidationCommand,
 )
-from hexawyn.application.ports.driving.run_consolidation.run_consolidation_response import (
+from hexawyn.application.use_case.run_consolidation.response import (
     RunConsolidationResponse,
 )
 from hexawyn.application.ports.driving.run_consolidation.run_consolidation_service_port import (

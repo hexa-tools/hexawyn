@@ -1,19 +1,18 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.generate_sla_report.generate_sla_report_command import (
-    GenerateSlaReportCommand,
-)
-from hexawyn.application.ports.driving.generate_sla_report.generate_sla_report_response import (
-    GenerateSlaReportResponse,
-)
-from hexawyn.application.ports.driving.generate_sla_report.generate_sla_report_service_port import (
-    GenerateSlaReportServicePort,
-)
+from hexawyn.application.ports.driven.sla_report_port import SlaReportPort
+from hexawyn.application.use_case.generate_sla_report.command import GenerateSlaReportCommand
+from hexawyn.application.use_case.generate_sla_report.response import GenerateSlaReportResponse
+from hexawyn.domain.services.sla_report.sla_report_service import SlaReportService
 
 
 class GenerateSlaReportUseCase:
-    def __init__(self, service: GenerateSlaReportServicePort) -> None:
-        self._service = service
+    def __init__(self, sla_port: SlaReportPort) -> None:
+        self._port = sla_port
+        self._engine = SlaReportService()
 
     def execute(self, command: GenerateSlaReportCommand) -> GenerateSlaReportResponse:
-        return self._service.generate(command)
+        data = self._port.get_quarter_sla_data(command.quarter)
+        previous_avg = self._port.get_previous_quarter_avg_uptime(command.quarter)
+        result = self._engine.generate(
+            data=data, quarter=command.quarter, previous_avg=previous_avg
+        )
+        return GenerateSlaReportResponse(result=result)

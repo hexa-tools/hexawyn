@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.error_attribution_port import ErrorAttributionPort
-from hexawyn.application.ports.driving.error_attribution.error_attribution_command import (
+from hexawyn.application.use_case.error_attribution.command import (
     ErrorAttributionCommand,
 )
-from hexawyn.application.ports.driving.error_attribution.error_attribution_response import (
+from hexawyn.application.use_case.error_attribution.response import (
     ErrorAttributionResponse,
 )
 from hexawyn.application.ports.driving.error_attribution.error_attribution_service_port import (

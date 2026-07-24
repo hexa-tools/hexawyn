@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.memory_saturation.memory_saturation_command import (
-    MemorySaturationCommand,
-)
+from hexawyn.application.use_case.memory_saturation.command import MemorySaturationCommand
 from hexawyn.application.use_case.memory_saturation.memory_saturation_use_case import (
     MemorySaturationUseCase,
 )
@@ -16,12 +14,11 @@ if TYPE_CHECKING:
 
 
 def memory_saturation(prediction_window_minutes: int = 30) -> dict[str, object]:
-    from hexawyn.application.service.memory_saturation_service import MemorySaturationService
     from hexawyn.mcp.server import build_memory_saturation_adapter
 
     try:
         a = build_memory_saturation_adapter()
-        r = MemorySaturationUseCase(service=MemorySaturationService(port=a)).execute(
+        r = MemorySaturationUseCase(port=a).execute(
             MemorySaturationCommand(prediction_window_minutes=prediction_window_minutes)
         )
         return {

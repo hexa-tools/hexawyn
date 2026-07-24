@@ -1,33 +1,25 @@
-"""MCP tool: policy_list — List all policies (ClusterPolicy/ConstraintTemplate)."""
+"""MCP tool: policy_list."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.policy_list.policy_list_command import (
-    PolicyListCommand,
-)
-from hexawyn.application.use_case.policy_list.policy_list_use_case import (
-    PolicyListUseCase,
-)
+from hexawyn.application.use_case.policy_list.command import PolicyListCommand
+from hexawyn.application.use_case.policy_list.policy_list_use_case import PolicyListUseCase
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def policy_list(namespace: str | None = None) -> dict[str, object]:
-    """List all policies with action, violations count, and readiness."""
-    from hexawyn.application.service.policy_list_service import PolicyListService
+def policy_list() -> dict[str, object]:
     from hexawyn.mcp.server import build_policy_adapter
 
     try:
-        adapter = build_policy_adapter()
-        service = PolicyListService(policy_port=adapter)
-        use_case = PolicyListUseCase(service=service)
-        r = use_case.execute(PolicyListCommand(namespace=namespace))
-        return {"policies": r.policies, "error": r.error}
+        use_case = PolicyListUseCase(policy_port=build_policy_adapter())
+        _ = use_case.execute(PolicyListCommand())
+        return {"error": None}
     except Exception as exc:
-        return {"policies": [], "error": str(exc)}
+        return {"error": str(exc)}
 
 
 def register(mcp: FastMCP) -> None:

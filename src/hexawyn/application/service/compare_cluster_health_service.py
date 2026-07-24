@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
-from hexawyn.application.ports.driving.compare_cluster_health.compare_cluster_health_command import (  # noqa: E501
+from hexawyn.application.use_case.compare_cluster_health.command import (  # noqa: E501
     CompareClusterHealthCommand,
 )
-from hexawyn.application.ports.driving.compare_cluster_health.compare_cluster_health_response import (  # noqa: E501
+from hexawyn.application.use_case.compare_cluster_health.response import (  # noqa: E501
     CompareClusterHealthResponse,
 )
 from hexawyn.application.ports.driving.compare_cluster_health.compare_cluster_health_service_port import (  # noqa: E501

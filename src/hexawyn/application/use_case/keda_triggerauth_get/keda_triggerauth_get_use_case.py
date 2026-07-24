@@ -1,19 +1,12 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.keda_triggerauth_get.keda_triggerauth_get_command import (
-    KedaTriggerAuthGetCommand,
-)
-from hexawyn.application.ports.driving.keda_triggerauth_get.keda_triggerauth_get_response import (
-    KedaTriggerAuthGetResponse,
-)
-from hexawyn.application.ports.driving.keda_triggerauth_get.keda_triggerauth_get_service_port import (
-    KedaTriggerAuthGetServicePort,
-)
+from hexawyn.application.ports.driven.keda_port import KedaPort
+from hexawyn.application.use_case.keda_triggerauth_get.command import KedaTriggerauthGetCommand
+from hexawyn.application.use_case.keda_triggerauth_get.response import KedaTriggerauthGetResponse
 
 
 class KedaTriggerAuthGetUseCase:
-    def __init__(self, service: KedaTriggerAuthGetServicePort) -> None:
-        self._svc = service
+    def __init__(self, keda_port: KedaPort) -> None:
+        self._port = keda_port
 
-    def execute(self, cmd: KedaTriggerAuthGetCommand) -> KedaTriggerAuthGetResponse:
-        return self._svc.get_auth(cmd)
+    def execute(self, command: KedaTriggerauthGetCommand) -> KedaTriggerauthGetResponse:
+        a = self._port.get_trigger_auth(name=command.name, namespace=command.namespace)
+        return KedaTriggerauthGetResponse(name=a.name, namespace=a.namespace, kind=a.kind)

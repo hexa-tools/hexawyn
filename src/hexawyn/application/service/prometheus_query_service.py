@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.metrics_query_port import MetricsQueryPort
-from hexawyn.application.ports.driving.execute_prometheus_query.execute_prometheus_query_command import (
+from hexawyn.application.use_case.execute_prometheus_query.command import (
     ExecutePrometheusQueryCommand,
 )
-from hexawyn.application.ports.driving.execute_prometheus_query.execute_prometheus_query_response import (
+from hexawyn.application.use_case.execute_prometheus_query.response import (
     ExecutePrometheusQueryResponse,
     MetricResultDict,
 )

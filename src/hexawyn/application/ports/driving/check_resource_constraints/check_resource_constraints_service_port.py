@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.check_resource_constraints.check_resource_constraints_command import (
+from hexawyn.application.use_case.check_resource_constraints.command import (
     CheckResourceConstraintsCommand,
 )
-from hexawyn.application.ports.driving.check_resource_constraints.check_resource_constraints_response import (
+from hexawyn.application.use_case.check_resource_constraints.response import (
     CheckResourceConstraintsResponse,
 )
 

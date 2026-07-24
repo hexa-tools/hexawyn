@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.policy_port import PolicyPort
-from hexawyn.application.ports.driving.policy_explain_denial.policy_explain_denial_command import (
+from hexawyn.application.use_case.policy_explain_denial.command import (
     PolicyExplainDenialCommand,
 )
-from hexawyn.application.ports.driving.policy_explain_denial.policy_explain_denial_response import (
+from hexawyn.application.use_case.policy_explain_denial.response import (
     PolicyExplainDenialResponse,
 )
 from hexawyn.application.ports.driving.policy_explain_denial.policy_explain_denial_service_port import (

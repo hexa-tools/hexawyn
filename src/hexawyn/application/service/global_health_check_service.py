@@ -3,10 +3,10 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from hexawyn.application.ports.driven.fleet_health_port import FleetHealthPort
-from hexawyn.application.ports.driving.global_health_check.global_health_check_command import (
+from hexawyn.application.use_case.global_health_check.command import (
     GlobalHealthCheckCommand,
 )
-from hexawyn.application.ports.driving.global_health_check.global_health_check_response import (
+from hexawyn.application.use_case.global_health_check.response import (
     GlobalHealthCheckResponse,
 )
 from hexawyn.application.ports.driving.global_health_check.global_health_check_service_port import (

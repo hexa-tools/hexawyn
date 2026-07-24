@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.policy_port import PolicyPort
-from hexawyn.application.ports.driving.policy_list.policy_list_command import (
+from hexawyn.application.use_case.policy_list.command import (
     PolicyListCommand,
 )
-from hexawyn.application.ports.driving.policy_list.policy_list_response import (
+from hexawyn.application.use_case.policy_list.response import (
     PolicyListResponse,
 )
 from hexawyn.application.ports.driving.policy_list.policy_list_service_port import (

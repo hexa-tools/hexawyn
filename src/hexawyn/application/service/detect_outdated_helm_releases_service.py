@@ -3,10 +3,10 @@ from __future__ import annotations
 from hexawyn.application.ports.driven.helm_release_version_port import (
     HelmReleaseVersionPort,
 )
-from hexawyn.application.ports.driving.detect_outdated_helm_releases.detect_outdated_helm_releases_command import (
+from hexawyn.application.use_case.detect_outdated_helm_releases.command import (
     DetectOutdatedHelmReleasesCommand,
 )
-from hexawyn.application.ports.driving.detect_outdated_helm_releases.detect_outdated_helm_releases_response import (
+from hexawyn.application.use_case.detect_outdated_helm_releases.response import (
     DetectOutdatedHelmReleasesResponse,
 )
 from hexawyn.application.ports.driving.detect_outdated_helm_releases.detect_outdated_helm_releases_service_port import (

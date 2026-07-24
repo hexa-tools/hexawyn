@@ -3,10 +3,10 @@ from __future__ import annotations
 from hexawyn.application.ports.driven.deployment_latency_comparison_port import (
     DeploymentLatencyComparisonPort,
 )
-from hexawyn.application.ports.driving.deployment_latency.deployment_latency_command import (
+from hexawyn.application.use_case.deployment_latency.command import (
     DeploymentLatencyCommand,
 )
-from hexawyn.application.ports.driving.deployment_latency.deployment_latency_response import (
+from hexawyn.application.use_case.deployment_latency.response import (
     DeploymentLatencyResponse,
 )
 from hexawyn.application.ports.driving.deployment_latency.deployment_latency_service_port import (

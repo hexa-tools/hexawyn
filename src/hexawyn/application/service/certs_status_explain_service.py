@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
-from hexawyn.application.ports.driving.certs_status_explain.certs_status_explain_command import (
+from hexawyn.application.use_case.certs_status_explain.command import (
     CertsStatusExplainCommand,
 )
-from hexawyn.application.ports.driving.certs_status_explain.certs_status_explain_response import (
+from hexawyn.application.use_case.certs_status_explain.response import (
     CertsStatusExplainResponse,
 )
 from hexawyn.application.ports.driving.certs_status_explain.certs_status_explain_service_port import (

@@ -3,7 +3,7 @@ from hexawyn.domain.models.optimization_roi import OptimizationRoiReport
 
 class TestComputeOptimizationRoiResponse:
     def test_wraps_report(self) -> None:
-        from hexawyn.application.ports.driving.compute_optimization_roi.compute_optimization_roi_response import (  # noqa: E501
+        from hexawyn.application.use_case.compute_optimization_roi.response import (  # noqa: E501
             ComputeOptimizationRoiResponse,
         )
 

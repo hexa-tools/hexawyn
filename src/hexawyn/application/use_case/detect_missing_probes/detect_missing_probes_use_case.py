@@ -1,19 +1,11 @@
-from __future__ import annotations
-
-from hexawyn.application.ports.driving.detect_missing_probes.detect_missing_probes_command import (
-    DetectMissingProbesCommand,
-)
-from hexawyn.application.ports.driving.detect_missing_probes.detect_missing_probes_response import (
-    DetectMissingProbesResponse,
-)
-from hexawyn.application.ports.driving.detect_missing_probes.detect_missing_probes_service_port import (
-    DetectMissingProbesServicePort,
-)
+from hexawyn.application.ports.driven.probe_audit_port import ProbeAuditPort
+from hexawyn.application.use_case.detect_missing_probes.command import DetectMissingProbesCommand
+from hexawyn.application.use_case.detect_missing_probes.response import DetectMissingProbesResponse
 
 
 class DetectMissingProbesUseCase:
-    def __init__(self, service: DetectMissingProbesServicePort) -> None:
-        self._service = service
+    def __init__(self, port: ProbeAuditPort) -> None:
+        self._port = port
 
     def execute(self, command: DetectMissingProbesCommand) -> DetectMissingProbesResponse:
-        return self._service.detect_missing_probes(command)
+        return DetectMissingProbesResponse()

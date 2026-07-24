@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from hexawyn.application.ports.driven.adaptive_investigation_port import AdaptiveInvestigationPort
 from hexawyn.application.ports.driven.k8s_port import K8sPort
-from hexawyn.application.ports.driving.adaptive_namespace_investigation.adaptive_namespace_investigation_command import (
+from hexawyn.application.use_case.adaptive_namespace_investigation.command import (
     AdaptiveNamespaceInvestigationCommand,
 )
-from hexawyn.application.ports.driving.adaptive_namespace_investigation.adaptive_namespace_investigation_response import (
+from hexawyn.application.use_case.adaptive_namespace_investigation.response import (
     AdaptiveNamespaceInvestigationResponse,
     ResourceInvestigationDict,
     RootCauseCandidateDict,
@@ -13,10 +13,10 @@ from hexawyn.application.ports.driving.adaptive_namespace_investigation.adaptive
 from hexawyn.application.ports.driving.adaptive_namespace_investigation.adaptive_namespace_investigation_service_port import (
     AdaptiveNamespaceInvestigationServicePort,
 )
-from hexawyn.application.ports.driving.conservative_namespace_overview.conservative_namespace_overview_command import (
+from hexawyn.application.use_case.conservative_namespace_overview.command import (
     ConservativeNamespaceOverviewCommand,
 )
-from hexawyn.application.ports.driving.conservative_namespace_overview.conservative_namespace_overview_response import (
+from hexawyn.application.use_case.conservative_namespace_overview.response import (
     ConservativeNamespaceOverviewResponse,
 )
 from hexawyn.application.ports.driving.conservative_namespace_overview.conservative_namespace_overview_service_port import (

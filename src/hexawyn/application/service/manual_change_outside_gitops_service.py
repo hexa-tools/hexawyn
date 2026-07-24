@@ -6,10 +6,10 @@ from hexawyn.application.ports.driven.gitops_drift_audit_port import (
     AuditEventRaw,
     GitOpsDriftAuditPort,
 )
-from hexawyn.application.ports.driving.manual_change_outside_gitops.manual_change_outside_gitops_command import (
+from hexawyn.application.use_case.manual_change_outside_gitops.command import (
     ManualChangeOutsideGitOpsCommand,
 )
-from hexawyn.application.ports.driving.manual_change_outside_gitops.manual_change_outside_gitops_response import (
+from hexawyn.application.use_case.manual_change_outside_gitops.response import (
     ManualChangeDict,
     ManualChangeOutsideGitOpsResponse,
 )

@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from hexawyn.application.ports.driven.version_regression_port import VersionRegressionPort
-from hexawyn.application.ports.driving.version_regression.version_regression_command import (
+from hexawyn.application.use_case.version_regression.command import (
     VersionRegressionCommand,
 )
-from hexawyn.application.ports.driving.version_regression.version_regression_response import (
+from hexawyn.application.use_case.version_regression.response import (
     VersionRegressionResponse,
 )
 from hexawyn.application.ports.driving.version_regression.version_regression_service_port import (
