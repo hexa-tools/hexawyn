@@ -108,7 +108,7 @@ test-all:
 
 coverage:
 	@echo "📊 Running tests with coverage..."
-	$(PYTEST) tests/unit/ --cov=src/hexawyn --cov-report=term --cov-fail-under=80
+	$(PYTEST) tests/unit/ --cov=src/hexawyn --cov-report=term --cov-fail-under=95
 	@echo "✅ Coverage threshold met"
 
 update-badge:

@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 """Integration tests for list_pipeline_runs — service + use_case full stack."""
 
 from unittest.mock import MagicMock

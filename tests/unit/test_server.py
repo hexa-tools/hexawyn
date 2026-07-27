@@ -14,7 +14,7 @@ class TestMCPClusterCertificateHealthAdapterFactory:
         from hexawyn.mcp.server import build_cluster_certificate_health_adapter
 
         with patch(
-            "hexawyn.mcp.server.load_kubeconfig",
+            "hexawyn.infrastructure.config.kubeconfig_reader.load_kubeconfig",
             return_value=MagicMock(),
         ):
             result = build_cluster_certificate_health_adapter()

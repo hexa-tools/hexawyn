@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 """Integration tests: ListPipelineRunsInNamespaceUseCase → service → adapter.
 
 These tests use a real VanillaAdapter driven by a fake CRD client, exercising

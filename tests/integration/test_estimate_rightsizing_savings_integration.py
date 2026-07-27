@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 """Integration tests: EstimateRightsizingSavingsUseCase → service → VanillaAdapter.
 
 Uses a real VanillaAdapter wired with fake K8s clients — no cluster needed.

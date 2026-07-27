@@ -36,7 +36,7 @@ jobs:
             --cov=src/hexawyn \
             --cov-report=xml \
             --cov-report=term \
-            --cov-fail-under=80
+            --cov-fail-under=95
       - uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
