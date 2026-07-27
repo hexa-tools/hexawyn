@@ -82,9 +82,7 @@ def generate_incident_triage_report(namespace: str = "test-ns") -> dict[str, obj
         _ = build_tekton_adapter()
         _ = build_pipeline_run_logs_adapter()
 
-        events = events_adapter.list_events(
-            GetNamespaceEventsRequest(namespace=namespace)
-        )
+        events = events_adapter.list_events(GetNamespaceEventsRequest(namespace=namespace))
 
         root_causes: list[RootCauseCandidate] = []
         for event in events:

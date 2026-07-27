@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.policy_violations_list.command import PolicyViolationsListCommand
-from hexawyn.application.use_case.policy_violations_list.policy_violations_list_use_case import (
+from hexawyn.application.use_case.governance.policy_violations_list.command import (
+    PolicyViolationsListCommand,
+)
+from hexawyn.application.use_case.governance.policy_violations_list.policy_violations_list_use_case import (  # noqa: E501
     PolicyViolationsListUseCase,
 )
 

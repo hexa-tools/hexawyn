@@ -54,7 +54,7 @@ class TestDemoIntegration:
 
         adapter = DemoAdapter(scenario=scenario)
         chips = adapter.get_suggestion_chips()
-        assert 1 <= len(chips) <= 4
+        assert 1 <= len(chips) <= 4  # noqa: PLR2004
 
     @pytest.mark.parametrize("scenario", SCENARIOS)
     def test_each_scenario_slack_message_not_empty(self, scenario: str):

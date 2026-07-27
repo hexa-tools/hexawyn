@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.detect_unintended_external_exposure.command import (
+from hexawyn.application.use_case.networking.detect_unintended_external_exposure.command import (
     DetectUnintendedExternalExposureCommand,
 )
-from hexawyn.application.use_case.detect_unintended_external_exposure.detect_unintended_external_exposure_use_case import (
+from hexawyn.application.use_case.networking.detect_unintended_external_exposure.detect_unintended_external_exposure_use_case import (  # noqa: E501
     DetectUnintendedExternalExposureUseCase,
 )
 

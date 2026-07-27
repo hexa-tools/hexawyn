@@ -33,7 +33,7 @@ INCIDENTS_DDL = """
 """
 
 
-def _insert_row(
+def _insert_row(  # noqa: PLR0913
     conn: duckdb.DuckDBPyConnection,
     *,
     timestamp: str = "now()",
@@ -46,7 +46,7 @@ def _insert_row(
         f"""
         INSERT INTO incidents (timestamp, retained_until, cluster_name, tool_name, cause, embedding)
         VALUES ({timestamp}, {retained_until}, '{cluster_name}', '{tool_name}', '{cause}', [1.0, 0.0, 0.0])
-    """
+    """  # noqa: E501
     )
 
 
@@ -84,7 +84,7 @@ class TestDBFileSize:
         assert is_db_over_threshold(nonexistent) is False
 
     def test_default_threshold_is_1_gb(self) -> None:
-        assert _DB_SIZE_WARNING_THRESHOLD == 1_073_741_824
+        assert _DB_SIZE_WARNING_THRESHOLD == 1_073_741_824  # noqa: PLR2004
 
 
 class TestPurgeExpired:
@@ -113,7 +113,7 @@ class TestPurgeExpired:
 
         count = conn.execute("SELECT COUNT(*) FROM incidents").fetchone()
         assert count is not None
-        assert count[0] == 2
+        assert count[0] == 2  # noqa: PLR2004
         conn.close()
 
     def test_returns_zero_for_empty_table(self) -> None:
@@ -156,5 +156,5 @@ class TestPurgeOlderThan:
 
         cutoff = datetime.datetime.now(datetime.UTC)
         deleted = purge_older_than(conn, days=0, cutoff=cutoff)
-        assert deleted == 2
+        assert deleted == 2  # noqa: PLR2004
         conn.close()

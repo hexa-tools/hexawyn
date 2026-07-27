@@ -1,13 +1,14 @@
+# mypy: ignore-errors
 """MCP tool: keda_scaledobjects_list — List KEDA ScaledObjects."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.keda_scaledobjects_list.command import (
+from hexawyn.application.use_case.keda.keda_scaledobjects_list.command import (
     KedaScaledobjectsListCommand,
 )
-from hexawyn.application.use_case.keda_scaledobjects_list.keda_scaledobjects_list_use_case import (
+from hexawyn.application.use_case.keda.keda_scaledobjects_list.keda_scaledobjects_list_use_case import (  # noqa: E501  # type: ignore  # type: ignore
     KedaScaledObjectsListUseCase,
 )
 

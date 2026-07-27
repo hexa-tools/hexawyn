@@ -10,9 +10,21 @@ LATENCY_SPIKE_SCENARIO = {
     ],
     "metrics": {"cpu_usage_pct": 72, "memory_usage_pct": 68, "node_count": 10, "pod_count": 38},
     "findings": [
-        {"severity": "high", "message": "payment-api p99 latency: 800ms (baseline 200ms) — 4x increase after v2.4 deploy", "remediation": "Compare spans between v2.3 and v2.4, check DB query performance"},
-        {"severity": "high", "message": "Slowest span: db-proxy → PostgreSQL query taking 650ms (was 80ms)", "remediation": "Check for missing index, query plan change, or connection pool exhaustion"},
-        {"severity": "medium", "message": "Error rate unchanged (0.2%) — latency only, no errors", "remediation": "This is a performance regression, not a functionality bug"},
+        {
+            "severity": "high",
+            "message": "payment-api p99 latency: 800ms (baseline 200ms) — 4x increase after v2.4 deploy",  # noqa: E501
+            "remediation": "Compare spans between v2.3 and v2.4, check DB query performance",
+        },
+        {
+            "severity": "high",
+            "message": "Slowest span: db-proxy → PostgreSQL query taking 650ms (was 80ms)",
+            "remediation": "Check for missing index, query plan change, or connection pool exhaustion",  # noqa: E501
+        },
+        {
+            "severity": "medium",
+            "message": "Error rate unchanged (0.2%) — latency only, no errors",
+            "remediation": "This is a performance regression, not a functionality bug",
+        },
     ],
     "chips": ["p99 latency 800ms", "DB query bottleneck", "v2.4 regression", "Rollback?"],
     "slack_message": "⚠️ payment-api p99: 800ms (+4x). DB query bottleneck detected.",

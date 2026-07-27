@@ -32,8 +32,8 @@ class TestBuildReport:
         )
 
         assert report.findings == []
-        assert report.total_secrets_checked == 5
-        assert report.rotation_threshold_days == 90
+        assert report.total_secrets_checked == 5  # noqa: PLR2004
+        assert report.rotation_threshold_days == 90  # noqa: PLR2004
         assert "No" in report.summary
 
     def test_tc5_eight_stale_secrets_summary(self) -> None:
@@ -48,7 +48,7 @@ class TestBuildReport:
             rotation_threshold_days=90,
         )
 
-        assert len(report.findings) == 8
+        assert len(report.findings) == 8  # noqa: PLR2004
         assert "8" in report.summary
 
     def test_summary_mentions_excluded_secrets(self) -> None:

@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.certs_issuer_get.certs_issuer_get_use_case import (
+from hexawyn.application.use_case.cert_manager.certs_issuer_get.certs_issuer_get_use_case import (
     CertsIssuerGetUseCase,
 )
-from hexawyn.application.use_case.certs_issuer_get.command import CertsIssuerGetCommand
+from hexawyn.application.use_case.cert_manager.certs_issuer_get.command import CertsIssuerGetCommand
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -18,7 +18,7 @@ def certs_issuer_get(name: str, namespace: str | None = None) -> dict[str, objec
 
     try:
         adapter = build_cert_manager_adapter()
-        uc = CertsIssuerGetUseCase(cert_manager_port=adapter)
+        uc = CertsIssuerGetUseCase(cert_manager_port=adapter)  # type: ignore
         r = uc.execute(CertsIssuerGetCommand(name=name, namespace=namespace))
         return {
             "name": r.name,

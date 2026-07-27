@@ -23,10 +23,10 @@ class TestAnalyzePodLogsSmartStrategy:
         result = analyze_pod_logs(request, lines)
 
         assert result.strategy_used == "smart_summary"
-        assert result.total_lines == 500
-        assert result.error_count == 3
+        assert result.total_lines == 500  # noqa: PLR2004
+        assert result.error_count == 3  # noqa: PLR2004
         assert len(result.connection_refused) == 1
-        assert result.connection_refused[0].count == 3
+        assert result.connection_refused[0].count == 3  # noqa: PLR2004
 
     def test_smart_strategy_propagates_ranked_events(self) -> None:
         """ECA-17: dedup/noise-filter/severity-rank results reach AnalyzePodLogsResult."""
@@ -39,7 +39,7 @@ class TestAnalyzePodLogsSmartStrategy:
         assert result.strategy_used == "smart_summary"
         assert len(result.ranked_events) == 1
         assert result.ranked_events[0].line == "connection refused"
-        assert result.ranked_events[0].count == 3
+        assert result.ranked_events[0].count == 3  # noqa: PLR2004
         assert result.token_reduction_percentage > 0.0
 
 
@@ -53,9 +53,9 @@ class TestAnalyzePodLogsStreamingStrategy:
         result = analyze_pod_logs(request, lines)
 
         assert result.strategy_used == "streaming"
-        assert result.total_lines == 15000
+        assert result.total_lines == 15000  # noqa: PLR2004
         assert len(result.connection_timeouts) == 1
-        assert result.connection_timeouts[0].count == 15000
+        assert result.connection_timeouts[0].count == 15000  # noqa: PLR2004
 
 
 class TestAnalyzePodLogsHybridStrategy:
@@ -77,9 +77,9 @@ class TestAnalyzePodLogsHybridStrategy:
         result = analyze_pod_logs(request, lines)
 
         assert result.strategy_used == "hybrid"
-        assert result.token_reduction_percentage > 90.0
+        assert result.token_reduction_percentage > 90.0  # noqa: PLR2004
         assert result.degraded is False
-        assert result.total_lines == 5000
+        assert result.total_lines == 5000  # noqa: PLR2004
 
 
 class TestAnalyzePodLogsNoAnomalies:
@@ -119,10 +119,10 @@ class TestAnalyzePodLogsRestartSplit:
         result = analyze_pod_logs(request, lines)
 
         assert result.restarts_detected is True
-        assert len(result.runs) == 2
+        assert len(result.runs) == 2  # noqa: PLR2004
         run_by_index = {run.run_index: run for run in result.runs}
-        assert run_by_index[1].error_count == 3
-        assert run_by_index[0].line_count == 2
+        assert run_by_index[1].error_count == 3  # noqa: PLR2004
+        assert run_by_index[0].line_count == 2  # noqa: PLR2004
 
     def test_single_run_does_not_flag_restart(self) -> None:
         lines = [_line("ok", run_index=0) for _ in range(10)]

@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.keda_scaledobject_get.command import KedaScaledobjectGetCommand
-from hexawyn.application.use_case.keda_scaledobject_get.keda_scaledobject_get_use_case import (
+from hexawyn.application.use_case.keda.keda_scaledobject_get.command import (
+    KedaScaledobjectGetCommand,
+)
+from hexawyn.application.use_case.keda.keda_scaledobject_get.keda_scaledobject_get_use_case import (
     KedaScaledobjectGetUseCase,
 )
 

@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.compare_cluster_health.command import CompareClusterHealthCommand
-from hexawyn.application.use_case.compare_cluster_health.compare_cluster_health_use_case import (
+from hexawyn.application.use_case.cluster.compare_cluster_health.command import (
+    CompareClusterHealthCommand,
+)
+from hexawyn.application.use_case.cluster.compare_cluster_health.compare_cluster_health_use_case import (  # noqa: E501
     CompareClusterHealthUseCase,
 )
 

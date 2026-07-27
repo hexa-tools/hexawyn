@@ -288,7 +288,7 @@ class TestHandleSocketMessage:
 
         adapter.handle_message.assert_called_once()
         publisher.update_message.assert_not_called()
-        assert publisher.post_message.call_count == 2  # thinking + fallback result
+        assert publisher.post_message.call_count == 2  # thinking + fallback result  # noqa: PLR2004
 
     @pytest.mark.asyncio
     async def test_handles_invalid_json_gracefully(self) -> None:

@@ -69,7 +69,7 @@ class RedundantCallResult:
                     operation=name,
                     occurrences=count,
                     wasted_ms=round(wasted, 2),
-                    suggestion=f"Use IN clause, batch fetch, or cache. {count} individual calls detected.",
+                    suggestion=f"Use IN clause, batch fetch, or cache. {count} individual calls detected.",  # noqa: E501
                 )
                 patterns.append(pattern)
                 total_redundant += count
@@ -80,7 +80,7 @@ class RedundantCallResult:
                     operation=name,
                     occurrences=count,
                     wasted_ms=round(wasted, 2),
-                    suggestion=f"Avoid duplicate call — result could be cached. Called {count} times.",
+                    suggestion=f"Avoid duplicate call — result could be cached. Called {count} times.",  # noqa: E501
                 )
                 patterns.append(pattern)
                 total_redundant += count

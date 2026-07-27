@@ -14,8 +14,8 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
-from hexawyn.application.use_case.check_cluster_certificate_health.command import (
-    CheckClusterCertificateHealthCommand,
+from hexawyn.application.use_case.cert_manager.cluster_certificate_health.command import (
+    ClusterCertificateHealthCommand,
 )
 
 _TEST_NAMESPACE = "hexawyn-test"
@@ -114,22 +114,18 @@ def _execute_check(
     from hexawyn.adapters.secondary.kubernetes_cluster_certificate_adapter import (
         KubernetesClusterCertificateAdapter,
     )
-    from hexawyn.application.service.cluster_certificate_health_service import (
-        ClusterCertificateHealthService,
-    )
-    from hexawyn.application.use_case.check_cluster_certificate_health.check_cluster_certificate_health_use_case import (
-        CheckClusterCertificateHealthUseCase,
+    from hexawyn.application.use_case.cert_manager.cluster_certificate_health.cluster_certificate_health_use_case import (  # noqa: E501
+        ClusterCertificateHealthUseCase,
     )
 
     api = _fake_k8s_api(secrets, namespaces)
     adapter = KubernetesClusterCertificateAdapter(api=api, timeout_seconds=10.0)
-    service = ClusterCertificateHealthService(port=adapter, cluster_name="test-cluster")
-    use_case = CheckClusterCertificateHealthUseCase(service=service)
+    use_case = ClusterCertificateHealthUseCase(port=adapter, cluster_name="test-cluster")
 
     net_api = _fake_networking_api(ingresses)
     with patch("kubernetes.client.NetworkingV1Api", return_value=net_api):
-        return use_case.execute(
-            CheckClusterCertificateHealthCommand(
+        return use_case.check_cluster_certificate_health(
+            ClusterCertificateHealthCommand(
                 warning_days=warning_days,
                 critical_days=critical_days,
                 timeout_seconds=10.0,
@@ -170,7 +166,7 @@ class TestCertificateHealthCheckIntegration:
         assert len(report.warning) == 1
         entry = report.warning[0]
         assert entry.secret_name == "almost-expired-tls"
-        assert 0 <= entry.days_remaining <= 5
+        assert 0 <= entry.days_remaining <= 5  # noqa: PLR2004
 
     def test_orphaned_certificate_detected(self) -> None:
         now = datetime.datetime.now(datetime.UTC)
@@ -235,7 +231,7 @@ class TestCertificateHealthCheckIntegration:
         assert len(report.expired) == 1
         assert len(report.warning) == 1
         assert len(report.healthy) == 1
-        assert report.total_scanned == 3
+        assert report.total_scanned == 3  # noqa: PLR2004
 
     def test_custom_thresholds_respected(self) -> None:
         now = datetime.datetime.now(datetime.UTC)

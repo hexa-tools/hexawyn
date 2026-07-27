@@ -23,12 +23,12 @@ def read_license_state() -> LicenseState:
 
     try:
         parts = token.strip().split(".")
-        if len(parts) < 2:
+        if len(parts) < 2:  # noqa: PLR2004
             return LicenseState(state="invalid", plan="unknown", days_remaining=0, expiry_date="")
 
         payload = parts[1]
         padding = 4 - len(payload) % 4
-        if padding != 4:
+        if padding != 4:  # noqa: PLR2004
             payload += "=" * padding
         claims_dict = json.loads(base64.urlsafe_b64decode(payload).decode())
 
@@ -90,7 +90,7 @@ def refresh_license() -> bool:
                     "client_version": "1.0.0",
                 },
             )
-            if resp.status_code == 200:
+            if resp.status_code == 200:  # noqa: PLR2004
                 data = resp.json()
                 jwt_token = data.get("token", "")
                 if jwt_token:

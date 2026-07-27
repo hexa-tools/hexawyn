@@ -7,14 +7,14 @@ from hexawyn.application.ports.driven.kubearchive_port import (
     KubeArchivePort,
     KubeArchiveQuery,
 )
-from hexawyn.application.use_case.query_kubearchive.command import (
-    QueryKubeArchiveCommand,
-)
-from hexawyn.application.use_case.query_kubearchive.response import (
-    QueryKubeArchiveResponse,
-)
 from hexawyn.application.ports.driving.query_kubearchive.query_kubearchive_service_port import (
     QueryKubeArchiveServicePort,
+)
+from hexawyn.application.use_case.troubleshooting.query_kubearchive.command import (  # type: ignore
+    QueryKubeArchiveCommand,
+)
+from hexawyn.application.use_case.troubleshooting.query_kubearchive.response import (  # type: ignore
+    QueryKubeArchiveResponse,
 )
 from hexawyn.domain.models.historical_pod import (
     HistoricalPod,
@@ -101,7 +101,7 @@ class HistoricalStateQueryService(QueryKubeArchiveServicePort):
         parts: list[str] = []
         if comparison.pods_removed > 0:
             parts.append(
-                f"\u2212{comparison.pods_removed} pods removed since {comparison.historical_timestamp}"
+                f"\u2212{comparison.pods_removed} pods removed since {comparison.historical_timestamp}"  # noqa: E501
             )
         if comparison.pods_added > 0:
             parts.append(

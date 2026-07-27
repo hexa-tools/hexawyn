@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.error_attribution.command import ErrorAttributionCommand
-from hexawyn.application.use_case.error_attribution.error_attribution_use_case import (
+from hexawyn.application.use_case.observability.error_attribution.command import (
+    ErrorAttributionCommand,
+)
+from hexawyn.application.use_case.observability.error_attribution.error_attribution_use_case import (  # noqa: E501
     ErrorAttributionUseCase,
 )
 
@@ -19,7 +21,7 @@ def error_attribution(gateway: str, time_window_minutes: int = 30) -> dict[str, 
     try:
         a = build_error_attribution_adapter()
         r = ErrorAttributionUseCase(port=a).execute(
-            ErrorAttributionCommand(gateway=gateway, time_window_minutes=time_window_minutes)
+            ErrorAttributionCommand(gateway=gateway, time_window_minutes=time_window_minutes)  # type: ignore
         )
         return {
             "gateway": r.gateway,

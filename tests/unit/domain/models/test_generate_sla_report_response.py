@@ -1,14 +1,14 @@
 from hexawyn.domain.models.sla_report import SlaReport
 
 
-class TestGenerateSlaReportResponse:
+class TestGenerateSLAReportResponse:
     def test_wraps_report(self) -> None:
-        from hexawyn.application.use_case.generate_sla_report.response import (  # noqa: E501
-            GenerateSlaReportResponse,
+        from hexawyn.application.use_case.workloads.generate_sla_report.response import (  # noqa: E501
+            GenerateSLAReportResponse,
         )
 
         report = SlaReport(quarter_label="2026-Q1")
-        response = GenerateSlaReportResponse(result=report)
+        response = GenerateSLAReportResponse(result=report)
 
         assert response.result is report
         assert response.result.quarter_label == "2026-Q1"

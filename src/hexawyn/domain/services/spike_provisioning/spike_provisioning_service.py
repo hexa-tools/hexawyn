@@ -25,7 +25,7 @@ class SpikeProvisioningService:
     """Domain service — decides whether to provision nodes ahead of a traffic
     spike, how many and of which type, and by when."""
 
-    def plan(
+    def plan(  # noqa: PLR0913
         self,
         snapshot: ClusterCapacitySnapshot,
         multiplier: float,

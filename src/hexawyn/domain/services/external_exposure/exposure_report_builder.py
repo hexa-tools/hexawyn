@@ -26,7 +26,7 @@ def _build_summary(
     total_external_services_checked: int,
 ) -> str:
     if not findings:
-        summary = f"No unintended external exposures found out of {total_external_services_checked} checked."
+        summary = f"No unintended external exposures found out of {total_external_services_checked} checked."  # noqa: E501
     else:
         summary = (
             f"{len(findings)} unintended external service(s) found "

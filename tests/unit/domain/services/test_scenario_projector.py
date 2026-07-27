@@ -16,10 +16,10 @@ class TestProjectScenarios:
             start_month="2026-06",
         )
 
-        assert len(months) == 6
+        assert len(months) == 6  # noqa: PLR2004
         month6 = months[5]
-        assert month6.month_offset == 6
-        assert 15700 <= month6.realistic_usd <= 15900
+        assert month6.month_offset == 6  # noqa: PLR2004
+        assert 15700 <= month6.realistic_usd <= 15900  # noqa: PLR2004
 
     def test_optimistic_below_realistic_below_pessimistic(self) -> None:
         from hexawyn.domain.services.budget_projection.scenario_projector import project_months
@@ -46,7 +46,7 @@ class TestProjectScenarios:
         )
 
         month = months[0]
-        assert abs(sum(month.by_category.values()) - month.realistic_usd) < 0.5
+        assert abs(sum(month.by_category.values()) - month.realistic_usd) < 0.5  # noqa: PLR2004
 
     def test_month_labels_increment(self) -> None:
         from hexawyn.domain.services.budget_projection.scenario_projector import project_months
@@ -72,7 +72,7 @@ class TestProjectScenarios:
             estimate, horizon=6, category_mix={"compute": 1.0}, start_month="2026-06"
         )
 
-        assert months[5].realistic_usd < 10000.0
+        assert months[5].realistic_usd < 10000.0  # noqa: PLR2004
 
     def test_pessimistic_wider_for_exponential(self) -> None:
         from hexawyn.domain.services.budget_projection.scenario_projector import project_months

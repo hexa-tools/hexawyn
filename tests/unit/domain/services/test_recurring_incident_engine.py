@@ -37,9 +37,9 @@ class TestIncidentRanking:
         result = engine.compute(incidents)
 
         assert result.services[0].service_name == "payment-service"
-        assert result.services[0].incident_count == 3
+        assert result.services[0].incident_count == 3  # noqa: PLR2004
         assert result.services[1].service_name == "auth-service"
-        assert result.services[1].incident_count == 2
+        assert result.services[1].incident_count == 2  # noqa: PLR2004
 
     def test_top_10_limit(self) -> None:
         engine = RecurringIncidentEngine()
@@ -47,7 +47,7 @@ class TestIncidentRanking:
 
         result = engine.compute(incidents)
 
-        assert len(result.services) == 10
+        assert len(result.services) == 10  # noqa: PLR2004
 
     def test_average_duration_computed(self) -> None:
         engine = RecurringIncidentEngine()
@@ -59,7 +59,7 @@ class TestIncidentRanking:
 
         result = engine.compute(incidents)
 
-        assert result.services[0].avg_duration_minutes == 20.0
+        assert result.services[0].avg_duration_minutes == 20.0  # noqa: PLR2004
 
     def test_service_with_one_long_incident_high_avg(self) -> None:
         engine = RecurringIncidentEngine()
@@ -69,7 +69,7 @@ class TestIncidentRanking:
 
         result = engine.compute(incidents)
 
-        assert result.services[0].avg_duration_minutes == 240.0
+        assert result.services[0].avg_duration_minutes == 240.0  # noqa: PLR2004
         assert result.services[0].incident_count == 1
 
 
@@ -87,7 +87,7 @@ class TestRecurringPattern:
 
         assert result.services[0].is_recurring is True
         assert result.services[0].most_common_cause == "DB connection pool exhausted"
-        assert result.services[0].recurrence_count == 4
+        assert result.services[0].recurrence_count == 4  # noqa: PLR2004
 
     def test_same_cause_but_only_twice_not_flagged(self) -> None:
         engine = RecurringIncidentEngine()
@@ -110,7 +110,7 @@ class TestRecurringPattern:
 
         result = engine.compute(incidents)
 
-        assert len(result.services) == 3
+        assert len(result.services) == 3  # noqa: PLR2004
         assert result.services[0].incident_count == 1
 
 

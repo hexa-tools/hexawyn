@@ -175,7 +175,7 @@ def _parse_audit_line(line: str) -> ApiUsageEventRaw | None:
     if not isinstance(username, str) or not username.startswith(_SERVICE_ACCOUNT_USERNAME_PREFIX):
         return None
     parts = username.split(":")
-    if len(parts) != 4:
+    if len(parts) != 4:  # noqa: PLR2004
         return None
     namespace, name = parts[2], parts[3]
 

@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.policy_list.command import PolicyListCommand
-from hexawyn.application.use_case.policy_list.policy_list_use_case import PolicyListUseCase
+from hexawyn.application.use_case.governance.policy_list.command import PolicyListCommand
+from hexawyn.application.use_case.governance.policy_list.policy_list_use_case import (
+    PolicyListUseCase,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP

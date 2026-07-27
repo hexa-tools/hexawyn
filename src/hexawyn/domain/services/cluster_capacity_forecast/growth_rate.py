@@ -42,7 +42,7 @@ def detect_capacity_jump(daily_values: list[float]) -> int | None:
 
 def compute_growth_rate(daily_values: list[float]) -> GrowthRateResult:
     window_days_used = len(daily_values)
-    if window_days_used < 2:
+    if window_days_used < 2:  # noqa: PLR2004
         return GrowthRateResult(
             slope_per_day=0.0,
             window_days_used=window_days_used,
@@ -74,7 +74,7 @@ def _deltas(values: list[float]) -> list[float]:
 
 def _least_squares_slope(series: list[float]) -> float:
     n = len(series)
-    if n < 2:
+    if n < 2:  # noqa: PLR2004
         return 0.0
 
     mean_x = (n - 1) / 2
@@ -90,6 +90,6 @@ def _has_recent_spike(series: list[float], overall_slope: float) -> bool:
 
     recent_deltas = _deltas(series)[-_cfg.trend_window_days :]
     recent_avg = mean(recent_deltas)
-    if abs(overall_slope) < 1e-9:
-        return abs(recent_avg) > 1e-9
+    if abs(overall_slope) < 1e-9:  # noqa: PLR2004
+        return abs(recent_avg) > 1e-9  # noqa: PLR2004
     return abs(recent_avg) > _SPIKE_RATIO_THRESHOLD * abs(overall_slope)

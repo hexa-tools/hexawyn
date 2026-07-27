@@ -163,4 +163,4 @@ class TestRetrievalGatePerformance:
             gate.should_retrieve(q)
         elapsed = time.perf_counter() - start
 
-        assert elapsed < 0.1, f"100 classifications took {elapsed:.4f}s, expected < 0.1s"
+        assert elapsed < 0.1, f"100 classifications took {elapsed:.4f}s, expected < 0.1s"  # noqa: PLR2004

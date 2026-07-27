@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.advanced_namespace_event_analytics.advanced_namespace_event_analytics_use_case import (
+from hexawyn.application.use_case.troubleshooting.advanced_namespace_event_analytics.advanced_namespace_event_analytics_use_case import (  # noqa: E501
     AdvancedNamespaceEventAnalyticsUseCase,
 )
-from hexawyn.application.use_case.advanced_namespace_event_analytics.command import (
+from hexawyn.application.use_case.troubleshooting.advanced_namespace_event_analytics.command import (  # noqa: E501
     AdvancedNamespaceEventAnalyticsCommand,
 )
 

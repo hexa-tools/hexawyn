@@ -46,8 +46,8 @@ class TestZombieCandidate:
             reason="No traffic but has service pointing to it",
         )
         assert candidate.risk == "review_needed"
-        assert candidate.memory_gb == 2.0
-        assert candidate.cpu_cores == 0.25
+        assert candidate.memory_gb == 2.0  # noqa: PLR2004
+        assert candidate.cpu_cores == 0.25  # noqa: PLR2004
 
     def test_reason_field_present(self) -> None:
         candidate = ZombieCandidate(
@@ -74,7 +74,7 @@ class TestZombieDetectionResult:
             prometheus_available=True,
             data_source="prometheus",
         )
-        assert result.analysis_window_hours == 24
+        assert result.analysis_window_hours == 24  # noqa: PLR2004
         assert result.zombie_candidates == []
         assert result.prometheus_available is True
 
@@ -117,7 +117,7 @@ class TestZombieDetectionResult:
             prometheus_available=True,
             data_source="prometheus",
         )
-        assert len(result.zombie_candidates) == 2
-        assert result.total_wasted_cores == 0.75
-        assert result.total_wasted_gb == 3.0
+        assert len(result.zombie_candidates) == 2  # noqa: PLR2004
+        assert result.total_wasted_cores == 0.75  # noqa: PLR2004
+        assert result.total_wasted_gb == 3.0  # noqa: PLR2004
         assert result.data_source == "prometheus"

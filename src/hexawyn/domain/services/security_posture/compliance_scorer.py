@@ -1,7 +1,10 @@
 from __future__ import annotations
 
-from hexawyn.application.ports.driven.security_posture_port import WorkloadComplianceRaw
-from hexawyn.domain.models.security_posture import CategoryScore, WorkloadCompliance
+from hexawyn.domain.models.security_posture import (
+    CategoryScore,
+    WorkloadCompliance,
+    WorkloadComplianceRaw,
+)
 
 _REMEDIATION_PRIORITY: dict[str, int] = {
     "image_scanning": 1,

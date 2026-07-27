@@ -34,10 +34,10 @@ class TestPrometheusReliabilityAdapter:
         adapter = PrometheusReliabilityAdapter(metrics_query_port=mock_metrics)
         result = adapter.fetch_service_reliability(7)
 
-        assert len(result) == 2
+        assert len(result) == 2  # noqa: PLR2004
         assert result[0]["service_name"] == "payment-service"
-        assert result[0]["uptime_pct"] == 99.92
-        assert result[1]["slo_target"] == 99.9
+        assert result[0]["uptime_pct"] == 99.92  # noqa: PLR2004
+        assert result[1]["slo_target"] == 99.9  # noqa: PLR2004
 
     def test_fetch_service_reliability_empty_result(self) -> None:
         mock_metrics = MagicMock()
@@ -71,8 +71,8 @@ class TestPrometheusReliabilityAdapter:
         adapter = PrometheusReliabilityAdapter(metrics_query_port=mock_metrics)
         result = adapter.fetch_service_reliability(7)
 
-        assert result[0]["uptime_pct"] == 95.0
-        assert result[0]["error_rate"] == 5.0
+        assert result[0]["uptime_pct"] == 95.0  # noqa: PLR2004
+        assert result[0]["error_rate"] == 5.0  # noqa: PLR2004
 
     def test_falls_back_to_exported_service_label(self) -> None:
         mock_metrics = MagicMock()

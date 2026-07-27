@@ -31,9 +31,9 @@ class TestPrometheusErrorBudgetAdapter:
 
         assert result["service_name"] == "payment-service"
         assert result["has_data"] is True
-        assert result["success_rate"] == 0.995
-        assert result["error_rate"] == 0.005
-        assert result["observation_days"] == 30
+        assert result["success_rate"] == 0.995  # noqa: PLR2004
+        assert result["error_rate"] == 0.005  # noqa: PLR2004
+        assert result["observation_days"] == 30  # noqa: PLR2004
 
     def test_fetch_success_rate_propagates_window(self) -> None:
         mock_metrics = MagicMock()
@@ -42,7 +42,7 @@ class TestPrometheusErrorBudgetAdapter:
         adapter = PrometheusErrorBudgetAdapter(metrics_query_port=mock_metrics)
         result = adapter.fetch_success_rate("auth-svc", 7)
 
-        assert result["observation_days"] == 7
+        assert result["observation_days"] == 7  # noqa: PLR2004
         assert result["success_rate"] == 1.0
         assert result["error_rate"] == 0.0
         assert result["has_data"] is True
@@ -77,9 +77,9 @@ class TestPrometheusErrorBudgetAdapter:
         adapter = PrometheusErrorBudgetAdapter(metrics_query_port=mock_metrics)
         result = adapter.fetch_success_rate("svc", 30)
 
-        assert result["successful_requests"] == 9500
-        assert result["failed_requests"] == 500
-        assert result["total_requests"] == 10000
+        assert result["successful_requests"] == 9500  # noqa: PLR2004
+        assert result["failed_requests"] == 500  # noqa: PLR2004
+        assert result["total_requests"] == 10000  # noqa: PLR2004
 
     def test_zero_requests_avoids_division_by_zero(self) -> None:
         mock_metrics = MagicMock()

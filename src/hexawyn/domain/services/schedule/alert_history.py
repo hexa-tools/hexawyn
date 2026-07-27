@@ -43,7 +43,7 @@ class AlertHistoryDecorator(AlertNotificationPort):
     def send_alert(self, message: AlertMessage) -> bool:
         success = self._real.send_alert(message)
         self._conn.execute(
-            "INSERT INTO alerts (cluster_name, check_name, severity, title, text, source, notified, delivery_status, timestamp) "
+            "INSERT INTO alerts (cluster_name, check_name, severity, title, text, source, notified, delivery_status, timestamp) "  # noqa: E501
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 message.get("cluster_name", "default"),

@@ -34,7 +34,7 @@ class TestDetectCapacityJump:
             66.0,
         ]
 
-        assert detect_capacity_jump(values) == 5
+        assert detect_capacity_jump(values) == 5  # noqa: PLR2004
 
     def test_sustained_acceleration_is_not_a_single_jump(self) -> None:
         """A multi-day acceleration (recent spike) is a different edge case
@@ -46,7 +46,7 @@ class TestDetectCapacityJump:
     def test_flat_series_with_one_jump_and_zero_baseline(self) -> None:
         values = [5.0] * 12 + [15.0]
 
-        assert detect_capacity_jump(values) == 12
+        assert detect_capacity_jump(values) == 12  # noqa: PLR2004
 
     def test_too_few_points_returns_none(self) -> None:
         assert detect_capacity_jump([1.0, 2.0, 3.0]) is None
@@ -62,7 +62,7 @@ class TestComputeGrowthRate:
         assert result.slope_per_day == pytest.approx(1.92, abs=0.01)
         assert result.capacity_jump_detected is False
         assert result.spike_caveat is False
-        assert result.window_days_used == 14
+        assert result.window_days_used == 14  # noqa: PLR2004
 
     def test_flat_series_has_near_zero_slope(self) -> None:
         """TC5: usage flat for 14 days → no saturation predicted."""
@@ -110,7 +110,7 @@ class TestComputeGrowthRate:
 
         assert result.capacity_jump_detected is False
         assert result.spike_caveat is True
-        assert 0 < result.slope_per_day < 2.0
+        assert 0 < result.slope_per_day < 2.0  # noqa: PLR2004
 
     def test_insufficient_points_returns_zero_slope(self) -> None:
         result = compute_growth_rate([5.0])

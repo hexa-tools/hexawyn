@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.detect_container_image_drift.command import (
+from hexawyn.application.use_case.security.detect_container_image_drift.command import (
     DetectContainerImageDriftCommand,
 )
-from hexawyn.application.use_case.detect_container_image_drift.detect_container_image_drift_use_case import (
+from hexawyn.application.use_case.security.detect_container_image_drift.detect_container_image_drift_use_case import (  # noqa: E501
     DetectContainerImageDriftUseCase,
 )
 
@@ -19,8 +19,8 @@ def detect_container_image_drift(namespace: str | None = None) -> dict[str, obje
     from hexawyn.mcp.server import build_helm_drift_adapter
 
     try:
-        use_case = DetectContainerImageDriftUseCase(port=build_helm_drift_adapter())
-        use_case.execute(DetectContainerImageDriftCommand())
+        use_case = DetectContainerImageDriftUseCase(port=build_helm_drift_adapter())  # type: ignore
+        use_case.execute(DetectContainerImageDriftCommand())  # type: ignore
         return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}

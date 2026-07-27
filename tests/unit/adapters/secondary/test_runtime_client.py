@@ -17,7 +17,7 @@ def _mock_response(status_code: int, json_data: dict[str, object]) -> MagicMock:
     resp.status_code = status_code
     resp.json.return_value = json_data
     resp.raise_for_status = MagicMock()
-    if status_code >= 400:
+    if status_code >= 400:  # noqa: PLR2004
         resp.raise_for_status.side_effect = httpx.HTTPStatusError(
             "error", request=MagicMock(), response=resp
         )
@@ -68,7 +68,7 @@ class TestRuntimeClient:
 
         def mock_get(*args: object, **kwargs: object) -> MagicMock:
             call_count[0] += 1
-            if call_count[0] < 3:
+            if call_count[0] < 3:  # noqa: PLR2004
                 return _mock_response(
                     200,
                     {"job_id": "job-1", "status": "running", "result": None},
@@ -89,7 +89,7 @@ class TestRuntimeClient:
             result = client.poll_investigation("job-1", timeout=10.0, interval=0.01)
 
         assert result["status"] == "completed"
-        assert call_count[0] == 3
+        assert call_count[0] == 3  # noqa: PLR2004
 
     def test_poll_investigation_returns_failed_status(self) -> None:
         mock_client = MagicMock(spec=httpx.Client)
@@ -183,7 +183,7 @@ class TestRuntimeClient:
             client = RuntimeClient(endpoint="http://localhost:8000")
             events = list(client.stream_investigation(query="test query"))
 
-        assert len(events) == 2
+        assert len(events) == 2  # noqa: PLR2004
         assert events[0] == ("plan", {"intent": "diagnose"})
 
     def test_stream_investigation_handles_error_event(self) -> None:
@@ -257,7 +257,7 @@ class TestRuntimeClient:
             try:
                 client.post_investigation("test", "cluster", "vanilla")
             except httpx.HTTPStatusError as exc:
-                assert exc.response.status_code == 401
+                assert exc.response.status_code == 401  # noqa: PLR2004
             else:
                 raise AssertionError("Expected HTTPStatusError")
 
@@ -271,7 +271,7 @@ class TestRuntimeClient:
             try:
                 client.post_investigation("test", "cluster", "vanilla")
             except httpx.HTTPStatusError as exc:
-                assert exc.response.status_code == 500
+                assert exc.response.status_code == 500  # noqa: PLR2004
             else:
                 raise AssertionError("Expected HTTPStatusError")
 
@@ -285,7 +285,7 @@ class TestRuntimeClient:
             try:
                 client.get_investigation("job-1")
             except httpx.HTTPStatusError as exc:
-                assert exc.response.status_code == 503
+                assert exc.response.status_code == 503  # noqa: PLR2004
             else:
                 raise AssertionError("Expected HTTPStatusError")
 
@@ -313,7 +313,7 @@ class TestRuntimeClient:
             try:
                 client.check_quota()
             except httpx.HTTPStatusError as exc:
-                assert exc.response.status_code == 429
+                assert exc.response.status_code == 429  # noqa: PLR2004
             else:
                 raise AssertionError("Expected HTTPStatusError")
 
@@ -353,7 +353,7 @@ class TestRuntimeClient:
             try:
                 list(client.stream_investigation(query="test query"))
             except httpx.HTTPStatusError as exc:
-                assert exc.response.status_code == 500
+                assert exc.response.status_code == 500  # noqa: PLR2004
             else:
                 raise AssertionError("Expected HTTPStatusError")
 

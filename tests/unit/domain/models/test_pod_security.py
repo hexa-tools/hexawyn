@@ -207,6 +207,6 @@ class TestPodSecurityAuditReport:
         )
 
         assert report.findings == [finding]
-        assert report.compliant_pod_count == 8
-        assert report.total_pods_checked == 9
+        assert report.compliant_pod_count == 8  # noqa: PLR2004
+        assert report.total_pods_checked == 9  # noqa: PLR2004
         assert "1 pod violating" in report.summary

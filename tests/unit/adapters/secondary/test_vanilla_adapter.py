@@ -48,7 +48,7 @@ class _PodStatus:
 
 
 class _Pod:
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         name: str,
         namespace: str,
@@ -283,7 +283,7 @@ class TestVanillaAdapter:
             {
                 "severity": "critical",
                 "message": "Pod default/payments-555 is CrashLoop",
-                "remediation": "Inspect container logs, probes, image pull errors, and recent rollout changes.",
+                "remediation": "Inspect container logs, probes, image pull errors, and recent rollout changes.",  # noqa: E501
             },
             {
                 "severity": "critical",
@@ -299,7 +299,7 @@ class TestVanillaAdapter:
         )
         adapter = VanillaAdapter("test-cluster", api=api)
 
-        assert adapter.get_health_score() == 70
+        assert adapter.get_health_score() == 70  # noqa: PLR2004
         assert adapter.get_health_status() == "critical"
 
     def test_no_findings_when_cluster_objects_are_healthy(self) -> None:
@@ -310,7 +310,7 @@ class TestVanillaAdapter:
         adapter = VanillaAdapter("test-cluster", api=api)
 
         assert adapter.get_findings() == []
-        assert adapter.get_health_score() == 100
+        assert adapter.get_health_score() == 100  # noqa: PLR2004
         assert adapter.get_health_status() == "healthy"
 
 
@@ -408,7 +408,7 @@ class TestVanillaAdapterListNamespaces:
 
         namespaces = adapter.list_namespaces()
 
-        assert len(namespaces) == 3
+        assert len(namespaces) == 3  # noqa: PLR2004
         for ns in namespaces:
             assert ns["name"] in ("default", "kube-system", "production")
             assert ns["status"] == "Active"
@@ -449,7 +449,7 @@ class _CRDApi:
         self._items = items
         self.last_label_selector: str = ""
 
-    def list_namespaced_custom_object(
+    def list_namespaced_custom_object(  # noqa: PLR0913
         self,
         group: str,
         version: str,
@@ -461,7 +461,7 @@ class _CRDApi:
         return {"items": self._items}
 
 
-def _make_task_run(
+def _make_task_run(  # noqa: PLR0913
     name: str,
     task_ref: str,
     succeeded: str,
@@ -789,7 +789,7 @@ class TestVanillaAdapterTektonPort:
         assert result is mock_crd
 
 
-def _make_pipeline_run(
+def _make_pipeline_run(  # noqa: PLR0913
     name: str,
     succeeded: str,
     reason: str,
@@ -833,7 +833,7 @@ class TestVanillaAdapterListPipelineRuns:
         assert result[0]["status"] == "Succeeded"
         assert result[0]["start_time"] == "2024-01-15T10:00:00Z"
         assert result[0]["duration"] == "4m30s"
-        assert result[0]["duration_seconds"] == 270
+        assert result[0]["duration_seconds"] == 270  # noqa: PLR2004
 
     def test_returns_failed_run(self) -> None:
         item = _make_pipeline_run(
@@ -964,7 +964,7 @@ class TestVanillaAdapterListPipelineRuns:
         result = adapter.list_pipeline_runs("payment-service", "ci")
 
         assert result[0]["duration"] == "3m"
-        assert result[0]["duration_seconds"] == 180
+        assert result[0]["duration_seconds"] == 180  # noqa: PLR2004
 
     def test_duration_under_sixty_seconds(self) -> None:
         item = _make_pipeline_run(
@@ -980,7 +980,7 @@ class TestVanillaAdapterListPipelineRuns:
         result = adapter.list_pipeline_runs("payment-service", "ci")
 
         assert result[0]["duration"] == "45s"
-        assert result[0]["duration_seconds"] == 45
+        assert result[0]["duration_seconds"] == 45  # noqa: PLR2004
 
     def test_invalid_timestamps_yield_none_duration(self) -> None:
         item: dict[str, object] = {
@@ -1065,7 +1065,7 @@ class TestVanillaAdapterListPipelineRuns:
         assert result[0]["triggered_by"] == "github-push"
 
 
-def _make_namespaced_pipeline_run(
+def _make_namespaced_pipeline_run(  # noqa: PLR0913
     name: str,
     succeeded: str,
     reason: str,

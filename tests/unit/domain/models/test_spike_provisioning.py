@@ -28,8 +28,8 @@ class TestClusterCapacitySnapshot:
             autoscaler_enabled=False,
         )
 
-        assert snapshot.node_count == 10
-        assert snapshot.used_cpu_cores == 70.0
+        assert snapshot.node_count == 10  # noqa: PLR2004
+        assert snapshot.used_cpu_cores == 70.0  # noqa: PLR2004
 
 
 class TestSpikeProvisioningReport:
@@ -42,7 +42,7 @@ class TestSpikeProvisioningReport:
             verdict="no_action",
         )
 
-        assert report.traffic_multiplier == 2.8
+        assert report.traffic_multiplier == 2.8  # noqa: PLR2004
         assert report.multiplier_source == "historical"
         assert report.verdict == "no_action"
         assert report.recommended_nodes == 0
@@ -69,7 +69,7 @@ class TestSpikeProvisioningReport:
             provisioning_deadline="2026-11-20",
         )
 
-        assert report.recommended_nodes == 3
+        assert report.recommended_nodes == 3  # noqa: PLR2004
         assert report.recommended_node_type == "compute_optimized"
         assert report.binding_constraint == "CPU"
         assert report.provisioning_deadline == "2026-11-20"

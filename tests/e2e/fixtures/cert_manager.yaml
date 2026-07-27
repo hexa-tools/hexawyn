@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: e2e-selfsigned
+  namespace: hexawyn-test
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: e2e-test-cert
+  namespace: hexawyn-test
+spec:
+  secretName: e2e-test-tls
+  issuerRef:
+    name: e2e-selfsigned
+  commonName: e2e-test.hexawyn.io

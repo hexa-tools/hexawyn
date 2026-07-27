@@ -30,5 +30,5 @@ class TestTeamCostReport:
 
     def test_can_populate(self) -> None:
         report = TeamCostReport(month="2026-07", total_cost=2500.0, unattributed_cost=300.0)
-        assert report.total_cost == 2500.0
-        assert report.unattributed_cost == 300.0
+        assert report.total_cost == 2500.0  # noqa: PLR2004
+        assert report.unattributed_cost == 300.0  # noqa: PLR2004

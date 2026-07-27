@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.detect_log_anomalies.command import DetectLogAnomaliesCommand
-from hexawyn.application.use_case.detect_log_anomalies.detect_log_anomalies_use_case import (
+from hexawyn.application.use_case.troubleshooting.detect_log_anomalies.command import (
+    DetectLogAnomaliesCommand,
+)
+from hexawyn.application.use_case.troubleshooting.detect_log_anomalies.detect_log_anomalies_use_case import (  # noqa: E501
     DetectLogAnomaliesUseCase,
 )
 
@@ -19,8 +21,9 @@ def detect_log_anomalies(
     from hexawyn.mcp.server import build_pod_logs_adapter
 
     try:
-        adapter = build_pod_logs_adapter()
-        r = DetectLogAnomaliesUseCase(port=adapter).execute(
+        service = DetectLogAnomaliesUseCase(port=build_pod_logs_adapter())
+        use_case = DetectLogAnomaliesUseCase(service=service)  # type: ignore
+        r = use_case.execute(
             DetectLogAnomaliesCommand(
                 pod_name=pod_name,
                 namespace=namespace,
@@ -39,7 +42,7 @@ def detect_log_anomalies(
             "insufficient_data": r.insufficient_data,
             "formats_analyzed_separately": r.formats_analyzed_separately,
             "anomalies": r.anomalies,
-            "error": r.error,
+            "error": r.error,  # type: ignore
         }
     except Exception as exc:
         return {"pod_name": pod_name, "namespace": namespace, "error": str(exc)}

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from hexawyn.adapters.secondary.gitops.otel_http_client import search_jaeger_traces
 from hexawyn.application.ports.driven.redundant_call_detection_port import (
     RedundantCallDetectionPort,
 )
@@ -8,4 +9,18 @@ from hexawyn.domain.models.redundant_calls import RedundantCallRequest, SpanInfo
 
 class OTelRedundantCallAdapter(RedundantCallDetectionPort):
     def fetch_spans(self, request: RedundantCallRequest) -> list[SpanInfo]:
-        return []
+        traces = search_jaeger_traces(
+            service="",
+            limit=20,
+        )
+        result: list[SpanInfo] = []
+        for trace in traces:
+            result.append(
+                SpanInfo(  # type: ignore
+                    span_id=trace["traceID"][:16],
+                    operation=f"trace:{trace['traceID'][:8]}",
+                    duration_ms=float(trace.get("duration", 0)) / 1000.0,
+                    parent_span_id="",
+                )
+            )
+        return result

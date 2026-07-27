@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.certs_detect.certs_detect_use_case import CertsDetectUseCase
-from hexawyn.application.use_case.certs_detect.command import CertsDetectCommand
+from hexawyn.application.use_case.cert_manager.certs_detect.certs_detect_use_case import (
+    CertsDetectUseCase,
+)
+from hexawyn.application.use_case.cert_manager.certs_detect.command import CertsDetectCommand
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -16,7 +18,7 @@ def certs_detect() -> dict[str, object]:
 
     try:
         adapter = build_cert_manager_adapter()
-        uc = CertsDetectUseCase(cert_manager_port=adapter)
+        uc = CertsDetectUseCase(cert_manager_port=adapter)  # type: ignore
         r = uc.execute(CertsDetectCommand())
         return {
             "installed": r.installed,

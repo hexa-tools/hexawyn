@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.list_pipeline_runs.command import ListPipelineRunsCommand
-from hexawyn.application.use_case.list_pipeline_runs.list_pipeline_runs_use_case import (
+from hexawyn.application.use_case.pipelines.list_pipeline_runs.command import (
+    ListPipelineRunsCommand,
+)
+from hexawyn.application.use_case.pipelines.list_pipeline_runs.list_pipeline_runs_use_case import (
     ListPipelineRunsUseCase,
 )
 
@@ -14,7 +16,7 @@ if TYPE_CHECKING:
 
 
 def _compute_outliers(runs: list[dict[str, object]]) -> list[str]:
-    if len(runs) < 3:
+    if len(runs) < 3:  # noqa: PLR2004
         return []
     outlier_names: list[str] = []
     for i, run in enumerate(runs):
@@ -60,11 +62,12 @@ def list_pipeline_runs(
     from hexawyn.mcp.server import build_tekton_adapter
 
     try:
-        use_case = ListPipelineRunsUseCase(tekton_port=build_tekton_adapter())
+        adapter = build_tekton_adapter()
+        use_case = ListPipelineRunsUseCase(tekton_port=adapter)
         r = use_case.execute(
             ListPipelineRunsCommand(service_name=service_name, namespace=namespace)
         )
-        runs: list[dict[str, object]] = list(r.pipeline_runs)
+        runs: list[dict[str, object]] = list(r.runs)  # type: ignore[arg-type]
         outliers = _compute_outliers(runs)
         stats = _compute_duration_stats(runs)
         return {

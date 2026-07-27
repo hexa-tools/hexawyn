@@ -77,6 +77,6 @@ class TestMachineConfigPoolHealthReport:
             total=3, healthy=1, degraded=1, updating=1, all_healthy=False
         )
 
-        assert report.total == 3
+        assert report.total == 3  # noqa: PLR2004
         assert report.degraded == 1
         assert report.all_healthy is False

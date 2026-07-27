@@ -61,7 +61,7 @@ class TestCacheL1Repo:
         repo = CacheL1Repository()
         repo.set("a", CacheEntry(query_hash="a", result="x"))
         repo.set("b", CacheEntry(query_hash="b", result="y"))
-        assert repo.size() == 2
+        assert repo.size() == 2  # noqa: PLR2004
         repo.clear()
         assert repo.size() == 0
 
@@ -107,7 +107,7 @@ class TestCacheL1Repo:
                     created_at=datetime.now() - timedelta(seconds=9999),
                 ),
             )
-        assert repo.evict_expired() == 5
+        assert repo.evict_expired() == 5  # noqa: PLR2004
         assert repo.size() == 0
 
     def test_size_zero_when_all_expired_no_get_called(self) -> None:

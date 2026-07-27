@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.sensitive_data_audit.command import SensitiveDataAuditCommand
-from hexawyn.application.use_case.sensitive_data_audit.sensitive_data_audit_use_case import (
+from hexawyn.application.use_case.security.sensitive_data_audit.command import (
+    SensitiveDataAuditCommand,
+)
+from hexawyn.application.use_case.security.sensitive_data_audit.sensitive_data_audit_use_case import (  # noqa: E501
     SensitiveDataAuditUseCase,
 )
 
@@ -32,7 +34,7 @@ def sensitive_data_audit(
             "flagged": r.flagged,
             "unflagged": r.unflagged,
             "alert_level": r.alert_level,
-            "error": r.error,
+            "error": r.error,  # type: ignore
         }
     except Exception as exc:
         return {"pattern": pattern, "error": str(exc)}

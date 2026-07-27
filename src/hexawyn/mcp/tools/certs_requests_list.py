@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.certs_requests_list.certs_requests_list_use_case import (
+from hexawyn.application.use_case.cert_manager.certs_requests_list.certs_requests_list_use_case import (  # noqa: E501
     CertsRequestsListUseCase,
 )
-from hexawyn.application.use_case.certs_requests_list.command import CertsRequestsListCommand
+from hexawyn.application.use_case.cert_manager.certs_requests_list.command import (
+    CertsRequestsListCommand,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -18,7 +20,7 @@ def certs_requests_list(namespace: str | None = None) -> dict[str, object]:
 
     try:
         adapter = build_cert_manager_adapter()
-        use_case = CertsRequestsListUseCase(cert_manager_port=adapter)
+        use_case = CertsRequestsListUseCase(cert_manager_port=adapter)  # type: ignore
         response = use_case.execute(CertsRequestsListCommand(namespace=namespace))
         return {"requests": response.requests, "error": response.error}
     except Exception as exc:

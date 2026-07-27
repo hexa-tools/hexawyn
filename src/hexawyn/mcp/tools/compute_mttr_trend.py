@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.compute_mttr_trend.command import ComputeMttrTrendCommand
-from hexawyn.application.use_case.compute_mttr_trend.compute_mttr_trend_use_case import (
+from hexawyn.application.use_case.workloads.compute_mttr_trend.command import (  # type: ignore
+    ComputeMttrTrendCommand,
+)
+from hexawyn.application.use_case.workloads.compute_mttr_trend.compute_mttr_trend_use_case import (  # type: ignore
     ComputeMttrTrendUseCase,
 )
 

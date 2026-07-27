@@ -159,7 +159,7 @@ class TestComputePermissionBreadth:
             [_rule(["get", "list", "create"], ["pods", "deployments"])]
         )
 
-        assert breadth == 6
+        assert breadth == 6  # noqa: PLR2004
 
     def test_no_rules_has_zero_breadth(self) -> None:
         from hexawyn.domain.services.rbac_audit.risk_scoring import (

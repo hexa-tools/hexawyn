@@ -28,8 +28,8 @@ class TestNamespaceCounts:
             deployments_ready=3,
             services_total=5,
         )
-        assert counts.pods_total == 12
-        assert counts.deployments_ready == 3
+        assert counts.pods_total == 12  # noqa: PLR2004
+        assert counts.deployments_ready == 3  # noqa: PLR2004
 
 
 class TestUnhealthyResource:
@@ -41,11 +41,11 @@ class TestUnhealthyResource:
 class TestNamespaceOverviewRequest:
     def test_defaults(self) -> None:
         request = NamespaceOverviewRequest(namespace="staging")
-        assert request.max_tokens == 2000
+        assert request.max_tokens == 2000  # noqa: PLR2004
 
     def test_custom_max_tokens(self) -> None:
         request = NamespaceOverviewRequest(namespace="staging", max_tokens=500)
-        assert request.max_tokens == 500
+        assert request.max_tokens == 500  # noqa: PLR2004
 
 
 class TestNamespaceOverviewReport:

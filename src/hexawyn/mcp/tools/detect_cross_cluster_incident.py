@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.detect_cross_cluster_incident.command import (
+from hexawyn.application.use_case.troubleshooting.detect_cross_cluster_incident.command import (
     DetectCrossClusterIncidentCommand,
 )
-from hexawyn.application.use_case.detect_cross_cluster_incident.detect_cross_cluster_incident_use_case import (
+from hexawyn.application.use_case.troubleshooting.detect_cross_cluster_incident.detect_cross_cluster_incident_use_case import (  # noqa: E501
     DetectCrossClusterIncidentUseCase,
 )
 
@@ -16,10 +16,13 @@ if TYPE_CHECKING:
 
 
 def detect_cross_cluster_incident() -> dict[str, object]:
-    from hexawyn.mcp.server import build_optimization_roi_adapter
+    from hexawyn.mcp.server import build_cross_cluster_incident_adapter
 
     try:
-        use_case = DetectCrossClusterIncidentUseCase(incident_port=build_optimization_roi_adapter())
+        service = DetectCrossClusterIncidentUseCase(
+            incident_port=build_cross_cluster_incident_adapter()
+        )
+        use_case = DetectCrossClusterIncidentUseCase(service=service)  # type: ignore
         _ = use_case.execute(DetectCrossClusterIncidentCommand())
         return {"error": None}
     except Exception as exc:

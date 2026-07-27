@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.memory_saturation.command import MemorySaturationCommand
-from hexawyn.application.use_case.memory_saturation.memory_saturation_use_case import (
+from hexawyn.application.use_case.troubleshooting.memory_saturation.command import (
+    MemorySaturationCommand,
+)
+from hexawyn.application.use_case.troubleshooting.memory_saturation.memory_saturation_use_case import (  # noqa: E501
     MemorySaturationUseCase,
 )
 
@@ -25,7 +27,7 @@ def memory_saturation(prediction_window_minutes: int = 30) -> dict[str, object]:
             "prediction_window_minutes": r.prediction_window_minutes,
             "critical_pods": r.critical_pods,
             "safe_pod_count": r.safe_pod_count,
-            "error": r.error,
+            "error": r.error,  # type: ignore
         }
     except Exception as exc:
         return {"critical_pods": [], "safe_pod_count": 0, "error": str(exc)}

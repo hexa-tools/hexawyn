@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.list_pods.command import ListPodsCommand
-from hexawyn.application.use_case.list_pods.list_pods_use_case import ListPodsUseCase
+from hexawyn.application.use_case.workloads.list_pods.command import ListPodsCommand
+from hexawyn.application.use_case.workloads.list_pods.list_pods_use_case import ListPodsUseCase
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP

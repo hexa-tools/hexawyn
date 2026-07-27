@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.metric_correlation.command import MetricCorrelationCommand
-from hexawyn.application.use_case.metric_correlation.metric_correlation_use_case import (
+from hexawyn.application.use_case.observability.metric_correlation.command import (
+    MetricCorrelationCommand,
+)
+from hexawyn.application.use_case.observability.metric_correlation.metric_correlation_use_case import (  # noqa: E501
     MetricCorrelationUseCase,
 )
 

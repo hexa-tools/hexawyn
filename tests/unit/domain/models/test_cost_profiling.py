@@ -15,8 +15,8 @@ class TestEndpointCPUProfile:
             request_count=200,
             total_cpu_ms=90000.0,
         )
-        assert ep.avg_cpu_ms_per_request == 450.0
-        assert ep.request_count == 200
+        assert ep.avg_cpu_ms_per_request == 450.0  # noqa: PLR2004
+        assert ep.request_count == 200  # noqa: PLR2004
 
     def test_cost_score_high_combined(self) -> None:
         ep = EndpointCPUProfile(
@@ -31,8 +31,8 @@ class TestEndpointCPUProfile:
 class TestCostProfilingRequest:
     def test_defaults(self) -> None:
         req = CostProfilingRequest(time_window_minutes=60, top_n=5)
-        assert req.top_n == 5
-        assert req.time_window_minutes == 60
+        assert req.top_n == 5  # noqa: PLR2004
+        assert req.time_window_minutes == 60  # noqa: PLR2004
 
 
 class TestCostProfilingResult:
@@ -61,7 +61,7 @@ class TestCostProfilingResult:
             request=CostProfilingRequest(time_window_minutes=60, top_n=5), endpoints=endpoints
         )
         assert result.ranked_endpoints[0].endpoint == "POST /search"
-        assert len(result.optimisation_candidates) == 2
+        assert len(result.optimisation_candidates) == 2  # noqa: PLR2004
         assert result.optimisation_candidates[0].endpoint == "POST /search"
 
     def test_empty_endpoints(self) -> None:

@@ -23,7 +23,7 @@ class TestRcaScorerConfidence:
             root_cause_found=False,
             timeline_available=False,
         )
-        assert score.value == 0.5
+        assert score.value == 0.5  # noqa: PLR2004
         assert score.label == "medium"
 
     def test_partial_factors(self) -> None:
@@ -33,7 +33,7 @@ class TestRcaScorerConfidence:
             root_cause_found=False,
             timeline_available=True,
         )
-        assert 0.5 < score.value < 1.0
+        assert 0.5 < score.value < 1.0  # noqa: PLR2004
 
     def test_never_exceeds_max(self) -> None:
         scorer = RcaScorer()
@@ -55,7 +55,7 @@ class TestRcaScorerConfidence:
             root_cause_found=False,
             timeline_available=False,
         )
-        assert score.value == 0.7
+        assert score.value == 0.7  # noqa: PLR2004
 
     def test_labels_map_correctly(self) -> None:
         scorer = RcaScorer()
@@ -75,7 +75,7 @@ class TestRcaScorerImpact:
             related_incidents=0,
             timeline_events=0,
         )
-        assert score.value == 5.0
+        assert score.value == 5.0  # noqa: PLR2004
 
     def test_impact_increases_with_affected_tasks(self) -> None:
         scorer = RcaScorer()

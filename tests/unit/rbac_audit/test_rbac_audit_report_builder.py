@@ -37,7 +37,7 @@ class TestBuildReport:
         )
 
         assert report.findings == []
-        assert report.total_service_accounts_checked == 3
+        assert report.total_service_accounts_checked == 3  # noqa: PLR2004
         assert "No over-privileged" in report.summary
 
     def test_tc4_five_over_privileged_service_accounts_all_listed(self) -> None:
@@ -52,7 +52,7 @@ class TestBuildReport:
             total_service_accounts_checked=10,
         )
 
-        assert len(report.findings) == 5
+        assert len(report.findings) == 5  # noqa: PLR2004
         assert "5" in report.summary
 
     def test_summary_mentions_critical_count(self) -> None:

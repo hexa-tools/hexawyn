@@ -40,6 +40,9 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.certificate_investigation_port import (
         CertificateInvestigationPort,
     )
+    from hexawyn.application.ports.driven.cluster_certificate_health_port import (
+        ClusterCertificateHealthPort,
+    )
     from hexawyn.application.ports.driven.cluster_diff_port import ClusterDiffPort
     from hexawyn.application.ports.driven.cluster_operator_status_port import (
         ClusterOperatorStatusPort,
@@ -150,8 +153,14 @@ if TYPE_CHECKING:
     from hexawyn.application.ports.driven.network_policy_audit_port import (
         NetworkPolicyAuditPort,
     )
+    from hexawyn.application.ports.driven.openshift_resource_port import (
+        OpenShiftResourcePort,
+    )
     from hexawyn.application.ports.driven.optimization_roi_port import (
         OptimizationRoiPort,
+    )
+    from hexawyn.application.ports.driven.pipeline_baseline_port import (
+        PipelineBaselinePort,
     )
     from hexawyn.application.ports.driven.pipeline_for_service_port import (
         PipelineForServicePort,
@@ -347,6 +356,16 @@ def build_fleet_health_adapter() -> FleetHealthPort:
     return FleetHealthAdapter(prometheus_url=prometheus_url)
 
 
+def build_cluster_certificate_health_adapter() -> ClusterCertificateHealthPort:
+    from hexawyn.adapters.secondary.kubernetes_cluster_certificate_adapter import (
+        KubernetesClusterCertificateAdapter,
+    )
+    from hexawyn.infrastructure.config.kubeconfig_reader import load_kubeconfig
+
+    api = load_kubeconfig()
+    return KubernetesClusterCertificateAdapter(api=api)
+
+
 def build_kubernetes_topology_adapter() -> KubernetesTopologyPort:
     from hexawyn.adapters.secondary.kubernetes_topology_adapter import (
         KubernetesTopologyAdapter,
@@ -363,9 +382,10 @@ def build_istio_topology_adapter() -> IstioTopologyPort:
 
 
 def build_gitops_adapter() -> GitOpsPort:
-    from hexawyn.adapters.secondary.gitops.gitops_detector import GitOpsDetector
+    from hexawyn.adapters.secondary.gitops.gitops_adapter import GitOpsAdapter
+    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
-    return GitOpsDetector()
+    return GitOpsAdapter(VanillaAdapter(cluster_name="default"))
 
 
 def build_topology_snapshot_adapter() -> TopologySnapshotPort:
@@ -399,17 +419,19 @@ def build_policy_adapter() -> PolicyPort:
 
 
 def build_cert_manager_adapter() -> CertManagerPort:
-    from hexawyn.adapters.secondary.gitops.cert_manager_detector import (
-        CertManagerDetector,
+    from hexawyn.adapters.secondary.gitops.cert_manager_adapter import (
+        CertManagerAdapter,
     )
+    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
-    return CertManagerDetector()
+    return CertManagerAdapter(VanillaAdapter(cluster_name="default"))
 
 
 def build_keda_adapter() -> KedaPort:
-    from hexawyn.adapters.secondary.gitops.keda_detector import KedaDetector
+    from hexawyn.adapters.secondary.gitops.keda_adapter import KedaAdapter
+    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
-    return KedaDetector()
+    return KedaAdapter(VanillaAdapter(cluster_name="default"))
 
 
 def build_canary_comparison_adapter() -> CanaryComparisonPort:
@@ -1143,6 +1165,14 @@ def build_alert_notification_adapter() -> AlertNotificationPort:
     return SlackAlertAdapter()
 
 
+def build_pipeline_baseline_adapter() -> PipelineBaselinePort:
+    from hexawyn.adapters.secondary.tekton_pipeline_baseline_adapter import (
+        TektonPipelineBaselineAdapter,
+    )
+
+    return TektonPipelineBaselineAdapter()
+
+
 def build_pipeline_for_service_adapter() -> PipelineForServicePort:
     from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (
         KubernetesPipelineForServiceAdapter,
@@ -1255,22 +1285,30 @@ def build_security_posture_adapter() -> SecurityPosturePort:
         ComplianceCategoryProvider,
         SecurityPostureAdapter,
     )
-    from hexawyn.application.service.audit_tls_compliance_service import (
-        AuditTLSComplianceService,
+    from hexawyn.application.use_case.governance.pod_security_standards_audit.pod_security_standards_audit_use_case import (  # noqa: E501
+        PodSecurityStandardsAuditUseCase,
     )
-    from hexawyn.application.service.pod_security_standards_audit_service import (
-        PodSecurityStandardsAuditService,
+    from hexawyn.application.use_case.security.audit_tls_compliance.audit_tls_compliance_use_case import (  # noqa: E501
+        AuditTLSComplianceUseCase,
     )
 
     providers: list[ComplianceCategoryProvider] = [
         TLSComplianceProvider(
-            service=AuditTLSComplianceService(tls_port=build_tls_compliance_adapter())
+            service=AuditTLSComplianceUseCase(tls_port=build_tls_compliance_adapter())
         ),
         PodSecurityProvider(
-            service=PodSecurityStandardsAuditService(pod_security_port=build_pod_security_adapter())
+            service=PodSecurityStandardsAuditUseCase(pod_security_port=build_pod_security_adapter())
         ),
     ]
     return SecurityPostureAdapter(providers=providers)
+
+
+def build_openshift_resource_adapter() -> OpenShiftResourcePort:
+    from hexawyn.adapters.secondary.openshift.openshift_adapter import (
+        OpenShiftAdapter,
+    )
+
+    return OpenShiftAdapter()  # type: ignore
 
 
 def build_cluster_operator_status_adapter() -> ClusterOperatorStatusPort:

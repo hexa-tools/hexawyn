@@ -62,7 +62,7 @@ class TestDegradedPods:
         report = build_namespace_overview(_request(), raw)
 
         assert report.health_status == NamespaceHealthStatus.DEGRADED
-        assert len(report.unhealthy_resources) == 3
+        assert len(report.unhealthy_resources) == 3  # noqa: PLR2004
         assert all(r.kind == "Pod" for r in report.unhealthy_resources)
 
     def test_partially_ready_deployment_is_degraded(self) -> None:
@@ -180,6 +180,6 @@ class TestTokenBudgetIntegration:
 
         report = build_namespace_overview(_request(max_tokens=200), raw)
 
-        assert report.estimated_tokens <= 200
+        assert report.estimated_tokens <= 200  # noqa: PLR2004
         assert report.has_more_unhealthy is True
         assert report.remaining_unhealthy_count > 0

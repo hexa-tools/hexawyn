@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.latency_diagnostic.command import LatencyDiagnosticCommand
-from hexawyn.application.use_case.latency_diagnostic.latency_diagnostic_use_case import (
+from hexawyn.application.use_case.observability.latency_diagnostic.command import (
+    LatencyDiagnosticCommand,
+)
+from hexawyn.application.use_case.observability.latency_diagnostic.latency_diagnostic_use_case import (  # noqa: E501
     LatencyDiagnosticUseCase,
 )
 

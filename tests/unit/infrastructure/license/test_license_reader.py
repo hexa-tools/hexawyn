@@ -72,5 +72,5 @@ class TestReadLicenseState:
             state = read_license_state()
         assert state.state == "active"
         assert state.plan == "scale_up"
-        assert state.days_remaining >= 58
+        assert state.days_remaining >= 58  # noqa: PLR2004
         assert state.expiry_date != ""

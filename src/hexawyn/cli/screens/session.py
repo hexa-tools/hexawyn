@@ -11,7 +11,7 @@ from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import Input, RichLog, Static
 
-from hexawyn.application.use_case.chat_cli.chat_cli_response import ChatCliResponse
+from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_response import ChatCliResponse
 from hexawyn.cli.command_router import route_command
 from hexawyn.cli.presentation.aside_builder import build_aside_lines
 from hexawyn.cli.presentation.asides import (
@@ -150,13 +150,10 @@ class SessionScreen(Screen[None]):
             from hexawyn.adapters.secondary.usage_meter_adapter import (
                 UsageMeterAdapter,
             )
-            from hexawyn.application.service.get_quota_usage_service import (
-                GetQuotaUsageService,
-            )
-            from hexawyn.application.use_case.get_quota_usage.command import (
+            from hexawyn.application.use_case.cluster.get_quota_usage.command import (
                 GetQuotaUsageCommand,
             )
-            from hexawyn.application.use_case.get_quota_usage.get_quota_usage_use_case import (
+            from hexawyn.application.use_case.cluster.get_quota_usage.get_quota_usage_use_case import (  # noqa: E501
                 GetQuotaUsageUseCase,
             )
             from hexawyn.cli.widgets.quota_bar import _quota_bar
@@ -176,8 +173,7 @@ class SessionScreen(Screen[None]):
             except Exception:
                 pass
 
-            service = GetQuotaUsageService(plan_port=plan, usage_meter=meter)
-            use_case = GetQuotaUsageUseCase(service=service)
+            use_case = GetQuotaUsageUseCase(plan_port=plan, usage_meter=meter)
             response = use_case.execute(GetQuotaUsageCommand())
 
             lines: list[str] = ["", "[bold]Quota[/bold]", "\u2500" * 18]
@@ -258,7 +254,7 @@ class SessionScreen(Screen[None]):
         finally:
             status.update("")
 
-    async def _handle_command(self, text: str) -> None:
+    async def _handle_command(self, text: str) -> None:  # noqa: C901, PLR0912, PLR0915
         app = self._tui_app()
         log = self.query_one("#conversation", RichLog)
 

@@ -9,13 +9,13 @@ from unittest.mock import MagicMock
 
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
-from hexawyn.application.use_case.list_pipeline_runs_in_namespace.command import (
-    ListPipelineRunsInNamespaceCommand,
-)
 from hexawyn.application.service.list_pipeline_runs_in_namespace_service import (
     ListPipelineRunsInNamespaceService,
 )
-from hexawyn.application.use_case.list_pipeline_runs_in_namespace.list_pipeline_runs_in_namespace_use_case import (
+from hexawyn.application.use_case.pipelines.list_pipeline_runs_in_namespace.command import (
+    ListPipelineRunsInNamespaceCommand,
+)
+from hexawyn.application.use_case.pipelines.list_pipeline_runs_in_namespace.list_pipeline_runs_in_namespace_use_case import (  # noqa: E501
     ListPipelineRunsInNamespaceUseCase,
 )
 from hexawyn.domain.errors import (
@@ -25,7 +25,7 @@ from hexawyn.domain.errors import (
 from kubernetes.client.exceptions import ApiException
 
 
-def _crd_item(
+def _crd_item(  # noqa: PLR0913
     name: str,
     succeeded: str,
     reason: str,
@@ -91,7 +91,7 @@ class TestListPipelineRunsInNamespaceIntegration:
 
         result = use_case.execute(ListPipelineRunsInNamespaceCommand(namespace="tekton"))
 
-        assert len(result.runs) == 5
+        assert len(result.runs) == 5  # noqa: PLR2004
 
     def test_tc2_empty_namespace_note_not_error(self) -> None:
         use_case = _build_use_case(_fake_crd_api([]))
@@ -145,4 +145,4 @@ class TestListPipelineRunsInNamespaceIntegration:
 
         result = use_case.execute(ListPipelineRunsInNamespaceCommand(namespace="tekton", limit=5))
 
-        assert len(result.runs) == 5
+        assert len(result.runs) == 5  # noqa: PLR2004

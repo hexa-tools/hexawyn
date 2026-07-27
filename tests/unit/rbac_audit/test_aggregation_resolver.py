@@ -66,7 +66,7 @@ class TestResolveEffectiveRules:
         assert _rule(["get"], ["secrets"]) in result
         assert _rule(["get"], ["configmaps"]) in result
         assert _rule(["*"], ["*"]) not in result
-        assert len(result) == 3
+        assert len(result) == 3  # noqa: PLR2004
 
     def test_own_rules_are_kept_alongside_aggregated_rules(self) -> None:
         from hexawyn.domain.services.rbac_audit.aggregation_resolver import (

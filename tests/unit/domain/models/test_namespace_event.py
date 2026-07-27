@@ -22,7 +22,7 @@ class TestNamespaceEvent:
         assert event.event_type == "Warning"
         assert event.reason == "BackOff"
         assert event.object == "pod/payment-api"
-        assert event.count == 12
+        assert event.count == 12  # noqa: PLR2004
         assert event.recurring is False
         assert event.urgency == "normal"
         assert event.object_exists is True
@@ -46,15 +46,15 @@ class TestNamespaceEvent:
 class TestGetNamespaceEventsRequest:
     def test_defaults(self) -> None:
         request = GetNamespaceEventsRequest(namespace="production")
-        assert request.time_window_minutes == 15
-        assert request.top_n == 20
+        assert request.time_window_minutes == 15  # noqa: PLR2004
+        assert request.top_n == 20  # noqa: PLR2004
 
     def test_custom_values(self) -> None:
         request = GetNamespaceEventsRequest(
             namespace="production", time_window_minutes=30, top_n=10
         )
-        assert request.time_window_minutes == 30
-        assert request.top_n == 10
+        assert request.time_window_minutes == 30  # noqa: PLR2004
+        assert request.top_n == 10  # noqa: PLR2004
 
 
 class TestGetNamespaceEventsResult:

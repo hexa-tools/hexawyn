@@ -61,7 +61,7 @@ class GCPManagedPrometheusAdapter(MetricsQueryPort):
         )
         return [_to_instant_sample(item) for item in raw_results]
 
-    def range_query(
+    def range_query(  # noqa: PLR0913
         self, promql: str, start: str, end: str, step: str, timeout_seconds: float
     ) -> list[PrometheusRangeSample]:
         raw_results = self._execute(

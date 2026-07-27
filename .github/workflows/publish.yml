@@ -50,11 +50,55 @@ jobs:
             --cov-report=term \
             --cov-fail-under=80
 
+  e2e-tests:
+    name: E2E Tests (pre-release gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install k3d + kubectl
+        run: |
+          curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+          k3d version
+
+      - uses: azure/setup-kubectl@v3
+        with:
+          version: latest
+
+      - name: Install Poetry + deps
+        run: |
+          pip install poetry
+          poetry install --with dev
+
+      - name: Create k3d cluster
+        run: make cluster-up
+
+      - name: Load E2E fixtures
+        run: make cluster-load
+
+      - name: Run E2E tests
+        run: |
+          poetry run pytest tests/e2e/ \
+            -v -m e2e \
+            --strict-markers \
+            --tb=short \
+            --durations=10
+
+      - name: Delete cluster
+        if: always()
+        run: make cluster-down
+
   # Pré-releases -> TestPyPI
   publish-testpypi:
     name: Publish to TestPyPI
     runs-on: ubuntu-latest
-    needs: [integration-tests, unit-tests]
+    needs: [integration-tests, unit-tests, e2e-tests]
     if: github.event.release.prerelease == true
     environment: testpypi
 

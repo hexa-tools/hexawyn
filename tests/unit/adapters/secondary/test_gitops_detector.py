@@ -40,7 +40,7 @@ class TestGitOpsDetector:
         detector._delegate = mock_flux
         result = detector.detect_engine()
         assert result.engine == GitOpsEngine.FLUX
-        assert result.apps_count == 12
+        assert result.apps_count == 12  # noqa: PLR2004
 
     def test_list_apps_delegates(self) -> None:
         mock_flux = MagicMock(spec=GitOpsPort)

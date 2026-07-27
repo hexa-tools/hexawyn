@@ -67,7 +67,7 @@ class TestComputeCapacityHeadroom:
             current_replicas=3,
             proposed_replicas=0,
         )
-        assert result == 999.0
+        assert result == 999.0  # noqa: PLR2004
 
 
 class TestAssessRiskLevel:
@@ -121,12 +121,12 @@ class TestEstimateLatencyDelta:
     def test_high_headroom_gives_high_latency(self) -> None:
         engine = WhatIfScenarioSimulatorService()
         result = engine.estimate_latency_delta_percent(headroom_percent=186.0)
-        assert result > 30
+        assert result > 30  # noqa: PLR2004
 
     def test_low_headroom_gives_low_latency(self) -> None:
         engine = WhatIfScenarioSimulatorService()
         result = engine.estimate_latency_delta_percent(headroom_percent=12.0)
-        assert result < 10
+        assert result < 10  # noqa: PLR2004
 
     def test_no_headroom_no_latency(self) -> None:
         engine = WhatIfScenarioSimulatorService()
@@ -179,7 +179,7 @@ class TestCheckHPAPresence:
         result = engine.check_hpa_presence(hpa_info=hpa_info, proposed_replicas=1)
         assert result["detected"] is True
         assert result["can_compensate"] is True
-        assert result["hpa_min"] == 3
+        assert result["hpa_min"] == 3  # noqa: PLR2004
 
 
 class TestDetectCircularDependency:
@@ -259,7 +259,7 @@ class TestComputeBaseline:
 
         assert isinstance(report, ImpactReport)
         assert report.risk == RiskLevel.HIGH
-        assert len(report.affected_services) == 2
+        assert len(report.affected_services) == 2  # noqa: PLR2004
         assert report.pdb_violation is True
         assert report.hpa_detected is False
 
@@ -391,8 +391,8 @@ class TestComputeBaseline:
             hpa_info=None,
         )
 
-        assert len(report.affected_services) == 3
-        assert report.affected_services[0].calls_per_second == 450.5
+        assert len(report.affected_services) == 3  # noqa: PLR2004
+        assert report.affected_services[0].calls_per_second == 450.5  # noqa: PLR2004
         assert report.affected_services[1].calls_per_second == 0.0
         assert report.affected_services[2].calls_per_second == 0.0
         engine = WhatIfScenarioSimulatorService()

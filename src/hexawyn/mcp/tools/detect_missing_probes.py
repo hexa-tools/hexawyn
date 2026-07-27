@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.detect_missing_probes.command import DetectMissingProbesCommand
-from hexawyn.application.use_case.detect_missing_probes.detect_missing_probes_use_case import (
+from hexawyn.application.use_case.security.detect_missing_probes.command import (
+    DetectMissingProbesCommand,
+)
+from hexawyn.application.use_case.security.detect_missing_probes.detect_missing_probes_use_case import (  # noqa: E501
     DetectMissingProbesUseCase,
 )
 
@@ -17,8 +19,8 @@ def detect_missing_probes() -> dict[str, object]:
     from hexawyn.mcp.server import build_optimization_roi_adapter
 
     try:
-        use_case = DetectMissingProbesUseCase(port=build_optimization_roi_adapter())
-        _ = use_case.execute(DetectMissingProbesCommand())
+        use_case = DetectMissingProbesUseCase(port=build_optimization_roi_adapter())  # type: ignore
+        _ = use_case.execute(DetectMissingProbesCommand())  # type: ignore
         return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}

@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 
-def _mock_service_item(
+def _mock_service_item(  # noqa: PLR0913
     name: str = "test-svc",
     namespace: str = "default",
     service_type: str = "LoadBalancer",
@@ -106,7 +106,7 @@ class TestKubernetesExternalExposureAdapter:
         svc = result[0]
         assert svc["name"] == "redis-cache"
         assert svc["service_type"] == "NodePort"
-        assert svc["node_port"] == 31234
+        assert svc["node_port"] == 31234  # noqa: PLR2004
         assert svc["external_ip"] is None
 
     def test_list_services_detects_source_ranges(self) -> None:
@@ -149,7 +149,7 @@ class TestKubernetesExternalExposureAdapter:
             adapter = KubernetesExternalExposureAdapter()
             result = adapter.list_external_services()
 
-        assert len(result) == 3
+        assert len(result) == 3  # noqa: PLR2004
         assert {s["name"] for s in result} == {"svc-0", "svc-1", "svc-2"}
 
     def test_list_services_returns_empty_list_when_no_services(self) -> None:

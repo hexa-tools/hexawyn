@@ -10,7 +10,7 @@ class PipelineRunInfo(dict[str, str]):
 
 
 class ExtendedClusterPort(ABC):
-    """Port for extended cluster features — projects, routes, pipelines (OpenShift, Tekton, etc.)."""
+    """Port for extended cluster features — projects, routes, pipelines (OpenShift, Tekton, etc.)."""  # noqa: E501
 
     @abstractmethod
     def list_projects(self) -> list[dict[str, str]]:

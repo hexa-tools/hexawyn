@@ -28,8 +28,8 @@ def compute_unauthorized_access_report(
 
 def _alert_level(count: int, source: str) -> str:
     if source == "internal":
-        return "medium" if count > 50 else "low"
-    if count > 20:
+        return "medium" if count > 50 else "low"  # noqa: PLR2004
+    if count > 20:  # noqa: PLR2004
         return "high"
     if count > 0:
         return "medium"

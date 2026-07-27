@@ -8,6 +8,9 @@ BindingConstraint = Literal["CPU", "Memory", "None"]
 ProvisioningVerdict = Literal["no_action", "provision", "autoscaler_handles"]
 MultiplierSource = Literal["historical", "generic_fallback", "pessimistic", "provided"]
 
+GENERIC_MULTIPLIER: float = 3.0
+PESSIMISTIC_MULTIPLIER: float = 4.0
+
 
 @dataclass(frozen=True)
 class ClusterCapacitySnapshot:

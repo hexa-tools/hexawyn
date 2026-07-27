@@ -36,8 +36,8 @@ class TestErrorBudgetCalculation:
             raw_success_rate=_raw_data(),
         )
 
-        assert result.total_budget_minutes == 43.2
-        assert result.slo_target == 0.999
+        assert result.total_budget_minutes == 43.2  # noqa: PLR2004
+        assert result.slo_target == 0.999  # noqa: PLR2004
 
     def test_slo_995_budget_is_0_5_percent_of_window(self) -> None:
         engine = SLOErrorBudgetBurnRateEngine()
@@ -48,7 +48,7 @@ class TestErrorBudgetCalculation:
             raw_success_rate=_raw_data(),
         )
 
-        assert result.total_budget_minutes == 216.0
+        assert result.total_budget_minutes == 216.0  # noqa: PLR2004
 
 
 class TestBurnRateComputation:
@@ -62,7 +62,7 @@ class TestBurnRateComputation:
             raw_success_rate=raw,
         )
 
-        assert result.burn_rate == 5.0
+        assert result.burn_rate == 5.0  # noqa: PLR2004
 
     def test_burn_rate_1x_when_exactly_at_slo(self) -> None:
         engine = SLOErrorBudgetBurnRateEngine()
@@ -86,7 +86,7 @@ class TestBurnRateComputation:
             raw_success_rate=raw,
         )
 
-        assert result.burn_rate == 0.5
+        assert result.burn_rate == 0.5  # noqa: PLR2004
 
     def test_burn_rate_zero_when_no_errors(self) -> None:
         engine = SLOErrorBudgetBurnRateEngine()
@@ -112,8 +112,8 @@ class TestBudgetConsumedAndRemaining:
             raw_success_rate=raw,
         )
 
-        assert result.budget_consumed_minutes == 216.0
-        assert result.budget_remaining_pct == -400.0
+        assert result.budget_consumed_minutes == 216.0  # noqa: PLR2004
+        assert result.budget_remaining_pct == -400.0  # noqa: PLR2004
 
     def test_budget_fully_intact(self) -> None:
         engine = SLOErrorBudgetBurnRateEngine()
@@ -126,7 +126,7 @@ class TestBudgetConsumedAndRemaining:
         )
 
         assert result.budget_consumed_minutes == 0.0
-        assert result.budget_remaining_pct == 100.0
+        assert result.budget_remaining_pct == 100.0  # noqa: PLR2004
 
 
 class TestTimeToExhaustion:
@@ -241,7 +241,7 @@ class TestDefaultSLO:
             raw_success_rate=raw,
         )
 
-        assert result.slo_target == 0.995
+        assert result.slo_target == 0.995  # noqa: PLR2004
         assert result.verdict == "budget_safe"
 
 
@@ -272,7 +272,7 @@ class TestEdgeCases:
         )
 
         assert result.rolling_window_days == 1
-        assert result.total_budget_minutes == 1.44
+        assert result.total_budget_minutes == 1.44  # noqa: PLR2004
 
     def test_perfect_success_rate_budget_safe(self) -> None:
         engine = SLOErrorBudgetBurnRateEngine()
@@ -286,7 +286,7 @@ class TestEdgeCases:
 
         assert result.verdict == "budget_safe"
         assert result.burn_rate == 0.0
-        assert result.budget_remaining_pct == 100.0
+        assert result.budget_remaining_pct == 100.0  # noqa: PLR2004
 
 
 class TestHelperFunctions:
@@ -306,7 +306,7 @@ class TestHelperFunctions:
         assert _as_int([1, 2]) == 0
 
     def test_as_int_float_truncated(self) -> None:
-        assert _as_int(3.9) == 3
+        assert _as_int(3.9) == 3  # noqa: PLR2004
 
     def test_as_bool_none_returns_false(self) -> None:
         assert _as_bool(None) is False

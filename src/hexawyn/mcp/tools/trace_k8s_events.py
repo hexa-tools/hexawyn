@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.trace_k8s_events.command import TraceK8sEventsCommand
-from hexawyn.application.use_case.trace_k8s_events.trace_k8s_events_use_case import (
+from hexawyn.application.use_case.troubleshooting.trace_k8s_events.command import (
+    TraceK8sEventsCommand,
+)
+from hexawyn.application.use_case.troubleshooting.trace_k8s_events.trace_k8s_events_use_case import (  # noqa: E501
     TraceK8sEventsUseCase,
 )
 

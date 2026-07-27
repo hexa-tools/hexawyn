@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.check_disruption_risks.check_disruption_risks_use_case import (
+from hexawyn.application.use_case.cluster.check_disruption_risks.check_disruption_risks_use_case import (  # noqa: E501
     CheckDisruptionRisksUseCase,
 )
-from hexawyn.application.use_case.check_disruption_risks.command import CheckDisruptionRisksCommand
+from hexawyn.application.use_case.cluster.check_disruption_risks.command import (
+    CheckDisruptionRisksCommand,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -20,7 +22,8 @@ def check_disruption_risks(warning_days: int = 7) -> dict[str, object]:
 
     try:
         adapter = build_disruption_risk_adapter()
-        use_case = CheckDisruptionRisksUseCase(disruption_risk_port=adapter)
+        service = CheckDisruptionRisksUseCase(disruption_risk_port=adapter)
+        use_case = CheckDisruptionRisksUseCase(service=service)  # type: ignore
         response = use_case.execute(CheckDisruptionRisksCommand(warning_days=warning_days))
         r = response.result
         return {

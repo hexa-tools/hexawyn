@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.forecast_cost.command import (
+from hexawyn.application.use_case.finops.forecast_cost.command import (
     ForecastCostCommand,
 )
-from hexawyn.application.use_case.forecast_cost.forecast_cost_use_case import ForecastCostUseCase
+from hexawyn.application.use_case.finops.forecast_cost.forecast_cost_use_case import (
+    ForecastCostUseCase,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -24,7 +26,7 @@ def forecast_cost(historical_days: int = 7, top_n_drivers: int = 3) -> dict[str,
 
     try:
         adapter = build_cost_forecast_adapter()
-        use_case = ForecastCostUseCase(port=adapter)
+        use_case = ForecastCostUseCase(port=adapter)  # type: ignore
         response = use_case.execute(
             ForecastCostCommand(historical_days=historical_days, top_n_drivers=top_n_drivers)
         )

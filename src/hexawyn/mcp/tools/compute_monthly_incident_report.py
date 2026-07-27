@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.compute_monthly_incident_report.command import (
+from hexawyn.application.use_case.finops.compute_monthly_incident_report.command import (
     ComputeMonthlyIncidentReportCommand,
 )
-from hexawyn.application.use_case.compute_monthly_incident_report.compute_monthly_incident_report_use_case import (
+from hexawyn.application.use_case.finops.compute_monthly_incident_report.compute_monthly_incident_report_use_case import (  # noqa: E501
     ComputeMonthlyIncidentReportUseCase,
 )
 
@@ -28,7 +28,7 @@ def compute_monthly_incident_report(month: str | None = None) -> dict[str, objec
 
     try:
         adapter = build_monthly_incident_adapter()
-        use_case = ComputeMonthlyIncidentReportUseCase(port=adapter)
+        use_case = ComputeMonthlyIncidentReportUseCase(port=adapter)  # type: ignore
         response = use_case.execute(ComputeMonthlyIncidentReportCommand(month=month))
         r = response.result
         return {

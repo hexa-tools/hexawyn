@@ -19,7 +19,7 @@ class TestSpanBreakdown:
             slowest_operation="SELECT * FROM orders WHERE user_id = ? LIMIT 1000",
         )
         assert b.category == "db"
-        assert b.avg_ms == 380.0
+        assert b.avg_ms == 380.0  # noqa: PLR2004
         assert b.slowest_operation is not None
 
     def test_redis_breakdown(self) -> None:

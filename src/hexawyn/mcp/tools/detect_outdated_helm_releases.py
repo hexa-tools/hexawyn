@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.detect_outdated_helm_releases.command import (
+from hexawyn.application.use_case.gitops.detect_outdated_helm_releases.command import (
     DetectOutdatedHelmReleasesCommand,
 )
-from hexawyn.application.use_case.detect_outdated_helm_releases.detect_outdated_helm_releases_use_case import (
+from hexawyn.application.use_case.gitops.detect_outdated_helm_releases.detect_outdated_helm_releases_use_case import (  # noqa: E501
     DetectOutdatedHelmReleasesUseCase,
 )
 
@@ -28,8 +28,8 @@ def detect_outdated_helm_releases(namespace: str | None = None) -> dict[str, obj
 
     try:
         adapter = build_helm_release_version_adapter()
-        use_case = DetectOutdatedHelmReleasesUseCase(port=adapter)
-        response = use_case.execute(DetectOutdatedHelmReleasesCommand(namespace=namespace))
+        use_case = DetectOutdatedHelmReleasesUseCase(port=adapter)  # type: ignore
+        response = use_case.execute(DetectOutdatedHelmReleasesCommand(namespace=namespace))  # type: ignore
         r = response.result
         return {
             "total_releases": r.total_releases,

@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.span_bottleneck_analysis.command import (
+from hexawyn.application.use_case.observability.span_bottleneck_analysis.command import (
     SpanBottleneckAnalysisCommand,
 )
-from hexawyn.application.use_case.span_bottleneck_analysis.span_bottleneck_analysis_use_case import (
+from hexawyn.application.use_case.observability.span_bottleneck_analysis.span_bottleneck_analysis_use_case import (  # noqa: E501
     SpanBottleneckAnalysisUseCase,
 )
 

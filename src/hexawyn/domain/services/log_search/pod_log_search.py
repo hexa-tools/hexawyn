@@ -16,7 +16,7 @@ from hexawyn.domain.services.log_search.service_grouping import group_by_service
 _cfg = LogSearchConstants()
 
 
-def search_pod_logs(
+def search_pod_logs(  # noqa: PLR0913
     request: LogSearchRequest,
     raw_pod_logs: list[RawPodLogData],
     skipped_pods: list[SkippedPod],

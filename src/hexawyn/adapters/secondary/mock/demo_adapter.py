@@ -156,7 +156,7 @@ class DemoAdapter(
         lines = [
             f"Cluster: {ctx.get('name', 'unknown')} ({ctx.get('provider', 'unknown')})",
             f"Health: {self.get_health_score()}/100",
-            f"Resources: {metrics.get('cpu_usage_pct', 0):.0f}% CPU, {metrics.get('memory_usage_pct', 0):.0f}% memory",
+            f"Resources: {metrics.get('cpu_usage_pct', 0):.0f}% CPU, {metrics.get('memory_usage_pct', 0):.0f}% memory",  # noqa: E501
         ]
         if findings:
             lines.append("Key findings:")
@@ -279,7 +279,7 @@ class DemoAdapter(
         return [
             {
                 "timestamp": "2025-06-20T14:23:05Z",
-                "message": f"Mock log matching pattern '{pattern}' in namespace {namespace or 'all'}",
+                "message": f"Mock log matching pattern '{pattern}' in namespace {namespace or 'all'}",  # noqa: E501
                 "severity": "ERROR",
             },
             {

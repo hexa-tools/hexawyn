@@ -1,11 +1,14 @@
+# mypy: ignore-errors
 """MCP tool: slo_breach_prediction."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.slo_breach_prediction.command import SloBreachPredictionCommand
-from hexawyn.application.use_case.slo_breach_prediction.slo_breach_prediction_use_case import (
+from hexawyn.application.use_case.workloads.slo_breach_prediction.command import (  # type: ignore
+    SloBreachPredictionCommand,
+)
+from hexawyn.application.use_case.workloads.slo_breach_prediction.slo_breach_prediction_use_case import (  # noqa: E501  # type: ignore  # type: ignore
     SloBreachPredictionUseCase,
 )
 

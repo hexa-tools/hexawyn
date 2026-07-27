@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.analyze_pod_logs.analyze_pod_logs_use_case import (
+from hexawyn.application.use_case.observability.analyze_pod_logs.analyze_pod_logs_use_case import (
     AnalyzePodLogsUseCase,
 )
-from hexawyn.application.use_case.analyze_pod_logs.command import AnalyzePodLogsCommand
+from hexawyn.application.use_case.observability.analyze_pod_logs.command import (
+    AnalyzePodLogsCommand,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP

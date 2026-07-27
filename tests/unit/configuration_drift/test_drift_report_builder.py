@@ -60,8 +60,8 @@ class TestNoDrift:
         report = build_drift_report(results, excluded=[])
 
         assert report.drifted_resources == []
-        assert report.in_sync_count == 3
-        assert report.total_checked == 3
+        assert report.in_sync_count == 3  # noqa: PLR2004
+        assert report.total_checked == 3  # noqa: PLR2004
         assert "in sync" in report.summary.lower()
 
 
@@ -78,10 +78,10 @@ class TestGroupedByNamespace:
 
         report = build_drift_report(results, excluded=[])
 
-        assert len(report.drifted_resources) == 5
+        assert len(report.drifted_resources) == 5  # noqa: PLR2004
         assert set(report.drifted_by_namespace) == {"production", "staging", "dev"}
-        assert len(report.drifted_by_namespace["production"]) == 2
-        assert len(report.drifted_by_namespace["staging"]) == 2
+        assert len(report.drifted_by_namespace["production"]) == 2  # noqa: PLR2004
+        assert len(report.drifted_by_namespace["staging"]) == 2  # noqa: PLR2004
         assert len(report.drifted_by_namespace["dev"]) == 1
 
 

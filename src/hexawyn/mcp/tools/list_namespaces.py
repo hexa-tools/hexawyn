@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.list_namespaces.command import ListNamespacesCommand
-from hexawyn.application.use_case.list_namespaces.list_namespaces_use_case import (
+from hexawyn.application.use_case.cluster.list_namespaces.command import ListNamespacesCommand
+from hexawyn.application.use_case.cluster.list_namespaces.list_namespaces_use_case import (
     ListNamespacesUseCase,
 )
 

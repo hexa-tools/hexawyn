@@ -68,7 +68,7 @@ class DeploymentComparisonResult:
                 after=after,
                 suggestion="Insufficient post-deployment samples",
                 reasons=[
-                    f"Only {after.sample_count} samples after deployment (min: {request.min_samples})"
+                    f"Only {after.sample_count} samples after deployment (min: {request.min_samples})"  # noqa: E501
                 ],
             )
 
@@ -76,9 +76,9 @@ class DeploymentComparisonResult:
         if p99_d >= request.regression_threshold_pct:
             verdict = RegressionVerdict.REGRESSION
             reasons.append(
-                f"p99 increased by {p99_d:.1f}% (exceeds {request.regression_threshold_pct}% threshold)"
+                f"p99 increased by {p99_d:.1f}% (exceeds {request.regression_threshold_pct}% threshold)"  # noqa: E501
             )
-            suggestion = f"p99 regression of {p99_d:.1f}% exceeds {request.regression_threshold_pct}% threshold; consider rollback"
+            suggestion = f"p99 regression of {p99_d:.1f}% exceeds {request.regression_threshold_pct}% threshold; consider rollback"  # noqa: E501
         elif p99_d <= -request.regression_threshold_pct:
             verdict = RegressionVerdict.IMPROVED
             reasons.append(f"p99 improved by {abs(p99_d):.1f}%")

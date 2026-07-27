@@ -5,7 +5,10 @@ restricted, or restricted) — the ticket's own summary counts only add up
 
 from __future__ import annotations
 
-from hexawyn.domain.models.network_policy import NamespaceNetworkFinding
+from hexawyn.domain.models.network_policy import (
+    ExcludedNamespace,
+    NamespaceNetworkFinding,
+)
 
 
 def _finding(
@@ -40,8 +43,8 @@ class TestBuildReport:
 
         report = build_report(findings=findings, excluded_namespaces=[], total_namespaces_checked=5)
 
-        assert len(report.findings) == 5
-        assert report.fully_open_count == 3
+        assert len(report.findings) == 5  # noqa: PLR2004
+        assert report.fully_open_count == 3  # noqa: PLR2004
         assert report.partially_restricted_count == 1
         assert report.restricted_count == 1
         assert "3" in report.summary
@@ -60,9 +63,9 @@ class TestBuildReport:
 
         report = build_report(findings=findings, excluded_namespaces=[], total_namespaces_checked=8)
 
-        assert report.fully_open_count == 2
-        assert report.partially_restricted_count == 3
-        assert report.restricted_count == 3
+        assert report.fully_open_count == 2  # noqa: PLR2004
+        assert report.partially_restricted_count == 3  # noqa: PLR2004
+        assert report.restricted_count == 3  # noqa: PLR2004
         assert (
             report.fully_open_count + report.partially_restricted_count + report.restricted_count
             == report.total_namespaces_checked
@@ -77,3 +80,31 @@ class TestBuildReport:
 
         assert report.fully_open_count == 0
         assert "No" in report.summary
+
+    def test_excluded_namespaces_in_summary(self) -> None:
+        from hexawyn.domain.services.network_policy.network_segmentation_report_builder import (
+            build_report,
+        )
+
+        findings = [_finding("open-1", "open")]
+        excluded = [ExcludedNamespace(namespace="kube-system", reason="system namespace")]
+        report = build_report(
+            findings=findings, excluded_namespaces=excluded, total_namespaces_checked=1
+        )
+
+        assert report.fully_open_count == 1
+        assert "system namespace" in report.summary
+
+    def test_excluded_namespaces_with_no_open_namespaces(self) -> None:
+        from hexawyn.domain.services.network_policy.network_segmentation_report_builder import (
+            build_report,
+        )
+
+        findings = [_finding("ns-1", "restricted")]
+        excluded = [ExcludedNamespace(namespace="kube-system", reason="system")]
+        report = build_report(
+            findings=findings, excluded_namespaces=excluded, total_namespaces_checked=1
+        )
+
+        assert "No namespaces fully open" in report.summary
+        assert "system namespace" in report.summary

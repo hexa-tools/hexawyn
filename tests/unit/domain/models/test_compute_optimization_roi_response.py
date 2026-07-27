@@ -3,7 +3,7 @@ from hexawyn.domain.models.optimization_roi import OptimizationRoiReport
 
 class TestComputeOptimizationRoiResponse:
     def test_wraps_report(self) -> None:
-        from hexawyn.application.use_case.compute_optimization_roi.response import (  # noqa: E501
+        from hexawyn.application.use_case.finops.compute_optimization_roi.response import (  # noqa: E501
             ComputeOptimizationRoiResponse,
         )
 
@@ -11,4 +11,4 @@ class TestComputeOptimizationRoiResponse:
         response = ComputeOptimizationRoiResponse(result=report)
 
         assert response.result is report
-        assert response.result.monthly_saving_eur == 350.0
+        assert response.result.monthly_saving_eur == 350.0  # noqa: PLR2004

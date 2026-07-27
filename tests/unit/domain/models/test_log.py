@@ -33,7 +33,7 @@ class TestLogAnalysisContext:
             urgency="critical",
             time_sensitive=True,
         )
-        assert ctx.log_size_estimate == 80000
+        assert ctx.log_size_estimate == 80000  # noqa: PLR2004
         assert ctx.urgency == "critical"
         assert ctx.time_sensitive is True
 
@@ -63,8 +63,8 @@ class TestLogAnalysisResult:
             confidence=0.92,
             strategy_used="smart_summary",
         )
-        assert len(result.patterns) == 2
-        assert result.confidence == 0.92
+        assert len(result.patterns) == 2  # noqa: PLR2004
+        assert result.confidence == 0.92  # noqa: PLR2004
         assert result.strategy_used == "smart_summary"
 
     def test_is_dataclass(self) -> None:
@@ -78,7 +78,7 @@ class TestLogAnalysisResult:
             token_reduction_percentage=95.0,
             degraded=False,
         )
-        assert result.token_reduction_percentage == 95.0
+        assert result.token_reduction_percentage == 95.0  # noqa: PLR2004
         assert result.degraded is False
 
 
@@ -90,7 +90,7 @@ class TestPatternClassification:
             sample_line="upstream connect error: connection refused",
         )
         assert classification.pattern == "connection refused"
-        assert classification.count == 45
+        assert classification.count == 45  # noqa: PLR2004
         assert "refused" in classification.sample_line
 
     def test_is_dataclass(self) -> None:
@@ -101,7 +101,7 @@ class TestDeduplicatedLine:
     def test_fields(self) -> None:
         line = DeduplicatedLine(line="GET /health HTTP/1.1 200", count=1750)
         assert line.line == "GET /health HTTP/1.1 200"
-        assert line.count == 1750
+        assert line.count == 1750  # noqa: PLR2004
 
     def test_is_dataclass(self) -> None:
         assert dataclasses.is_dataclass(DeduplicatedLine)
@@ -134,11 +134,11 @@ class TestLogAnalysisResultEdgeCases:
 
     def test_confidence_above_one_accepted(self) -> None:
         result = LogAnalysisResult(confidence=1.5)
-        assert result.confidence == 1.5
+        assert result.confidence == 1.5  # noqa: PLR2004
 
     def test_confidence_negative_accepted(self) -> None:
         result = LogAnalysisResult(confidence=-0.5)
-        assert result.confidence == -0.5
+        assert result.confidence == -0.5  # noqa: PLR2004
 
     def test_token_reduction_zero(self) -> None:
         result = LogAnalysisResult(token_reduction_percentage=0.0)
@@ -146,11 +146,11 @@ class TestLogAnalysisResultEdgeCases:
 
     def test_token_reduction_hundred(self) -> None:
         result = LogAnalysisResult(token_reduction_percentage=100.0)
-        assert result.token_reduction_percentage == 100.0
+        assert result.token_reduction_percentage == 100.0  # noqa: PLR2004
 
     def test_token_reduction_above_hundred_accepted(self) -> None:
         result = LogAnalysisResult(token_reduction_percentage=150.0)
-        assert result.token_reduction_percentage == 150.0
+        assert result.token_reduction_percentage == 150.0  # noqa: PLR2004
 
     def test_degraded_true(self) -> None:
         result = LogAnalysisResult(degraded=True, strategy_used="degraded_fallback")
@@ -186,7 +186,7 @@ class TestLogAnalysisContextEdgeCases:
 
     def test_log_size_large(self) -> None:
         ctx = LogAnalysisContext(log_size_estimate=10_000_000)
-        assert ctx.log_size_estimate == 10_000_000
+        assert ctx.log_size_estimate == 10_000_000  # noqa: PLR2004
 
     def test_observed_at_populated(self) -> None:
         ctx = LogAnalysisContext(observed_at="2026-07-17T12:00:00Z")
@@ -204,7 +204,7 @@ class TestLogAnalysisContextEdgeCases:
             observed_at="2026-07-17T08:00:00Z",
             include_noise=True,
         )
-        assert ctx.log_size_estimate == 50000
+        assert ctx.log_size_estimate == 50000  # noqa: PLR2004
         assert ctx.request_type == "audit"
         assert ctx.urgency == "high"
         assert ctx.include_noise is True

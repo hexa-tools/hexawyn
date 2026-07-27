@@ -49,7 +49,7 @@ class TestSecurityAudit:
                 "certificates": {"expiring_soon": 4},
             },
         )
-        assert entry.total_issues == 10
+        assert entry.total_issues == 10  # noqa: PLR2004
 
     def test_total_issues_returns_zero_for_empty_findings(self) -> None:
         entry = SecurityAudit(cluster_name="empty", severity="low")
@@ -97,4 +97,10 @@ class TestSecurityAudit:
         entry = SecurityAudit.from_dict({"cluster_name": "bare", "severity": "low"})
         assert entry.cluster_name == "bare"
         assert entry.severity == "low"
+        assert entry.findings == {}
+
+    def test_from_dict_with_list_findings_uses_empty(self) -> None:
+        entry = SecurityAudit.from_dict(
+            {"cluster_name": "odd", "severity": "medium", "findings": [1, 2, 3]}
+        )
         assert entry.findings == {}

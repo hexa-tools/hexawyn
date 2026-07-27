@@ -1,9 +1,9 @@
 import click
 
-from hexawyn.application.use_case.get_quota_usage.command import (
+from hexawyn.application.use_case.cluster.get_quota_usage.command import (
     GetQuotaUsageCommand,
 )
-from hexawyn.application.use_case.get_quota_usage.get_quota_usage_use_case import (
+from hexawyn.application.use_case.cluster.get_quota_usage.get_quota_usage_use_case import (
     GetQuotaUsageUseCase,
 )
 from hexawyn.cli.presentation.quota_renderer import (

@@ -121,8 +121,8 @@ class TestGitOpsDetectionResult:
         )
         assert result.engine == GitOpsEngine.FLUX
         assert result.version == "v2.4.0"
-        assert result.apps_count == 12
-        assert result.out_of_sync_count == 2
+        assert result.apps_count == 12  # noqa: PLR2004
+        assert result.out_of_sync_count == 2  # noqa: PLR2004
         assert result.failed_count == 1
 
     def test_none_detected(self) -> None:

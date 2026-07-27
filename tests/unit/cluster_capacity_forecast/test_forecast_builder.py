@@ -38,8 +38,8 @@ class TestCriticalResourceSelection:
             ClusterCapacityForecastRequest(), raw, observed_at=_OBSERVED_AT
         )
 
-        assert report.cpu.days_to_saturation == 15
-        assert report.memory.days_to_saturation == 40
+        assert report.cpu.days_to_saturation == 15  # noqa: PLR2004
+        assert report.memory.days_to_saturation == 40  # noqa: PLR2004
         assert report.critical_resource == "CPU"
 
     def test_memory_saturates_sooner_is_critical(self) -> None:
@@ -139,7 +139,7 @@ class TestConfidenceTiers:
         )
 
         assert report.confidence == "high"
-        assert report.window_days_used == 14
+        assert report.window_days_used == 14  # noqa: PLR2004
 
     def test_medium_window_is_medium_confidence(self) -> None:
         raw = ClusterCapacityRawData(
@@ -169,7 +169,7 @@ class TestConfidenceTiers:
         )
 
         assert report.confidence == "low"
-        assert report.window_days_used == 5
+        assert report.window_days_used == 5  # noqa: PLR2004
 
 
 class TestAutoscalerPassthrough:
@@ -241,7 +241,7 @@ class TestRecommendation:
 
         assert report.cpu.capped_horizon is False
         assert report.cpu.days_to_saturation is not None
-        assert report.cpu.days_to_saturation > 30
+        assert report.cpu.days_to_saturation > 30  # noqa: PLR2004
         assert "monitor and plan ahead" in report.recommendation.lower()
 
     def test_no_risk_recommendation_is_reassuring(self) -> None:
@@ -274,5 +274,5 @@ class TestCurrentUtilization:
             ClusterCapacityForecastRequest(), raw, observed_at=_OBSERVED_AT
         )
 
-        assert report.cpu.current_utilization_percent == 70.0
-        assert report.memory.current_utilization_percent == 80.0
+        assert report.cpu.current_utilization_percent == 70.0  # noqa: PLR2004
+        assert report.memory.current_utilization_percent == 80.0  # noqa: PLR2004

@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.analyze_incident_cost.analyze_incident_cost_use_case import (
+from hexawyn.application.use_case.finops.analyze_incident_cost.analyze_incident_cost_use_case import (  # noqa: E501
     AnalyzeIncidentCostUseCase,
 )
-from hexawyn.application.use_case.analyze_incident_cost.command import AnalyzeIncidentCostCommand
+from hexawyn.application.use_case.finops.analyze_incident_cost.command import (
+    AnalyzeIncidentCostCommand,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -17,7 +19,8 @@ def analyze_incident_cost(incident_ref: str = "yesterday") -> dict[str, object]:
     from hexawyn.mcp.server import build_incident_cost_adapter
 
     try:
-        use_case = AnalyzeIncidentCostUseCase(incident_cost_port=build_incident_cost_adapter())
+        service = AnalyzeIncidentCostUseCase(incident_cost_port=build_incident_cost_adapter())
+        use_case = AnalyzeIncidentCostUseCase(service=service)  # type: ignore
         r = use_case.execute(AnalyzeIncidentCostCommand(incident_ref=incident_ref))
         report = r.result
         return {

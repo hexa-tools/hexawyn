@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.compute_security_posture.command import (
+from hexawyn.application.use_case.security.compute_security_posture.command import (
     ComputeSecurityPostureCommand,
 )
-from hexawyn.application.use_case.compute_security_posture.compute_security_posture_use_case import (
+from hexawyn.application.use_case.security.compute_security_posture.compute_security_posture_use_case import (  # noqa: E501
     ComputeSecurityPostureUseCase,
 )
 
@@ -19,7 +19,7 @@ def compute_security_posture() -> dict[str, object]:
     from hexawyn.mcp.server import build_optimization_roi_adapter
 
     try:
-        use_case = ComputeSecurityPostureUseCase(port=build_optimization_roi_adapter())
+        use_case = ComputeSecurityPostureUseCase(port=build_optimization_roi_adapter())  # type: ignore
         _ = use_case.execute(ComputeSecurityPostureCommand())
         return {"error": None}
     except Exception as exc:

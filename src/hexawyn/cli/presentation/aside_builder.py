@@ -47,9 +47,9 @@ def build_aside_lines(app: Any) -> list[str]:
     if app.startup_result is not None:
         health_score = app.startup_result.get("health_score", 100)
         if isinstance(health_score, int) and health_score > 0:
-            if health_score >= 80:
+            if health_score >= 80:  # noqa: PLR2004
                 score_color = "green"
-            elif health_score >= 50:
+            elif health_score >= 50:  # noqa: PLR2004
                 score_color = "yellow"
             else:
                 score_color = "red"

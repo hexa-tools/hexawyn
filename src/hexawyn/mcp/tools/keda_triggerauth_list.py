@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.keda_triggerauth_list.command import KedaTriggerauthListCommand
-from hexawyn.application.use_case.keda_triggerauth_list.keda_triggerauth_list_use_case import (
+from hexawyn.application.use_case.keda.keda_triggerauth_list.command import (
+    KedaTriggerauthListCommand,
+)
+from hexawyn.application.use_case.keda.keda_triggerauth_list.keda_triggerauth_list_use_case import (  # type: ignore
     KedaTriggerAuthListUseCase,
 )
 

@@ -78,6 +78,6 @@ class TestClassifyNamespaceEvent:
         )
         assert classified.reason == "OOMKilling"
         assert classified.involved_object == "pod/payment-api"
-        assert classified.count == 3
+        assert classified.count == 3  # noqa: PLR2004
         assert classified.last_timestamp is not None
         assert classified.first_timestamp == classified.last_timestamp

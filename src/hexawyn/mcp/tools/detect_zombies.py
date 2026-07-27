@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.detect_zombies.command import DetectZombiesCommand
-from hexawyn.application.use_case.detect_zombies.detect_zombies_use_case import DetectZombiesUseCase
+from hexawyn.application.use_case.troubleshooting.detect_zombies.command import DetectZombiesCommand
+from hexawyn.application.use_case.troubleshooting.detect_zombies.detect_zombies_use_case import (
+    DetectZombiesUseCase,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP

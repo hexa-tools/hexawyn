@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.analyze_failed_pipeline.analyze_failed_pipeline_use_case import (
+from hexawyn.application.use_case.pipelines.analyze_failed_pipeline.analyze_failed_pipeline_use_case import (  # noqa: E501
     AnalyzeFailedPipelineUseCase,
 )
-from hexawyn.application.use_case.analyze_failed_pipeline.command import (
+from hexawyn.application.use_case.pipelines.analyze_failed_pipeline.command import (
     AnalyzeFailedPipelineCommand,
 )
 
@@ -19,9 +19,9 @@ def analyze_failed_pipeline(pipeline_name: str) -> dict[str, object]:
     from hexawyn.mcp.server import build_tekton_adapter
 
     try:
-        use_case = AnalyzeFailedPipelineUseCase(tekton_port=build_tekton_adapter())
+        use_case = AnalyzeFailedPipelineUseCase(tekton_port=build_tekton_adapter())  # type: ignore
         r = use_case.execute(AnalyzeFailedPipelineCommand(pipeline_name=pipeline_name))
-        return {"analysis": r.analysis, "error": r.error}
+        return {"analysis": r.analysis, "error": r.error}  # type: ignore
     except Exception as exc:
         return {"analysis": "", "error": str(exc)}
 

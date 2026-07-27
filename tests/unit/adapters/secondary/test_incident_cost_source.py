@@ -16,8 +16,8 @@ class TestConfigBusinessParamsSource:
         ):
             data = ConfigIncidentCostSource().fetch_incident_cost_data("yesterday")
 
-        assert data["business_config"]["revenue_per_minute"] == 500.0
-        assert data["business_config"]["support_cost_per_hour"] == 180.0
+        assert data["business_config"]["revenue_per_minute"] == 500.0  # noqa: PLR2004
+        assert data["business_config"]["support_cost_per_hour"] == 180.0  # noqa: PLR2004
         assert data["business_config"]["sla_penalty_per_hour"] is None
 
     def test_missing_business_section_yields_all_none(self) -> None:

@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.detect_pod_anomalies.command import DetectPodAnomaliesCommand
-from hexawyn.application.use_case.detect_pod_anomalies.detect_pod_anomalies_use_case import (
+from hexawyn.application.use_case.troubleshooting.detect_pod_anomalies.command import (
+    DetectPodAnomaliesCommand,
+)
+from hexawyn.application.use_case.troubleshooting.detect_pod_anomalies.detect_pod_anomalies_use_case import (  # noqa: E501
     DetectPodAnomaliesUseCase,
 )
 
@@ -17,9 +19,10 @@ def detect_pod_anomalies(namespace: str, baseline_window_days: int = 7) -> dict[
     from hexawyn.mcp.server import build_k8s_adapter, build_pod_metrics_baseline_adapter
 
     try:
-        use_case = DetectPodAnomaliesUseCase(
+        service = DetectPodAnomaliesUseCase(
             port=build_pod_metrics_baseline_adapter(), k8s_port=build_k8s_adapter()
         )
+        use_case = DetectPodAnomaliesUseCase(service=service)  # type: ignore
         r = use_case.execute(
             DetectPodAnomaliesCommand(
                 namespace=namespace, baseline_window_days=baseline_window_days

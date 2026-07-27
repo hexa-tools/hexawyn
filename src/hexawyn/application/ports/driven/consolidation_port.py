@@ -18,7 +18,7 @@ class ConsolidationPort(ABC):
         """Group incidents by namespace+resource+tool, return tuples."""
 
     @abstractmethod
-    def get_incidents_for_group(
+    def get_incidents_for_group(  # noqa: PLR0913
         self,
         namespace: str,
         resource_name: str,
@@ -29,7 +29,7 @@ class ConsolidationPort(ABC):
         """Return incident IDs for a given group."""
 
     @abstractmethod
-    def store_knowledge(
+    def store_knowledge(  # noqa: PLR0913
         self,
         id: str,
         pattern: str,

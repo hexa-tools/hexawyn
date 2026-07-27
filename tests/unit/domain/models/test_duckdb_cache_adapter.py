@@ -117,7 +117,7 @@ class TestDuckDBCacheAdapter:
         adapter = DuckDBCacheAdapter(conn=conn)
         adapter.set(_make_entry(id="a", cache_key="k1"))
         adapter.set(_make_entry(id="b", cache_key="k2"))
-        assert adapter.stats()["total"] == 2
+        assert adapter.stats()["total"] == 2  # noqa: PLR2004
 
         adapter.clear()
         assert adapter.stats()["total"] == 0
@@ -150,7 +150,7 @@ class TestDuckDBCacheAdapter:
         adapter.set(old)
 
         s = adapter.stats()
-        assert s["total"] == 2
+        assert s["total"] == 2  # noqa: PLR2004
         assert s["expired"] >= 1
         assert s["valid"] >= 1
 

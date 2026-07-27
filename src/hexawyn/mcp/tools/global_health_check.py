@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.global_health_check.command import GlobalHealthCheckCommand
-from hexawyn.application.use_case.global_health_check.global_health_check_use_case import (
+from hexawyn.application.use_case.cluster.global_health_check.command import (
+    GlobalHealthCheckCommand,
+)
+from hexawyn.application.use_case.cluster.global_health_check.global_health_check_use_case import (
     GlobalHealthCheckUseCase,
 )
 

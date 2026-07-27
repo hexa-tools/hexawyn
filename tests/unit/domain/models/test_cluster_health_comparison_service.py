@@ -3,7 +3,7 @@ from __future__ import annotations
 from hexawyn.domain.models.cluster_health_comparison import ClusterHealthSnapshot
 
 
-def _snap(
+def _snap(  # noqa: PLR0913
     name: str = "prod-eu",
     failing: int = 5,
     total: int = 200,
@@ -43,8 +43,8 @@ class TestComparison:
         )
 
         assert result.comparison.worse_cluster == "prod-eu"
-        assert result.comparison.delta_failing_pods == 4
-        assert result.comparison.delta_cpu_pct == 27.0
+        assert result.comparison.delta_failing_pods == 4  # noqa: PLR2004
+        assert result.comparison.delta_cpu_pct == 27.0  # noqa: PLR2004
 
     def test_both_healthy_no_winner(self) -> None:
         from hexawyn.domain.services.cluster_health_comparison.cluster_health_comparison_service import (  # noqa: E501

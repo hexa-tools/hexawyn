@@ -19,7 +19,7 @@ def _flat_series(value: float, count: int, jitter: float = 2.0) -> list[float]:
     return [value + jitter * ((i % 3) - 1) for i in range(count)]
 
 
-def _pod(
+def _pod(  # noqa: PLR0913
     pod_name: str,
     *,
     pod_age_hours: float = 720.0,
@@ -62,7 +62,7 @@ class TestClearCpuSpike:
         anomaly = cpu_anomalies[0]
         assert anomaly.severity == EventSeverity.CRITICAL
         assert anomaly.z_score is not None
-        assert anomaly.z_score > 5.0
+        assert anomaly.z_score > 5.0  # noqa: PLR2004
         assert anomaly.deviation_pct == pytest.approx(325.0, rel=0.02)
         assert anomaly.detection_method in ("zscore", "both")
 

@@ -72,7 +72,7 @@ def build_stack_lines(
 
 def _parse_argument(text: str) -> str | None:
     parts = text.split(maxsplit=1)
-    if len(parts) < 2 or not parts[1].strip():
+    if len(parts) < 2 or not parts[1].strip():  # noqa: PLR2004
         return None
     return parts[1].strip().lower()
 

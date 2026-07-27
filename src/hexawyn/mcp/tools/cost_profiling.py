@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.cost_profiling.command import (
+from hexawyn.application.use_case.finops.cost_profiling.command import (
     CostProfilingCommand,
 )
-from hexawyn.application.use_case.cost_profiling.cost_profiling_use_case import CostProfilingUseCase
+from hexawyn.application.use_case.finops.cost_profiling.cost_profiling_use_case import (
+    CostProfilingUseCase,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP

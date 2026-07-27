@@ -83,7 +83,7 @@ def _cpu_query(namespace: str) -> str:
 
 
 def _memory_query(namespace: str) -> str:
-    return f'avg by (pod) (container_memory_working_set_bytes{{namespace="{namespace}", container!=""}})'
+    return f'avg by (pod) (container_memory_working_set_bytes{{namespace="{namespace}", container!=""}})'  # noqa: E501
 
 
 def _error_rate_query(namespace: str) -> str:
@@ -102,7 +102,7 @@ def _split_baseline_and_current(
     return values[:-1], values[-1]
 
 
-def _to_raw_data(
+def _to_raw_data(  # noqa: PLR0913
     pod: PodInfo,
     namespace: str,
     baseline_window_hours: float,

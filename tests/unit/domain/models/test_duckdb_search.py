@@ -22,7 +22,7 @@ class TestSearchSimilarHistoryDays:
             history_days=get_history_days(LicenseTier.STARTER),
         )
         call_args = self.mock_conn.execute.call_args[0]
-        assert 30 in call_args[1]
+        assert 30 in call_args[1]  # noqa: PLR2004
 
     def test_team_tier_uses_90_days(self) -> None:
         search_similar(
@@ -32,7 +32,7 @@ class TestSearchSimilarHistoryDays:
             history_days=get_history_days(LicenseTier.TEAM),
         )
         call_args = self.mock_conn.execute.call_args[0]
-        assert 90 in call_args[1]
+        assert 90 in call_args[1]  # noqa: PLR2004
 
     def test_scale_up_unlimited_uses_large_window(self) -> None:
         search_similar(
@@ -43,7 +43,7 @@ class TestSearchSimilarHistoryDays:
         )
         self.mock_conn.execute.assert_called_once()
         call_args = self.mock_conn.execute.call_args[0]
-        assert 36500 in call_args[1]
+        assert 36500 in call_args[1]  # noqa: PLR2004
 
     def test_interval_param_uses_multiplication(self) -> None:
         search_similar(
@@ -122,4 +122,4 @@ class TestSearchSimilarHistoryDays:
             min_score=0.80,
         )
         assert len(results) == 1
-        assert results[0]["score"] == 0.95
+        assert results[0]["score"] == 0.95  # noqa: PLR2004

@@ -16,7 +16,7 @@ class TestSlowTrace:
             span_count=42,
         )
         assert st.trace_id == "tr001"
-        assert st.duration_ms == 4200.0
+        assert st.duration_ms == 4200.0  # noqa: PLR2004
 
 
 class TestSlowestTracesResult:
@@ -34,7 +34,7 @@ class TestSlowestTracesResult:
             request=SlowestTracesRequest(pod_name="checkout-7d", top_n=5),
             traces=traces,
         )
-        assert len(result.slowest_traces) == 3
+        assert len(result.slowest_traces) == 3  # noqa: PLR2004
         assert result.slowest_traces[0].trace_id == "tr001"
         assert result.slowest_traces[1].trace_id == "tr002"
 
@@ -52,7 +52,7 @@ class TestSlowestTracesResult:
             request=SlowestTracesRequest(pod_name="pod", top_n=3),
             traces=traces,
         )
-        assert len(result.slowest_traces) == 3
+        assert len(result.slowest_traces) == 3  # noqa: PLR2004
 
     def test_empty(self) -> None:
         result = SlowestTracesResult.compute(

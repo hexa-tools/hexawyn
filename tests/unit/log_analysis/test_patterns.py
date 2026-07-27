@@ -16,7 +16,7 @@ class TestCategorizeConnectionIssues:
         timeouts, refused = categorize_connection_issues(lines)
         assert len(timeouts) == 1
         assert timeouts[0].category == "connection_timeout"
-        assert timeouts[0].count == 15
+        assert timeouts[0].count == 15  # noqa: PLR2004
         assert refused == []
 
     def test_extracts_connection_refused(self) -> None:
@@ -25,15 +25,15 @@ class TestCategorizeConnectionIssues:
         assert timeouts == []
         assert len(refused) == 1
         assert refused[0].category == "connection_refused"
-        assert refused[0].count == 3
+        assert refused[0].count == 3  # noqa: PLR2004
 
     def test_separates_timeouts_and_refused(self) -> None:
         lines = [_line("connection timeout to postgres:5432") for _ in range(15)] + [
             _line("upstream connect error") for _ in range(3)
         ]
         timeouts, refused = categorize_connection_issues(lines)
-        assert timeouts[0].count == 15
-        assert refused[0].count == 3
+        assert timeouts[0].count == 15  # noqa: PLR2004
+        assert refused[0].count == 3  # noqa: PLR2004
 
     def test_ignores_unrelated_lines(self) -> None:
         lines = [_line("pod scheduled successfully"), _line("readiness probe succeeded")]

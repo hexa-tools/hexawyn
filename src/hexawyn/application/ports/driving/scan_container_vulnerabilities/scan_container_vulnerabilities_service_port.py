@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.use_case.scan_container_vulnerabilities.command import (
+from hexawyn.application.use_case.security.scan_container_vulnerabilities.command import (
     ScanContainerVulnerabilitiesCommand,
 )
-from hexawyn.application.use_case.scan_container_vulnerabilities.response import (
+from hexawyn.application.use_case.security.scan_container_vulnerabilities.response import (
     ScanContainerVulnerabilitiesResponse,
 )
 

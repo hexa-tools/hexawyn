@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.summarize_namespace_events.command import (
+from hexawyn.application.use_case.troubleshooting.summarize_namespace_events.command import (
     SummarizeNamespaceEventsCommand,
 )
-from hexawyn.application.use_case.summarize_namespace_events.summarize_namespace_events_use_case import (
+from hexawyn.application.use_case.troubleshooting.summarize_namespace_events.summarize_namespace_events_use_case import (  # noqa: E501
     SummarizeNamespaceEventsUseCase,
 )
 
@@ -21,7 +21,7 @@ def summarize_namespace_events(namespace: str, time_window_minutes: int = 15) ->
     try:
         events_adapter = build_namespace_events_adapter()
         k8s_adapter = build_k8s_adapter()
-        r = SummarizeNamespaceEventsUseCase(
+        r = SummarizeNamespaceEventsUseCase(  # type: ignore
             events_port=events_adapter, k8s_port=k8s_adapter
         ).execute(
             r=SummarizeNamespaceEventsCommand(

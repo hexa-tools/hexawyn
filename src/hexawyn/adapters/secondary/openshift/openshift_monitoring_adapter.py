@@ -32,7 +32,7 @@ class OpenShiftMonitoringAdapter(MetricsQueryPort):
     def instant_query(self, promql: str, timeout_seconds: float) -> list[PrometheusInstantSample]:
         return self._prometheus().instant_query(promql, timeout_seconds)
 
-    def range_query(
+    def range_query(  # noqa: PLR0913
         self, promql: str, start: str, end: str, step: str, timeout_seconds: float
     ) -> list[PrometheusRangeSample]:
         return self._prometheus().range_query(promql, start, end, step, timeout_seconds)

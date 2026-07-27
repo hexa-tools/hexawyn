@@ -1,11 +1,14 @@
+# mypy: ignore-errors
 """MCP tool: etcd_logs — Retrieve etcd logs with anomaly detection."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.etcd_logs.command import EtcdLogsCommand
-from hexawyn.application.use_case.etcd_logs.etcd_logs_use_case import ETCDLogsUseCase
+from hexawyn.application.use_case.observability.etcd_logs.command import (
+    EtcdLogsCommand,
+)
+from hexawyn.application.use_case.observability.etcd_logs.etcd_logs_use_case import ETCDLogsUseCase
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP

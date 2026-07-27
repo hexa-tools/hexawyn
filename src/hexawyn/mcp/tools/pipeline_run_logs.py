@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.pipeline_run_logs.command import PipelineRunLogsCommand
-from hexawyn.application.use_case.pipeline_run_logs.pipeline_run_logs_use_case import (
+from hexawyn.application.use_case.pipelines.pipeline_run_logs.command import PipelineRunLogsCommand
+from hexawyn.application.use_case.pipelines.pipeline_run_logs.pipeline_run_logs_use_case import (
     PipelineRunLogsUseCase,
 )
 

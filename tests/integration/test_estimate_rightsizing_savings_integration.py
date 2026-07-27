@@ -7,13 +7,13 @@ from unittest.mock import MagicMock
 
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
-from hexawyn.application.use_case.estimate_rightsizing_savings.command import (
-    EstimateRightsizingSavingsCommand,
-)
 from hexawyn.application.service.estimate_rightsizing_savings_service import (
     EstimateRightsizingSavingsService,
 )
-from hexawyn.application.use_case.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case import (
+from hexawyn.application.use_case.finops.estimate_rightsizing_savings.command import (
+    EstimateRightsizingSavingsCommand,
+)
+from hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case import (  # noqa: E501
     EstimateRightsizingSavingsUseCase,
 )
 from hexawyn.domain.errors import ClusterUnreachableError
@@ -148,7 +148,7 @@ class TestEstimateRightsizingSavingsIntegration:
 
         response = use_case.execute(EstimateRightsizingSavingsCommand(top_n=3))
 
-        assert len(response.report.recommendations) <= 3
+        assert len(response.report.recommendations) <= 3  # noqa: PLR2004
 
     # TC6 — K8s unreachable raises ClusterUnreachableError
     def test_tc6_cluster_unreachable_raises(self) -> None:
@@ -161,7 +161,7 @@ class TestEstimateRightsizingSavingsIntegration:
 
     # TC7 — optimal workload not included in recommendations
     def test_tc7_optimal_workload_excluded(self) -> None:
-        # CPU at 60% (above 30% over threshold), RAM at 60% (above 40% over, below 85% under) → OPTIMAL
+        # CPU at 60% (above 30% over threshold), RAM at 60% (above 40% over, below 85% under) → OPTIMAL  # noqa: E501
         deps = [_deployment("web", "production", cpu="1000m", memory="2Gi")]
         apps_api = _fake_apps_api(deps)
         mem_bytes = str(int(0.6 * 2048 * 1024 * 1024))

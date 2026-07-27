@@ -45,7 +45,7 @@ class TestQueryConstruction:
         )
         adapter.get_all_pod_metrics_data(namespace="production", window_days=7)
 
-        assert metrics_query_port.range_query.call_count == 3
+        assert metrics_query_port.range_query.call_count == 3  # noqa: PLR2004
         for call in metrics_query_port.range_query.call_args_list:
             assert 'namespace="production"' in call.args[0]
             assert call.kwargs["step"] == "1h"
@@ -70,7 +70,7 @@ class TestSeriesToPodMatching:
         assert len(result) == 1
         pod = result[0]
         assert pod["pod_name"] == "payment-api"
-        assert pod["cpu_current_millicores"] == 850.0
+        assert pod["cpu_current_millicores"] == 850.0  # noqa: PLR2004
         assert pod["cpu_baseline_millicores"] == [200.0, 205.0]
 
     def test_pod_with_no_matching_series_gets_empty_baseline(self) -> None:
@@ -100,7 +100,7 @@ class TestPodAgeParsing:
         )
         result = adapter.get_all_pod_metrics_data(namespace="production", window_days=7)
 
-        assert result[0]["pod_age_hours"] == 2.0
+        assert result[0]["pod_age_hours"] == 2.0  # noqa: PLR2004
 
     def test_days_converted_to_hours(self) -> None:
         metrics_query_port = MagicMock()
@@ -113,7 +113,7 @@ class TestPodAgeParsing:
         )
         result = adapter.get_all_pod_metrics_data(namespace="production", window_days=7)
 
-        assert result[0]["pod_age_hours"] == 72.0
+        assert result[0]["pod_age_hours"] == 72.0  # noqa: PLR2004
 
     def test_minutes_converted_to_hours(self) -> None:
         metrics_query_port = MagicMock()
@@ -126,7 +126,7 @@ class TestPodAgeParsing:
         )
         result = adapter.get_all_pod_metrics_data(namespace="production", window_days=7)
 
-        assert result[0]["pod_age_hours"] == 0.75
+        assert result[0]["pod_age_hours"] == 0.75  # noqa: PLR2004
 
 
 class TestHonestDefaults:

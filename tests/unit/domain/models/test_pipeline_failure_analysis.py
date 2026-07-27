@@ -31,8 +31,8 @@ class TestFailureAnalysis:
         )
         assert analysis.task_name == "integration-tests"
         assert analysis.failure_type == FailureType.REGRESSION
-        assert analysis.confidence == 0.85
-        assert analysis.impact_score == 5.5
+        assert analysis.confidence == 0.85  # noqa: PLR2004
+        assert analysis.impact_score == 5.5  # noqa: PLR2004
 
 
 class TestAnalyzeFailedPipelineRequest:

@@ -61,4 +61,4 @@ class TestKustomizePatchConflictReport:
             total_redundancies=2,
         )
         assert report.overlay_path == "overlays/prod"
-        assert report.total_conflicts == 3
+        assert report.total_conflicts == 3  # noqa: PLR2004

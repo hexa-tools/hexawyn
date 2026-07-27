@@ -8,13 +8,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
-from hexawyn.application.use_case.detect_over_provisioned_namespaces.command import (
-    DetectOverProvisionedNamespacesCommand,
-)
 from hexawyn.application.service.detect_over_provisioned_namespaces_service import (
     DetectOverProvisionedNamespacesService,
 )
-from hexawyn.application.use_case.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case import (
+from hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.command import (
+    DetectOverProvisionedNamespacesCommand,
+)
+from hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case import (  # noqa: E501
     DetectOverProvisionedNamespacesUseCase,
 )
 from hexawyn.domain.errors import ClusterUnreachableError, PrometheusUnavailableError
@@ -180,7 +180,7 @@ class TestDetectOverProvisionedNamespacesIntegration:
 
         result = use_case.execute(DetectOverProvisionedNamespacesCommand(top_n=3))
 
-        assert len(result.report.namespaces) <= 3
+        assert len(result.report.namespaces) <= 3  # noqa: PLR2004
 
     def test_waste_ratio_formula_correct(self) -> None:
         pods = [_pod("dev", cpu="8000m", memory=None)]

@@ -43,9 +43,9 @@ class TestGroupByService:
 
         groups = group_by_service(matches)
 
-        assert len(groups) == 2
+        assert len(groups) == 2  # noqa: PLR2004
         by_service = {group.service_name: group for group in groups}
-        assert len(by_service["checkout-pod"].pods) == 2
+        assert len(by_service["checkout-pod"].pods) == 2  # noqa: PLR2004
         assert len(by_service["payment-pod"].pods) == 1
 
     def test_groups_sorted_by_namespace_then_service(self) -> None:

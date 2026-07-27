@@ -96,9 +96,9 @@ class TestSemverComparison:
         engine = HelmOutdatedReleaseEngine()
         result = engine.compute(releases, latest_map)
 
-        assert result.outdated_count == 5
-        assert result.up_to_date_count == 3
-        assert result.total_releases == 8
+        assert result.outdated_count == 5  # noqa: PLR2004
+        assert result.up_to_date_count == 3  # noqa: PLR2004
+        assert result.total_releases == 8  # noqa: PLR2004
 
 
 class TestEdgeCases:
@@ -146,8 +146,8 @@ class TestEdgeCases:
         engine = HelmOutdatedReleaseEngine()
         result = engine.compute(releases, latest_map)
 
-        assert result.total_releases == 2
-        assert result.outdated_count == 2
+        assert result.total_releases == 2  # noqa: PLR2004
+        assert result.outdated_count == 2  # noqa: PLR2004
 
     def test_chart_not_in_latest_map_gets_default(self) -> None:
         releases = [_release(chart_version="1.0.0")]

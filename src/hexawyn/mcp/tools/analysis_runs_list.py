@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.analysis_runs_list.analysis_runs_list_use_case import (
+from hexawyn.application.use_case.pipelines.analysis_runs_list.analysis_runs_list_use_case import (
     AnalysisRunsListUseCase,
 )
-from hexawyn.application.use_case.analysis_runs_list.command import AnalysisRunsListCommand
+from hexawyn.application.use_case.pipelines.analysis_runs_list.command import (
+    AnalysisRunsListCommand,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP

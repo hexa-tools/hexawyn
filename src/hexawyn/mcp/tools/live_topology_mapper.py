@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.live_topology_mapper.command import LiveTopologyMapperCommand
-from hexawyn.application.use_case.live_topology_mapper.live_topology_mapper_use_case import (
+from hexawyn.application.use_case.cluster.live_topology_mapper.command import (
+    LiveTopologyMapperCommand,
+)
+from hexawyn.application.use_case.cluster.live_topology_mapper.live_topology_mapper_use_case import (  # noqa: E501
     LiveTopologyMapperUseCase,
 )
 

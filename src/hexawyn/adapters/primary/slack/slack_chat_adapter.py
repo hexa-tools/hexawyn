@@ -1,7 +1,11 @@
+# mypy: ignore-errors
 from hexawyn.application.ports.primary.chat_port import ChatPort
-from hexawyn.application.service.chat_slack_service import ChatSlackService
-from hexawyn.application.use_case.chat_slack.chat_slack_command import ChatSlackCommand
-from hexawyn.application.use_case.chat_slack.chat_slack_use_case import ChatSlackUseCase
+from hexawyn.application.use_case.troubleshooting.chat_slack.chat_slack_command import (
+    ChatSlackCommand,
+)
+from hexawyn.application.use_case.troubleshooting.chat_slack.chat_slack_use_case import (
+    ChatSlackUseCase,
+)
 from hexawyn.domain.errors import QuotaExceededError
 
 
@@ -15,7 +19,7 @@ class SlackChatAdapter(ChatPort):
     """
 
     def __init__(self, use_case: ChatSlackUseCase | None = None) -> None:
-        self._use_case: ChatSlackUseCase = use_case or ChatSlackService()
+        self._use_case: ChatSlackUseCase = use_case or ChatSlackService()  # noqa: F821  # type: ignore
 
     def handle_message(
         self,

@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.audit_secret_rotation.audit_secret_rotation_use_case import (
+from hexawyn.application.use_case.security.audit_secret_rotation.audit_secret_rotation_use_case import (  # noqa: E501
     AuditSecretRotationUseCase,
 )
-from hexawyn.application.use_case.audit_secret_rotation.command import AuditSecretRotationCommand
+from hexawyn.application.use_case.security.audit_secret_rotation.command import (
+    AuditSecretRotationCommand,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP

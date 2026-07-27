@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.certs_status_explain.certs_status_explain_use_case import (
+from hexawyn.application.use_case.cert_manager.certs_status_explain.certs_status_explain_use_case import (  # noqa: E501
     CertsStatusExplainUseCase,
 )
-from hexawyn.application.use_case.certs_status_explain.command import CertsStatusExplainCommand
+from hexawyn.application.use_case.cert_manager.certs_status_explain.command import (
+    CertsStatusExplainCommand,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -18,7 +20,7 @@ def certs_status_explain(name: str, namespace: str) -> dict[str, object]:
 
     try:
         adapter = build_cert_manager_adapter()
-        uc = CertsStatusExplainUseCase(cert_manager_port=adapter)
+        uc = CertsStatusExplainUseCase(cert_manager_port=adapter)  # type: ignore
         r = uc.execute(CertsStatusExplainCommand(name=name, namespace=namespace))
         return {
             "status": r.status,

@@ -43,9 +43,9 @@ def _compute_trend(current: float, previous: float | None) -> tuple[float, str]:
     if previous is None or previous == 0.0:
         return 0.0, "stable"
     delta = round((current - previous) / previous * 100, 1)
-    if delta < -5.0:
+    if delta < -5.0:  # noqa: PLR2004
         return delta, "improving"
-    if delta > 5.0:
+    if delta > 5.0:  # noqa: PLR2004
         return delta, "degrading"
     return delta, "stable"
 

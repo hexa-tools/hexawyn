@@ -14,7 +14,7 @@ class TestCalculateAgeDays:
 
         age = calculate_age_days(last_modified=date(2025, 12, 17), today=date(2026, 6, 16))
 
-        assert age == 181
+        assert age == 181  # noqa: PLR2004
 
     def test_zero_days_when_modified_today(self) -> None:
         from hexawyn.domain.services.secret_rotation.age_calculator import calculate_age_days
@@ -28,7 +28,7 @@ class TestCalculateAgeDays:
 
         age = calculate_age_days(last_modified=date(2026, 6, 1), today=date(2026, 7, 1))
 
-        assert age == 30
+        assert age == 30  # noqa: PLR2004
 
 
 class TestIsStale:

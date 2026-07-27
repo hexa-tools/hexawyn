@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.detect_privileged_pods.command import DetectPrivilegedPodsCommand
-from hexawyn.application.use_case.detect_privileged_pods.detect_privileged_pods_use_case import (
+from hexawyn.application.use_case.security.detect_privileged_pods.command import (
+    DetectPrivilegedPodsCommand,
+)
+from hexawyn.application.use_case.security.detect_privileged_pods.detect_privileged_pods_use_case import (  # noqa: E501
     DetectPrivilegedPodsUseCase,
 )
 

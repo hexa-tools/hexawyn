@@ -20,7 +20,7 @@ class TestServiceRisk:
             risk=RiskLevel.HIGH,
         )
         assert sr.risk == RiskLevel.HIGH
-        assert sr.breach_in_minutes == 22.0
+        assert sr.breach_in_minutes == 22.0  # noqa: PLR2004
 
 
 class TestSLOBreachPredictionResult:
@@ -34,7 +34,7 @@ class TestSLOBreachPredictionResult:
             request=SLOBreachPredictionRequest(prediction_window_minutes=60),
             raw_metrics=raw,
         )
-        assert len(result.at_risk) == 2
+        assert len(result.at_risk) == 2  # noqa: PLR2004
         assert result.at_risk[0].service_name == "auth-service"
         assert result.safe_count == 1
 

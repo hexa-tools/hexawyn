@@ -27,7 +27,7 @@ def _hot_cpu_series(
     return _hourly_series(hot_value, hot_hours) + _hourly_series(cool_value, 24 - hot_hours)
 
 
-def _node(
+def _node(  # noqa: PLR0913
     name: str,
     cordoned: bool = False,
     allocatable_cpu: float = 8.0,
@@ -85,7 +85,7 @@ class TestHotNodeDetectionAndRedistribution:
 
         report = analyze_hot_nodes(HotNodeAnalysisRequest(), [worker1, worker2])
 
-        assert len(report.hot_nodes) == 2
+        assert len(report.hot_nodes) == 2  # noqa: PLR2004
         for hot in report.hot_nodes:
             assert hot.feasible_redistribution is False
             assert hot.recommendation == "add_node"
@@ -98,7 +98,7 @@ class TestHotNodeDetectionAndRedistribution:
         report = analyze_hot_nodes(HotNodeAnalysisRequest(), [worker1, worker2])
 
         assert report.hot_nodes == []
-        assert report.healthy_node_count == 2
+        assert report.healthy_node_count == 2  # noqa: PLR2004
         assert "healthy" in report.summary.lower()
 
     def test_tc5_cpu_hot_memory_fine_is_disclosed_independently(self) -> None:

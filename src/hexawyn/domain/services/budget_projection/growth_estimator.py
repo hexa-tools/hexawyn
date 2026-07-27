@@ -22,7 +22,7 @@ def estimate_growth(history: list[MonthlyCostRaw]) -> GrowthEstimate:
     The model is exponential when those changes keep accelerating, decreasing
     when the rate is negative, flat when it is within +/-0.5%, otherwise linear.
     """
-    if len(history) < 2:
+    if len(history) < 2:  # noqa: PLR2004
         current = history[-1]["total_usd"] if history else 0.0
         return GrowthEstimate(current_monthly_usd=current, monthly_rate_pct=0.0, model="flat")
 
@@ -57,7 +57,7 @@ def _classify_model(mean_rate: float, changes: list[float]) -> str:
 
 
 def _is_accelerating(changes: list[float]) -> bool:
-    if len(changes) < 2:
+    if len(changes) < 2:  # noqa: PLR2004
         return False
     return all(
         later - earlier > _EXPONENTIAL_ACCELERATION_PCT

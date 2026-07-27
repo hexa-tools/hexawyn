@@ -35,7 +35,7 @@ class HttpRuntimeAdapter(RuntimePort):
                 pass
         with open("/tmp/hexawyn_pods.log", "a") as f:
             f.write(
-                f"adapter={type(self._adapter).__name__ if self._adapter else 'None'} pods={len(result)}\n"
+                f"adapter={type(self._adapter).__name__ if self._adapter else 'None'} pods={len(result)}\n"  # noqa: E501
             )
         return result
 

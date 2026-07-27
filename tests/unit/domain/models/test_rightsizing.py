@@ -44,12 +44,12 @@ class TestRightsizingRecommendation:
         assert rec.namespace == "production"
         assert rec.kind == "Deployment"
         assert rec.rightsizing_type == RightsizingType.OVER_PROVISIONED
-        assert rec.current_cpu_cores == 4.0
+        assert rec.current_cpu_cores == 4.0  # noqa: PLR2004
         assert rec.recommended_cpu_cores == 1.0
-        assert rec.current_memory_mi == 8192.0
-        assert rec.recommended_memory_mi == 3072.0
-        assert rec.monthly_savings_usd == 71.0
-        assert rec.waste_percentage == 80.0
+        assert rec.current_memory_mi == 8192.0  # noqa: PLR2004
+        assert rec.recommended_memory_mi == 3072.0  # noqa: PLR2004
+        assert rec.monthly_savings_usd == 71.0  # noqa: PLR2004
+        assert rec.waste_percentage == 80.0  # noqa: PLR2004
         assert rec.reason == "CPU usage 20% of requests"
         assert rec.priority == "high"
 

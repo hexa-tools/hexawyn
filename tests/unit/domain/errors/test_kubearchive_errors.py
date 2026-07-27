@@ -16,7 +16,7 @@ class TestKubeArchiveUnavailableError:
         error = KubeArchiveUnavailableError()
         message = str(error)
         assert "KubeArchive" in message
-        assert len(message) > 10
+        assert len(message) > 10  # noqa: PLR2004
 
     def test_accepts_context(self) -> None:
         error = KubeArchiveUnavailableError(context={"url": "http://localhost:8081"})

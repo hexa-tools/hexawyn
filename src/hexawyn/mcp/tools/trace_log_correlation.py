@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.trace_log_correlation.command import TraceLogCorrelationCommand
-from hexawyn.application.use_case.trace_log_correlation.trace_log_correlation_use_case import (
+from hexawyn.application.use_case.observability.trace_log_correlation.command import (
+    TraceLogCorrelationCommand,
+)
+from hexawyn.application.use_case.observability.trace_log_correlation.trace_log_correlation_use_case import (  # noqa: E501
     TraceLogCorrelationUseCase,
 )
 
@@ -19,7 +21,7 @@ def trace_log_correlation(operation: str, trace_id: str | None = None) -> dict[s
     try:
         a = build_trace_log_correlation_adapter()
         r = TraceLogCorrelationUseCase(port=a).execute(
-            TraceLogCorrelationCommand(operation=operation, trace_id=trace_id)
+            TraceLogCorrelationCommand(operation=operation, trace_id=trace_id)  # type: ignore
         )
         return {
             "trace_id": r.trace_id,

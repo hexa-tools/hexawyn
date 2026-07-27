@@ -63,8 +63,8 @@ class TestTraceLogResult:
             logs=logs,
         )
         assert result.trace_id == "abc-def-123"
-        assert result.error_span_count == 2
-        assert result.correlated_log_count == 2
+        assert result.error_span_count == 2  # noqa: PLR2004
+        assert result.correlated_log_count == 2  # noqa: PLR2004
 
     def test_spans_but_no_logs(self) -> None:
         spans = [

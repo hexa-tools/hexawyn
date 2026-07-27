@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from hexawyn.application.use_case.chat_cli.chat_cli_response import ChatCliResponse
+from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_response import ChatCliResponse
 
 
 class TestResponseRenderer:
@@ -25,7 +25,7 @@ class TestResponseRenderer:
             summary="3 pods found",
         )
         render_result(mock_log, result)
-        assert mock_log.write.call_count >= 2
+        assert mock_log.write.call_count >= 2  # noqa: PLR2004
 
     def test_render_result_non_pods_delegates_to_lines(self) -> None:
         from hexawyn.cli.presentation.response_renderer import render_result

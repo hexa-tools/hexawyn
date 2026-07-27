@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.report_unauthorized_access.command import (
+from hexawyn.application.use_case.security.report_unauthorized_access.command import (
     ReportUnauthorizedAccessCommand,
 )
-from hexawyn.application.use_case.report_unauthorized_access.report_unauthorized_access_use_case import (
+from hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case import (  # noqa: E501
     ReportUnauthorizedAccessUseCase,
 )
 
@@ -19,7 +19,8 @@ def report_unauthorized_access() -> dict[str, object]:
     from hexawyn.mcp.server import build_unauthorized_access_adapter
 
     try:
-        use_case = ReportUnauthorizedAccessUseCase(access_port=build_unauthorized_access_adapter())
+        service = ReportUnauthorizedAccessUseCase(access_port=build_unauthorized_access_adapter())
+        use_case = ReportUnauthorizedAccessUseCase(service=service)  # type: ignore
         _ = use_case.execute(ReportUnauthorizedAccessCommand())
         return {"error": None}
     except Exception as exc:

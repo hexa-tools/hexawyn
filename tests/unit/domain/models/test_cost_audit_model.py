@@ -25,13 +25,13 @@ class TestCostAudit:
             details={"cluster": "prod-eu"},
         )
         assert entry.namespace == "payments"
-        assert entry.pod_count == 12
-        assert entry.total_cost == 342.50
-        assert entry.total_waste == 85.63
-        assert entry.waste_percent == 25.0
-        assert entry.savings_right_sizing == 50.00
-        assert entry.savings_spot == 35.63
-        assert entry.savings_total == 85.63
+        assert entry.pod_count == 12  # noqa: PLR2004
+        assert entry.total_cost == 342.50  # noqa: PLR2004
+        assert entry.total_waste == 85.63  # noqa: PLR2004
+        assert entry.waste_percent == 25.0  # noqa: PLR2004
+        assert entry.savings_right_sizing == 50.00  # noqa: PLR2004
+        assert entry.savings_spot == 35.63  # noqa: PLR2004
+        assert entry.savings_total == 85.63  # noqa: PLR2004
         assert entry.details == {"cluster": "prod-eu"}
 
     def test_is_dataclass(self) -> None:
@@ -40,11 +40,11 @@ class TestCostAudit:
 
     def test_effective_cost_excludes_waste(self) -> None:
         entry = CostAudit(namespace="web", total_cost=200.0, total_waste=50.0)
-        assert entry.effective_cost == 150.0
+        assert entry.effective_cost == 150.0  # noqa: PLR2004
 
     def test_savings_percent_returns_ratio(self) -> None:
         entry = CostAudit(namespace="ml", total_cost=500.0, savings_total=75.0)
-        assert entry.savings_percent == 15.0
+        assert entry.savings_percent == 15.0  # noqa: PLR2004
 
     def test_savings_percent_returns_zero_when_no_cost(self) -> None:
         entry = CostAudit(namespace="empty", total_cost=0.0, savings_total=50.0)
@@ -76,9 +76,9 @@ class TestCostAudit:
         }
         entry = CostAudit.from_dict(data)
         assert entry.namespace == "infra"
-        assert entry.pod_count == 5
-        assert entry.total_cost == 120.75
-        assert entry.savings_total == 30.00
+        assert entry.pod_count == 5  # noqa: PLR2004
+        assert entry.total_cost == 120.75  # noqa: PLR2004
+        assert entry.savings_total == 30.00  # noqa: PLR2004
         assert entry.details == {"region": "eu-west"}
         assert entry.is_waste_high is True
 
@@ -88,3 +88,25 @@ class TestCostAudit:
         assert entry.pod_count == 0
         assert entry.total_cost == 0.0
         assert entry.waste_percent == 0.0
+
+
+class TestCostAuditHelpers:
+    def test_get_int_from_string(self) -> None:
+        from hexawyn.domain.models.cost_audit import _get_int
+
+        assert _get_int({"count": "42"}, "count", 0) == 42  # noqa: PLR2004
+
+    def test_get_int_default_on_invalid(self) -> None:
+        from hexawyn.domain.models.cost_audit import _get_int
+
+        assert _get_int({}, "missing", 99) == 99  # noqa: PLR2004
+
+    def test_get_float_from_string(self) -> None:
+        from hexawyn.domain.models.cost_audit import _get_float
+
+        assert _get_float({"cost": "3.14"}, "cost", 0.0) == 3.14  # noqa: PLR2004
+
+    def test_extract_details_non_dict_returns_empty(self) -> None:
+        from hexawyn.domain.models.cost_audit import _extract_details
+
+        assert _extract_details("not a dict") == {}

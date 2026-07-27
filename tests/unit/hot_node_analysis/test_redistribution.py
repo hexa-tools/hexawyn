@@ -35,7 +35,7 @@ class TestFindRedistributionTarget:
 
         assert result.feasible is True
         assert result.target_node == "worker-3"
-        assert result.moved_pod_count == 2
+        assert result.moved_pod_count == 2  # noqa: PLR2004
 
     def test_tc3_no_candidates_is_infeasible(self) -> None:
         """TC3: all nodes above 80% → no candidate targets remain → infeasible."""
@@ -66,7 +66,7 @@ class TestFindRedistributionTarget:
         result = find_redistribution_target(top_consumers, candidates)
 
         assert result.target_node == "worker-high-headroom"
-        assert result.moved_pod_count == 2
+        assert result.moved_pod_count == 2  # noqa: PLR2004
 
     def test_no_top_consumers_is_infeasible(self) -> None:
         result = find_redistribution_target([], [_node("worker-3", allocatable_cpu=10.0)])

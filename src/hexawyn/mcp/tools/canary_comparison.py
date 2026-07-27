@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.canary_comparison.canary_comparison_use_case import (
+from hexawyn.application.use_case.pipelines.canary_comparison.canary_comparison_use_case import (
     CanaryComparisonUseCase,
 )
-from hexawyn.application.use_case.canary_comparison.command import CanaryComparisonCommand
+from hexawyn.application.use_case.pipelines.canary_comparison.command import CanaryComparisonCommand
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -20,7 +20,7 @@ def canary_comparison(
 
     try:
         a = build_canary_comparison_adapter()
-        uc = CanaryComparisonUseCase(canary_comparison_port=a)
+        uc = CanaryComparisonUseCase(canary_comparison_port=a)  # type: ignore
         r = uc.execute(
             CanaryComparisonCommand(
                 service_name=service_name,

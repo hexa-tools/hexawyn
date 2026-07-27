@@ -11,8 +11,8 @@ from hexawyn.domain.models.p99_latency import (
 class TestLatencyPercentiles:
     def test_create(self) -> None:
         lp = LatencyPercentiles(p50_ms=85.0, p95_ms=210.0, p99_ms=480.0, sample_count=14200)
-        assert lp.p99_ms == 480.0
-        assert lp.sample_count == 14200
+        assert lp.p99_ms == 480.0  # noqa: PLR2004
+        assert lp.sample_count == 14200  # noqa: PLR2004
 
 
 class TestSLOStatus:
@@ -32,7 +32,7 @@ class TestP99Result:
             percentiles=lp,
         )
         assert result.slo_status == SLOStatus.PASS
-        assert result.p99_ms == 320.0
+        assert result.p99_ms == 320.0  # noqa: PLR2004
 
     def test_slo_fail(self) -> None:
         lp = LatencyPercentiles(p50_ms=350.0, p95_ms=600.0, p99_ms=820.0, sample_count=10000)
@@ -43,7 +43,7 @@ class TestP99Result:
             percentiles=lp,
         )
         assert result.slo_status == SLOStatus.FAIL
-        assert result.slo_delta_ms == 320.0
+        assert result.slo_delta_ms == 320.0  # noqa: PLR2004
 
     def test_no_data(self) -> None:
         lp = LatencyPercentiles(p50_ms=0.0, p95_ms=0.0, p99_ms=0.0, sample_count=0)

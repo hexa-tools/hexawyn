@@ -55,14 +55,14 @@ class TestManualChangeOutsideGitOpsRequest:
         request = ManualChangeOutsideGitOpsRequest(namespace="production")
 
         assert request.namespace == "production"
-        assert request.window_days == 7
+        assert request.window_days == 7  # noqa: PLR2004
 
     def test_accepts_custom_window_days(self) -> None:
         from hexawyn.domain.models.manual_change import ManualChangeOutsideGitOpsRequest
 
         request = ManualChangeOutsideGitOpsRequest(namespace="production", window_days=3)
 
-        assert request.window_days == 3
+        assert request.window_days == 3  # noqa: PLR2004
 
 
 class TestManualChangeOutsideGitOpsReport:

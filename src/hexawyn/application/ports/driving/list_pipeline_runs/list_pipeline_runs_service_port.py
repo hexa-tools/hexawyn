@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.use_case.list_pipeline_runs.command import (
+from hexawyn.application.use_case.pipelines.list_pipeline_runs.command import (  # noqa: E501
     ListPipelineRunsCommand,
 )
-from hexawyn.application.use_case.list_pipeline_runs.response import (
+from hexawyn.application.use_case.pipelines.list_pipeline_runs.response import (  # noqa: E501
     ListPipelineRunsResponse,
 )
 

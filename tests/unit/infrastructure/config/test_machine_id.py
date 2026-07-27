@@ -60,7 +60,7 @@ class TestMacosPlatformUuid:
 class TestHardwareFingerprint:
     def test_returns_24_char_hex_string(self) -> None:
         fp = _hardware_fingerprint()
-        assert len(fp) == 24
+        assert len(fp) == 24  # noqa: PLR2004
 
     def test_same_machine_same_fingerprint(self) -> None:
         fp1 = _hardware_fingerprint()
@@ -75,7 +75,7 @@ class TestHardwareFingerprint:
                 return_value="win-guid-123",
             ):
                 fp = _hardware_fingerprint()
-                assert len(fp) == 24
+                assert len(fp) == 24  # noqa: PLR2004
 
 
 class TestReadStored:
@@ -129,7 +129,7 @@ class TestGetMachineId:
             fake_path = Path(tmp) / ".machine_id"
             with patch.object(machine_id_mod, "MACHINE_ID_PATH", fake_path):
                 fp = get_machine_id()
-                assert len(fp) == 24
+                assert len(fp) == 24  # noqa: PLR2004
                 assert fake_path.exists()
 
     def test_returns_stored_on_second_call(self) -> None:
@@ -154,4 +154,4 @@ class TestGetMachineIdShort:
             fake_path.write_text("a" * 24)
             with patch.object(machine_id_mod, "MACHINE_ID_PATH", fake_path):
                 sid = get_machine_id_short()
-                assert len(sid) == 12
+                assert len(sid) == 12  # noqa: PLR2004

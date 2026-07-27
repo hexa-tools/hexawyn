@@ -11,7 +11,7 @@ from hexawyn.domain.services.event_analysis.classifier import (
 )
 
 
-def _make_event(
+def _make_event(  # noqa: PLR0913
     event_type: str = "Warning",
     reason: str = "OOMKilled",
     message: str = "Memory cgroup out of memory",
@@ -50,20 +50,20 @@ class TestEventOverview:
     def test_total_events_count(self) -> None:
         overview = self.analyzer.get_overview()
         assert isinstance(overview, EventOverview)
-        assert overview.total_events == 5
+        assert overview.total_events == 5  # noqa: PLR2004
 
     def test_critical_count(self) -> None:
         overview = self.analyzer.get_overview()
-        assert overview.critical_count == 2
+        assert overview.critical_count == 2  # noqa: PLR2004
 
     def test_severity_distribution(self) -> None:
         overview = self.analyzer.get_overview()
-        assert overview.severity_distribution["critical"] == 2
+        assert overview.severity_distribution["critical"] == 2  # noqa: PLR2004
         assert overview.severity_distribution["high"] == 1
 
     def test_top_events_limited(self) -> None:
         overview = self.analyzer.get_overview(max_items=2)
-        assert len(overview.top_events) == 2
+        assert len(overview.top_events) == 2  # noqa: PLR2004
 
     def test_top_events_sorted_by_severity(self) -> None:
         overview = self.analyzer.get_overview()
@@ -130,7 +130,7 @@ class TestDetailedAnalysis:
 
     def test_filter_by_namespace(self) -> None:
         result = self.analyzer.get_detailed_analysis(event_filters={"namespace": "prod"})
-        assert len(result.events) == 3
+        assert len(result.events) == 3  # noqa: PLR2004
 
     def test_temporal_patterns(self) -> None:
         result = self.analyzer.get_detailed_analysis()

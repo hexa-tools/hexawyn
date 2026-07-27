@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.configuration_drift_detection.command import (
+from hexawyn.application.use_case.security.configuration_drift_detection.command import (
     ConfigurationDriftDetectionCommand,
 )
-from hexawyn.application.use_case.configuration_drift_detection.configuration_drift_detection_use_case import (
+from hexawyn.application.use_case.security.configuration_drift_detection.configuration_drift_detection_use_case import (  # noqa: E501
     ConfigurationDriftDetectionUseCase,
 )
 
@@ -27,12 +27,13 @@ def configuration_drift_detection(
     )
 
     try:
-        use_case = ConfigurationDriftDetectionUseCase(
+        service = ConfigurationDriftDetectionUseCase(
             live_resource_port=build_live_resource_adapter(),
-            helm_drift_port=build_helm_drift_adapter(),
-            kustomize_drift_port=build_kustomize_drift_adapter(),
+            helm_adapter=build_helm_drift_adapter(),
+            kustomize_adapter=build_kustomize_drift_adapter(),
         )
-        r = use_case.execute(
+        use_case = ConfigurationDriftDetectionUseCase(service=service)  # type: ignore
+        r = use_case.execute(  # type: ignore
             ConfigurationDriftDetectionCommand(
                 namespace=namespace, kustomize_paths=kustomize_paths or []
             )

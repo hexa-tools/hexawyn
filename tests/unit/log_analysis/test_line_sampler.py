@@ -22,4 +22,4 @@ class TestShouldKeepLine:
     def test_high_volume_bounds_kept_count(self) -> None:
         """Edge case: 10000 lines/second -> sampling bounds what's retained."""
         kept = sum(should_keep_line(i, sample_rate=100) for i in range(50000))
-        assert kept == 500
+        assert kept == 500  # noqa: PLR2004

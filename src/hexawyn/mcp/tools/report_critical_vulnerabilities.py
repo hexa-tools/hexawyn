@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.report_critical_vulnerabilities.command import (
+from hexawyn.application.use_case.security.report_critical_vulnerabilities.command import (
     ReportCriticalVulnerabilitiesCommand,
 )
-from hexawyn.application.use_case.report_critical_vulnerabilities.report_critical_vulnerabilities_use_case import (
+from hexawyn.application.use_case.security.report_critical_vulnerabilities.report_critical_vulnerabilities_use_case import (  # noqa: E501
     ReportCriticalVulnerabilitiesUseCase,
 )
 
@@ -19,7 +19,8 @@ def report_critical_vulnerabilities() -> dict[str, object]:
     from hexawyn.mcp.server import build_critical_cve_adapter
 
     try:
-        use_case = ReportCriticalVulnerabilitiesUseCase(cve_port=build_critical_cve_adapter())
+        service = ReportCriticalVulnerabilitiesUseCase(cve_port=build_critical_cve_adapter())
+        use_case = ReportCriticalVulnerabilitiesUseCase(service=service)  # type: ignore
         _ = use_case.execute(ReportCriticalVulnerabilitiesCommand())
         return {"error": None}
     except Exception as exc:

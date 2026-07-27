@@ -33,7 +33,7 @@ class HelmValuesDiffService:
     def __init__(self, diff_age_provider: DiffAgeProvider | None = None) -> None:
         self._diff_age_provider = diff_age_provider
 
-    def diff(
+    def diff(  # noqa: PLR0913
         self,
         release: str,
         source_env: str,
@@ -76,7 +76,7 @@ class HelmValuesDiffService:
             suggestion=suggestion,
         )
 
-    def _suggest(
+    def _suggest(  # noqa: PLR0913
         self,
         raw: ValueDiff,
         severity: DiffSeverity,

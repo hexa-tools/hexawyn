@@ -41,7 +41,7 @@ class TestYamlScheduleSource:
             source = YamlScheduleSource()
             result = source.load_checks()
 
-        assert len(result) == 2
+        assert len(result) == 2  # noqa: PLR2004
         assert result[0].name == "certs"
         assert result[0].use_case == "certs_list"
         assert result[1].enabled is False

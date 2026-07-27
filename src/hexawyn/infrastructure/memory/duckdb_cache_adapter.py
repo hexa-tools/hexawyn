@@ -91,7 +91,7 @@ class DuckDBCacheAdapter(CachePort):
 
         if current_restart_count > cached.pod_restart_count_at_cache:
             self.invalidate(cache_key)
-            reason = f"RESTART_COUNT_CHANGED: {cached.pod_restart_count_at_cache} → {current_restart_count}"
+            reason = f"RESTART_COUNT_CHANGED: {cached.pod_restart_count_at_cache} → {current_restart_count}"  # noqa: E501
             return None, CacheValidationResult(is_valid=False, reason=reason)
 
         if cached.is_expired:
@@ -106,7 +106,7 @@ class DuckDBCacheAdapter(CachePort):
 
         try:
             self._conn.execute(
-                "INSERT INTO cache_investigations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+                "INSERT INTO cache_investigations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "  # noqa: E501
                 "ON CONFLICT (id) DO UPDATE SET "
                 "cache_key=excluded.cache_key, "
                 "finding_type=excluded.finding_type, "
@@ -161,11 +161,11 @@ class DuckDBCacheAdapter(CachePort):
     def invalidate_by_resource(self, cluster: str, namespace: str, resource: str) -> int:
         try:
             before = self._count(
-                "SELECT COUNT(*) FROM cache_investigations WHERE cluster_name = ? AND namespace = ? AND resource_name = ?",
+                "SELECT COUNT(*) FROM cache_investigations WHERE cluster_name = ? AND namespace = ? AND resource_name = ?",  # noqa: E501
                 [cluster, namespace, resource],
             )
             self._conn.execute(
-                "DELETE FROM cache_investigations WHERE cluster_name = ? AND namespace = ? AND resource_name = ?",
+                "DELETE FROM cache_investigations WHERE cluster_name = ? AND namespace = ? AND resource_name = ?",  # noqa: E501
                 [cluster, namespace, resource],
             )
             return before

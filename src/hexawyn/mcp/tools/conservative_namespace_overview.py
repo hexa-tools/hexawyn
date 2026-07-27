@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.conservative_namespace_overview.command import (
+from hexawyn.application.use_case.troubleshooting.conservative_namespace_overview.command import (
     ConservativeNamespaceOverviewCommand,
 )
-from hexawyn.application.use_case.conservative_namespace_overview.conservative_namespace_overview_use_case import (
+from hexawyn.application.use_case.troubleshooting.conservative_namespace_overview.conservative_namespace_overview_use_case import (  # noqa: E501
     ConservativeNamespaceOverviewUseCase,
 )
 
@@ -22,7 +22,7 @@ def conservative_namespace_overview(namespace: str, max_tokens: int = 2000) -> d
         use_case = ConservativeNamespaceOverviewUseCase(
             port=build_namespace_overview_adapter(), k8s_port=build_k8s_adapter()
         )
-        r = use_case.execute(
+        r = use_case.execute(  # type: ignore
             ConservativeNamespaceOverviewCommand(namespace=namespace, max_tokens=max_tokens)
         )
         return {

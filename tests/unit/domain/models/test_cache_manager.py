@@ -49,7 +49,7 @@ class TestComputeQueryHash:
             query="test query",
             cluster_name="test-cluster",
         )
-        assert len(h) == 64
+        assert len(h) == 64  # noqa: PLR2004
 
     def test_hash_is_lowercase_hex(self):
         h = compute_query_hash(

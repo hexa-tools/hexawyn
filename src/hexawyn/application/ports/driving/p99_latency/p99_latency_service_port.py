@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.use_case.p99_latency.command import P99LatencyCommand
-from hexawyn.application.use_case.p99_latency.response import P99LatencyResponse
+from hexawyn.application.use_case.observability.p99_latency.command import P99LatencyCommand
+from hexawyn.application.use_case.observability.p99_latency.response import P99LatencyResponse
 
 
 class P99LatencyServicePort(ABC):

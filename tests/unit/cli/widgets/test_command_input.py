@@ -52,7 +52,7 @@ class TestRemember:
         widget.remember("cmd1")
         widget.remember("cmd2")
         widget.remember("cmd3")
-        assert widget._history_pos == 3
+        assert widget._history_pos == 3  # noqa: PLR2004
 
 
 class TestOnKey:
@@ -128,7 +128,7 @@ class TestOnKey:
 
         await widget._on_key(Key(key="down", character="down"))
 
-        assert widget._history_pos == 2
+        assert widget._history_pos == 2  # noqa: PLR2004
 
     @pytest.mark.asyncio
     async def test_up_does_nothing_without_history(self) -> None:

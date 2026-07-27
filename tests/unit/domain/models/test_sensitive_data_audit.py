@@ -50,7 +50,7 @@ class TestSensitiveAuditResult:
             ),
             matches=matches,
         )
-        assert result.total_matches == 2
+        assert result.total_matches == 2  # noqa: PLR2004
         assert len(result.flagged) == 1
         assert result.flagged[0].caller_ip == "203.0.113.5"
         assert result.alert_level == AlertLevel.MEDIUM
@@ -98,4 +98,4 @@ class TestSensitiveAuditResult:
             matches=matches,
         )
         assert result.alert_level == AlertLevel.HIGH
-        assert len(result.flagged) == 7
+        assert len(result.flagged) == 7  # noqa: PLR2004

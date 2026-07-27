@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.version_regression.command import VersionRegressionCommand
-from hexawyn.application.use_case.version_regression.version_regression_use_case import (
+from hexawyn.application.use_case.pipelines.version_regression.command import (
+    VersionRegressionCommand,
+)
+from hexawyn.application.use_case.pipelines.version_regression.version_regression_use_case import (
     VersionRegressionUseCase,
 )
 

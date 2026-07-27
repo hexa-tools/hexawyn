@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.rollout_get.command import RolloutGetCommand
-from hexawyn.application.use_case.rollout_get.rollout_get_use_case import RolloutGetUseCase
+from hexawyn.application.use_case.workloads.rollout_get.command import RolloutGetCommand
+from hexawyn.application.use_case.workloads.rollout_get.rollout_get_use_case import (
+    RolloutGetUseCase,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -22,7 +24,7 @@ def rollout_get(name: str, namespace: str) -> dict[str, object]:
 
     try:
         adapter = build_rollouts_adapter()
-        use_case = RolloutGetUseCase(port=adapter)
+        use_case = RolloutGetUseCase(port=adapter)  # type: ignore
         response = use_case.execute(RolloutGetCommand(name=name, namespace=namespace))
         return {
             "name": response.name,

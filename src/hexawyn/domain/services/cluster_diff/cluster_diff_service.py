@@ -117,7 +117,7 @@ def _version_mismatches(
                     priority="informational",
                     staging_value=str(replicas_staging),
                     prod_value=str(replicas_prod),
-                    detail=f"Replica count differs: staging={replicas_staging}, prod={replicas_prod}",
+                    detail=f"Replica count differs: staging={replicas_staging}, prod={replicas_prod}",  # noqa: E501
                 )
             )
     return diffs

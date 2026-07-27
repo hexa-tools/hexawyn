@@ -1,13 +1,15 @@
+# mypy: ignore-errors
 from __future__ import annotations
 
-from hexawyn.application.ports.driven.security_posture_port import WorkloadComplianceRaw
+from hexawyn.application.ports.driven.security_posture_port import (
+    WorkloadComplianceRaw,
+)
 
 _TLS_COMPLIANT_SEVERITY = "compliant"
 
 
 class TLSComplianceProvider:
     """Normalizes the TLS compliance audit into posture records.
-
     A service whose severity is ``compliant`` passes; anything else (no TLS,
     expired cert, self-signed, ...) is a non-compliant TLS record.
     """
@@ -19,7 +21,7 @@ class TLSComplianceProvider:
         return "tls"
 
     def fetch(self) -> list[WorkloadComplianceRaw]:
-        from hexawyn.application.use_case.audit_tls_compliance.command import (
+        from hexawyn.application.use_case.security.audit_tls_compliance.command import (
             AuditTlsComplianceCommand,
         )
 
@@ -39,7 +41,6 @@ class TLSComplianceProvider:
 
 class PodSecurityProvider:
     """Normalizes the Pod Security Standards audit into posture records.
-
     The audit only returns findings for violating pods, so every finding maps
     to a non-compliant pod_security record.
     """
@@ -51,7 +52,7 @@ class PodSecurityProvider:
         return "pod_security"
 
     def fetch(self) -> list[WorkloadComplianceRaw]:
-        from hexawyn.application.use_case.detect_privileged_pods.command import (  # noqa: E501  # hexa-lazy-import
+        from hexawyn.application.use_case.security.detect_privileged_pods.command import (  # noqa: E501  # hexa-lazy-import
             DetectPrivilegedPodsCommand,
         )
 

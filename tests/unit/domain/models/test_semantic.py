@@ -19,9 +19,9 @@ class TestSemanticCheckResult:
             verdict=CheckerVerdict.PASS, score=0.95, reason="All checks passed"
         )
         assert result.verdict == "PASS"
-        assert result.score == 0.95
+        assert result.score == 0.95  # noqa: PLR2004
         assert result.retry_count == 0
-        assert result.max_retries == 3
+        assert result.max_retries == 3  # noqa: PLR2004
 
     def test_fail_verdict(self):
         result = SemanticCheckResult(
@@ -31,7 +31,7 @@ class TestSemanticCheckResult:
             retry_count=2,
         )
         assert result.verdict == "FAIL"
-        assert result.retry_count == 2
+        assert result.retry_count == 2  # noqa: PLR2004
 
     def test_blocked_verdict(self):
         result = SemanticCheckResult(

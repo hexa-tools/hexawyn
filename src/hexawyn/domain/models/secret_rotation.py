@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 RiskLevel = Literal["critical", "medium", "low"]
+ExcludedSecretKey = tuple[str, str]
 
 
 @dataclass(frozen=True)

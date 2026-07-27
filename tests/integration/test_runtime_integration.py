@@ -5,7 +5,7 @@ Requires the Control Plane to be running (default: http://localhost:8000).
 
 Run:
   CONTROL_PLANE_URL=http://localhost:8000 poetry run pytest tests/integration/test_runtime_integration.py -v -m integration
-"""
+"""  # noqa: E501
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ def _is_control_plane_available() -> bool:
 
     try:
         response = httpx.get(f"{CONTROL_PLANE_URL}/health", timeout=2.0)
-        return response.status_code == 200
+        return response.status_code == 200  # noqa: PLR2004
     except Exception:
         return False
 
@@ -69,7 +69,7 @@ class TestRuntimeIntegration:
         import httpx
 
         response = httpx.get(f"{CONTROL_PLANE_URL}/health", timeout=5.0)
-        assert response.status_code == 200
+        assert response.status_code == 200  # noqa: PLR2004
         data = response.json()
         assert data["status"] == "ok"
         assert data["service"] == "hexawyn-control-plane"

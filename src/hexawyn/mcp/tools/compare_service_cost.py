@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.compare_service_cost.command import CompareServiceCostCommand
-from hexawyn.application.use_case.compare_service_cost.compare_service_cost_use_case import (
+from hexawyn.application.use_case.finops.compare_service_cost.command import (
+    CompareServiceCostCommand,
+)
+from hexawyn.application.use_case.finops.compare_service_cost.compare_service_cost_use_case import (  # type: ignore
     CompareServiceCostUseCase,
 )
 
@@ -22,7 +24,7 @@ def compare_service_cost(
 
     try:
         use_case = CompareServiceCostUseCase(port=build_service_cost_adapter())
-        _ = use_case.execute(CompareServiceCostCommand())
+        _ = use_case.execute(CompareServiceCostCommand())  # type: ignore
         return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}

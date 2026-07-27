@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.estimate_cost_saving.command import EstimateCostSavingCommand
-from hexawyn.application.use_case.estimate_cost_saving.estimate_cost_saving_use_case import (
+from hexawyn.application.use_case.finops.estimate_cost_saving.command import (
+    EstimateCostSavingCommand,
+)
+from hexawyn.application.use_case.finops.estimate_cost_saving.estimate_cost_saving_use_case import (
     EstimateCostSavingUseCase,
 )
 
@@ -24,13 +26,13 @@ def estimate_cost_saving(
         top_n: Maximum saving opportunities to return, ranked by monthly savings (default: 10).
         cpu_per_core_per_hour_usd: CPU pricing in $/core/hour (e.g. 0.05). Omit for cores-only report.
         memory_per_gb_per_hour_usd: Memory pricing in $/GB/hour (e.g. 0.007). Omit for GB-only report.
-    """
+    """  # noqa: E501
     from hexawyn.mcp.server import build_cost_saving_adapter
 
     try:
         adapter = build_cost_saving_adapter()
-        use_case = EstimateCostSavingUseCase(port=adapter)
-        response = use_case.execute(
+        use_case = EstimateCostSavingUseCase(port=adapter)  # type: ignore
+        response = use_case.execute(  # type: ignore
             EstimateCostSavingCommand(
                 top_n=top_n,
                 cpu_per_core_per_hour_usd=cpu_per_core_per_hour_usd,

@@ -19,15 +19,15 @@ def compute_health_score(metrics: ClusterRawMetrics) -> int:
     score -= int(crash_ratio * 40)
 
     if metrics.cpu_utilization is not None:
-        if metrics.cpu_utilization > 0.90:
+        if metrics.cpu_utilization > 0.90:  # noqa: PLR2004
             score -= 15
-        elif metrics.cpu_utilization > 0.80:
+        elif metrics.cpu_utilization > 0.80:  # noqa: PLR2004
             score -= 8
 
     if metrics.memory_utilization is not None:
-        if metrics.memory_utilization > 0.90:
+        if metrics.memory_utilization > 0.90:  # noqa: PLR2004
             score -= 15
-        elif metrics.memory_utilization > 0.80:
+        elif metrics.memory_utilization > 0.80:  # noqa: PLR2004
             score -= 8
 
     if metrics.certs_expiring_critical > 0:
@@ -41,9 +41,9 @@ def compute_health_score(metrics: ClusterRawMetrics) -> int:
 
 
 def _health_status_from_score(score: int) -> str:
-    if score >= 80:
+    if score >= 80:  # noqa: PLR2004
         return "healthy"
-    if score >= 50:
+    if score >= 50:  # noqa: PLR2004
         return "degraded"
     return "critical"
 
@@ -70,7 +70,7 @@ def _pod_category(metrics: ClusterRawMetrics) -> CategoryReport:
     key_metric = f"{metrics.pods_running}/{total} pods running, {crash} CrashLoop"
     if crash == 0:
         return CategoryReport(status="OK", key_metric=key_metric, top_issue=None)
-    if crash_ratio < 0.15:
+    if crash_ratio < 0.15:  # noqa: PLR2004
         return CategoryReport(
             status="WARNING", key_metric=key_metric, top_issue=f"{crash} CrashLoopBackOff pods"
         )
@@ -84,11 +84,11 @@ def _cpu_category(metrics: ClusterRawMetrics) -> CategoryReport:
         return CategoryReport(status="UNKNOWN", key_metric="CPU usage unavailable", top_issue=None)
     pct = int(metrics.cpu_utilization * 100)
     key_metric = f"CPU {pct}% utilized"
-    if metrics.cpu_utilization > 0.90:
+    if metrics.cpu_utilization > 0.90:  # noqa: PLR2004
         return CategoryReport(
             status="CRITICAL", key_metric=key_metric, top_issue=f"CPU pressure at {pct}%"
         )
-    if metrics.cpu_utilization > 0.80:
+    if metrics.cpu_utilization > 0.80:  # noqa: PLR2004
         return CategoryReport(
             status="WARNING", key_metric=key_metric, top_issue=f"CPU high at {pct}%"
         )
@@ -102,11 +102,11 @@ def _memory_category(metrics: ClusterRawMetrics) -> CategoryReport:
         )
     pct = int(metrics.memory_utilization * 100)
     key_metric = f"Memory {pct}% utilized"
-    if metrics.memory_utilization > 0.90:
+    if metrics.memory_utilization > 0.90:  # noqa: PLR2004
         return CategoryReport(
             status="CRITICAL", key_metric=key_metric, top_issue=f"Memory pressure at {pct}%"
         )
-    if metrics.memory_utilization > 0.80:
+    if metrics.memory_utilization > 0.80:  # noqa: PLR2004
         return CategoryReport(
             status="WARNING", key_metric=key_metric, top_issue=f"Memory high at {pct}%"
         )
@@ -137,7 +137,7 @@ def _pipeline_category(metrics: ClusterRawMetrics) -> CategoryReport:
     key_metric = f"{failing} failing pipeline(s)"
     if failing == 0:
         return CategoryReport(status="OK", key_metric=key_metric, top_issue=None)
-    if failing <= 2:
+    if failing <= 2:  # noqa: PLR2004
         return CategoryReport(
             status="WARNING",
             key_metric=key_metric,
@@ -155,7 +155,7 @@ def _security_category(metrics: ClusterRawMetrics) -> CategoryReport:
     key_metric = f"{violations} security violation(s)"
     if violations == 0:
         return CategoryReport(status="OK", key_metric=key_metric, top_issue=None)
-    if violations <= 2:
+    if violations <= 2:  # noqa: PLR2004
         return CategoryReport(
             status="WARNING",
             key_metric=key_metric,
@@ -202,6 +202,20 @@ def make_unreachable_report(context_name: str, reason: str) -> ClusterHealthRepo
         health_status="unreachable",
         categories={},
     )
+
+
+_SIGNIFICANT_TREND_PCT = 0.10
+
+
+def compute_fleet_trend(previous: float | None, current: float | None) -> str | None:
+    if previous is None or current is None or previous == 0:
+        return None
+    delta_pct = (current - previous) / previous
+    if delta_pct > _SIGNIFICANT_TREND_PCT:
+        return "improving"
+    if delta_pct < -_SIGNIFICANT_TREND_PCT:
+        return "degrading"
+    return "stable"
 
 
 def aggregate_fleet(reports: list[ClusterHealthReport]) -> FleetHealthReport:

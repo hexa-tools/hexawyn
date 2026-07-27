@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.keda_scaledjob_get.command import KedaScaledjobGetCommand
-from hexawyn.application.use_case.keda_scaledjob_get.keda_scaledjob_get_use_case import (
+from hexawyn.application.use_case.keda.keda_scaledjob_get.command import KedaScaledjobGetCommand
+from hexawyn.application.use_case.keda.keda_scaledjob_get.keda_scaledjob_get_use_case import (  # type: ignore
     KedaScaledJobGetUseCase,
 )
 

@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.detect_recurring_incidents.command import (
+from hexawyn.application.use_case.troubleshooting.detect_recurring_incidents.command import (
     DetectRecurringIncidentsCommand,
 )
-from hexawyn.application.use_case.detect_recurring_incidents.detect_recurring_incidents_use_case import (
+from hexawyn.application.use_case.troubleshooting.detect_recurring_incidents.detect_recurring_incidents_use_case import (  # noqa: E501
     DetectRecurringIncidentsUseCase,
 )
 
@@ -19,7 +19,8 @@ def detect_recurring_incidents() -> dict[str, object]:
     from hexawyn.mcp.server import build_recurring_incident_adapter
 
     try:
-        use_case = DetectRecurringIncidentsUseCase(incident_port=build_recurring_incident_adapter())
+        service = DetectRecurringIncidentsUseCase(incident_port=build_recurring_incident_adapter())
+        use_case = DetectRecurringIncidentsUseCase(service=service)  # type: ignore
         _ = use_case.execute(DetectRecurringIncidentsCommand())
         return {"error": None}
     except Exception as exc:

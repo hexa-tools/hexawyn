@@ -25,8 +25,8 @@ class StubRuntimeAdapter(RuntimePort):
         conversation_history: list[dict[str, str]] | None = None,
         on_progress: Callable[[str, str], None] | None = None,
     ) -> InvestigationOutput:
-        return InvestigationOutput(
-            answer="Runtime not available — install hexawyn-control-plane for AI-powered investigations.",
+        return InvestigationOutput(  # type: ignore
+            answer="Runtime not available — install hexawyn-control-plane for AI-powered investigations.",  # noqa: E501
             cause="",
             solution="",
             status="unavailable",

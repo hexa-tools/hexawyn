@@ -37,5 +37,5 @@ class TestMonthlyIncidentReport:
             total_downtime_minutes=220,
             incidents_decreasing=True,
         )
-        assert report.total_count == 8
+        assert report.total_count == 8  # noqa: PLR2004
         assert report.incidents_decreasing is True

@@ -1,14 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import TypedDict
 
-
-class WorkloadComplianceRaw(TypedDict):
-    workload: str
-    namespace: str
-    category: str
-    compliant: bool
-    exempt: bool
-    detail: str
+from hexawyn.domain.models.security_posture import WorkloadComplianceRaw
 
 
 class SecurityPosturePort(ABC):

@@ -73,7 +73,7 @@ class TestDeriveKey:
 
         with patch("hexawyn.infrastructure.memory.encryption.KEY_SALT_PATH", salt_file):
             key = derive_key(KUBECONFIG_SAMPLE)
-            assert len(key) == 32
+            assert len(key) == 32  # noqa: PLR2004
 
 
 class TestEncryptDecrypt:

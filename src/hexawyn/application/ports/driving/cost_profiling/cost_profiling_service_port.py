@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.use_case.cost_profiling.command import (
+from hexawyn.application.use_case.finops.cost_profiling.command import (
     CostProfilingCommand,
 )
-from hexawyn.application.use_case.cost_profiling.response import (
+from hexawyn.application.use_case.finops.cost_profiling.response import (
     CostProfilingResponse,
 )
 

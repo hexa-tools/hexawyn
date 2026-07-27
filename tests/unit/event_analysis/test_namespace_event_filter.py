@@ -14,7 +14,7 @@ from hexawyn.domain.services.event_analysis.namespace_event_filter import get_na
 _OBSERVED_AT = datetime(2024, 1, 1, 15, 0, 0, tzinfo=UTC)
 
 
-def _event(
+def _event(  # noqa: PLR0913
     event_type: str,
     reason: str,
     obj: str,
@@ -78,10 +78,10 @@ class TestProgressiveDisclosure:
 
         result = get_namespace_events(request, events, observed_at=_OBSERVED_AT)
 
-        assert result.total_events == 500
-        assert len(result.events) == 20
+        assert result.total_events == 500  # noqa: PLR2004
+        assert len(result.events) == 20  # noqa: PLR2004
         assert result.has_more is True
-        assert result.remaining_count == 480
+        assert result.remaining_count == 480  # noqa: PLR2004
 
 
 class TestSeverityThenTimestampSort:

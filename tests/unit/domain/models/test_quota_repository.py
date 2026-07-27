@@ -37,8 +37,8 @@ class TestQuotaRepository:
         )
         quota = self.repo.get_investigation_quota(month="2026-06")
         assert quota.month == "2026-06"
-        assert quota.count == 23
-        assert quota.limit == 200
+        assert quota.count == 23  # noqa: PLR2004
+        assert quota.limit == 200  # noqa: PLR2004
 
     def test_get_slack_quota_returns_default_when_no_row(self) -> None:
         self.mock_conn.execute.return_value.fetchone.return_value = None
@@ -61,8 +61,8 @@ class TestQuotaRepository:
         )
         quota = self.repo.get_slack_quota(month="2026-06")
         assert isinstance(quota, SlackQuota)
-        assert quota.count == 3
-        assert quota.limit == 50
+        assert quota.count == 3  # noqa: PLR2004
+        assert quota.limit == 50  # noqa: PLR2004
 
     def test_increment_investigation_calls_upsert(self) -> None:
         self.repo.increment_investigation(

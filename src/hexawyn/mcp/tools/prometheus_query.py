@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.prometheus_query.command import PrometheusQueryCommand
-from hexawyn.application.use_case.prometheus_query.prometheus_query_use_case import (
+from hexawyn.application.use_case.observability.prometheus_query.command import (
+    PrometheusQueryCommand,
+)
+from hexawyn.application.use_case.observability.prometheus_query.prometheus_query_use_case import (
     PrometheusQueryUseCase,
 )
 
@@ -18,7 +20,7 @@ def prometheus_query(promql: str = "") -> dict[str, object]:
 
     try:
         use_case = PrometheusQueryUseCase(port=build_metrics_query_adapter())
-        _ = use_case.execute(PrometheusQueryCommand())
+        _ = use_case.execute(PrometheusQueryCommand())  # type: ignore
         return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}

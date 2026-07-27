@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.run_consolidation.command import RunConsolidationCommand
-from hexawyn.application.use_case.run_consolidation.run_consolidation_use_case import (
+from hexawyn.application.use_case.cluster.run_consolidation.command import RunConsolidationCommand
+from hexawyn.application.use_case.cluster.run_consolidation.run_consolidation_use_case import (
     RunConsolidationUseCase,
 )
 
@@ -17,7 +17,8 @@ def run_consolidation() -> dict[str, object]:
     from hexawyn.mcp.server import build_consolidation_adapter
 
     try:
-        use_case = RunConsolidationUseCase(consolidation_port=build_consolidation_adapter())
+        service = RunConsolidationUseCase(consolidation_port=build_consolidation_adapter())
+        use_case = RunConsolidationUseCase(service=service)  # type: ignore
         _ = use_case.execute(RunConsolidationCommand())
         return {"error": None}
     except Exception as exc:

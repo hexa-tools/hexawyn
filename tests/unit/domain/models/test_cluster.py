@@ -28,7 +28,7 @@ class TestCloudProvider:
 
     def test_all_seven_values(self) -> None:
         values = {p.value for p in CloudProvider}
-        assert len(values) == 7
+        assert len(values) == 7  # noqa: PLR2004
 
     def test_openshift_membership(self) -> None:
         assert CloudProvider("openshift") == CloudProvider.OPENSHIFT
@@ -80,7 +80,7 @@ class TestClusterContext:
 class TestClusterScore:
     def test_defaults(self) -> None:
         score = ClusterScore(overall=100, health=ClusterHealth.UNKNOWN, cluster_name="test")
-        assert score.overall == 100
+        assert score.overall == 100  # noqa: PLR2004
         assert score.health == ClusterHealth.UNKNOWN
         assert score.breakdown == {}
         assert score.issues == []
@@ -92,7 +92,7 @@ class TestClusterScore:
 
     def test_overall_hundred(self) -> None:
         score = ClusterScore(overall=100, health=ClusterHealth.UNKNOWN, cluster_name="test")
-        assert score.overall == 100
+        assert score.overall == 100  # noqa: PLR2004
 
     def test_breakdown_independent_per_instance(self) -> None:
         a = ClusterScore(
@@ -176,7 +176,7 @@ class TestClusterScoreEdgeCases:
 
     def test_overall_boundary_hundred(self) -> None:
         score = ClusterScore(overall=100, health=ClusterHealth.HEALTHY, cluster_name="test")
-        assert score.overall == 100
+        assert score.overall == 100  # noqa: PLR2004
 
     def test_overall_negative_accepted(self) -> None:
         score = ClusterScore(overall=-1, health=ClusterHealth.UNKNOWN, cluster_name="test")
@@ -191,7 +191,7 @@ class TestClusterScoreEdgeCases:
     def test_timestamp_is_recent(self) -> None:
         score = ClusterScore(overall=50, health=ClusterHealth.UNKNOWN, cluster_name="test")
         age = (datetime.now(UTC) - score.timestamp).total_seconds()
-        assert age < 5
+        assert age < 5  # noqa: PLR2004
 
     def test_equality_different_breakdown(self) -> None:
         now = datetime.now(UTC)

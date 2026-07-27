@@ -13,7 +13,7 @@ from hexawyn.domain.models.headroom_simulation import (
 from hexawyn.domain.services.headroom_simulation.headroom_builder import simulate_headroom
 
 
-def _snapshot(
+def _snapshot(  # noqa: PLR0913
     total_cpu: float = 80.0,
     total_memory: float = 320.0,
     used_cpu: float = 48.0,
@@ -50,7 +50,7 @@ class TestFits:
 
         report = simulate_headroom(request, _snapshot())
 
-        assert report.current_cpu_utilization_percent == 60.0
+        assert report.current_cpu_utilization_percent == 60.0  # noqa: PLR2004
         assert report.post_cpu_utilization_percent == pytest.approx(62.0, abs=0.2)
         assert report.verdict == "fits"
 
@@ -65,7 +65,7 @@ class TestTight:
 
         report = simulate_headroom(request, snapshot)
 
-        assert report.current_cpu_utilization_percent == 85.0
+        assert report.current_cpu_utilization_percent == 85.0  # noqa: PLR2004
         assert report.post_cpu_utilization_percent == pytest.approx(87.0, abs=0.2)
         assert report.verdict == "tight"
 
@@ -83,7 +83,7 @@ class TestNeedsNodes:
 
         report = simulate_headroom(request, snapshot)
 
-        assert report.post_cpu_utilization_percent == 97.5
+        assert report.post_cpu_utilization_percent == 97.5  # noqa: PLR2004
         assert report.verdict == "needs_nodes"
         assert report.recommended_additional_nodes == 1
 

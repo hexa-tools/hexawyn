@@ -28,7 +28,7 @@ class TestPreventedIncident:
         )
 
         assert prevented.incident_ref == "PRED-42"
-        assert prevented.avoided_cost_eur == 60000.0
+        assert prevented.avoided_cost_eur == 60000.0  # noqa: PLR2004
 
 
 class TestPredictionRoiReport:
@@ -62,5 +62,5 @@ class TestPredictionRoiReport:
             config_available=True,
         )
 
-        assert report.total_avoided_cost_eur == 198000.0
-        assert report.roi_eur == 196000.0
+        assert report.total_avoided_cost_eur == 198000.0  # noqa: PLR2004
+        assert report.roi_eur == 196000.0  # noqa: PLR2004

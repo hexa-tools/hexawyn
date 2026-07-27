@@ -45,7 +45,7 @@ class TestTraceEventResult:
             events=events,
             slowest_span=slowest_span,
         )
-        assert len(result.matching_events) == 2
+        assert len(result.matching_events) == 2  # noqa: PLR2004
         assert result.conclusion is not None
 
     def test_no_events(self) -> None:

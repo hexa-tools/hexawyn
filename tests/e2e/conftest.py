@@ -22,11 +22,16 @@ from pathlib import Path
 import pytest
 
 _K3D_CLUSTER_NAME = "hexawyn-e2e"
+_K3D_CONTEXT = f"k3d-{_K3D_CLUSTER_NAME}"
 _KUBECONFIG = os.environ.get("KUBECONFIG", str(Path.home() / ".kube" / "config"))
 
 
 def _kubectl(args: str, namespace: str | None = None) -> str:
+    kubeconfig = os.environ.get("KUBECONFIG", "")
+    kubeconfig_arg = kubeconfig.split(":")[0] if kubeconfig else ""
     cmd = ["kubectl"]
+    if kubeconfig_arg:
+        cmd.append(f"--kubeconfig={kubeconfig_arg}")
     if namespace:
         cmd.extend(["-n", namespace])
     cmd.extend(args.split())
@@ -40,7 +45,15 @@ def _kubectl(args: str, namespace: str | None = None) -> str:
 
 @pytest.fixture(scope="session", autouse=True)
 def k8s_cluster_ready() -> bool:
-    """Ensure a K8s cluster is available and kubeconfig is loaded."""
+    """Ensure the k3d test cluster is available."""
+    try:
+        from kubernetes import config
+
+        config.load_kube_config(context=_K3D_CONTEXT)
+        return True
+    except Exception:
+        pass
+
     try:
         from kubernetes import config
 
@@ -71,7 +84,7 @@ def k8s_cluster_ready() -> bool:
         time.sleep(5)
         from kubernetes import config
 
-        config.load_kube_config()
+        config.load_kube_config(context=_K3D_CONTEXT)
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
@@ -130,6 +143,93 @@ def k8s_client():
         config.load_incluster_config()
 
     return client
+
+
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
+_NAMESPACE = "hexawyn-test"
+
+
+def _wait_for_pod_phase(pod_name: str, namespace: str, phase: str, timeout: int = 60) -> None:
+    from kubernetes import client, config
+
+    config.load_kube_config()
+    v1 = client.CoreV1Api()
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            pod = v1.read_namespaced_pod(name=pod_name, namespace=namespace)
+            if pod.status.phase == phase:
+                return
+        except Exception:
+            pass
+        time.sleep(2)
+    pytest.skip(f"Pod '{pod_name}' did not reach phase '{phase}' in {timeout}s")
+
+
+def _wait_for_pod_reason(pod_name: str, namespace: str, reason: str, timeout: int = 60) -> None:
+    from kubernetes import client, config
+
+    config.load_kube_config()
+    v1 = client.CoreV1Api()
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            pod = v1.read_namespaced_pod(name=pod_name, namespace=namespace)
+            statuses = pod.status.container_statuses or []
+            for cs in statuses:
+                if cs.state.waiting and cs.state.waiting.reason == reason:
+                    return
+        except Exception:
+            pass
+        time.sleep(2)
+    pytest.skip(f"Pod '{pod_name}' did not reach reason '{reason}' in {timeout}s")
+
+
+@pytest.fixture
+def crashloop_pod(k8s_cluster_ready: bool) -> str:
+    _kubectl(f"apply -f {FIXTURES_DIR / 'crashloop_pod.yaml'}", namespace=None)
+    _wait_for_pod_reason(
+        pod_name="crashloop-test",
+        namespace=_NAMESPACE,
+        reason="CrashLoopBackOff",
+        timeout=60,
+    )
+    yield "crashloop-test"
+
+
+@pytest.fixture
+def pending_pod(k8s_cluster_ready: bool) -> str:
+    _kubectl(f"apply -f {FIXTURES_DIR / 'pending_pod.yaml'}", namespace=None)
+    _wait_for_pod_phase(
+        pod_name="pending-test",
+        namespace=_NAMESPACE,
+        phase="Pending",
+        timeout=30,
+    )
+    yield "pending-test"
+
+
+@pytest.fixture
+def healthy_deployment(k8s_cluster_ready: bool) -> str:
+    _kubectl(f"apply -f {FIXTURES_DIR / 'healthy_deployment.yaml'}", namespace=None)
+    subprocess.run(
+        [
+            "kubectl",
+            *(
+                ["--kubeconfig", os.environ.get("KUBECONFIG", "").split(":")[0]]
+                if os.environ.get("KUBECONFIG")
+                else []
+            ),
+            "rollout",
+            "status",
+            "deployment/healthy-app",
+            "-n",
+            _NAMESPACE,
+            "--timeout=60s",
+        ],
+        check=True,
+    )
+    yield "healthy-app"
 
 
 @pytest.fixture

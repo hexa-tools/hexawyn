@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.detect_over_provisioned_namespaces.command import (
+from hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.command import (
     DetectOverProvisionedNamespacesCommand,
 )
-from hexawyn.application.use_case.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case import (
+from hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case import (  # noqa: E501
     DetectOverProvisionedNamespacesUseCase,
 )
 
@@ -29,7 +29,7 @@ def detect_over_provisioned_namespaces(
     try:
         adapter = build_waste_adapter()
         use_case = DetectOverProvisionedNamespacesUseCase(waste_port=adapter)
-        response = use_case.execute(
+        response = use_case.execute(  # type: ignore
             DetectOverProvisionedNamespacesCommand(
                 analysis_window_days=analysis_window_days, top_n=top_n
             )

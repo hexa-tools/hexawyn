@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.deployment_latency.command import DeploymentLatencyCommand
-from hexawyn.application.use_case.deployment_latency.deployment_latency_use_case import (
+from hexawyn.application.use_case.observability.deployment_latency.command import (
+    DeploymentLatencyCommand,
+)
+from hexawyn.application.use_case.observability.deployment_latency.deployment_latency_use_case import (  # noqa: E501
     DeploymentLatencyUseCase,
 )
 

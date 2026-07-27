@@ -29,7 +29,7 @@ class TestTLSComplianceProvider:
 
         records = provider.fetch()
 
-        assert len(records) == 2
+        assert len(records) == 2  # noqa: PLR2004
         web = next(r for r in records if r["workload"] == "web")
         api = next(r for r in records if r["workload"] == "api")
         assert web["compliant"] is True

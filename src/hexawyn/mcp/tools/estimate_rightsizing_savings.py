@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.estimate_rightsizing_savings.command import (
+from hexawyn.application.use_case.finops.estimate_rightsizing_savings.command import (
     EstimateRightsizingSavingsCommand,
 )
-from hexawyn.application.use_case.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case import (
+from hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case import (  # noqa: E501
     EstimateRightsizingSavingsUseCase,
 )
 
@@ -25,8 +25,8 @@ def estimate_rightsizing_savings(top_n: int = 5) -> dict[str, object]:
 
     try:
         adapter = build_rightsizing_adapter()
-        use_case = EstimateRightsizingSavingsUseCase(port=adapter)
-        response = use_case.execute(EstimateRightsizingSavingsCommand(top_n=top_n))
+        use_case = EstimateRightsizingSavingsUseCase(port=adapter)  # type: ignore
+        response = use_case.execute(EstimateRightsizingSavingsCommand(top_n=top_n))  # type: ignore
         report = response.report
         return {
             "recommendations": [

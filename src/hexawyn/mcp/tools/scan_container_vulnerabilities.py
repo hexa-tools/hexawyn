@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.scan_container_vulnerabilities.command import (
+from hexawyn.application.use_case.security.scan_container_vulnerabilities.command import (
     ScanContainerVulnerabilitiesCommand,
 )
-from hexawyn.application.use_case.scan_container_vulnerabilities.scan_container_vulnerabilities_use_case import (
+from hexawyn.application.use_case.security.scan_container_vulnerabilities.scan_container_vulnerabilities_use_case import (  # noqa: E501
     ScanContainerVulnerabilitiesUseCase,
 )
 
@@ -19,7 +19,7 @@ def scan_container_vulnerabilities() -> dict[str, object]:
     from hexawyn.mcp.server import build_image_inventory_adapter
 
     try:
-        use_case = ScanContainerVulnerabilitiesUseCase(port=build_image_inventory_adapter())
+        use_case = ScanContainerVulnerabilitiesUseCase(port=build_image_inventory_adapter())  # type: ignore
         _ = use_case.execute(ScanContainerVulnerabilitiesCommand())
         return {"error": None}
     except Exception as exc:

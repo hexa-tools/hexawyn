@@ -86,7 +86,7 @@ class TestKubernetesContextDiscovery:
             contexts = service.discover()
             current_context = service.current()
 
-        assert len(contexts) == 3
+        assert len(contexts) == 3  # noqa: PLR2004
         assert current_context is not None
         assert current_context.name == "prod"
 

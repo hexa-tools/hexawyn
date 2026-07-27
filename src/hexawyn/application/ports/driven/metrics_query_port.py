@@ -25,7 +25,7 @@ class MetricsQueryPort(ABC):
         """
 
     @abstractmethod
-    def range_query(
+    def range_query(  # noqa: PLR0913
         self, promql: str, start: str, end: str, step: str, timeout_seconds: float
     ) -> list[PrometheusRangeSample]:
         """Executes `/api/v1/query_range`.

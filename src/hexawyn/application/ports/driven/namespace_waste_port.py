@@ -1,17 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import TypedDict
 
-
-class NamespaceRawData(TypedDict):
-    """Raw waste data for one namespace — from K8s (requests) and Prometheus (actual usage)."""
-
-    namespace: str
-    cpu_requested_cores: float | None
-    memory_requested_gb: float | None
-    cpu_actual_avg_cores: float | None
-    memory_actual_avg_gb: float | None
-    age_hours: float
-    has_resource_requests: bool
+from hexawyn.domain.models.namespace_waste import NamespaceRawData
 
 
 class NamespaceWasteAnalysisPort(ABC):

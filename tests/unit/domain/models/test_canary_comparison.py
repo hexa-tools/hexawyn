@@ -20,8 +20,8 @@ class TestVersionMetrics:
             error_rate_pct=2.1,
         )
         assert vm.version == "v2.4"
-        assert vm.p99_ms == 480.0
-        assert vm.error_rate_pct == 2.1
+        assert vm.p99_ms == 480.0  # noqa: PLR2004
+        assert vm.error_rate_pct == 2.1  # noqa: PLR2004
 
 
 class TestCanaryComparisonRequest:
@@ -33,13 +33,13 @@ class TestCanaryComparisonRequest:
             min_sample_threshold=500,
         )
         assert req.service_name == "order-service"
-        assert req.traffic_split_pct == 5.0
-        assert req.min_sample_threshold == 500
+        assert req.traffic_split_pct == 5.0  # noqa: PLR2004
+        assert req.min_sample_threshold == 500  # noqa: PLR2004
 
     def test_defaults(self) -> None:
         req = CanaryComparisonRequest(service_name="svc")
-        assert req.time_window_minutes == 30
-        assert req.min_sample_threshold == 500
+        assert req.time_window_minutes == 30  # noqa: PLR2004
+        assert req.min_sample_threshold == 500  # noqa: PLR2004
 
 
 class TestComparisonResult:
@@ -68,7 +68,7 @@ class TestComparisonResult:
         )
         assert result.verdict == CanaryVerdict.REGRESSION
         assert result.confidence == ConfidenceLevel.MEDIUM
-        assert result.p99_delta_pct > 100
+        assert result.p99_delta_pct > 100  # noqa: PLR2004
         assert result.error_rate_delta_pct > 1.0
 
     def test_canary_safe(self) -> None:

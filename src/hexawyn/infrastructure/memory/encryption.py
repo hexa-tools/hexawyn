@@ -70,7 +70,7 @@ def _encrypt_data(key: bytes, plaintext: bytes) -> bytes:
 
 
 def _decrypt_data(key: bytes, data: bytes) -> bytes:
-    if len(data) < 13:
+    if len(data) < 13:  # noqa: PLR2004
         raise EncryptionError(
             "Encrypted data is too short to contain nonce and ciphertext.",
             context={"data_length": str(len(data))},

@@ -15,7 +15,7 @@ class TestExtractErrorPatterns:
         classifications = extract_error_patterns(logs)
 
         assert len(classifications) == 1
-        assert classifications[0].count == 45
+        assert classifications[0].count == 45  # noqa: PLR2004
         assert "refused" in classifications[0].pattern
         assert "redis" in classifications[0].sample_line
 
@@ -27,8 +27,8 @@ class TestExtractErrorPatterns:
         classifications = extract_error_patterns(logs)
 
         counts = {c.pattern: c.count for c in classifications}
-        assert sum(counts.values()) == 15
-        assert len(classifications) == 2
+        assert sum(counts.values()) == 15  # noqa: PLR2004
+        assert len(classifications) == 2  # noqa: PLR2004
 
     def test_no_matches_returns_empty(self) -> None:
         logs = ["pod scheduled successfully", "readiness probe succeeded"]
@@ -63,7 +63,7 @@ class TestReduceLogsForSummarization:
         reduced = reduce_logs_for_summarization(raw)
 
         reduction_ratio = 1 - (len(reduced) / len(raw))
-        assert reduction_ratio >= 0.90
+        assert reduction_ratio >= 0.90  # noqa: PLR2004
 
     def test_unrecognized_format_falls_back_to_head_tail_sample(self) -> None:
         raw = [f"random unstructured line {i}" for i in range(500)]

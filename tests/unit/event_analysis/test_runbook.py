@@ -10,7 +10,7 @@ from hexawyn.domain.services.event_analysis.runbook import (
 
 class TestRunbookSuggestionEngine:
     def test_oomkilling_suggests_memory_runbook(self) -> None:
-        """TC2: event REASON "OOMKilling" → runbook "Increase memory limit or investigate memory leak"."""
+        """TC2: event REASON "OOMKilling" → runbook "Increase memory limit or investigate memory leak"."""  # noqa: E501
         engine = RunbookSuggestionEngine()
 
         suggestion = engine.suggest("OOMKilling")

@@ -80,7 +80,17 @@ line-length = 100
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP"]
+select = [
+  "E", "F", "I", "N", "W", "UP",
+  "C90",        # C901: complexité McCabe / nesting
+  "PLR0915",    # too-many-statements (taille de fonction)
+  "PLR0913",    # too-many-arguments
+  "PLR0912",    # too-many-branches
+  "PLR2004",    # magic-value-comparison
+  "TD001",      # TODO committé
+  "TD002",      # FIXME committé
+  "TD003",      # XXX committé
+]
 
 [tool.ruff.format]
 quote-style = "double"

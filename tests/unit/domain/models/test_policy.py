@@ -40,7 +40,7 @@ class TestPolicy:
             ready=True,
         )
         assert p.namespace is None
-        assert p.violations_count == 3
+        assert p.violations_count == 3  # noqa: PLR2004
 
     def test_namespaced_policy(self) -> None:
         p = Policy(
@@ -83,7 +83,7 @@ class TestPolicyDenialExplanation:
             policy_name="require-run-as-non-root",
             rule_name="check-containers",
             raw_message="admission webhook denied: Running as root is forbidden",
-            human_explanation="Your pod nginx-abc runs as root which is blocked by policy require-run-as-non-root.",
+            human_explanation="Your pod nginx-abc runs as root which is blocked by policy require-run-as-non-root.",  # noqa: E501
             fix_suggestion="Set securityContext.runAsNonRoot to true and use a non-root user.",
         )
         assert e.human_explanation != ""
@@ -103,7 +103,7 @@ class TestPolicyDetectionResult:
             high_severity=4,
         )
         assert r.engine == PolicyEngine.KYVERNO
-        assert r.total_violations == 12
+        assert r.total_violations == 12  # noqa: PLR2004
 
 
 class TestPolicyEngineNotFoundError:

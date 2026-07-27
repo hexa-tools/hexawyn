@@ -220,7 +220,7 @@ class TestListAvailableContexts:
             return_value=(mock_contexts, mock_contexts[0]),
         ):
             contexts = list_available_contexts()
-            assert len(contexts) == 3
+            assert len(contexts) == 3  # noqa: PLR2004
             assert contexts[0]["name"] == "prod-eu"
 
     def test_returns_empty_list_when_no_kubeconfig(self):
@@ -369,7 +369,7 @@ class TestEdgeCases:
             return_value=(mock_contexts, mock_contexts[0]),
         ):
             contexts = list_available_contexts()
-            assert len(contexts) == 3
+            assert len(contexts) == 3  # noqa: PLR2004
 
     def test_validate_connection_timeout_on_unreachable(self):
         mock_api = MagicMock()

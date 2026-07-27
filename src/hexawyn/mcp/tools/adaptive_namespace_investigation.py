@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.adaptive_namespace_investigation.adaptive_namespace_investigation_use_case import (
+from hexawyn.application.use_case.troubleshooting.adaptive_namespace_investigation.adaptive_namespace_investigation_use_case import (  # noqa: E501
     AdaptiveNamespaceInvestigationUseCase,
 )
-from hexawyn.application.use_case.adaptive_namespace_investigation.command import (
+from hexawyn.application.use_case.troubleshooting.adaptive_namespace_investigation.command import (
     AdaptiveNamespaceInvestigationCommand,
 )
 
@@ -23,12 +23,12 @@ def adaptive_namespace_investigation(namespace: str, depth: int = 3) -> dict[str
     )
 
     try:
-        use_case = AdaptiveNamespaceInvestigationUseCase(
+        use_case = AdaptiveNamespaceInvestigationUseCase(  # type: ignore
             investigation_port=build_adaptive_investigation_adapter(),
             k8s_port=build_k8s_adapter(),
             overview_port=build_namespace_overview_adapter(),
         )
-        r = use_case.execute(
+        r = use_case.execute(  # type: ignore
             AdaptiveNamespaceInvestigationCommand(namespace=namespace, depth=depth)
         )
         return {

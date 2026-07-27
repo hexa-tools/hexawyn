@@ -68,7 +68,7 @@ class TestLogSearchRequest:
         request = LogSearchRequest(pattern="connection refused to postgres")
         assert request.is_regex is False
         assert request.namespace is None
-        assert request.time_window_minutes == 60
+        assert request.time_window_minutes == 60  # noqa: PLR2004
 
     def test_custom_values(self) -> None:
         request = LogSearchRequest(
@@ -76,7 +76,7 @@ class TestLogSearchRequest:
         )
         assert request.is_regex is True
         assert request.namespace == "production"
-        assert request.time_window_minutes == 15
+        assert request.time_window_minutes == 15  # noqa: PLR2004
 
 
 class TestLogSearchResult:

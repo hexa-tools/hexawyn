@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.gitops_apps_list.command import GitopsAppsListCommand
-from hexawyn.application.use_case.gitops_apps_list.gitops_apps_list_use_case import (
+from hexawyn.application.use_case.gitops.gitops_apps_list.command import GitopsAppsListCommand
+from hexawyn.application.use_case.gitops.gitops_apps_list.gitops_apps_list_use_case import (
     GitopsAppsListUseCase,
 )
 

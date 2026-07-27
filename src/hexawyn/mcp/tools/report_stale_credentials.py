@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.report_stale_credentials.command import (
+from hexawyn.application.use_case.security.report_stale_credentials.command import (
     ReportStaleCredentialsCommand,
 )
-from hexawyn.application.use_case.report_stale_credentials.report_stale_credentials_use_case import (
+from hexawyn.application.use_case.security.report_stale_credentials.report_stale_credentials_use_case import (  # noqa: E501
     ReportStaleCredentialsUseCase,
 )
 
@@ -19,7 +19,8 @@ def report_stale_credentials() -> dict[str, object]:
     from hexawyn.mcp.server import build_stale_credentials_adapter
 
     try:
-        use_case = ReportStaleCredentialsUseCase(credentials_port=build_stale_credentials_adapter())
+        service = ReportStaleCredentialsUseCase(credentials_port=build_stale_credentials_adapter())
+        use_case = ReportStaleCredentialsUseCase(service=service)  # type: ignore
         _ = use_case.execute(ReportStaleCredentialsCommand())
         return {"error": None}
     except Exception as exc:

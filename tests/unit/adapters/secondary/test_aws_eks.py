@@ -9,7 +9,7 @@ class TestAWSEKS:
             assert key in AWS_EKS_SCENARIO
 
     def test_health_score(self):
-        assert AWS_EKS_SCENARIO["health"]["score"] == 76
+        assert AWS_EKS_SCENARIO["health"]["score"] == 76  # noqa: PLR2004
 
     def test_has_crashloop_pod(self):
         crashloop = [p for p in AWS_EKS_SCENARIO["pods"] if p["status"] == "CrashLoop"]

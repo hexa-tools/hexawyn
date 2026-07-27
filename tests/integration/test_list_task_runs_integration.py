@@ -5,8 +5,8 @@ from unittest.mock import MagicMock
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.ports.driven.tekton_port import TektonPort
-from hexawyn.application.use_case.list_task_runs.command import ListTaskRunsCommand
-from hexawyn.application.use_case.list_task_runs.list_task_runs_use_case import (
+from hexawyn.application.use_case.pipelines.list_task_runs.command import ListTaskRunsCommand
+from hexawyn.application.use_case.pipelines.list_task_runs.list_task_runs_use_case import (
     ListTaskRunsUseCase,
 )
 from hexawyn.domain.errors import PipelineNotFoundError
@@ -53,7 +53,7 @@ class TestListTaskRunsUseCaseIntegration:
             ListTaskRunsCommand(pipeline_name="build-deploy", namespace="ci")
         )
 
-        assert len(response.task_runs) == 3
+        assert len(response.task_runs) == 3  # noqa: PLR2004
         assert response.task_runs[0]["name"] == "build-deploy-unit-tests"
         assert response.task_runs[1]["name"] == "build-deploy-clone-repo"
         assert response.task_runs[2]["name"] == "build-deploy-build-image"

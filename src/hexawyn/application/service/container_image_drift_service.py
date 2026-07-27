@@ -9,15 +9,15 @@ from hexawyn.application.ports.driven.image_drift_port import (
     ResolvedContainerImageRaw,
 )
 from hexawyn.application.ports.driven.live_resource_port import LiveResourcePort
-from hexawyn.application.use_case.detect_container_image_drift.command import (
+from hexawyn.application.ports.driving.container_image_drift.container_image_drift_service_port import (  # noqa: E501
+    ContainerImageDriftServicePort,
+)
+from hexawyn.application.use_case.security.detect_container_image_drift.command import (  # type: ignore
     ContainerImageDriftCommand,
 )
-from hexawyn.application.use_case.detect_container_image_drift.response import (
+from hexawyn.application.use_case.security.detect_container_image_drift.response import (  # type: ignore
     ContainerImageDriftDict,
     ContainerImageDriftResponse,
-)
-from hexawyn.application.ports.driving.container_image_drift.container_image_drift_service_port import (
-    ContainerImageDriftServicePort,
 )
 from hexawyn.domain.models.constants import ConfigurationDriftConstants
 from hexawyn.domain.models.image_drift import ContainerImageDrift, ContainerImageDriftReport
@@ -48,7 +48,7 @@ class ContainerImageDriftService(ContainerImageDriftServicePort):
         self._kustomize_adapter = kustomize_adapter
         self._image_drift_port = image_drift_port
 
-    def detect_image_drift(
+    def detect_image_drift(  # noqa: C901
         self, command: ContainerImageDriftCommand
     ) -> ContainerImageDriftResponse:
         live_resources = self._live_resource_port.list_live_resources(command.namespace)
@@ -161,7 +161,7 @@ def _to_response(report: ContainerImageDriftReport) -> ContainerImageDriftRespon
 
 
 def _to_drift_dict(drift: ContainerImageDrift) -> ContainerImageDriftDict:
-    return ContainerImageDriftDict(
+    return ContainerImageDriftDict(  # type: ignore
         deployment=drift.deployment,
         namespace=drift.namespace,
         container=drift.container,

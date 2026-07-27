@@ -10,7 +10,7 @@ _SIGNIFICANT_TREND_PCT = 10.0
 
 
 class ServiceCostComparisonEngine:
-    def compute(
+    def compute(  # noqa: PLR0913
         self,
         service_name: str,
         current_month: str,
@@ -120,6 +120,22 @@ def _compute_month_cost(
         memory_cost=round(total_mem, 2),
         pod_breakdown=breakdown,
     )
+
+
+def current_month_str() -> str:
+    from datetime import datetime
+
+    now = datetime.now()
+    return f"{now.year}-{now.month:02d}"
+
+
+def previous_month_str() -> str:
+    from datetime import datetime
+
+    now = datetime.now()
+    if now.month == 1:
+        return f"{now.year - 1}-12"
+    return f"{now.year}-{now.month - 1:02d}"
 
 
 def _as_float(value: object) -> float:

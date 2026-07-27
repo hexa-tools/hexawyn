@@ -73,9 +73,9 @@ class TestPatternFoundAcrossDeployments:
             namespaces_total=1,
         )
 
-        assert result.pods_affected == 3
-        assert result.services_affected == 2
-        assert len(result.groups) == 2
+        assert result.pods_affected == 3  # noqa: PLR2004
+        assert result.services_affected == 2  # noqa: PLR2004
+        assert len(result.groups) == 2  # noqa: PLR2004
         assert result.no_matches is False
 
 
@@ -153,7 +153,7 @@ class TestSkipTracking:
         assert result.skipped_pods == skipped_pods
         assert result.skipped_namespaces == skipped_namespaces
         assert result.scanned_namespaces == ["production", "staging"]
-        assert result.namespaces_total == 3
+        assert result.namespaces_total == 3  # noqa: PLR2004
 
 
 class TestEmptyInput:

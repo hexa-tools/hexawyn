@@ -20,8 +20,8 @@ class TestResourceCost:
         )
         assert rc.name == "payments"
         assert rc.kind == "namespace"
-        assert rc.monthly_cost_usd == 340.0
-        assert rc.percentage == 27.3
+        assert rc.monthly_cost_usd == 340.0  # noqa: PLR2004
+        assert rc.percentage == 27.3  # noqa: PLR2004
 
 
 class TestBillingEvent:
@@ -40,7 +40,7 @@ class TestBillingEvent:
             date="2026-06-30", description="spot expiry", cost_impact_usd=200.0, provider="aws"
         )
         assert ev.date == "2026-06-30"
-        assert ev.cost_impact_usd == 200.0
+        assert ev.cost_impact_usd == 200.0  # noqa: PLR2004
         assert ev.provider == "aws"
 
 
@@ -66,11 +66,11 @@ class TestCostForecast:
     def test_fields(self) -> None:
         f = self._make()
         assert f.cluster_name == "prod"
-        assert f.days_elapsed == 22
-        assert f.days_remaining == 8
-        assert f.projected_total_usd == 1703.0
-        assert f.previous_month_usd == 1367.0
-        assert f.trend_factor == 1.12
+        assert f.days_elapsed == 22  # noqa: PLR2004
+        assert f.days_remaining == 8  # noqa: PLR2004
+        assert f.projected_total_usd == 1703.0  # noqa: PLR2004
+        assert f.previous_month_usd == 1367.0  # noqa: PLR2004
+        assert f.trend_factor == 1.12  # noqa: PLR2004
         assert f.forecast_confidence == "low"
         assert f.data_source == "estimated"
 

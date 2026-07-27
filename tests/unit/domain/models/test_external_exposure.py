@@ -51,7 +51,7 @@ class TestExternalExposureFinding:
             note=None,
         )
 
-        assert finding.node_port == 31234
+        assert finding.node_port == 31234  # noqa: PLR2004
         assert finding.external_ip is None
 
     def test_pending_load_balancer_finding(self) -> None:
@@ -137,5 +137,5 @@ class TestExternalExposureReport:
 
         assert report.findings == [finding]
         assert report.excluded_exposures == [excluded]
-        assert report.total_external_services_checked == 5
+        assert report.total_external_services_checked == 5  # noqa: PLR2004
         assert "1 unintended" in report.summary

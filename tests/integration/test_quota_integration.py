@@ -69,7 +69,7 @@ class TestQuotaRepositoryIntegration:
         for _ in range(5):
             repo.increment_investigation(month="2026-06", tier=tier, limit=limit)
         quota = repo.get_investigation_quota(month="2026-06")
-        assert quota.count == 5
+        assert quota.count == 5  # noqa: PLR2004
 
     @pytest.mark.integration
     def test_different_months_are_independent(self, repo: QuotaRepository) -> None:
@@ -81,7 +81,7 @@ class TestQuotaRepositoryIntegration:
 
         june = repo.get_investigation_quota(month="2026-06")
         july = repo.get_investigation_quota(month="2026-07")
-        assert june.count == 2
+        assert june.count == 2  # noqa: PLR2004
         assert july.count == 1
 
     @pytest.mark.integration
@@ -114,7 +114,7 @@ class TestQuotaRepositoryIntegration:
 
         inv = repo.get_investigation_quota(month="2026-06")
         slack = repo.get_slack_quota(month="2026-06")
-        assert inv.count == 2
+        assert inv.count == 2  # noqa: PLR2004
         assert slack.count == 1
 
     @pytest.mark.integration
@@ -144,7 +144,7 @@ class TestTierSpecificIntegration:
         _fill_investigations(repo, "2026-06", LicenseTier.STARTER, limit)
         quota = repo.get_investigation_quota(month="2026-06")
         assert quota.is_exceeded is True
-        assert quota.limit == 50
+        assert quota.limit == 50  # noqa: PLR2004
 
     @pytest.mark.integration
     def test_dev_tier_quota_full_cycle(self, repo: QuotaRepository) -> None:
@@ -153,7 +153,7 @@ class TestTierSpecificIntegration:
         _fill_investigations(repo, "2026-06", LicenseTier.TEAM, limit)
         quota = repo.get_investigation_quota(month="2026-06")
         assert quota.is_exceeded is True
-        assert quota.limit == 200
+        assert quota.limit == 200  # noqa: PLR2004
 
     @pytest.mark.integration
     def test_different_tiers_different_limits(self, repo: QuotaRepository) -> None:
@@ -172,8 +172,8 @@ class TestTierSpecificIntegration:
         q_dev = repo.get_investigation_quota(month="2026-06")
         q_startup = repo.get_investigation_quota(month="2026-07")
 
-        assert q_dev.limit == 200
-        assert q_startup.limit == 500
+        assert q_dev.limit == 200  # noqa: PLR2004
+        assert q_startup.limit == 500  # noqa: PLR2004
 
     @pytest.mark.integration
     def test_slack_quota_independent_from_investigation(self, repo: QuotaRepository) -> None:
@@ -198,9 +198,9 @@ class TestTierSpecificIntegration:
     @pytest.mark.integration
     def test_history_days_by_tier(self) -> None:
         """Free=7, Dev=30, Startup=90, Scale-up=unlimited."""
-        assert get_history_days(LicenseTier.STARTER) == 7
-        assert get_history_days(LicenseTier.TEAM) == 30
-        assert get_history_days(LicenseTier.TEAM) == 90
+        assert get_history_days(LicenseTier.STARTER) == 7  # noqa: PLR2004
+        assert get_history_days(LicenseTier.TEAM) == 30  # noqa: PLR2004
+        assert get_history_days(LicenseTier.TEAM) == 90  # noqa: PLR2004
         assert get_history_days(LicenseTier.SCALE_UP) == UNLIMITED
 
 

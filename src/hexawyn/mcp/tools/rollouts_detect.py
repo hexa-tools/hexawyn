@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.rollouts_detect.command import RolloutsDetectCommand
-from hexawyn.application.use_case.rollouts_detect.rollouts_detect_use_case import (
+from hexawyn.application.use_case.workloads.rollouts_detect.command import RolloutsDetectCommand
+from hexawyn.application.use_case.workloads.rollouts_detect.rollouts_detect_use_case import (
     RolloutsDetectUseCase,
 )
 

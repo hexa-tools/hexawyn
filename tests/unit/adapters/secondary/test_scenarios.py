@@ -34,7 +34,7 @@ class TestScenarioStructure:
         ],
     )
     def test_health_score_between_0_and_100(self, scenario: dict):
-        assert 0 <= scenario["health"]["score"] <= 100
+        assert 0 <= scenario["health"]["score"] <= 100  # noqa: PLR2004
 
     @pytest.mark.parametrize(
         "scenario",
@@ -60,7 +60,7 @@ class TestScenarioStructure:
         ],
     )
     def test_chips_max_4(self, scenario: dict):
-        assert len(scenario["chips"]) <= 4
+        assert len(scenario["chips"]) <= 4  # noqa: PLR2004
 
     @pytest.mark.parametrize(
         "scenario,expected_score",
@@ -81,7 +81,7 @@ class TestAWSEKSScenario:
         crashloop = [p for p in AWS_EKS_SCENARIO["pods"] if p["status"] == "CrashLoop"]
         assert len(crashloop) == 1
         assert crashloop[0]["name"] == "payments-api-7d9f8b-m3ql"
-        assert crashloop[0]["restarts"] == 8
+        assert crashloop[0]["restarts"] == 8  # noqa: PLR2004
 
     def test_has_pending_pod(self):
         pending = [p for p in AWS_EKS_SCENARIO["pods"] if p["status"] == "Pending"]
@@ -101,13 +101,13 @@ class TestAzureAKSScenario:
 
     def test_score_is_healthy(self):
         assert AZURE_AKS_SCENARIO["health"]["status"] == "healthy"
-        assert AZURE_AKS_SCENARIO["health"]["score"] >= 95
+        assert AZURE_AKS_SCENARIO["health"]["score"] >= 95  # noqa: PLR2004
 
 
 class TestGCPGKEScenario:
     def test_has_slo_breach(self):
-        assert GCP_GKE_SCENARIO["metrics"]["p99_latency_ms"] == 820
-        assert GCP_GKE_SCENARIO["metrics"]["slo_threshold_ms"] == 500
+        assert GCP_GKE_SCENARIO["metrics"]["p99_latency_ms"] == 820  # noqa: PLR2004
+        assert GCP_GKE_SCENARIO["metrics"]["slo_threshold_ms"] == 500  # noqa: PLR2004
         assert (
             GCP_GKE_SCENARIO["metrics"]["p99_latency_ms"]
             > GCP_GKE_SCENARIO["metrics"]["slo_threshold_ms"]
@@ -121,7 +121,7 @@ class TestGCPGKEScenario:
 class TestOpenShiftScenario:
     def test_has_projects_not_namespaces(self):
         assert "projects" in OPENSHIFT_SCENARIO
-        assert len(OPENSHIFT_SCENARIO["projects"]) == 3
+        assert len(OPENSHIFT_SCENARIO["projects"]) == 3  # noqa: PLR2004
 
     def test_has_routes(self):
         assert "routes" in OPENSHIFT_SCENARIO
@@ -138,7 +138,7 @@ class TestOpenShiftScenario:
 class TestDatadogScenario:
     def test_has_triggered_monitors(self):
         assert "triggered_monitors" in DATADOG_SCENARIO
-        assert len(DATADOG_SCENARIO["triggered_monitors"]) == 2
+        assert len(DATADOG_SCENARIO["triggered_monitors"]) == 2  # noqa: PLR2004
 
     def test_has_alert_monitor(self):
         alert = [m for m in DATADOG_SCENARIO["triggered_monitors"] if m["status"] == "Alert"]
@@ -148,4 +148,4 @@ class TestDatadogScenario:
     def test_has_apm_services(self):
         assert "apm_services" in DATADOG_SCENARIO
         payments = [s for s in DATADOG_SCENARIO["apm_services"] if s["service"] == "payments-api"]
-        assert payments[0]["p99_ms"] == 820
+        assert payments[0]["p99_ms"] == 820  # noqa: PLR2004

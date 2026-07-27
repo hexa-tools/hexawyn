@@ -32,7 +32,7 @@ class TestBuildReport:
         report = build_report(findings=[], excluded_exposures=[], total_external_services_checked=3)
 
         assert report.findings == []
-        assert report.total_external_services_checked == 3
+        assert report.total_external_services_checked == 3  # noqa: PLR2004
         assert "No unintended" in report.summary
 
     def test_tc5_five_unexpectedly_exposed_services(self) -> None:
@@ -46,7 +46,7 @@ class TestBuildReport:
             findings=findings, excluded_exposures=[], total_external_services_checked=8
         )
 
-        assert len(report.findings) == 5
+        assert len(report.findings) == 5  # noqa: PLR2004
         assert "5" in report.summary
 
     def test_summary_mentions_excluded_exposures(self) -> None:

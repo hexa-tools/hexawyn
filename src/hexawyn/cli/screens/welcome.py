@@ -86,7 +86,7 @@ class WelcomeScreen(Screen[None]):
                 id="welcome-shortcuts",
             )
             yield Static(
-                "[yellow]●[/yellow] Tip Run [bold]hexa debug config[/bold] to troubleshoot configuration",
+                "[yellow]●[/yellow] Tip Run [bold]hexa debug config[/bold] to troubleshoot configuration",  # noqa: E501
                 id="welcome-tip",
             )
 

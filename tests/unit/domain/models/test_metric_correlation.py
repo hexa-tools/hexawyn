@@ -14,7 +14,7 @@ class TestTimeSeries:
             label="api-gateway-5xx", data_points=[0.01, 0.01, 0.45, 0.82, 0.91, 0.30, 0.02]
         )
         assert ts.label == "api-gateway-5xx"
-        assert len(ts.data_points) == 7
+        assert len(ts.data_points) == 7  # noqa: PLR2004
 
 
 class TestCorrelationResult:
@@ -31,7 +31,7 @@ class TestCorrelationResult:
             series_b=b,
         )
         assert result.status == CorrelationStatus.CORRELATED
-        assert result.coefficient > 0.9
+        assert result.coefficient > 0.9  # noqa: PLR2004
 
     def test_uncorrelated(self) -> None:
         a = TimeSeries(label="5xx", data_points=[1.0, 2.0, 1.0, 2.0, 1.0])
@@ -68,7 +68,7 @@ class TestCorrelationResult:
             series_b=b,
         )
         assert result.status == CorrelationStatus.UNCORRELATED
-        assert result.coefficient < -0.5
+        assert result.coefficient < -0.5  # noqa: PLR2004
 
     def test_moderate_correlation_inconclusive(self) -> None:
         a = TimeSeries(label="5xx", data_points=[0.1, 0.5, 0.2, 0.8, 0.1, 0.6, 0.3])

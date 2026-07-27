@@ -49,7 +49,7 @@ class TestCategoryScore:
         )
 
         assert score.category == "tls"
-        assert score.score_pct == 80.0
+        assert score.score_pct == 80.0  # noqa: PLR2004
         assert score.policy_defined is True
 
 
@@ -77,7 +77,7 @@ class TestSecurityPostureReport:
             warning="Partial results: compliance check timed out.",
         )
 
-        assert report.overall_score_pct == 80.0
+        assert report.overall_score_pct == 80.0  # noqa: PLR2004
         assert report.trend == "improving"
-        assert report.previous_score_pct == 75.0
+        assert report.previous_score_pct == 75.0  # noqa: PLR2004
         assert report.partial is True
