@@ -5,6 +5,7 @@ from __future__ import annotations
 from hexawyn.domain.services.pipeline_baseline.cicd_performance_baseline_service import (
     PipelineRunRecord,
     TaskRunRecord,
+    _worst_degrading_stage,
     compute_baseline,
 )
 
@@ -170,3 +171,146 @@ class TestTrendComputation:
         runs = [_make_run(f"run-{i}", duration=300) for i in range(1, 4)]
         result = compute_baseline("svc", runs, [])
         assert result.trend == "insufficient_data"
+
+
+class TestTrendPercentageAndBottleneck:
+    """CP mock had richer trend data (precise %, bottleneck stage) than this
+    real service ever computed — this brings the real service up to that
+    level of detail using data it already collects, instead of the mock
+    staying artificially richer than what production can actually deliver.
+    """
+
+    def test_trend_pct_positive_when_degrading(self) -> None:
+        runs = [
+            _make_run(f"early-{i}", duration=200 + i, start=f"2024-01-01T00:{i:02d}:00Z")
+            for i in range(5)
+        ] + [
+            _make_run(f"late-{i}", duration=400 + i, start=f"2024-01-02T00:{i:02d}:00Z")
+            for i in range(5)
+        ]
+        result = compute_baseline("svc", runs, [])
+        assert result.trend == "degrading"
+        assert result.trend_pct is not None
+        assert result.trend_pct > 0
+
+    def test_trend_pct_negative_when_improving(self) -> None:
+        runs = [
+            _make_run(f"early-{i}", duration=400 - i, start=f"2024-01-01T00:{i:02d}:00Z")
+            for i in range(5)
+        ] + [
+            _make_run(f"late-{i}", duration=200 - i, start=f"2024-01-02T00:{i:02d}:00Z")
+            for i in range(5)
+        ]
+        result = compute_baseline("svc", runs, [])
+        assert result.trend == "improving"
+        assert result.trend_pct is not None
+        assert result.trend_pct < 0
+
+    def test_trend_pct_none_when_insufficient_data(self) -> None:
+        runs = [_make_run(f"run-{i}", duration=300) for i in range(1, 4)]
+        result = compute_baseline("svc", runs, [])
+        assert result.trend_pct is None
+
+    def test_bottleneck_stage_identifies_the_worst_degrading_stage(self) -> None:
+        runs = [
+            _make_run(f"early-{i}", duration=300, start=f"2024-01-01T00:{i:02d}:00Z")
+            for i in range(5)
+        ] + [
+            _make_run(f"late-{i}", duration=500, start=f"2024-01-02T00:{i:02d}:00Z")
+            for i in range(5)
+        ]
+        tasks = []
+        for i in range(5):
+            tasks.append(_make_task(f"b-early-{i}", "build", f"early-{i}", 100))
+            tasks.append(_make_task(f"t-early-{i}", "test", f"early-{i}", 80))
+        for i in range(5):
+            tasks.append(_make_task(f"b-late-{i}", "build", f"late-{i}", 300))
+            tasks.append(_make_task(f"t-late-{i}", "test", f"late-{i}", 85))
+        result = compute_baseline("svc", runs, tasks)
+        assert result.bottleneck_stage == "build"
+
+    def test_bottleneck_stage_none_when_stable(self) -> None:
+        runs = [
+            _make_run(f"early-{i}", duration=300, start=f"2024-01-01T00:{i:02d}:00Z")
+            for i in range(5)
+        ] + [
+            _make_run(f"late-{i}", duration=315, start=f"2024-01-02T00:{i:02d}:00Z")
+            for i in range(5)
+        ]
+        tasks = []
+        for i in range(5):
+            tasks.append(_make_task(f"b-early-{i}", "build", f"early-{i}", 120))
+            tasks.append(_make_task(f"t-early-{i}", "test", f"early-{i}", 80))
+        for i in range(5):
+            tasks.append(_make_task(f"b-late-{i}", "build", f"late-{i}", 122))
+            tasks.append(_make_task(f"t-late-{i}", "test", f"late-{i}", 82))
+        result = compute_baseline("svc", runs, tasks)
+        assert result.bottleneck_stage is None
+
+    def test_bottleneck_stage_none_when_no_task_runs(self) -> None:
+        runs = [
+            _make_run(f"early-{i}", duration=200, start=f"2024-01-01T00:{i:02d}:00Z")
+            for i in range(5)
+        ] + [
+            _make_run(f"late-{i}", duration=400, start=f"2024-01-02T00:{i:02d}:00Z")
+            for i in range(5)
+        ]
+        result = compute_baseline("svc", runs, [])
+        assert result.bottleneck_stage is None
+
+    def test_bottleneck_stage_ignores_zero_duration_tasks(self) -> None:
+        """A task run with duration_seconds=0 (e.g. skipped/cached step) must
+        not be bucketed as real data for bottleneck comparison."""
+        runs = [
+            _make_run(f"early-{i}", duration=300, start=f"2024-01-01T00:{i:02d}:00Z")
+            for i in range(5)
+        ] + [
+            _make_run(f"late-{i}", duration=500, start=f"2024-01-02T00:{i:02d}:00Z")
+            for i in range(5)
+        ]
+        tasks = []
+        for i in range(5):
+            tasks.append(_make_task(f"cached-early-{i}", "lint", f"early-{i}", 0))
+            tasks.append(_make_task(f"b-early-{i}", "build", f"early-{i}", 100))
+        for i in range(5):
+            tasks.append(_make_task(f"cached-late-{i}", "lint", f"late-{i}", 0))
+            tasks.append(_make_task(f"b-late-{i}", "build", f"late-{i}", 300))
+        result = compute_baseline("svc", runs, tasks)
+        assert result.bottleneck_stage == "build"
+
+    def test_bottleneck_stage_skips_a_stage_absent_from_one_window(self) -> None:
+        """A stage present only in the early runs (e.g. a step removed from
+        the pipeline since) has nothing to compare against in the later
+        window — it must be skipped, not crash or win by default."""
+        runs = [
+            _make_run(f"early-{i}", duration=300, start=f"2024-01-01T00:{i:02d}:00Z")
+            for i in range(5)
+        ] + [
+            _make_run(f"late-{i}", duration=500, start=f"2024-01-02T00:{i:02d}:00Z")
+            for i in range(5)
+        ]
+        tasks = []
+        for i in range(5):
+            tasks.append(_make_task(f"legacy-early-{i}", "scan", f"early-{i}", 50))
+            tasks.append(_make_task(f"b-early-{i}", "build", f"early-{i}", 100))
+        for i in range(5):
+            tasks.append(_make_task(f"b-late-{i}", "build", f"late-{i}", 300))
+        result = compute_baseline("svc", runs, tasks)
+        assert result.bottleneck_stage == "build"
+
+
+class TestWorstDegradingStageDirectly:
+    """_worst_degrading_stage is exercised end-to-end via compute_baseline
+    above, but its zero-average guard can never trigger through that path —
+    _bucket_stage_durations_by_window only ever appends durations > 0, so the
+    mean of a non-empty list is always > 0. Tested directly here since it's
+    a real safety net against division by zero if this helper is ever called
+    with data that doesn't uphold that invariant.
+    """
+
+    def test_returns_none_when_first_avg_is_zero(self) -> None:
+        result = _worst_degrading_stage(
+            first_durations={"build": [0.0]},
+            last_durations={"build": [300.0]},
+        )
+        assert result is None
