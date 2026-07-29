@@ -15,11 +15,11 @@ class SlackChatAdapter(ChatPort):
     Receives Slack messages, delegates to ChatSlackUseCase, posts response back.
 
     Never raises — all errors returned as Slack messages.
-    Quota is enforced by ChatSlackService (raises QuotaExceededError).
+    Quota is enforced by ChatSlackUseCase (raises QuotaExceededError).
     """
 
     def __init__(self, use_case: ChatSlackUseCase | None = None) -> None:
-        self._use_case: ChatSlackUseCase = use_case or ChatSlackService()  # noqa: F821  # type: ignore
+        self._use_case: ChatSlackUseCase = use_case or ChatSlackUseCase()
 
     def handle_message(
         self,

@@ -21,6 +21,28 @@ def _make_manual_change(**overrides: object) -> object:
     return ManualChange(**defaults)  # type: ignore[arg-type]
 
 
+def _make_config_resource(
+    kind: str = "ConfigMap",
+    name: str = "my-config",
+    namespace: str = "default",
+    manager: str = "kubectl-set",
+    time: str = "2026-07-27T10:00:00Z",
+) -> dict[str, object]:
+    return {
+        "kind": kind,
+        "name": name,
+        "namespace": namespace,
+        "managed_fields": [
+            {
+                "manager": manager,
+                "operation": "Update",
+                "time": time,
+                "fields_v1_raw": {"f:data": {".": {}, "f:key": {}}},
+            }
+        ],
+    }
+
+
 class TestManualChangeOutsideGitopsUseCase:
     def test_detect_manual_changes_returns_response_type(self) -> None:
         from hexawyn.application.use_case.gitops.manual_change_outside_gitops.command import (
@@ -121,3 +143,82 @@ class TestManualChangeOutsideGitopsUseCase:
         assert hasattr(result, "used_managed_fields_fallback")
         assert hasattr(result, "partial_window")
         assert hasattr(result, "notes")
+
+    def test_detect_detects_manual_change_from_human_actor(self) -> None:
+        from hexawyn.application.use_case.gitops.manual_change_outside_gitops.command import (
+            ManualChangeOutsideGitopsCommand,
+        )
+        from hexawyn.application.use_case.gitops.manual_change_outside_gitops.manual_change_outside_gitops_use_case import (  # noqa: E501
+            ManualChangeOutsideGitopsUseCase,
+        )
+
+        mock_port = MagicMock()
+        mock_port.list_live_config_resources.return_value = [
+            _make_config_resource(manager="kubectl-set"),
+        ]
+        mock_port.fetch_audit_log_events.return_value = {
+            "events": [],
+            "available": False,
+            "earliest_timestamp": None,
+        }
+
+        use_case = ManualChangeOutsideGitopsUseCase(audit_port=mock_port)
+        result = use_case.detect_manual_changes(
+            ManualChangeOutsideGitopsCommand(namespace="default")
+        )
+
+        assert result.total_manual_changes >= 1
+        assert len(result.manual_changes) >= 1
+        assert result.manual_changes[0]["kind"] == "ConfigMap"
+        assert result.manual_changes[0]["name"] == "my-config"
+
+    def test_detect_excludes_gitops_controller_actor(self) -> None:
+        from hexawyn.application.use_case.gitops.manual_change_outside_gitops.command import (
+            ManualChangeOutsideGitopsCommand,
+        )
+        from hexawyn.application.use_case.gitops.manual_change_outside_gitops.manual_change_outside_gitops_use_case import (  # noqa: E501
+            ManualChangeOutsideGitopsUseCase,
+        )
+
+        mock_port = MagicMock()
+        mock_port.list_live_config_resources.return_value = [
+            _make_config_resource(manager="argocd-application-controller"),
+        ]
+        mock_port.fetch_audit_log_events.return_value = {
+            "events": [],
+            "available": False,
+            "earliest_timestamp": None,
+        }
+
+        use_case = ManualChangeOutsideGitopsUseCase(audit_port=mock_port)
+        result = use_case.detect_manual_changes(
+            ManualChangeOutsideGitopsCommand(namespace="default")
+        )
+
+        assert result.total_manual_changes == 0
+        assert result.excluded_gitops_change_count >= 1
+
+    def test_detect_skips_managed_field_outside_window(self) -> None:
+        from hexawyn.application.use_case.gitops.manual_change_outside_gitops.command import (
+            ManualChangeOutsideGitopsCommand,
+        )
+        from hexawyn.application.use_case.gitops.manual_change_outside_gitops.manual_change_outside_gitops_use_case import (  # noqa: E501
+            ManualChangeOutsideGitopsUseCase,
+        )
+
+        mock_port = MagicMock()
+        mock_port.list_live_config_resources.return_value = [
+            _make_config_resource(time="2020-01-01T10:00:00Z"),
+        ]
+        mock_port.fetch_audit_log_events.return_value = {
+            "events": [],
+            "available": False,
+            "earliest_timestamp": None,
+        }
+
+        use_case = ManualChangeOutsideGitopsUseCase(audit_port=mock_port)
+        result = use_case.detect_manual_changes(
+            ManualChangeOutsideGitopsCommand(namespace="default")
+        )
+
+        assert result.total_manual_changes == 0

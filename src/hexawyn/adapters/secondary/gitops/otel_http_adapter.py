@@ -21,11 +21,10 @@ class OTelHTTPAdapter(TraceQueryPort):
         result: list[list[TraceSpan]] = []
         for trace in traces:
             spans = [
-                TraceSpan(  # type: ignore
-                    span_id=trace["traceID"][:16],
-                    operation=f"trace:{trace['traceID'][:8]}",
+                TraceSpan(
+                    trace_id=trace["traceID"],
+                    span_name=f"trace:{trace['traceID'][:8]}",
                     duration_ms=float(trace.get("duration", 0)) / 1000.0,
-                    status="error" if trace.get("hasErrors") else "ok",
                 )
             ]
             result.append(spans)

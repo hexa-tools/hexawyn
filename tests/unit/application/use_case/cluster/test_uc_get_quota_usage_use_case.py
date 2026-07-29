@@ -11,6 +11,7 @@ from hexawyn.application.use_case.cluster.get_quota_usage.get_quota_usage_use_ca
 from hexawyn.application.use_case.cluster.get_quota_usage.response import (
     GetQuotaUsageResponse,
 )
+from hexawyn.domain.models.quota import QuotaState
 
 
 class TestGetQuotaUsageUseCase:
@@ -51,3 +52,16 @@ class TestGetQuotaUsageUseCase:
         result = use_case.execute(GetQuotaUsageCommand())
 
         assert result.quotas[0].limit is None
+
+    def test_execute_locked_state_triggers_tier_required(self) -> None:
+        plan = MagicMock()
+        plan.get_limit.return_value = 0
+        plan.tier_required_for.return_value = "scale_up"
+        meter = MagicMock()
+        meter.get_usage.return_value = 0
+
+        use_case = GetQuotaUsageUseCase(plan_port=plan, usage_meter=meter)
+        result = use_case.execute(GetQuotaUsageCommand())
+
+        assert result.quotas[0].state == QuotaState.LOCKED
+        assert result.quotas[0].available_from_tier == "scale_up"

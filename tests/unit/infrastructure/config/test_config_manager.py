@@ -184,3 +184,30 @@ class TestConfigManagerEdgeCases:
             config = load_config()
             assert "runtime" in config
             assert config["runtime"]["mode"] == "remote"
+
+    def test_load_config_non_dict_yaml_returns_empty_dict(self, tmp_path):
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("- item1\n- item2\n")
+        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_file):
+            assert load_config() == {}
+
+    def test_get_runtime_endpoint_default(self, tmp_path):
+        with patch(
+            "hexawyn.infrastructure.config.config_manager.CONFIG_PATH",
+            tmp_path / "nonexistent.yaml",
+        ):
+            with patch.dict(os.environ, {}, clear=True):
+                from hexawyn.infrastructure.config.config_manager import (
+                    get_runtime_endpoint,
+                )
+
+                assert get_runtime_endpoint() == "https://api.hexawyn.com"
+
+    def test_get_runtime_mode_embedded(self, tmp_path):
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("runtime:\n  mode: embedded\n")
+        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_file):
+            with patch.dict(os.environ, {}, clear=True):
+                from hexawyn.infrastructure.config.config_manager import get_runtime_mode
+
+                assert get_runtime_mode() == "embedded"

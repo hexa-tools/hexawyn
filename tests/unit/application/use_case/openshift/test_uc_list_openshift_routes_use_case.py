@@ -27,3 +27,12 @@ class TestListOpenshiftRoutesUseCase:
         use_case = ListOpenshiftRoutesUseCase(port=port)
         result = use_case.execute(ListOpenshiftRoutesCommand())
         assert result.count == 0
+
+    def test_execute_handles_exception(self) -> None:
+        port = MagicMock()
+        port.list_routes.side_effect = Exception("boom")
+
+        use_case = ListOpenshiftRoutesUseCase(port=port)
+        result = use_case.execute(ListOpenshiftRoutesCommand())
+
+        assert result.error == "boom"

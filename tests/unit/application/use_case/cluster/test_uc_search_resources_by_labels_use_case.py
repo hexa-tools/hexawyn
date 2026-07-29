@@ -73,3 +73,67 @@ class TestSearchResourcesByLabelsUseCase:
         )
 
         assert result.total_resources == 0
+
+    def test_execute_searches_pods(self) -> None:
+        port = MagicMock()
+        port.search_pods.return_value = []
+        k8s = MagicMock()
+
+        use_case = SearchResourcesByLabelsUseCase(port=port, k8s_port=k8s)
+        result = use_case.execute(
+            SearchResourcesByLabelsCommand(label_selector="app=nginx", resource_types=["pods"])
+        )
+
+        assert isinstance(result, SearchResourcesByLabelsResponse)
+        port.search_pods.assert_called_once()
+
+    def test_execute_searches_deployments(self) -> None:
+        port = MagicMock()
+        port.search_deployments.return_value = []
+        k8s = MagicMock()
+
+        use_case = SearchResourcesByLabelsUseCase(port=port, k8s_port=k8s)
+        result = use_case.execute(
+            SearchResourcesByLabelsCommand(
+                label_selector="app=nginx", resource_types=["deployments"]
+            )
+        )
+
+        assert isinstance(result, SearchResourcesByLabelsResponse)
+        port.search_deployments.assert_called_once()
+
+    def test_execute_searches_services(self) -> None:
+        port = MagicMock()
+        port.search_services.return_value = []
+        k8s = MagicMock()
+
+        use_case = SearchResourcesByLabelsUseCase(port=port, k8s_port=k8s)
+        result = use_case.execute(
+            SearchResourcesByLabelsCommand(label_selector="app=nginx", resource_types=["services"])
+        )
+
+        assert isinstance(result, SearchResourcesByLabelsResponse)
+        port.search_services.assert_called_once()
+
+    def test_execute_with_matches_returns_groups(self) -> None:
+        port = MagicMock()
+        port.search_pods.return_value = [
+            {
+                "name": "nginx",
+                "namespace": "default",
+                "kind": "pod",
+                "node": "node-1",
+                "phase": "Running",
+                "ready": True,
+                "labels": {"app": "nginx"},
+            }
+        ]
+        k8s = MagicMock()
+
+        use_case = SearchResourcesByLabelsUseCase(port=port, k8s_port=k8s)
+        result = use_case.execute(
+            SearchResourcesByLabelsCommand(label_selector="app=nginx", resource_types=["pods"])
+        )
+
+        assert isinstance(result, SearchResourcesByLabelsResponse)
+        assert len(result.groups) > 0

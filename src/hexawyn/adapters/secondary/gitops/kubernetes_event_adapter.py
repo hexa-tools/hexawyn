@@ -46,7 +46,7 @@ class KubernetesEventAdapter(TraceEventCorrelationPort):
             warning_events = [e for e in events.items if e.type == "Warning" and e.involved_object]
             if warning_events:
                 top = warning_events[0]
-                return f"{top.involved_object.kind}/{top.involved_object.name}: " f"{top.reason}"
+                return f"{top.involved_object.kind}/{top.involved_object.name}: {top.reason}"
             return None
         except Exception:
             return None

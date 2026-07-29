@@ -27,3 +27,12 @@ class TestListOpenshiftImagestreamsUseCase:
         use_case = ListOpenshiftImagestreamsUseCase(port=port)
         result = use_case.execute(ListOpenshiftImagestreamsCommand())
         assert result.count == 0
+
+    def test_execute_handles_exception(self) -> None:
+        port = MagicMock()
+        port.list_image_streams.side_effect = Exception("boom")
+
+        use_case = ListOpenshiftImagestreamsUseCase(port=port)
+        result = use_case.execute(ListOpenshiftImagestreamsCommand())
+
+        assert result.error == "boom"

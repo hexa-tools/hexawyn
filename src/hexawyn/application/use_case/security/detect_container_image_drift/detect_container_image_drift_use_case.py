@@ -114,7 +114,7 @@ class DetectContainerImageDriftUseCase:
         report = build_report(drifts, in_sync, excluded_count)
 
         out_of_sync: list[ContainerImageDriftDict] = [
-            ContainerImageDriftDict(  # type: ignore
+            ContainerImageDriftDict(
                 deployment=d.deployment,
                 namespace=d.namespace,
                 container=d.container,

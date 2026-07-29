@@ -23,7 +23,7 @@ def _write_kubeconfig(path: Path, current_context: str, contexts: list[str]) -> 
         for context_name in contexts
     )
     user_entries = "\n".join(
-        f"- name: user-{context_name}\n" f"  user:\n" f"    token: token-{context_name}"
+        f"- name: user-{context_name}\n  user:\n    token: token-{context_name}"
         for context_name in contexts
     )
     path.write_text(

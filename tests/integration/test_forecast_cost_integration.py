@@ -9,7 +9,6 @@ from unittest.mock import MagicMock
 
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
-from hexawyn.application.service.forecast_cost_service import ForecastCostService
 from hexawyn.application.use_case.finops.forecast_cost.command import (
     ForecastCostCommand,
 )
@@ -43,8 +42,7 @@ def _fake_apps_api(deployments: list[MagicMock]) -> MagicMock:
 
 def _build_use_case(deployments: list[MagicMock]) -> ForecastCostUseCase:
     adapter = VanillaAdapter("test-cluster", apps_api=_fake_apps_api(deployments))
-    service = ForecastCostService(cost_forecast_port=adapter, cluster_name="test-cluster")
-    return ForecastCostUseCase(service=service)
+    return ForecastCostUseCase(cost_forecast_port=adapter, cluster_name="test-cluster")
 
 
 class TestForecastCostIntegration:
@@ -107,8 +105,7 @@ class TestForecastCostIntegration:
         apps_api = MagicMock()
         apps_api.list_deployment_for_all_namespaces.side_effect = Exception("timeout")
         adapter = VanillaAdapter("test", apps_api=apps_api)
-        service = ForecastCostService(cost_forecast_port=adapter, cluster_name="test")
-        use_case = ForecastCostUseCase(service=service)
+        use_case = ForecastCostUseCase(cost_forecast_port=adapter, cluster_name="test")
 
         with pytest.raises(ClusterUnreachableError):
             use_case.execute(ForecastCostCommand())

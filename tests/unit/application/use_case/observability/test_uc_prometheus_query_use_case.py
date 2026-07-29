@@ -25,3 +25,32 @@ class TestPrometheusQueryUseCase:
         result = use_case.execute(ExecutePrometheusQueryCommand(query_type="instant"))
 
         assert isinstance(result, ExecutePrometheusQueryResponse)
+
+    def test_execute_range_query(self) -> None:
+        port = MagicMock()
+        port.range_query.return_value = []
+
+        use_case = PrometheusQueryUseCase(port=port)
+        result = use_case.execute(
+            ExecutePrometheusQueryCommand(
+                promql="up",
+                query_type="range",
+                start="2024-01-01T00:00:00Z",
+                end="2024-01-01T01:00:00Z",
+                step="60s",
+            )
+        )
+
+        assert isinstance(result, ExecutePrometheusQueryResponse)
+
+    def test_execute_with_non_empty_results(self) -> None:
+        port = MagicMock()
+        port.instant_query.return_value = [
+            {"metric": {"job": "api"}, "value": 42.0},
+        ]
+
+        use_case = PrometheusQueryUseCase(port=port)
+        result = use_case.execute(ExecutePrometheusQueryCommand(promql="up"))
+
+        assert isinstance(result, ExecutePrometheusQueryResponse)
+        assert result.result_count == 1

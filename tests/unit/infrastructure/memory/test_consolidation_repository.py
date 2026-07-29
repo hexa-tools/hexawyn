@@ -1,12 +1,28 @@
 from __future__ import annotations
 
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from hexawyn.application.ports.driven.consolidation_port import ConsolidationConfig
 from hexawyn.infrastructure.memory.consolidation_repository import (
     DuckDBConsolidationRepository,
+    _load_sql,
     _parse_consolidated_rows,
 )
+
+
+class TestLoadSql:
+    """Cover _load_sql function (line 17)."""
+
+    def test_loads_sql_file_content(self, tmp_path: Path) -> None:
+        with patch(
+            "hexawyn.infrastructure.memory.consolidation_repository.SQL_DIR",
+            tmp_path,
+        ):
+            sql_file = tmp_path / "test.sql"
+            sql_file.write_text("SELECT 1;\n", encoding="utf-8")
+            result = _load_sql("test.sql")
+            assert result == "SELECT 1;\n"
 
 
 class TestParseConsolidatedRows:

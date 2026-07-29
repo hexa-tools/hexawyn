@@ -3,14 +3,14 @@ from typing import TypedDict
 
 
 class ContainerImageDriftDict(TypedDict):
-    container_name: str
-    pod_name: str
+    deployment: str
     namespace: str
-    current_image: str
-    latest_image: str
-    drift_days: int
+    container: str
+    running_image: str
+    declared_image: str
+    source_of_truth: str
+    drift_type: str
     severity: str
-    recommendation: str
 
 
 @dataclass

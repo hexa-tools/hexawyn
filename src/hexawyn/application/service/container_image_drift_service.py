@@ -12,12 +12,12 @@ from hexawyn.application.ports.driven.live_resource_port import LiveResourcePort
 from hexawyn.application.ports.driving.container_image_drift.container_image_drift_service_port import (  # noqa: E501
     ContainerImageDriftServicePort,
 )
-from hexawyn.application.use_case.security.detect_container_image_drift.command import (  # type: ignore
-    ContainerImageDriftCommand,
+from hexawyn.application.use_case.security.detect_container_image_drift.command import (
+    DetectContainerImageDriftCommand,
 )
-from hexawyn.application.use_case.security.detect_container_image_drift.response import (  # type: ignore
+from hexawyn.application.use_case.security.detect_container_image_drift.response import (
     ContainerImageDriftDict,
-    ContainerImageDriftResponse,
+    DetectContainerImageDriftResponse,
 )
 from hexawyn.domain.models.constants import ConfigurationDriftConstants
 from hexawyn.domain.models.image_drift import ContainerImageDrift, ContainerImageDriftReport
@@ -49,8 +49,8 @@ class ContainerImageDriftService(ContainerImageDriftServicePort):
         self._image_drift_port = image_drift_port
 
     def detect_image_drift(  # noqa: C901
-        self, command: ContainerImageDriftCommand
-    ) -> ContainerImageDriftResponse:
+        self, command: DetectContainerImageDriftCommand
+    ) -> DetectContainerImageDriftResponse:
         live_resources = self._live_resource_port.list_live_resources(command.namespace)
         deployments = [resource for resource in live_resources if resource["kind"] == "Deployment"]
         kustomize_desired = self._render_kustomize_paths(command.kustomize_paths, command.namespace)
@@ -149,8 +149,8 @@ def _find_matching(
     return None
 
 
-def _to_response(report: ContainerImageDriftReport) -> ContainerImageDriftResponse:
-    return ContainerImageDriftResponse(
+def _to_response(report: ContainerImageDriftReport) -> DetectContainerImageDriftResponse:
+    return DetectContainerImageDriftResponse(
         out_of_sync=[_to_drift_dict(drift) for drift in report.out_of_sync],
         in_sync_count=report.in_sync_count,
         excluded_count=report.excluded_count,
@@ -161,7 +161,7 @@ def _to_response(report: ContainerImageDriftReport) -> ContainerImageDriftRespon
 
 
 def _to_drift_dict(drift: ContainerImageDrift) -> ContainerImageDriftDict:
-    return ContainerImageDriftDict(  # type: ignore
+    return ContainerImageDriftDict(
         deployment=drift.deployment,
         namespace=drift.namespace,
         container=drift.container,

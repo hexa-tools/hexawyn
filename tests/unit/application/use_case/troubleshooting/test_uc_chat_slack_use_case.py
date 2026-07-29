@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from hexawyn.application.use_case.troubleshooting.chat_slack.chat_slack_command import (
@@ -57,3 +57,30 @@ class TestChatSlackUseCase:
                     channel_id="C456",
                 )
             )
+
+    def test_execute_default_runtime_initialization(self) -> None:
+        mock_runtime = MagicMock()
+        mock_runtime.check_quota.return_value = {
+            "allowed": True,
+            "used": 5,
+            "limit": 50,
+        }
+        mock_runtime.run_investigation.return_value = {
+            "answer": "OK",
+            "suggestions": [],
+        }
+
+        with patch(
+            "hexawyn.application.service.runtime_adapter.get_runtime",
+            return_value=mock_runtime,
+        ):
+            use_case = ChatSlackUseCase()
+            result = use_case.execute(
+                ChatSlackCommand(
+                    query="test",
+                    cluster_name="prod",
+                    channel_id="C123",
+                )
+            )
+
+        assert isinstance(result, ChatSlackResponse)

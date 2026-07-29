@@ -43,3 +43,20 @@ class TestLiveTopologyMapperUseCase:
         result = use_case.execute(LiveTopologyMapperCommand())
 
         assert isinstance(result, LiveTopologyMapperResponse)
+
+    def test_execute_saves_snapshot_when_port_provided(self) -> None:
+        k8s = MagicMock()
+        k8s.list_services.return_value = []
+        istio = MagicMock()
+        istio.get_virtual_service_edges.return_value = []
+        snapshot = MagicMock()
+
+        use_case = LiveTopologyMapperUseCase(
+            kubernetes_topology_port=k8s,
+            istio_topology_port=istio,
+            snapshot_port=snapshot,
+            cluster_name="test-cluster",
+        )
+        use_case.execute(LiveTopologyMapperCommand())
+
+        snapshot.save_snapshot.assert_called_once()

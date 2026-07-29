@@ -8,9 +8,6 @@ from unittest.mock import MagicMock
 
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
-from hexawyn.application.service.estimate_rightsizing_savings_service import (
-    EstimateRightsizingSavingsService,
-)
 from hexawyn.application.use_case.finops.estimate_rightsizing_savings.command import (
     EstimateRightsizingSavingsCommand,
 )
@@ -73,8 +70,7 @@ def _build_use_case(
     apps_api: MagicMock, metrics_api: MagicMock | None = None
 ) -> EstimateRightsizingSavingsUseCase:
     adapter = VanillaAdapter("test", apps_api=apps_api, metrics_api=metrics_api)
-    service = EstimateRightsizingSavingsService(rightsizing_port=adapter)
-    return EstimateRightsizingSavingsUseCase(service=service)
+    return EstimateRightsizingSavingsUseCase(rightsizing_port=adapter)
 
 
 class TestEstimateRightsizingSavingsIntegration:
@@ -88,7 +84,7 @@ class TestEstimateRightsizingSavingsIntegration:
         )  # 819 Mi ≈ 20% of 4Gi
         use_case = _build_use_case(apps_api, metrics_api)
 
-        response = use_case.execute(EstimateRightsizingSavingsCommand(top_n=5))
+        response = use_case.estimate_rightsizing_savings(EstimateRightsizingSavingsCommand(top_n=5))
 
         assert response.metrics_server_available is True
         recs = response.report.recommendations
@@ -105,7 +101,7 @@ class TestEstimateRightsizingSavingsIntegration:
         )
         use_case = _build_use_case(apps_api, metrics_api)
 
-        response = use_case.execute(EstimateRightsizingSavingsCommand())
+        response = use_case.estimate_rightsizing_savings(EstimateRightsizingSavingsCommand())
 
         assert response.report.total_monthly_savings_usd > 0
 
@@ -116,7 +112,7 @@ class TestEstimateRightsizingSavingsIntegration:
         metrics_api = _fake_metrics_api([])
         use_case = _build_use_case(apps_api, metrics_api)
 
-        response = use_case.execute(EstimateRightsizingSavingsCommand())
+        response = use_case.estimate_rightsizing_savings(EstimateRightsizingSavingsCommand())
 
         assert response.metrics_server_available is False
         assert response.report.recommendations == []
@@ -132,7 +128,7 @@ class TestEstimateRightsizingSavingsIntegration:
         )
         use_case = _build_use_case(apps_api, metrics_api)
 
-        response = use_case.execute(EstimateRightsizingSavingsCommand())
+        response = use_case.estimate_rightsizing_savings(EstimateRightsizingSavingsCommand())
 
         recs = response.report.recommendations
         assert any(r.rightsizing_type == RightsizingType.UNDER_PROVISIONED for r in recs)
@@ -147,7 +143,7 @@ class TestEstimateRightsizingSavingsIntegration:
         metrics_api = _fake_metrics_api(pod_metrics)
         use_case = _build_use_case(apps_api, metrics_api)
 
-        response = use_case.execute(EstimateRightsizingSavingsCommand(top_n=3))
+        response = use_case.estimate_rightsizing_savings(EstimateRightsizingSavingsCommand(top_n=3))
 
         assert len(response.report.recommendations) <= 3  # noqa: PLR2004
 
@@ -158,7 +154,7 @@ class TestEstimateRightsizingSavingsIntegration:
         use_case = _build_use_case(apps_api)
 
         with pytest.raises(ClusterUnreachableError):
-            use_case.execute(EstimateRightsizingSavingsCommand())
+            use_case.estimate_rightsizing_savings(EstimateRightsizingSavingsCommand())
 
     # TC7 — optimal workload not included in recommendations
     def test_tc7_optimal_workload_excluded(self) -> None:
@@ -171,7 +167,7 @@ class TestEstimateRightsizingSavingsIntegration:
         )
         use_case = _build_use_case(apps_api, metrics_api)
 
-        response = use_case.execute(EstimateRightsizingSavingsCommand())
+        response = use_case.estimate_rightsizing_savings(EstimateRightsizingSavingsCommand())
 
         assert response.report.recommendations == []
 
@@ -184,7 +180,7 @@ class TestEstimateRightsizingSavingsIntegration:
         )
         use_case = _build_use_case(apps_api, metrics_api)
 
-        response = use_case.execute(EstimateRightsizingSavingsCommand())
+        response = use_case.estimate_rightsizing_savings(EstimateRightsizingSavingsCommand())
 
         # No recommendations when there are no resource requests to compare against
         assert response.report.recommendations == []

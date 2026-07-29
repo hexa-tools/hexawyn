@@ -16,11 +16,10 @@ class OTelRedundantCallAdapter(RedundantCallDetectionPort):
         result: list[SpanInfo] = []
         for trace in traces:
             result.append(
-                SpanInfo(  # type: ignore
-                    span_id=trace["traceID"][:16],
-                    operation=f"trace:{trace['traceID'][:8]}",
+                SpanInfo(
+                    span_name=f"trace:{trace['traceID'][:8]}",
+                    service_name="",
                     duration_ms=float(trace.get("duration", 0)) / 1000.0,
-                    parent_span_id="",
                 )
             )
         return result

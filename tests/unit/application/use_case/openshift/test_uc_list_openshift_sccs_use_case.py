@@ -27,3 +27,12 @@ class TestListOpenshiftSccsUseCase:
         use_case = ListOpenshiftSccsUseCase(port=port)
         result = use_case.execute(ListOpenshiftSccsCommand())
         assert result.count == 0
+
+    def test_execute_handles_exception(self) -> None:
+        port = MagicMock()
+        port.list_security_context_constraints.side_effect = Exception("boom")
+
+        use_case = ListOpenshiftSccsUseCase(port=port)
+        result = use_case.execute(ListOpenshiftSccsCommand())
+
+        assert result.error == "boom"

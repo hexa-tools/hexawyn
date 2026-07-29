@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 
 from hexawyn.domain.models.namespace_waste import NamespaceRawData
 
+__all__ = ["NamespaceRawData", "NamespaceWasteAnalysisPort"]
+
 
 class NamespaceWasteAnalysisPort(ABC):
     """Driven port: provides raw K8s resource requests and Prometheus actual usage per namespace."""

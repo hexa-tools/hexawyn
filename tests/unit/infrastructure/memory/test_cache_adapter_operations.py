@@ -46,6 +46,19 @@ class TestDuckDBCacheAdapter:
             _adapter = DuckDBCacheAdapter(conn=mock_conn)
             mock_conn.execute.assert_called_once_with("SQL")
 
+    def test_initialization_without_conn_creates_own_connection(self) -> None:
+        with patch(
+            "hexawyn.infrastructure.memory.duckdb_cache_adapter.duckdb.connect",
+        ) as mock_connect:
+            mock_connect.return_value = MagicMock()
+            with patch(
+                "hexawyn.infrastructure.memory.duckdb_cache_adapter._load_sql",
+                return_value="SQL",
+            ):
+                adapter = DuckDBCacheAdapter()
+                mock_connect.assert_called_once()
+                assert adapter._owns_connection is True
+
     def test_close_does_nothing_when_injected_conn(self) -> None:
         mock_conn = MagicMock()
         with patch(
@@ -55,6 +68,20 @@ class TestDuckDBCacheAdapter:
             adapter = DuckDBCacheAdapter(conn=mock_conn)
             adapter.close()
             mock_conn.close.assert_not_called()
+
+    def test_close_calls_close_when_owns_connection(self) -> None:
+        with patch(
+            "hexawyn.infrastructure.memory.duckdb_cache_adapter.duckdb.connect",
+        ) as mock_connect:
+            mock_conn = MagicMock()
+            mock_connect.return_value = mock_conn
+            with patch(
+                "hexawyn.infrastructure.memory.duckdb_cache_adapter._load_sql",
+                return_value="SQL",
+            ):
+                adapter = DuckDBCacheAdapter()
+                adapter.close()
+                mock_conn.close.assert_called_once()
 
     def test_get_returns_none_when_no_row(self) -> None:
         mock_conn = MagicMock()
@@ -190,6 +217,38 @@ class TestDuckDBCacheAdapter:
             cached, validation = adapter.get_with_validation("key", "CrashLoopBackOff", 5)
             assert cached is None
             assert "RESTART_COUNT_CHANGED" in validation.reason
+
+    def test_get_with_validation_ttl_expired(self) -> None:
+        mock_conn = MagicMock()
+        now = datetime.datetime.now(datetime.UTC)
+        row = (
+            "uuid-1",
+            "key",
+            "OOMKill",
+            "cause",
+            "fix",
+            "critical",
+            "prod",
+            "ns",
+            "pod",
+            "Deployment",
+            "CrashLoopBackOff",
+            0,
+            "tool",
+            now - datetime.timedelta(hours=10),
+            now - datetime.timedelta(hours=4),
+            False,
+        )
+        mock_conn.execute.return_value.fetchone.return_value = row
+
+        with patch(
+            "hexawyn.infrastructure.memory.duckdb_cache_adapter._load_sql",
+            return_value="SQL",
+        ):
+            adapter = DuckDBCacheAdapter(conn=mock_conn)
+            cached, validation = adapter.get_with_validation("key", "CrashLoopBackOff", 0)
+            assert cached is None
+            assert "TTL_EXPIRED" in validation.reason
 
     def test_set_generates_id_when_missing(self) -> None:
         mock_conn = MagicMock()

@@ -27,3 +27,34 @@ class TestDescribePodUseCase:
         use_case = DescribePodUseCase(k8s_port=port)
         result = use_case.execute(DescribePodCommand())
         assert isinstance(result, DescribePodResponse)
+
+    def test_execute_finds_pod_by_name(self) -> None:
+        port = MagicMock()
+        port.list_pods.return_value = [
+            {
+                "name": "my-nginx",
+                "namespace": "default",
+                "status": "Running",
+                "restarts": 3,
+                "node": "node-1",
+                "age": "5d",
+            },
+        ]
+
+        use_case = DescribePodUseCase(k8s_port=port)
+        result = use_case.execute(DescribePodCommand(pod_name="my-nginx", namespace="default"))
+
+        assert result.pod_name == "my-nginx"
+        assert result.status == "Running"
+        assert result.restarts == 3  # noqa: PLR2004
+
+    def test_execute_pod_not_found_returns_not_found_status(self) -> None:
+        port = MagicMock()
+        port.list_pods.return_value = [
+            {"name": "other-pod", "namespace": "default", "status": "Running"},
+        ]
+
+        use_case = DescribePodUseCase(k8s_port=port)
+        result = use_case.execute(DescribePodCommand(pod_name="missing-pod", namespace="default"))
+
+        assert result.status == "NotFound"

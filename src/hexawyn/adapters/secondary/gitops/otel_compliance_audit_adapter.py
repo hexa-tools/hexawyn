@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 from hexawyn.adapters.secondary.gitops.otel_http_client import search_jaeger_traces
-from hexawyn.application.ports.driven.compliance_audit_port import (  # type: ignore
-    AccessMatch,
+from hexawyn.application.ports.driven.compliance_audit_port import (
     ComplianceAuditPort,
 )
-from hexawyn.domain.models.sensitive_data_audit import SensitiveAccessRequest
+from hexawyn.domain.models.sensitive_data_audit import AccessMatch, SensitiveAccessRequest
 
 
 class OTelComplianceAuditAdapter(ComplianceAuditPort):
@@ -22,11 +21,14 @@ class OTelComplianceAuditAdapter(ComplianceAuditPort):
         for trace in traces:
             if trace.get("hasErrors"):
                 result.append(
-                    AccessMatch(  # type: ignore
-                        trace_id=trace["traceID"],
-                        service="unknown",
-                        pattern_matched=request.pattern,
-                        span_count=trace.get("spanCount", 0),
+                    AccessMatch(
+                        timestamp="",
+                        caller_ip="",
+                        caller_service="unknown",
+                        method="",
+                        url="",
+                        status_code=0,
+                        user_id=None,
                     )
                 )
         return result

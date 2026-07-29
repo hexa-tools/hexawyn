@@ -9,9 +9,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
-from hexawyn.application.service.detect_over_provisioned_namespaces_service import (
-    DetectOverProvisionedNamespacesService,
-)
 from hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.command import (
     DetectOverProvisionedNamespacesCommand,
 )
@@ -61,8 +58,7 @@ def _build_use_case(
     api: MagicMock, prometheus_url: str = ""
 ) -> DetectOverProvisionedNamespacesUseCase:
     adapter = VanillaAdapter("test-cluster", api=api, prometheus_url=prometheus_url)
-    service = DetectOverProvisionedNamespacesService(waste_port=adapter)
-    return DetectOverProvisionedNamespacesUseCase(service=service)
+    return DetectOverProvisionedNamespacesUseCase(waste_port=adapter)
 
 
 class TestDetectOverProvisionedNamespacesIntegration:
@@ -96,9 +92,9 @@ class TestDetectOverProvisionedNamespacesIntegration:
             resp.json.return_value = cpu_payload
             resp.raise_for_status.return_value = None
             mock_get.return_value = resp
-            result = _build_use_case(api, "http://prometheus:9090").execute(
-                DetectOverProvisionedNamespacesCommand()
-            )
+            result = _build_use_case(
+                api, "http://prometheus:9090"
+            ).detect_over_provisioned_namespaces(DetectOverProvisionedNamespacesCommand())
 
         ns_map = {ns.namespace: ns for ns in result.report.namespaces}
         assert ns_map["dev"].is_over_provisioned is True
@@ -124,9 +120,9 @@ class TestDetectOverProvisionedNamespacesIntegration:
             resp.json.return_value = cpu_payload
             resp.raise_for_status.return_value = None
             mock_get.return_value = resp
-            result = _build_use_case(api, "http://prometheus:9090").execute(
-                DetectOverProvisionedNamespacesCommand()
-            )
+            result = _build_use_case(
+                api, "http://prometheus:9090"
+            ).detect_over_provisioned_namespaces(DetectOverProvisionedNamespacesCommand())
 
         assert result.report.namespaces[0].namespace == "dev"
 
@@ -136,7 +132,9 @@ class TestDetectOverProvisionedNamespacesIntegration:
         api = _fake_core_api(pods, ns_objs)
         use_case = _build_use_case(api)
 
-        result = use_case.execute(DetectOverProvisionedNamespacesCommand())
+        result = use_case.detect_over_provisioned_namespaces(
+            DetectOverProvisionedNamespacesCommand()
+        )
 
         assert result.report.namespaces == []
         excluded_names = [e.namespace for e in result.report.excluded]
@@ -148,7 +146,9 @@ class TestDetectOverProvisionedNamespacesIntegration:
         api = _fake_core_api(pods, ns_objs)
         use_case = _build_use_case(api, prometheus_url="")
 
-        result = use_case.execute(DetectOverProvisionedNamespacesCommand())
+        result = use_case.detect_over_provisioned_namespaces(
+            DetectOverProvisionedNamespacesCommand()
+        )
 
         assert result.prometheus_available is False
         assert result.report.namespaces[0].cpu_waste_pct == 0.0
@@ -159,7 +159,7 @@ class TestDetectOverProvisionedNamespacesIntegration:
         use_case = _build_use_case(api)
 
         with pytest.raises(ClusterUnreachableError):
-            use_case.execute(DetectOverProvisionedNamespacesCommand())
+            use_case.detect_over_provisioned_namespaces(DetectOverProvisionedNamespacesCommand())
 
     def test_prometheus_unavailable_raises_error(self) -> None:
         import httpx
@@ -171,7 +171,9 @@ class TestDetectOverProvisionedNamespacesIntegration:
 
         with patch("httpx.get", side_effect=httpx.HTTPError("timeout")):
             with pytest.raises(PrometheusUnavailableError):
-                use_case.execute(DetectOverProvisionedNamespacesCommand())
+                use_case.detect_over_provisioned_namespaces(
+                    DetectOverProvisionedNamespacesCommand()
+                )
 
     def test_top_n_limits_results(self) -> None:
         pods = [_pod(f"ns-{i}", cpu=f"{(i + 1) * 1000}m") for i in range(10)]
@@ -179,7 +181,9 @@ class TestDetectOverProvisionedNamespacesIntegration:
         api = _fake_core_api(pods, ns_objs)
         use_case = _build_use_case(api)
 
-        result = use_case.execute(DetectOverProvisionedNamespacesCommand(top_n=3))
+        result = use_case.detect_over_provisioned_namespaces(
+            DetectOverProvisionedNamespacesCommand(top_n=3)
+        )
 
         assert len(result.report.namespaces) <= 3  # noqa: PLR2004
 
@@ -200,9 +204,9 @@ class TestDetectOverProvisionedNamespacesIntegration:
             resp.json.return_value = prometheus_payload
             resp.raise_for_status.return_value = None
             mock_get.return_value = resp
-            result = _build_use_case(api, "http://prometheus:9090").execute(
-                DetectOverProvisionedNamespacesCommand()
-            )
+            result = _build_use_case(
+                api, "http://prometheus:9090"
+            ).detect_over_provisioned_namespaces(DetectOverProvisionedNamespacesCommand())
 
         dev = result.report.namespaces[0]
         # (8.0 - 0.5) / 8.0 * 100 = 93.75%

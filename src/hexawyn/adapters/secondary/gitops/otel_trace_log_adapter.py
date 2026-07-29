@@ -24,10 +24,9 @@ class OTelTraceLogAdapter(TraceLogCorrelationPort):
         result: list[TraceLogSpan] = []
         for trace in traces:
             result.append(
-                TraceLogSpan(  # type: ignore
+                TraceLogSpan(
                     trace_id=trace["traceID"],
-                    span_id=trace["traceID"][:16],
-                    service="",
+                    span_name=trace["traceID"][:16],
                     error_message="error detected" if trace.get("hasErrors") else "",
                     timestamp="",
                 )
@@ -39,10 +38,9 @@ class OTelTraceLogAdapter(TraceLogCorrelationPort):
             return []
 
         return [
-            CorrelatedLog(  # type: ignore
-                trace_id=trace_id,
-                log_message="log data not available without log backend",
+            CorrelatedLog(
                 timestamp="",
-                service="unknown",
+                level="info",
+                message="log data not available without log backend",
             )
         ]

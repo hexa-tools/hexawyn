@@ -1,4 +1,4 @@
-from hexawyn.application.ports.driven.namespace_waste_port import (  # type: ignore
+from hexawyn.application.ports.driven.namespace_waste_port import (
     NamespaceRawData,
     NamespaceWasteAnalysisPort,
 )

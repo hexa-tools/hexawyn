@@ -27,3 +27,12 @@ class TestListOpenshiftProjectsUseCase:
         use_case = ListOpenshiftProjectsUseCase(port=port)
         result = use_case.execute(ListOpenshiftProjectsCommand())
         assert result.count == 0
+
+    def test_execute_handles_exception(self) -> None:
+        port = MagicMock()
+        port.list_projects.side_effect = Exception("boom")
+
+        use_case = ListOpenshiftProjectsUseCase(port=port)
+        result = use_case.execute(ListOpenshiftProjectsCommand())
+
+        assert result.error == "boom"

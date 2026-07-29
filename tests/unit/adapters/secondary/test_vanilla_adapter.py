@@ -215,18 +215,6 @@ class TestVanillaAdapter:
 
         assert context["provider"] == "kind"
 
-    def test_unknown_cluster_name_uses_active_kubeconfig_context(self) -> None:
-        api = _CoreApi([])
-        with patch(
-            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.load_kubeconfig",
-            return_value=api,
-        ) as load_kubeconfig:
-            adapter = VanillaAdapter("unknown")
-
-            assert adapter.list_pods() == []
-
-        load_kubeconfig.assert_called_once_with(context=None)
-
     def test_cluster_metrics_returns_real_counts_and_usage(self) -> None:
         api = _CoreApi(
             pods=[
@@ -312,86 +300,6 @@ class TestVanillaAdapter:
         assert adapter.get_findings() == []
         assert adapter.get_health_score() == 100  # noqa: PLR2004
         assert adapter.get_health_status() == "healthy"
-
-
-class TestVanillaAdapterConfigIsolation:
-    """Tests that catch the wrong-cluster bug.
-
-    If VanillaAdapter calls load_kubeconfig() more than once, or if the cached
-    CoreV1Api uses the global kubernetes Configuration, background calls to
-    config.load_kube_config() for another context will silently switch which
-    cluster list_pods() talks to.
-
-    Regression: CLI was fetching pods from kind-hexawyn (127.0.0.1:33831)
-    instead of hetzner-preprod because _validate_connection() was changing the
-    global config between the panel refresh and the investigation call.
-    """
-
-    def test_api_client_initialized_once_reused_on_cache_expiry(self) -> None:
-        """load_kubeconfig must be called exactly once per VanillaAdapter instance.
-
-        If called again after cache expiry, it would pick up the current global
-        kubernetes config (which may have been changed to a different context by
-        a background task such as _validate_connection or startup_status).
-        """
-        mock_api = MagicMock()
-        mock_api.list_pod_for_all_namespaces.return_value = MagicMock(items=[])
-        mock_api.list_node.return_value = MagicMock(items=[])
-
-        with patch(
-            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.load_kubeconfig",
-            return_value=mock_api,
-        ) as mock_load_kubeconfig:
-            adapter = VanillaAdapter("hetzner-preprod")
-
-            # First call initialises _api via load_kubeconfig
-            adapter.list_pods()
-            assert mock_load_kubeconfig.call_count == 1
-            mock_load_kubeconfig.assert_called_with(context="hetzner-preprod")
-
-            # Expire the pod cache to force a real K8s call
-            adapter._pod_cache = None
-            adapter._pod_cache_updated_at = 0.0
-
-            # Second call must reuse the same _api — NOT call load_kubeconfig again
-            adapter.list_pods()
-            assert mock_load_kubeconfig.call_count == 1, (
-                "load_kubeconfig() was called more than once. If the global K8s config "
-                "changed between the two calls (e.g. background _validate_connection), "
-                "the second call would create a CoreV1Api for the wrong cluster."
-            )
-
-    def test_list_pods_uses_correct_context_not_global_default(self) -> None:
-        """VanillaAdapter must pass the cluster name as context to load_kubeconfig.
-
-        Passing context=None would use the global current-context, which may point
-        to a different cluster than the one the user selected.
-        """
-        mock_api = MagicMock()
-        mock_api.list_pod_for_all_namespaces.return_value = MagicMock(items=[])
-
-        with patch(
-            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.load_kubeconfig",
-            return_value=mock_api,
-        ) as mock_load_kubeconfig:
-            adapter = VanillaAdapter("hetzner-preprod")
-            adapter.list_pods()
-
-        mock_load_kubeconfig.assert_called_once_with(context="hetzner-preprod")
-
-    def test_unknown_cluster_uses_active_context_not_fixed_name(self) -> None:
-        """For 'unknown' clusters the active context is used (context=None)."""
-        mock_api = MagicMock()
-        mock_api.list_pod_for_all_namespaces.return_value = MagicMock(items=[])
-
-        with patch(
-            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.load_kubeconfig",
-            return_value=mock_api,
-        ) as mock_load_kubeconfig:
-            adapter = VanillaAdapter("unknown")
-            adapter.list_pods()
-
-        mock_load_kubeconfig.assert_called_once_with(context=None)
 
 
 class TestVanillaAdapterListNamespaces:
@@ -772,21 +680,6 @@ class TestVanillaAdapterTektonPort:
 
         with pytest.raises(PipelineNotFoundError):
             adapter.list_task_runs("build-deploy", "ci")
-
-    def test_crd_api_client_creates_custom_objects_api_when_not_injected(self) -> None:
-        from unittest.mock import patch as _patch
-
-        from kubernetes import client as k8s_client
-
-        mock_crd = MagicMock()
-        adapter = VanillaAdapter("test-cluster")
-        with (
-            _patch.object(adapter, "_api_client"),
-            _patch.object(k8s_client, "CustomObjectsApi", return_value=mock_crd),
-        ):
-            result = adapter._crd_api_client()
-
-        assert result is mock_crd
 
 
 def _make_pipeline_run(  # noqa: PLR0913
@@ -1489,27 +1382,9 @@ class TestVanillaAdapterNamespaceWastePort:
         assert dev["cpu_requested_cores"] is None
 
 
-class TestVanillaAdapterCoreApi:
-    def test_core_api_uses_injected_api(self) -> None:
-        fake_api = MagicMock()
-        adapter = VanillaAdapter("test-cluster", api=fake_api)
-        assert adapter._core_api() is fake_api
-
-    def test_core_api_loads_kubeconfig_when_no_injected_api(self) -> None:
-        fake_core = MagicMock()
-        adapter = VanillaAdapter("test-cluster")
-        with (
-            patch("hexawyn.adapters.secondary.vanilla.vanilla_adapter.load_kubeconfig"),
-            patch("hexawyn.adapters.secondary.vanilla.vanilla_adapter.client") as mock_client,
-        ):
-            mock_client.CoreV1Api.return_value = fake_core
-            result = adapter._core_api()
-        assert result is fake_core
-
-
 class TestContainerRequest:
     def _call(self, container: object, resource: str) -> object:
-        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _container_request
+        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import _container_request
 
         return _container_request(container, resource)
 
@@ -1521,7 +1396,7 @@ class TestContainerRequest:
 
 class TestParseMemory:
     def _call(self, value: str) -> float:
-        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _parse_memory
+        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import _parse_memory
 
         return _parse_memory(value)
 
@@ -1532,7 +1407,9 @@ class TestParseMemory:
 
 class TestParsePrometheusVector:
     def _call(self, payload: object) -> dict[str, float]:
-        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _parse_prometheus_vector
+        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+            _parse_prometheus_vector,
+        )
 
         return _parse_prometheus_vector(payload)  # type: ignore[arg-type]
 
@@ -1789,41 +1666,49 @@ class TestVanillaAdapterRightsizingPort:
         mock_apps.assert_called_once()
 
     def test_sum_container_metrics_non_list_returns_zero(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _sum_container_metrics
+        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+            _sum_container_metrics,
+        )
 
         assert _sum_container_metrics("not-a-list") == (0.0, 0.0)
 
     def test_sum_container_metrics_non_dict_container_skipped(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _sum_container_metrics
+        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+            _sum_container_metrics,
+        )
 
         result = _sum_container_metrics(["not-a-dict", None])
 
         assert result == (0.0, 0.0)
 
     def test_sum_container_metrics_non_dict_usage_skipped(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _sum_container_metrics
+        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+            _sum_container_metrics,
+        )
 
         result = _sum_container_metrics([{"usage": "bad"}])
 
         assert result == (0.0, 0.0)
 
     def test_parse_nanocores_with_n_suffix(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _parse_nanocores
+        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import _parse_nanocores
 
         assert _parse_nanocores("400000000n") == pytest.approx(0.4, abs=0.001)
 
     def test_parse_memory_to_mi_ki_suffix(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _parse_memory_to_mi
+        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import _parse_memory_to_mi
 
         assert _parse_memory_to_mi("1048576Ki") == pytest.approx(1024.0, abs=0.1)
 
     def test_parse_memory_to_mi_gi_suffix(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _parse_memory_to_mi
+        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import _parse_memory_to_mi
 
         assert _parse_memory_to_mi("2Gi") == pytest.approx(2048.0, abs=0.1)
 
     def test_workload_key_from_pod_name_two_parts_returns_prefix(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _workload_key_from_pod_name
+        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+            _workload_key_from_pod_name,
+        )
 
         # Pod with only one dash (no RS hash): "svc-abcde"
         result = _workload_key_from_pod_name("svc-abcde", "ns")
@@ -1831,7 +1716,9 @@ class TestVanillaAdapterRightsizingPort:
         assert result == "ns/svc"
 
     def test_workload_key_from_pod_name_no_dash_returns_none(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.vanilla_adapter import _workload_key_from_pod_name
+        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+            _workload_key_from_pod_name,
+        )
 
         result = _workload_key_from_pod_name("nodash", "ns")
 

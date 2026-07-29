@@ -6,7 +6,6 @@ from unittest.mock import Mock
 
 import pytest
 from hexawyn.adapters.secondary.gitops.cert_manager_adapter import CertManagerAdapter
-from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.domain.models.certificates import (
     Certificate,
     CertificateStatus,
@@ -19,7 +18,7 @@ def _mock_vanilla_with_crds(*item_lists: list[dict]) -> Mock:
     Uses side_effect to return successive item lists for each CRD API call.
     If more calls are made than items provided, returns empty list.
     """
-    mock_vanilla = Mock(spec=VanillaAdapter)
+    mock_vanilla = Mock()
     mock_crd = Mock()
     items_iter = iter(item_lists)
 
@@ -100,7 +99,7 @@ class TestCertManagerAdapterDetect:
 
     def test_detect_not_installed(self) -> None:
         # When CRD doesn't exist, K8s API raises ApiException
-        mock_vanilla = Mock(spec=VanillaAdapter)
+        mock_vanilla = Mock()
         mock_crd = Mock()
         from kubernetes.client import ApiException
 

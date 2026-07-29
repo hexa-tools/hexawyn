@@ -223,3 +223,93 @@ class TestCorrelationAnalysis:
         result = analyzer.get_correlation_analysis()
         assert result.correlations == []
         assert result.cascades == []
+
+
+class TestDetailedAnalysisBurst:
+    def test_burst_pattern_detected(self) -> None:
+        ts = datetime.now(UTC)
+        events = [
+            _make_event(
+                reason="e1",
+                severity=EventSeverity.HIGH,
+                timestamp=ts,
+            ),
+            _make_event(
+                reason="e2",
+                severity=EventSeverity.HIGH,
+                timestamp=ts + timedelta(milliseconds=10),
+            ),
+            _make_event(
+                reason="e3",
+                severity=EventSeverity.HIGH,
+                timestamp=ts + timedelta(milliseconds=500),
+            ),
+            _make_event(
+                reason="e4",
+                severity=EventSeverity.HIGH,
+                timestamp=ts + timedelta(milliseconds=510),
+            ),
+        ]
+        analyzer = ProgressiveEventAnalyzer(events)
+        result = analyzer.get_detailed_analysis()
+        assert result.temporal_patterns
+        assert any("Burst" in p for p in result.temporal_patterns)
+
+
+class TestRecommendationStorage:
+    def test_storage_recommendation(self) -> None:
+        events = [
+            _make_event(
+                severity=EventSeverity.LOW,
+                category=EventCategory.STORAGE,
+                reason="VolumeBindingFailed",
+            ),
+        ]
+        analyzer = ProgressiveEventAnalyzer(events)
+        result = analyzer.get_detailed_analysis()
+        assert any("Storage" in r for r in result.recommendations)
+
+
+class TestCascadeEdgeCases:
+    def test_cascade_break_between_cascades(self) -> None:
+        ts = datetime.now(UTC)
+        events = [
+            _make_event(
+                reason="e1",
+                involved_object="pod/b",
+                timestamp=ts,
+            ),
+            _make_event(
+                reason="e2",
+                involved_object="pod/b",
+                timestamp=ts + timedelta(minutes=5),
+            ),
+            _make_event(
+                reason="e3",
+                involved_object="pod/b",
+                timestamp=ts + timedelta(minutes=10),
+            ),
+            _make_event(
+                reason="e4",
+                involved_object="pod/c",
+                timestamp=ts + timedelta(minutes=60),
+            ),
+        ]
+        analyzer = ProgressiveEventAnalyzer(events)
+        result = analyzer.get_correlation_analysis()
+        assert len(result.cascades) == 1
+        assert len(result.cascades[0]) == 3  # noqa: PLR2004
+
+
+class TestModerateResourceImpact:
+    def test_moderate_resource_impact_single_oom(self) -> None:
+        events = [
+            _make_event(
+                reason="OOMKilled",
+                category=EventCategory.RESOURCE,
+                severity=EventSeverity.CRITICAL,
+            ),
+        ]
+        analyzer = ProgressiveEventAnalyzer(events)
+        result = analyzer.get_detailed_analysis()
+        assert "Moderate resource impact" in result.resource_impact

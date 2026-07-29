@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from hexawyn.adapters.secondary.openshift.openshift_logs_adapter import OpenShiftLogsAdapter
 from hexawyn.application.ports.driven.log_search_port import LogSearchPort
@@ -18,6 +18,23 @@ class TestOpenShiftLogsAdapter:
         assert result == []
         delegate.fetch_pod_container_logs.assert_called_once_with("pod", "ns", 5)
 
-    def test_lazy_default_delegate(self) -> None:
+    def test_lazy_default_delegate_is_none(self) -> None:
         adapter = OpenShiftLogsAdapter()
-        assert isinstance(adapter._delegate, LogSearchPort) or adapter._delegate is None
+        assert adapter._delegate is None
+
+    def test_lazy_init_fetch_creates_and_uses_delegate(self) -> None:
+        mock_kubernetes_adapter = Mock(spec=LogSearchPort)
+        mock_kubernetes_adapter.fetch_pod_container_logs.return_value = []
+
+        with patch(
+            "hexawyn.adapters.secondary.gitops.kubernetes_pod_log_search_adapter"
+            ".KubernetesPodLogSearchAdapter",
+            return_value=mock_kubernetes_adapter,
+        ):
+            adapter = OpenShiftLogsAdapter()
+            result = adapter.fetch_pod_container_logs("mypod", "myns", 10)
+            assert result == []
+            mock_kubernetes_adapter.fetch_pod_container_logs.assert_called_once_with(
+                "mypod", "myns", 10
+            )
+            assert adapter._delegate is mock_kubernetes_adapter

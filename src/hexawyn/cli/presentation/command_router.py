@@ -22,8 +22,10 @@ def is_setup_command(text: str) -> bool:
 
 
 def extract_requested_context(text: str) -> str | None:
-    parts = text.split(maxsplit=1)
-    if len(parts) == 1:
+    if not text.strip():
+        return None
+    parts = text.strip().split(maxsplit=1)
+    if len(parts) < 2:  # noqa: PLR2004
         return None
     requested_name = parts[1].strip()
     return requested_name if requested_name else None

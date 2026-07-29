@@ -127,3 +127,35 @@ class TestDetectPrivilegedPodsUseCase:
         result = use_case.execute(DetectPrivilegedPodsCommand())
 
         assert result.compliant_pod_count == 0
+
+    def test_execute_daemonset_system_pod_gets_exemption_note(self) -> None:
+        system_pod = {
+            "pod_name": "calico-node-xyz",
+            "namespace": "kube-system",
+            "owner_kind": "DaemonSet",
+            "pod_run_as_non_root": False,
+            "host_pid": False,
+            "host_network": True,
+            "host_ipc": False,
+            "containers": [
+                {
+                    "container_name": "calico",
+                    "container_kind": "container",
+                    "privileged": True,
+                    "allow_privilege_escalation": True,
+                    "run_as_non_root": False,
+                    "added_capabilities": [],
+                }
+            ],
+        }
+        port = MagicMock()
+        port.list_pod_security_specs.return_value = [system_pod]
+        port.get_namespace_psa_enforce_levels.return_value = {}
+
+        use_case = DetectPrivilegedPodsUseCase(port=port)
+        result = use_case.execute(DetectPrivilegedPodsCommand())
+
+        assert result.total_pods_checked == 1
+        assert result.compliant_pod_count == 0
+        assert len(result.findings) > 0
+        assert result.findings[0]["note"] == "system workload — exempt from PSS"

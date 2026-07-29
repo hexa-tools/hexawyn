@@ -199,8 +199,8 @@ class TestCacheAndQuotaIntegration:
         conn.execute(schema_sql)
 
         monkeypatch.setattr(
-            "hexawyn.infrastructure.config.quota_manager.get_connection",
-            lambda: conn,
+            "hexawyn.infrastructure.config.quota_manager._store",
+            QuotaRepository(conn=conn),
         )
 
         set_l1(

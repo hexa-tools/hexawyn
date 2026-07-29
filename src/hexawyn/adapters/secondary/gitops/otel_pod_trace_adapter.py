@@ -15,12 +15,11 @@ class OTelPodTraceAdapter(SlowTraceSearchPort):
         result: list[SlowTrace] = []
         for trace in traces:
             result.append(
-                SlowTrace(  # type: ignore
+                SlowTrace(
                     trace_id=trace["traceID"],
-                    service="",
-                    operation="",
                     duration_ms=float(trace.get("duration", 0)) / 1000.0,
-                    has_errors=bool(trace.get("hasErrors")),
+                    operation="",
+                    span_count=int(trace.get("spanCount", 0)),
                 )
             )
         return result

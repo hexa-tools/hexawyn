@@ -6,7 +6,6 @@ from unittest.mock import MagicMock
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.ports.driven.tekton_port import PipelineRunInfo, TektonPort
-from hexawyn.application.service.list_pipeline_runs_service import ListPipelineRunsService
 from hexawyn.application.use_case.pipelines.list_pipeline_runs.command import (
     ListPipelineRunsCommand,
 )
@@ -50,8 +49,7 @@ class TestListPipelineRunsIntegration:
         mock_port = MagicMock(spec=TektonPort)
         mock_port.list_pipeline_runs.return_value = runs
 
-        service = ListPipelineRunsService(tekton_port=mock_port)
-        use_case = ListPipelineRunsUseCase(service=service)
+        use_case = ListPipelineRunsUseCase(tekton_port=mock_port)
         response = use_case.execute(
             ListPipelineRunsCommand(service_name="payment-service", namespace="ci")
         )
@@ -73,8 +71,7 @@ class TestListPipelineRunsIntegration:
         mock_port = MagicMock(spec=TektonPort)
         mock_port.list_pipeline_runs.return_value = normal + [outlier]
 
-        service = ListPipelineRunsService(tekton_port=mock_port)
-        use_case = ListPipelineRunsUseCase(service=service)
+        use_case = ListPipelineRunsUseCase(tekton_port=mock_port)
         response = use_case.execute(
             ListPipelineRunsCommand(service_name="payment-service", namespace="ci")
         )
@@ -92,8 +89,7 @@ class TestListPipelineRunsIntegration:
         mock_port = MagicMock(spec=TektonPort)
         mock_port.list_pipeline_runs.return_value = runs
 
-        service = ListPipelineRunsService(tekton_port=mock_port)
-        use_case = ListPipelineRunsUseCase(service=service)
+        use_case = ListPipelineRunsUseCase(tekton_port=mock_port)
         response = use_case.execute(
             ListPipelineRunsCommand(service_name="payment-service", namespace="ci")
         )
@@ -108,8 +104,7 @@ class TestListPipelineRunsIntegration:
         mock_port = MagicMock(spec=TektonPort)
         mock_port.list_pipeline_runs.side_effect = ServiceNotFoundError(service_name="ghost-svc")
 
-        service = ListPipelineRunsService(tekton_port=mock_port)
-        use_case = ListPipelineRunsUseCase(service=service)
+        use_case = ListPipelineRunsUseCase(tekton_port=mock_port)
 
         with pytest.raises(ServiceNotFoundError) as exc_info:
             use_case.execute(ListPipelineRunsCommand(service_name="ghost-svc", namespace="ci"))
@@ -128,8 +123,7 @@ class TestListPipelineRunsIntegration:
         mock_port = MagicMock(spec=TektonPort)
         mock_port.list_pipeline_runs.return_value = runs
 
-        service = ListPipelineRunsService(tekton_port=mock_port)
-        use_case = ListPipelineRunsUseCase(service=service)
+        use_case = ListPipelineRunsUseCase(tekton_port=mock_port)
         response = use_case.execute(
             ListPipelineRunsCommand(service_name="payment-service", namespace="ci")
         )
@@ -148,8 +142,7 @@ class TestListPipelineRunsIntegration:
         mock_port = MagicMock(spec=TektonPort)
         mock_port.list_pipeline_runs.return_value = runs
 
-        service = ListPipelineRunsService(tekton_port=mock_port)
-        use_case = ListPipelineRunsUseCase(service=service)
+        use_case = ListPipelineRunsUseCase(tekton_port=mock_port)
         response = use_case.execute(
             ListPipelineRunsCommand(service_name="payment-service", namespace="ci")
         )

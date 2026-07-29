@@ -19,11 +19,12 @@ class OTelSecurityAuditAdapter(SecurityAuditPort):
         for trace in traces:
             if trace.get("hasErrors"):
                 result.append(
-                    FailedAdminCall(  # type: ignore
-                        trace_id=trace["traceID"],
-                        admin_endpoint=f"trace:{trace['traceID'][:8]}",
-                        error_message="access denied or error detected",
+                    FailedAdminCall(
                         timestamp="",
+                        caller_ip="",
+                        caller_service="",
+                        endpoint=f"trace:{trace['traceID'][:8]}",
+                        user_identity=None,
                     )
                 )
         return result
