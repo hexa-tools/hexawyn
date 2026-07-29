@@ -188,6 +188,11 @@ cluster-operators:
 	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml wait --for=condition=Established --timeout=120s \
 		crd/issuers.cert-manager.io crd/certificates.cert-manager.io \
 		crd/scaledobjects.keda.sh crd/pipelineruns.tekton.dev
+	@echo "⏳ Waiting for admission webhooks to be available..."
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml wait --for=condition=Available --timeout=180s \
+		-n cert-manager deployment/cert-manager deployment/cert-manager-cainjector deployment/cert-manager-webhook
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml wait --for=condition=Available --timeout=180s \
+		-n tekton-pipelines deployment/tekton-pipelines-webhook
 	@echo "✅ Operators installed"
 
 # ─────────────────────────────────────
