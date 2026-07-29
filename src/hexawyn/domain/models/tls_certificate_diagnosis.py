@@ -75,7 +75,7 @@ class CertificateDiagnosis:
         if days < 0:
             status = CertificateStatus.EXPIRED
             findings.append(f"Certificate expired on {expiry_str}")
-        elif days <= 30:
+        elif days <= 30:  # noqa: PLR2004
             status = CertificateStatus.EXPIRING_SOON
             findings.append(f"Certificate expires in {days} days")
         else:

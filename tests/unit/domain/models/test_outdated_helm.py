@@ -52,5 +52,5 @@ class TestOutdatedHelmReport:
             up_to_date_count=3,
             error_count=0,
         )
-        assert report.total_releases == 8
-        assert report.outdated_count == 5
+        assert report.total_releases == 8  # noqa: PLR2004
+        assert report.outdated_count == 5  # noqa: PLR2004

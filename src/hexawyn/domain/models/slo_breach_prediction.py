@@ -55,7 +55,7 @@ class SLOBreachPredictionResult:
             breach_min = (slo - current) / slope if slope > 0 else None
             if projected <= slo:
                 risk = RiskLevel.LOW
-            elif breach_min is not None and breach_min <= 30:
+            elif breach_min is not None and breach_min <= 30:  # noqa: PLR2004
                 risk = RiskLevel.HIGH
             elif breach_min is not None and breach_min <= request.prediction_window_minutes:
                 risk = RiskLevel.MEDIUM

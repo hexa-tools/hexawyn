@@ -31,7 +31,7 @@ class TestRankedFailingResource:
             rank=0,
         )
 
-        assert ranked.restart_count == 45
+        assert ranked.restart_count == 45  # noqa: PLR2004
         assert ranked.rank == 0
 
 
@@ -52,7 +52,7 @@ class TestAdaptiveInvestigationRequest:
     def test_default_depth(self) -> None:
         request = AdaptiveInvestigationRequest(namespace="production")
 
-        assert request.depth == 3
+        assert request.depth == 3  # noqa: PLR2004
 
     def test_custom_depth(self) -> None:
         request = AdaptiveInvestigationRequest(namespace="production", depth=1)

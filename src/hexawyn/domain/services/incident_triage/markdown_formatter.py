@@ -34,7 +34,7 @@ def _timeline_section(report: IncidentTriageReport) -> str:
     ]
     for entry in report.timeline:
         lines.append(
-            f"| {entry.timestamp} | {entry.source} | {entry.object} | {entry.reason} | {entry.message} |"
+            f"| {entry.timestamp} | {entry.source} | {entry.object} | {entry.reason} | {entry.message} |"  # noqa: E501
         )
     return "\n".join(lines)
 

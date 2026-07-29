@@ -2,15 +2,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.gitops_apps_list.gitops_apps_list_command import (
+from hexawyn.application.use_case.gitops.gitops_apps_list.command import (  # type: ignore
     GitOpsAppsListCommand,
 )
-from hexawyn.application.ports.driving.gitops_apps_list.gitops_apps_list_response import (
+from hexawyn.application.use_case.gitops.gitops_apps_list.response import (  # type: ignore
     GitOpsAppsListResponse,
 )
 
 
 class GitOpsAppsListServicePort(ABC):
     @abstractmethod
-    def list_apps(self, command: GitOpsAppsListCommand) -> GitOpsAppsListResponse:
-        """List all GitOps applications."""
+    def list_apps(self, command: GitOpsAppsListCommand) -> GitOpsAppsListResponse: ...

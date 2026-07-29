@@ -9,10 +9,10 @@ from hexawyn.domain.models.consolidation import (
 class TestConsolidationConfig:
     def test_default_values(self) -> None:
         config = ConsolidationConfig()
-        assert config.min_occurrences == 2
-        assert config.similarity_threshold == 0.85
-        assert config.max_age_days == 90
-        assert config.run_interval_hours == 24
+        assert config.min_occurrences == 2  # noqa: PLR2004
+        assert config.similarity_threshold == 0.85  # noqa: PLR2004
+        assert config.max_age_days == 90  # noqa: PLR2004
+        assert config.run_interval_hours == 24  # noqa: PLR2004
 
     def test_custom_values(self) -> None:
         config = ConsolidationConfig(
@@ -21,10 +21,10 @@ class TestConsolidationConfig:
             max_age_days=30,
             run_interval_hours=12,
         )
-        assert config.min_occurrences == 3
-        assert config.similarity_threshold == 0.8
-        assert config.max_age_days == 30
-        assert config.run_interval_hours == 12
+        assert config.min_occurrences == 3  # noqa: PLR2004
+        assert config.similarity_threshold == 0.8  # noqa: PLR2004
+        assert config.max_age_days == 30  # noqa: PLR2004
+        assert config.run_interval_hours == 12  # noqa: PLR2004
 
     def test_is_frozen(self) -> None:
         config = ConsolidationConfig()
@@ -54,14 +54,14 @@ class TestConsolidatedKnowledge:
 
     def test_all_fields_populated(self) -> None:
         k = self._make_knowledge()
-        assert k.occurrence_count == 3
+        assert k.occurrence_count == 3  # noqa: PLR2004
         assert k.pattern == "payments-api est sujette aux OOM"
         assert k.resource_name == "payments-api"
         assert k.namespace == "payments"
         assert k.tool_name == "crashloop_detector"
-        assert len(k.source_incident_ids) == 3
-        assert k.weight == 2.5
-        assert k.confidence == 0.85
+        assert len(k.source_incident_ids) == 3  # noqa: PLR2004
+        assert k.weight == 2.5  # noqa: PLR2004
+        assert k.confidence == 0.85  # noqa: PLR2004
 
     def test_defaults(self) -> None:
         k = ConsolidatedKnowledge(
@@ -72,7 +72,7 @@ class TestConsolidatedKnowledge:
         assert k.resource_name is None
         assert k.namespace is None
         assert k.weight == 1.0
-        assert k.confidence == 0.5
+        assert k.confidence == 0.5  # noqa: PLR2004
         assert k.embedding == []
         assert k.source_incident_ids == []
         assert k.resource_kind is None
@@ -83,4 +83,4 @@ class TestConsolidatedKnowledge:
 
     def test_weight_can_exceed_1(self) -> None:
         k = ConsolidatedKnowledge(pattern="p", tool_name="t", occurrence_count=10, weight=5.0)
-        assert k.weight == 5.0
+        assert k.weight == 5.0  # noqa: PLR2004

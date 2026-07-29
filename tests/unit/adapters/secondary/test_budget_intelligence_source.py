@@ -15,7 +15,7 @@ class TestConfigBudgetIntelligenceSource:
         ):
             data = ConfigBudgetIntelligenceSource().fetch_budget_intelligence_data("current")
 
-        assert data["budget_monthly_eur"] == 12000.0
+        assert data["budget_monthly_eur"] == 12000.0  # noqa: PLR2004
 
     def test_missing_config_returns_none(self) -> None:
         from hexawyn.adapters.secondary.gitops.budget_intelligence_source import (

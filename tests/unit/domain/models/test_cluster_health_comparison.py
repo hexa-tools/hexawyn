@@ -38,7 +38,7 @@ class TestClusterHealthSnapshot:
         )
 
         assert snap.cluster_name == "prod-eu"
-        assert snap.failing_pods == 5
+        assert snap.failing_pods == 5  # noqa: PLR2004
 
 
 class TestComparisonReport:
@@ -63,7 +63,7 @@ class TestComparisonReport:
         )
 
         assert report.worse_cluster == "prod-eu"
-        assert report.delta_cpu_pct == 27.0
+        assert report.delta_cpu_pct == 27.0  # noqa: PLR2004
 
 
 class TestHealthComparisonResult:

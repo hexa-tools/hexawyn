@@ -28,7 +28,7 @@ class TestIncidentCostReport:
         report = IncidentCostReport(business_service_name="Service Paiement", downtime_minutes=27)
 
         assert report.business_service_name == "Service Paiement"
-        assert report.downtime_minutes == 27
+        assert report.downtime_minutes == 27  # noqa: PLR2004
         assert report.revenue_impact_eur is None
         assert report.support_cost_eur is None
         assert report.sla_penalty_eur is None
@@ -59,6 +59,6 @@ class TestIncidentCostReport:
             calculation_basis=basis,
         )
 
-        assert report.total_cost_eur == 13500.0
-        assert report.impacted_service_count == 3
+        assert report.total_cost_eur == 13500.0  # noqa: PLR2004
+        assert report.impacted_service_count == 3  # noqa: PLR2004
         assert report.calculation_basis is basis

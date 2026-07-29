@@ -1,14 +1,14 @@
-"""MCP tool: check_cluster_operator_health — OpenShift ClusterOperator health."""
+"""MCP tool: check_cluster_operator_health — Check cluster operator health."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.check_cluster_operator_health.check_cluster_operator_health_command import (  # noqa: E501
-    CheckClusterOperatorHealthCommand,
-)
-from hexawyn.application.use_case.check_cluster_operator_health.check_cluster_operator_health_use_case import (  # noqa: E501
+from hexawyn.application.use_case.cluster.check_cluster_operator_health.check_cluster_operator_health_use_case import (  # noqa: E501
     CheckClusterOperatorHealthUseCase,
+)
+from hexawyn.application.use_case.cluster.check_cluster_operator_health.command import (
+    CheckClusterOperatorHealthCommand,
 )
 
 if TYPE_CHECKING:
@@ -16,52 +16,42 @@ if TYPE_CHECKING:
 
 
 def check_cluster_operator_health() -> dict[str, object]:
-    """Check the health of all OpenShift ClusterOperators.
-
-    Lists every ClusterOperator with its Available/Progressing/Degraded
-    conditions, highlights Degraded and Progressing operators with their
-    root-cause message, flags operators degraded for more than 15 minutes as
-    chronic, and returns a summary (total, healthy, degraded, progressing).
-    """
-    from hexawyn.application.service.check_cluster_operator_health_service import (
-        CheckClusterOperatorHealthService,
-    )
     from hexawyn.mcp.server import build_cluster_operator_status_adapter
 
     try:
-        adapter = build_cluster_operator_status_adapter()
-        service = CheckClusterOperatorHealthService(operator_port=adapter)
-        use_case = CheckClusterOperatorHealthUseCase(service=service)
+        use_case = CheckClusterOperatorHealthUseCase(
+            operator_port=build_cluster_operator_status_adapter()
+        )
         response = use_case.execute(CheckClusterOperatorHealthCommand())
-        report = response.result
+        operators_list = [
+            {
+                "name": op.name,
+                "available": op.available,
+                "progressing": op.progressing,
+                "degraded": op.degraded,
+                "health": op.health,
+                "message": op.message,
+                "degraded_duration_minutes": op.degraded_duration_minutes,
+                "is_chronic": op.is_chronic,
+            }
+            for op in response.result.operators
+        ]
         return {
-            "all_healthy": report.all_healthy,
-            "total": report.total,
-            "healthy": report.healthy,
-            "degraded": report.degraded,
-            "progressing": report.progressing,
-            "operators": [
-                {
-                    "name": operator.name,
-                    "available": operator.available,
-                    "progressing": operator.progressing,
-                    "degraded": operator.degraded,
-                    "health": operator.health,
-                    "message": operator.message,
-                    "degraded_duration_minutes": operator.degraded_duration_minutes,
-                    "is_chronic": operator.is_chronic,
-                }
-                for operator in report.operators
-            ],
+            "total": response.result.total,
+            "healthy": response.result.healthy,
+            "degraded": response.result.degraded,
+            "progressing": response.result.progressing,
+            "all_healthy": response.result.all_healthy,
+            "operators": operators_list,
             "error": None,
         }
     except Exception as exc:
         return {
-            "all_healthy": False,
             "total": 0,
             "healthy": 0,
             "degraded": 0,
             "progressing": 0,
+            "all_healthy": False,
             "operators": [],
             "error": str(exc),
         }

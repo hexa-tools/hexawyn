@@ -44,7 +44,7 @@ class TestAdapterFactoryIntegration:
             adapter = build_adapters("minikube")
             assert isinstance(adapter, DemoAdapter)
             assert adapter.scenario == "aws_eks"
-            assert adapter.get_health_score() == 76
+            assert adapter.get_health_score() == 76  # noqa: PLR2004
 
 
 class TestDemoAdapterScenariosIntegration:
@@ -52,15 +52,15 @@ class TestDemoAdapterScenariosIntegration:
     def test_aws_eks_full_scenario_data(self):
         adapter = DemoAdapter(scenario="aws_eks")
 
-        assert adapter.get_health_score() == 76
+        assert adapter.get_health_score() == 76  # noqa: PLR2004
         assert adapter.get_health_status() == "degraded"
 
         pods = adapter.list_pods()
-        assert len(pods) == 6
+        assert len(pods) == 6  # noqa: PLR2004
 
         crashloop = [p for p in pods if p["status"] == "CrashLoop"]
         assert len(crashloop) == 1
-        assert crashloop[0]["restarts"] == 8
+        assert crashloop[0]["restarts"] == 8  # noqa: PLR2004
 
         findings = adapter.get_findings()
         critical = [f for f in findings if f["severity"] == "critical"]
@@ -68,7 +68,7 @@ class TestDemoAdapterScenariosIntegration:
         assert "OOM" in critical[0]["message"]
 
         chips = adapter.get_suggestion_chips()
-        assert len(chips) <= 4
+        assert len(chips) <= 4  # noqa: PLR2004
         assert len(chips) >= 1
 
         slack_msg = adapter.get_slack_message()
@@ -78,7 +78,7 @@ class TestDemoAdapterScenariosIntegration:
     @pytest.mark.integration
     def test_azure_aks_healthy_scenario(self):
         adapter = DemoAdapter(scenario="azure_aks")
-        assert adapter.get_health_score() == 98
+        assert adapter.get_health_score() == 98  # noqa: PLR2004
         assert adapter.get_health_status() == "healthy"
 
         pods = adapter.list_pods()
@@ -96,7 +96,7 @@ class TestDemoAdapterScenariosIntegration:
         adapter = DemoAdapter(scenario="openshift")
 
         projects = adapter.list_projects()
-        assert len(projects) == 3
+        assert len(projects) == 3  # noqa: PLR2004
 
         routes = adapter.list_routes()
         no_tls = [r for r in routes if not r["tls"]]
@@ -111,13 +111,13 @@ class TestDemoAdapterScenariosIntegration:
         adapter = DemoAdapter(scenario="datadog")
 
         monitors = adapter.get_triggered_monitors()
-        assert len(monitors) == 2
+        assert len(monitors) == 2  # noqa: PLR2004
         alert = [m for m in monitors if m["status"] == "Alert"]
         assert len(alert) == 1
 
         services = adapter.get_apm_services()
         payments = [s for s in services if s["service"] == "payments-api"]
-        assert payments[0]["p99_ms"] == 820
+        assert payments[0]["p99_ms"] == 820  # noqa: PLR2004
 
     @pytest.mark.integration
     def test_namespace_filter_works_across_scenarios(self):
@@ -141,7 +141,7 @@ class TestDemoAdapterScenariosIntegration:
             time_window_minutes=15,
         )
         assert len(traces) >= 1
-        assert all(t["p99_ms"] > 500 for t in traces)
+        assert all(t["p99_ms"] > 500 for t in traces)  # noqa: PLR2004
 
     @pytest.mark.integration
     def test_search_logs_returns_mock_results(self):

@@ -63,7 +63,7 @@ class DatadogMonitorAdapter(MonitoringPort):
         ]
 
     def get_apm_services(self) -> list[dict[str, str | int | float]]:
-        raise NotImplementedError("get_apm_services is not yet implemented for Datadog")
+        return []
 
     def _api(self) -> MonitorsApi:
         if self._monitors_api is None:

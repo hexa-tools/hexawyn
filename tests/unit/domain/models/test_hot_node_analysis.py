@@ -22,7 +22,7 @@ class TestTopConsumer:
         )
 
         assert consumer.pod_name == "data-processor-abc"
-        assert consumer.cpu_usage_cores == 0.8
+        assert consumer.cpu_usage_cores == 0.8  # noqa: PLR2004
 
 
 class TestClusterNodeSnapshot:
@@ -43,7 +43,7 @@ class TestHotNodeAnalysisRequest:
     def test_default_window(self) -> None:
         request = HotNodeAnalysisRequest()
 
-        assert request.window_hours == 24
+        assert request.window_hours == 24  # noqa: PLR2004
 
 
 class TestHotNodeResult:
@@ -77,4 +77,4 @@ class TestHotNodeAnalysisReport:
         )
 
         assert report.hot_nodes == []
-        assert report.healthy_node_count == 5
+        assert report.healthy_node_count == 5  # noqa: PLR2004

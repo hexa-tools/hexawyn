@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.certs_requests_list.certs_requests_list_command import (
-    CertsRequestsListCommand,
-)
-from hexawyn.application.use_case.certs_requests_list.certs_requests_list_use_case import (
+from hexawyn.application.use_case.cert_manager.certs_requests_list.certs_requests_list_use_case import (  # noqa: E501
     CertsRequestsListUseCase,
+)
+from hexawyn.application.use_case.cert_manager.certs_requests_list.command import (
+    CertsRequestsListCommand,
 )
 
 if TYPE_CHECKING:
@@ -16,15 +16,13 @@ if TYPE_CHECKING:
 
 
 def certs_requests_list(namespace: str | None = None) -> dict[str, object]:
-    from hexawyn.application.service.certs_requests_list_service import CertsRequestsListService
     from hexawyn.mcp.server import build_cert_manager_adapter
 
     try:
         adapter = build_cert_manager_adapter()
-        svc = CertsRequestsListService(port=adapter)
-        uc = CertsRequestsListUseCase(service=svc)
-        r = uc.execute(CertsRequestsListCommand(namespace=namespace))
-        return {"requests": r.requests, "error": r.error}
+        use_case = CertsRequestsListUseCase(cert_manager_port=adapter)  # type: ignore
+        response = use_case.execute(CertsRequestsListCommand(namespace=namespace))
+        return {"requests": response.requests, "error": response.error}
     except Exception as exc:
         return {"requests": [], "error": str(exc)}
 

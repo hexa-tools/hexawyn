@@ -61,14 +61,14 @@ class TestImpactAssessment:
 class TestIncidentTriageRequest:
     def test_defaults(self) -> None:
         request = IncidentTriageRequest(namespace="payment")
-        assert request.time_window_minutes == 120
+        assert request.time_window_minutes == 120  # noqa: PLR2004
         assert request.related_namespaces == []
 
     def test_custom_values(self) -> None:
         request = IncidentTriageRequest(
             namespace="payment", time_window_minutes=60, related_namespaces=["billing"]
         )
-        assert request.time_window_minutes == 60
+        assert request.time_window_minutes == 60  # noqa: PLR2004
         assert request.related_namespaces == ["billing"]
 
 

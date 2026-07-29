@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.pipeline_run_logs.pipeline_run_logs_command import (
+from hexawyn.application.use_case.pipelines.pipeline_run_logs.command import (
     PipelineRunLogsCommand,
 )
-from hexawyn.application.ports.driving.pipeline_run_logs.pipeline_run_logs_response import (
+from hexawyn.application.use_case.pipelines.pipeline_run_logs.response import (
     PipelineRunLogsResponse,
 )
 

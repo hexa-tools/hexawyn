@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.tls_certificate_diagnosis.tls_certificate_diagnosis_command import (
+from hexawyn.application.use_case.cert_manager.tls_certificate_diagnosis.command import (
     TLSCertificateDiagnosisCommand,
 )
-from hexawyn.application.ports.driving.tls_certificate_diagnosis.tls_certificate_diagnosis_response import (
+from hexawyn.application.use_case.cert_manager.tls_certificate_diagnosis.response import (
     TLSCertificateDiagnosisResponse,
 )
 

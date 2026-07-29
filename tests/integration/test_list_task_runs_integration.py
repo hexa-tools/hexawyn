@@ -5,17 +5,14 @@ from unittest.mock import MagicMock
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.ports.driven.tekton_port import TektonPort
-from hexawyn.application.ports.driving.list_task_runs.list_task_runs_command import (
-    ListTaskRunsCommand,
-)
-from hexawyn.application.service.list_task_runs_service import ListTaskRunsService
-from hexawyn.application.use_case.list_task_runs.list_task_runs_use_case import (
+from hexawyn.application.use_case.pipelines.list_task_runs.command import ListTaskRunsCommand
+from hexawyn.application.use_case.pipelines.list_task_runs.list_task_runs_use_case import (
     ListTaskRunsUseCase,
 )
 from hexawyn.domain.errors import PipelineNotFoundError
 
 
-class TestListTaskRunsServiceIntegration:
+class TestListTaskRunsUseCaseIntegration:
     @pytest.mark.integration
     def test_full_stack_with_mock_tekton_port_returns_sorted_runs(self) -> None:
         from hexawyn.application.ports.driven.tekton_port import TaskRunInfo
@@ -51,13 +48,12 @@ class TestListTaskRunsServiceIntegration:
         mock_port = MagicMock(spec=TektonPort)
         mock_port.list_task_runs.return_value = [run_old, run_none, run_new]
 
-        service = ListTaskRunsService(tekton_port=mock_port)
-        use_case = ListTaskRunsUseCase(service=service)
+        use_case = ListTaskRunsUseCase(tekton_port=mock_port)
         response = use_case.execute(
             ListTaskRunsCommand(pipeline_name="build-deploy", namespace="ci")
         )
 
-        assert len(response.task_runs) == 3
+        assert len(response.task_runs) == 3  # noqa: PLR2004
         assert response.task_runs[0]["name"] == "build-deploy-unit-tests"
         assert response.task_runs[1]["name"] == "build-deploy-clone-repo"
         assert response.task_runs[2]["name"] == "build-deploy-build-image"
@@ -69,8 +65,7 @@ class TestListTaskRunsServiceIntegration:
             pipeline_name="missing-pipeline"
         )
 
-        service = ListTaskRunsService(tekton_port=mock_port)
-        use_case = ListTaskRunsUseCase(service=service)
+        use_case = ListTaskRunsUseCase(tekton_port=mock_port)
 
         with pytest.raises(PipelineNotFoundError) as exc_info:
             use_case.execute(ListTaskRunsCommand(pipeline_name="missing-pipeline", namespace="ci"))

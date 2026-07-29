@@ -60,6 +60,6 @@ class TestClusterOperatorHealthReport:
             total=32, healthy=30, degraded=1, progressing=1, all_healthy=False
         )
 
-        assert report.total == 32
-        assert report.healthy == 30
+        assert report.total == 32  # noqa: PLR2004
+        assert report.healthy == 30  # noqa: PLR2004
         assert report.all_healthy is False

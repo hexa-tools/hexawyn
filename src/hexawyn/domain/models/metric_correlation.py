@@ -67,7 +67,7 @@ class CorrelationResult:
         sum_b2 = sum(b[i] * b[i] for i in range(n))
         denominator = math.sqrt((n * sum_a2 - sum_a * sum_a) * (n * sum_b2 - sum_b * sum_b))
 
-        if abs(denominator) < 1e-10:
+        if abs(denominator) < 1e-10:  # noqa: PLR2004
             coefficient = 0.0
         else:
             coefficient = (n * sum_ab - sum_a * sum_b) / denominator
@@ -87,7 +87,7 @@ class CorrelationResult:
                 f"(r={coefficient:.2f})"
             )
             reasons.append(f"Negative correlation: r={coefficient:.2f}")
-        elif abs(coefficient) < 0.3:
+        elif abs(coefficient) < 0.3:  # noqa: PLR2004
             status = CorrelationStatus.UNCORRELATED
             hypothesis = f"No significant correlation between {series_a.label} and {series_b.label}"
             reasons.append(f"Weak correlation: r={coefficient:.2f}")

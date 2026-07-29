@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 """Integration tests: ListPipelineRunsInNamespaceUseCase → service → adapter.
 
 These tests use a real VanillaAdapter driven by a fake CRD client, exercising
@@ -9,13 +10,10 @@ from unittest.mock import MagicMock
 
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
-from hexawyn.application.ports.driving.list_pipeline_runs_in_namespace.list_pipeline_runs_in_namespace_command import (
+from hexawyn.application.use_case.pipelines.list_pipeline_runs_in_namespace.command import (
     ListPipelineRunsInNamespaceCommand,
 )
-from hexawyn.application.service.list_pipeline_runs_in_namespace_service import (
-    ListPipelineRunsInNamespaceService,
-)
-from hexawyn.application.use_case.list_pipeline_runs_in_namespace.list_pipeline_runs_in_namespace_use_case import (
+from hexawyn.application.use_case.pipelines.list_pipeline_runs_in_namespace.list_pipeline_runs_in_namespace_use_case import (  # noqa: E501
     ListPipelineRunsInNamespaceUseCase,
 )
 from hexawyn.domain.errors import (
@@ -25,7 +23,7 @@ from hexawyn.domain.errors import (
 from kubernetes.client.exceptions import ApiException
 
 
-def _crd_item(
+def _crd_item(  # noqa: PLR0913
     name: str,
     succeeded: str,
     reason: str,
@@ -56,8 +54,7 @@ def _fake_crd_api(items: list[dict[str, object]]) -> MagicMock:
 
 def _build_use_case(crd_api: MagicMock) -> ListPipelineRunsInNamespaceUseCase:
     adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
-    service = ListPipelineRunsInNamespaceService(tekton_port=adapter)
-    return ListPipelineRunsInNamespaceUseCase(service=service)
+    return ListPipelineRunsInNamespaceUseCase(tekton_port=adapter)
 
 
 class TestListPipelineRunsInNamespaceIntegration:
@@ -77,7 +74,9 @@ class TestListPipelineRunsInNamespaceIntegration:
         ]
         use_case = _build_use_case(_fake_crd_api(items))
 
-        result = use_case.execute(ListPipelineRunsInNamespaceCommand(namespace="tekton"))
+        result = use_case.list_pipeline_runs_in_namespace(
+            ListPipelineRunsInNamespaceCommand(namespace="tekton")
+        )
 
         statuses = [r["status"] for r in result.runs]
         first_failed = statuses.index("Failed")
@@ -89,14 +88,18 @@ class TestListPipelineRunsInNamespaceIntegration:
         items = [_crd_item(f"run-{i}", "True", "Succeeded") for i in range(5)]
         use_case = _build_use_case(_fake_crd_api(items))
 
-        result = use_case.execute(ListPipelineRunsInNamespaceCommand(namespace="tekton"))
+        result = use_case.list_pipeline_runs_in_namespace(
+            ListPipelineRunsInNamespaceCommand(namespace="tekton")
+        )
 
-        assert len(result.runs) == 5
+        assert len(result.runs) == 5  # noqa: PLR2004
 
     def test_tc2_empty_namespace_note_not_error(self) -> None:
         use_case = _build_use_case(_fake_crd_api([]))
 
-        result = use_case.execute(ListPipelineRunsInNamespaceCommand(namespace="tekton"))
+        result = use_case.list_pipeline_runs_in_namespace(
+            ListPipelineRunsInNamespaceCommand(namespace="tekton")
+        )
 
         assert result.runs == []
         assert result.note is not None
@@ -107,7 +110,9 @@ class TestListPipelineRunsInNamespaceIntegration:
         item = _crd_item("run-stuck", "Unknown", "Running", stuck_start)
         use_case = _build_use_case(_fake_crd_api([item]))
 
-        result = use_case.execute(ListPipelineRunsInNamespaceCommand(namespace="tekton"))
+        result = use_case.list_pipeline_runs_in_namespace(
+            ListPipelineRunsInNamespaceCommand(namespace="tekton")
+        )
 
         assert "run-stuck" in result.stuck_runs
 
@@ -119,7 +124,9 @@ class TestListPipelineRunsInNamespaceIntegration:
         use_case = _build_use_case(crd_api)
 
         with pytest.raises(InsufficientPermissionsError):
-            use_case.execute(ListPipelineRunsInNamespaceCommand(namespace="tekton"))
+            use_case.list_pipeline_runs_in_namespace(
+                ListPipelineRunsInNamespaceCommand(namespace="tekton")
+            )
 
     def test_tekton_not_installed_404(self) -> None:
         crd_api = MagicMock()
@@ -129,13 +136,17 @@ class TestListPipelineRunsInNamespaceIntegration:
         use_case = _build_use_case(crd_api)
 
         with pytest.raises(TektonNotInstalledError):
-            use_case.execute(ListPipelineRunsInNamespaceCommand(namespace="tekton"))
+            use_case.list_pipeline_runs_in_namespace(
+                ListPipelineRunsInNamespaceCommand(namespace="tekton")
+            )
 
     def test_pipeline_ref_extracted_from_spec(self) -> None:
         item = _crd_item("run-ok", "True", "Succeeded", pipeline_ref_name="my-pipeline")
         use_case = _build_use_case(_fake_crd_api([item]))
 
-        result = use_case.execute(ListPipelineRunsInNamespaceCommand(namespace="tekton"))
+        result = use_case.list_pipeline_runs_in_namespace(
+            ListPipelineRunsInNamespaceCommand(namespace="tekton")
+        )
 
         assert result.runs[0]["pipeline_ref"] == "my-pipeline"
 
@@ -143,6 +154,8 @@ class TestListPipelineRunsInNamespaceIntegration:
         items = [_crd_item(f"run-{i}", "True", "Succeeded") for i in range(20)]
         use_case = _build_use_case(_fake_crd_api(items))
 
-        result = use_case.execute(ListPipelineRunsInNamespaceCommand(namespace="tekton", limit=5))
+        result = use_case.list_pipeline_runs_in_namespace(
+            ListPipelineRunsInNamespaceCommand(namespace="tekton", limit=5)
+        )
 
-        assert len(result.runs) == 5
+        assert len(result.runs) == 5  # noqa: PLR2004

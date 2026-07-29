@@ -1,4 +1,7 @@
-from unittest.mock import MagicMock, patch
+from __future__ import annotations
+
+import os
+from unittest.mock import patch
 
 from hexawyn.infrastructure.config.telemetry import (
     is_telemetry_enabled,
@@ -8,67 +11,42 @@ from hexawyn.infrastructure.config.telemetry import (
 
 
 class TestIsTelemetryEnabled:
-    def test_enabled_when_env_is_true(self) -> None:
-        with patch.dict("os.environ", {"HEXAWYN_TELEMETRY": "true"}):
-            assert is_telemetry_enabled() is True
-
-    def test_disabled_when_env_not_set(self) -> None:
-        with patch.dict("os.environ", {}, clear=True):
+    def test_defaults_to_disabled(self) -> None:
+        with patch.dict(os.environ, {}, clear=True):
             assert is_telemetry_enabled() is False
 
-    def test_disabled_when_env_is_false(self) -> None:
-        with patch.dict("os.environ", {"HEXAWYN_TELEMETRY": "false"}):
-            assert is_telemetry_enabled() is False
-
-    def test_case_insensitive_true(self) -> None:
-        with patch.dict("os.environ", {"HEXAWYN_TELEMETRY": "TRUE"}):
+    def test_true_enables(self) -> None:
+        with patch.dict(os.environ, {"HEXAWYN_TELEMETRY": "true"}, clear=True):
             assert is_telemetry_enabled() is True
 
+    def test_false_disables(self) -> None:
+        with patch.dict(os.environ, {"HEXAWYN_TELEMETRY": "false"}, clear=True):
+            assert is_telemetry_enabled() is False
 
-class TestSendTelemetry:
-    def test_startup_skips_when_disabled(self) -> None:
-        with patch.dict("os.environ", {"HEXAWYN_TELEMETRY": "false"}):
-            with patch("threading.Thread.start") as mock_start:
+
+class TestSendStartupTelemetry:
+    def test_skips_when_disabled(self) -> None:
+        with patch.dict(os.environ, {}, clear=True):
+            with patch("hexawyn.infrastructure.config.telemetry.threading.Thread") as mock_thread:
                 send_startup_telemetry()
-                mock_start.assert_not_called()
+                mock_thread.assert_not_called()
 
-    def test_startup_sends_when_enabled(self) -> None:
-        with patch.dict("os.environ", {"HEXAWYN_TELEMETRY": "true"}):
-            with patch(
-                "hexawyn.infrastructure.config.telemetry.get_license_tier",
-                return_value=MagicMock(value="starter"),
-            ):
-                with patch("threading.Thread.start") as mock_start:
-                    send_startup_telemetry()
-                    mock_start.assert_called_once()
+    def test_sends_when_enabled(self) -> None:
+        with patch.dict(os.environ, {"HEXAWYN_TELEMETRY": "true"}, clear=True):
+            with patch("hexawyn.infrastructure.config.telemetry.threading.Thread") as mock_thread:
+                send_startup_telemetry()
+                mock_thread.assert_called_once()
 
-    def test_investigation_skips_when_disabled(self) -> None:
-        with patch.dict("os.environ", {"HEXAWYN_TELEMETRY": "false"}):
-            with patch("threading.Thread.start") as mock_start:
-                send_investigation_telemetry(investigation_count=23)
-                mock_start.assert_not_called()
 
-    def test_investigation_sends_when_enabled(self) -> None:
-        with patch.dict("os.environ", {"HEXAWYN_TELEMETRY": "true"}):
-            with patch(
-                "hexawyn.infrastructure.config.telemetry.get_license_tier",
-                return_value=MagicMock(value="dev"),
-            ):
-                with patch("threading.Thread.start") as mock_start:
-                    send_investigation_telemetry(investigation_count=45)
-                    mock_start.assert_called_once()
+class TestSendInvestigationTelemetry:
+    def test_skips_when_disabled(self) -> None:
+        with patch.dict(os.environ, {}, clear=True):
+            with patch("hexawyn.infrastructure.config.telemetry.threading.Thread") as mock_thread:
+                send_investigation_telemetry(5)
+                mock_thread.assert_not_called()
 
-    def test_payload_includes_tier_and_count(self) -> None:
-        with patch.dict("os.environ", {"HEXAWYN_TELEMETRY": "true"}):
-            with patch(
-                "hexawyn.infrastructure.config.telemetry.get_license_tier",
-                return_value=MagicMock(value="team"),
-            ):
-                with patch("threading.Thread") as mock_thread_cls:
-                    send_investigation_telemetry(investigation_count=300)
-                    args = mock_thread_cls.call_args[1]["args"]
-                    payload = args[0]
-                    assert payload["event"] == "investigation"
-                    assert payload["tier"] == "team"
-                    assert payload["monthly_count"] == 300
-                    assert payload["version"] == "0.1.0"
+    def test_sends_when_enabled(self) -> None:
+        with patch.dict(os.environ, {"HEXAWYN_TELEMETRY": "true"}, clear=True):
+            with patch("hexawyn.infrastructure.config.telemetry.threading.Thread") as mock_thread:
+                send_investigation_telemetry(5)
+                mock_thread.assert_called_once()

@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.check_disruption_risks.check_disruption_risks_command import (  # noqa: E501
+from hexawyn.application.use_case.cluster.check_disruption_risks.command import (  # noqa: E501
     CheckDisruptionRisksCommand,
 )
-from hexawyn.application.ports.driving.check_disruption_risks.check_disruption_risks_response import (  # noqa: E501
+from hexawyn.application.use_case.cluster.check_disruption_risks.response import (  # noqa: E501
     CheckDisruptionRisksResponse,
 )
 

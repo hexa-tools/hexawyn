@@ -23,7 +23,7 @@ class TestComputeCurrentSpend:
             days_elapsed=10,
         )
 
-        assert result == 150.0  # avg=15 * 10 days
+        assert result == 150.0  # avg=15 * 10 days  # noqa: PLR2004
 
     def test_enough_points_returns_sum(self) -> None:
         result = _compute_current_spend(
@@ -35,7 +35,7 @@ class TestComputeCurrentSpend:
             days_elapsed=2,
         )
 
-        assert result == 30.0
+        assert result == 30.0  # noqa: PLR2004
 
 
 class TestComputeTrend:
@@ -96,12 +96,12 @@ class TestMonthOverMonthDelta:
     def test_positive_delta(self) -> None:
         result = _month_over_month_delta(projected=1500.0, previous=1000.0)
 
-        assert result == 50.0
+        assert result == 50.0  # noqa: PLR2004
 
     def test_negative_delta(self) -> None:
         result = _month_over_month_delta(projected=800.0, previous=1000.0)
 
-        assert result == -20.0
+        assert result == -20.0  # noqa: PLR2004
 
 
 class TestTopDrivers:
@@ -167,7 +167,7 @@ class TestTopDrivers:
             top_n=2,
         )
 
-        assert len(result) == 2
+        assert len(result) == 2  # noqa: PLR2004
         assert result[0].name == "prod"
         assert result[1].name == "dev"
 
@@ -208,17 +208,17 @@ class TestAsFloat:
     def test_int_converted_to_float(self) -> None:
         result = _as_float(42)
 
-        assert result == 42.0
+        assert result == 42.0  # noqa: PLR2004
 
     def test_float_passthrough(self) -> None:
         result = _as_float(3.14)
 
-        assert result == 3.14
+        assert result == 3.14  # noqa: PLR2004
 
     def test_numeric_string_converted(self) -> None:
         result = _as_float("12.5")
 
-        assert result == 12.5
+        assert result == 12.5  # noqa: PLR2004
 
     def test_non_numeric_string_returns_zero(self) -> None:
         result = _as_float("hello")
@@ -270,7 +270,7 @@ class TestCostForecastEngine:
             top_n=2,
         )
 
-        assert len(forecast.top_cost_drivers) == 2
+        assert len(forecast.top_cost_drivers) == 2  # noqa: PLR2004
 
     def test_forecast_with_previous_month(self) -> None:
         engine = CostForecastEngine()
@@ -287,7 +287,7 @@ class TestCostForecastEngine:
             previous_month_usd=900.0,
         )
 
-        assert forecast.previous_month_usd == 900.0
+        assert forecast.previous_month_usd == 900.0  # noqa: PLR2004
         assert forecast.month_over_month_delta != 0.0
 
     def test_forecast_with_custom_confidence_and_source(self) -> None:
@@ -319,6 +319,6 @@ class TestCostForecastEngine:
 
         assert isinstance(forecast, CostForecast)
         assert forecast.days_elapsed == 1
-        assert forecast.days_remaining == 29
+        assert forecast.days_remaining == 29  # noqa: PLR2004
         assert forecast.billing_events == []
         assert isinstance(forecast.top_cost_drivers, list)

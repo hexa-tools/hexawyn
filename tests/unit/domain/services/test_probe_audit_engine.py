@@ -7,7 +7,7 @@ from hexawyn.domain.services.probe_audit.probe_audit_engine import (
 )
 
 
-def _deployment(
+def _deployment(  # noqa: PLR0913
     name: str,
     namespace: str = "production",
     workload_type: str = "Deployment",
@@ -129,7 +129,7 @@ class TestProbePresenceCheck:
                 f"service-{i}",
                 namespace="production",
                 has_service=True,
-                is_exposed_externally=(i < 3),
+                is_exposed_externally=(i < 3),  # noqa: PLR2004
                 containers=[_container()],
             )
             for i in range(8)
@@ -137,10 +137,10 @@ class TestProbePresenceCheck:
 
         result = engine.detect(deployments)
 
-        assert result.total_without_probes == 8
-        assert result.critical == 3
-        assert result.warning == 5
-        assert len(result.missing_probes) == 8
+        assert result.total_without_probes == 8  # noqa: PLR2004
+        assert result.critical == 3  # noqa: PLR2004
+        assert result.warning == 5  # noqa: PLR2004
+        assert len(result.missing_probes) == 8  # noqa: PLR2004
 
 
 class TestEdgeCases:
@@ -406,7 +406,7 @@ class TestResultMetadata:
 
         result = engine.detect(deployments)
 
-        assert result.total_without_probes == 3
+        assert result.total_without_probes == 3  # noqa: PLR2004
         assert result.critical == 1
         assert result.warning == 1
         assert result.informational == 1
@@ -429,7 +429,7 @@ class TestHelperFunctions:
         assert _as_int(None) == 0
 
     def test_as_int_float_truncated(self) -> None:
-        assert _as_int(3.9) == 3
+        assert _as_int(3.9) == 3  # noqa: PLR2004
 
     def test_as_int_list_zero(self) -> None:
         assert _as_int([1, 2]) == 0

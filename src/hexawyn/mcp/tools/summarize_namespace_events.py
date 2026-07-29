@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.summarize_namespace_events.summarize_namespace_events_command import (
+from hexawyn.application.use_case.troubleshooting.summarize_namespace_events.command import (
     SummarizeNamespaceEventsCommand,
 )
-from hexawyn.application.use_case.summarize_namespace_events.summarize_namespace_events_use_case import (
+from hexawyn.application.use_case.troubleshooting.summarize_namespace_events.summarize_namespace_events_use_case import (  # noqa: E501
     SummarizeNamespaceEventsUseCase,
 )
 
@@ -16,17 +16,15 @@ if TYPE_CHECKING:
 
 
 def summarize_namespace_events(namespace: str, time_window_minutes: int = 15) -> dict[str, object]:
-    from hexawyn.application.service.summarize_namespace_events_service import (
-        SummarizeNamespaceEventsService,
-    )
     from hexawyn.mcp.server import build_k8s_adapter, build_namespace_events_adapter
 
     try:
         events_adapter = build_namespace_events_adapter()
         k8s_adapter = build_k8s_adapter()
-        service = SummarizeNamespaceEventsService(events_port=events_adapter, k8s_port=k8s_adapter)
-        r = SummarizeNamespaceEventsUseCase(service=service).execute(
-            SummarizeNamespaceEventsCommand(
+        r = SummarizeNamespaceEventsUseCase(  # type: ignore
+            events_port=events_adapter, k8s_port=k8s_adapter
+        ).execute(
+            r=SummarizeNamespaceEventsCommand(
                 namespace=namespace, time_window_minutes=time_window_minutes
             )
         )

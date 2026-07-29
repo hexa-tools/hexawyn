@@ -60,7 +60,7 @@ class TestInvestigationResult:
         )
         assert result.tool_name == "get_node_status"
         assert result.severity == Severity.HIGH
-        assert len(result.suggestions) == 2
+        assert len(result.suggestions) == 2  # noqa: PLR2004
         assert result.verified is True
 
     def test_id_is_unique(self):

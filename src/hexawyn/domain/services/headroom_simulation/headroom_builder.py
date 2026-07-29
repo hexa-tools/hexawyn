@@ -127,7 +127,7 @@ def _recommend_additional_nodes(
     return max(nodes_for_cpu, nodes_for_memory, 1)
 
 
-def _build_summary(
+def _build_summary(  # noqa: PLR0913
     has_workloads: bool,
     verdict: HeadroomVerdict,
     binding_constraint: BindingConstraint,

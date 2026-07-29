@@ -38,7 +38,7 @@ class BudgetProjectionAdapter(BudgetProjectionPort):
 
 def _month_of(date: str) -> str | None:
     parts = date.split("-")
-    if len(parts) < 2 or not parts[0].isdigit() or not parts[1].isdigit():
+    if len(parts) < 2 or not parts[0].isdigit() or not parts[1].isdigit():  # noqa: PLR2004
         return None
     return f"{parts[0]}-{parts[1]}"
 

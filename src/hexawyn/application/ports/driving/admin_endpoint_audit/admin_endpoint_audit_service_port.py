@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.admin_endpoint_audit.admin_endpoint_audit_command import (
+from hexawyn.application.use_case.security.admin_endpoint_audit.command import (
     AdminEndpointAuditCommand,
 )
-from hexawyn.application.ports.driving.admin_endpoint_audit.admin_endpoint_audit_response import (
+from hexawyn.application.use_case.security.admin_endpoint_audit.response import (
     AdminEndpointAuditResponse,
 )
 

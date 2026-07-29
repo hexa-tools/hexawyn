@@ -28,7 +28,7 @@ class TestComputeUrgencyScore:
 
         score = compute_urgency_score(risk_level="critical", age_days=180)
 
-        assert score == 95
+        assert score == 95  # noqa: PLR2004
 
     def test_medium_risk_lower_base_than_critical(self) -> None:
         from hexawyn.domain.services.secret_rotation.urgency_scorer import compute_urgency_score
@@ -59,7 +59,7 @@ class TestComputeUrgencyScore:
 
         score = compute_urgency_score(risk_level="critical", age_days=100_000)
 
-        assert score == 100
+        assert score == 100  # noqa: PLR2004
 
 
 class TestSortByUrgency:

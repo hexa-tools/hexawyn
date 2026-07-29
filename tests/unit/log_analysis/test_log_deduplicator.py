@@ -13,7 +13,7 @@ class TestDeduplicateLines:
 
         assert len(deduped) == 1
         assert deduped[0].line == "GET /health HTTP/1.1 200"
-        assert deduped[0].count == 1750
+        assert deduped[0].count == 1750  # noqa: PLR2004
 
     def test_line_repeated_10000_times_shows_once_with_count(self) -> None:
         """Edge case: log line repeated 10000 times -> shown once with count=10000."""
@@ -22,7 +22,7 @@ class TestDeduplicateLines:
         deduped = deduplicate_lines(logs)
 
         assert len(deduped) == 1
-        assert deduped[0].count == 10000
+        assert deduped[0].count == 10000  # noqa: PLR2004
 
     def test_preserves_first_seen_order(self) -> None:
         logs = ["b", "a", "b", "c", "a"]
@@ -37,7 +37,7 @@ class TestDeduplicateLines:
 
         deduped = deduplicate_lines(logs)
 
-        assert len(deduped) == 2000
+        assert len(deduped) == 2000  # noqa: PLR2004
         assert all(d.count == 1 for d in deduped)
 
     def test_empty_input_returns_empty(self) -> None:

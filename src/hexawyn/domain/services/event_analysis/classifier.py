@@ -159,7 +159,7 @@ class ProgressiveEventAnalyzer:
                 f"Drill into {top_category} events ({category_counts[top_category]})"
             )
 
-        if severity_counts.get("high", 0) > 2:
+        if severity_counts.get("high", 0) > 2:  # noqa: PLR2004
             suggestions.append(
                 f"Review {severity_counts['high']} high-severity events for patterns"
             )
@@ -171,11 +171,11 @@ class ProgressiveEventAnalyzer:
         events: list[ClassifiedEvent],
     ) -> list[str]:
         patterns: list[str] = []
-        if len(events) < 2:
+        if len(events) < 2:  # noqa: PLR2004
             return patterns
 
         timed_events = [e for e in events if e.first_timestamp is not None]
-        if len(timed_events) < 2:
+        if len(timed_events) < 2:  # noqa: PLR2004
             return patterns
 
         sorted_events = sorted(
@@ -246,7 +246,7 @@ class ProgressiveEventAnalyzer:
 
         oom_count = sum(1 for e in resource_events if "oom" in e.reason.lower())
 
-        if oom_count > 2:
+        if oom_count > 2:  # noqa: PLR2004
             return "High resource impact — multiple OOM events across pods"
         if oom_count > 0:
             return "Moderate resource impact — OOM event detected"

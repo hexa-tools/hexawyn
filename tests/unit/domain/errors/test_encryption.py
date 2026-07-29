@@ -73,7 +73,7 @@ class TestDeriveKey:
 
         with patch("hexawyn.infrastructure.memory.encryption.KEY_SALT_PATH", salt_file):
             key = derive_key(KUBECONFIG_SAMPLE)
-            assert len(key) == 32
+            assert len(key) == 32  # noqa: PLR2004
 
 
 class TestEncryptDecrypt:
@@ -249,6 +249,123 @@ class TestEncryptionDisabled:
             assert is_encryption_disabled() is False
 
 
+class TestGetOrCreateSalt:
+    """Salt creation and caching behavior."""
+
+    def test_creates_new_salt_when_file_missing(self, tmp_path: Path) -> None:
+        from hexawyn.infrastructure.memory.encryption import _get_or_create_salt, _reset_salt
+
+        _reset_salt()
+        salt_path = tmp_path / ".keysalt"
+        with patch("hexawyn.infrastructure.memory.encryption.KEY_SALT_PATH", salt_path):
+            salt = _get_or_create_salt()
+            assert len(salt) == 32  # noqa: PLR2004
+            assert salt_path.exists()
+
+    def test_caches_salt_after_first_call(self, tmp_path: Path) -> None:
+        from hexawyn.infrastructure.memory.encryption import _get_or_create_salt, _reset_salt
+
+        _reset_salt()
+        salt_path = tmp_path / ".keysalt"
+        salt_path.write_bytes(secrets.token_bytes(32))
+        with patch("hexawyn.infrastructure.memory.encryption.KEY_SALT_PATH", salt_path):
+            salt1 = _get_or_create_salt()
+            salt2 = _get_or_create_salt()
+            assert salt1 == salt2
+
+
+class TestEncryptFileEdges:
+    """Edge cases for _encrypt_file and _decrypt_file."""
+
+    def test_encrypt_file_noop_when_plain_missing(self, tmp_path: Path) -> None:
+        from hexawyn.infrastructure.memory.encryption import _encrypt_file
+
+        key = secrets.token_bytes(32)
+        plain_path = tmp_path / "nonexistent.duckdb"
+        enc_path = tmp_path / "nonexistent.duckdb.enc"
+
+        _encrypt_file(key, plain_path, enc_path)
+        assert not enc_path.exists()
+
+    def test_decrypt_file_noop_when_enc_missing(self, tmp_path: Path) -> None:
+        from hexawyn.infrastructure.memory.encryption import _decrypt_file
+
+        key = secrets.token_bytes(32)
+        enc_path = tmp_path / "nonexistent.duckdb.enc"
+        output_path = tmp_path / "nonexistent.duckdb"
+
+        _decrypt_file(key, enc_path, output_path)
+        assert not output_path.exists()
+
+
+class TestEncryptDbOnExit:
+    """Cover _encrypt_db_on_exit function."""
+
+    def test_encrypts_and_removes_db_on_exit(self, tmp_path: Path) -> None:
+        from hexawyn.infrastructure.memory.encryption import _encrypt_db_on_exit
+
+        key = secrets.token_bytes(32)
+        db_path = tmp_path / "memory.duckdb"
+        enc_path = tmp_path / "memory.duckdb.enc"
+
+        db_path.write_bytes(b"database content for on-exit test")
+
+        with patch("hexawyn.infrastructure.memory.encryption.DB_PATH", db_path):
+            with patch("hexawyn.infrastructure.memory.encryption.ENCRYPTED_DB_PATH", enc_path):
+                _encrypt_db_on_exit(key)
+
+        assert enc_path.exists()
+        assert enc_path.read_bytes() != b"database content for on-exit test"
+        assert not db_path.exists()
+
+    def test_encrypt_db_on_exit_noop_when_db_missing(self, tmp_path: Path) -> None:
+        from hexawyn.infrastructure.memory.encryption import _encrypt_db_on_exit
+
+        key = secrets.token_bytes(32)
+        db_path = tmp_path / "nonexistent.duckdb"
+        enc_path = tmp_path / "nonexistent.duckdb.enc"
+
+        with patch("hexawyn.infrastructure.memory.encryption.DB_PATH", db_path):
+            with patch("hexawyn.infrastructure.memory.encryption.ENCRYPTED_DB_PATH", enc_path):
+                _encrypt_db_on_exit(key)
+
+        assert not enc_path.exists()
+
+
+class TestResetState:
+    """Reset state functions for test isolation."""
+
+    def test_reset_prepare_db_state_clears_flags(self) -> None:
+        import hexawyn.infrastructure.memory.encryption as enc_mod
+
+        enc_mod._reset_prepare_db_state()
+        assert enc_mod._db_prepared is False
+        assert enc_mod._atexit_registered is False
+
+    def test_reset_salt_clears_cache(self) -> None:
+        import hexawyn.infrastructure.memory.encryption as enc_mod
+
+        enc_mod._salt_cache = b"fake-salt"
+        enc_mod._reset_salt()
+        assert enc_mod._salt_cache is None
+
+    def test_prepare_db_idempotent_second_call_noop(self, tmp_path: Path) -> None:
+        import hexawyn.infrastructure.memory.encryption as enc_mod
+
+        enc_mod._reset_prepare_db_state()
+        key = secrets.token_bytes(32)
+        plain_path = tmp_path / "memory.duckdb"
+        enc_path = tmp_path / "memory.duckdb.enc"
+
+        with patch("hexawyn.infrastructure.memory.encryption.ENCRYPTED_DB_PATH", enc_path):
+            with patch("hexawyn.infrastructure.memory.encryption.DB_PATH", plain_path):
+                with patch("hexawyn.infrastructure.memory.encryption.HEXAWYN_DIR", tmp_path):
+                    enc_mod.prepare_db(key)
+                    assert enc_mod._db_prepared is True
+                    enc_mod.prepare_db(key)
+                    assert enc_mod._db_prepared is True
+
+
 class TestKubeconfigKeyDerivation:
     """Integration: derives key from stable kubeconfig parts."""
 
@@ -313,6 +430,59 @@ clusters:
             with patch("os.path.exists", return_value=False):
                 content = get_kubeconfig_stable_content()
                 assert content is None
+
+    def test_non_dict_config_returns_raw_bytes(self, tmp_path: Path) -> None:
+        from hexawyn.infrastructure.config.kubeconfig_reader import (
+            get_kubeconfig_stable_content,
+        )
+
+        kubeconfig_file = tmp_path / "config"
+        kubeconfig_file.write_text("- just a list\n- not a dict\n")
+
+        with patch.dict("os.environ", {"KUBECONFIG": str(kubeconfig_file)}):
+            content = get_kubeconfig_stable_content()
+
+        assert content is not None
+        assert b"just a list" in content
+
+    def test_clusters_not_a_list_returns_raw_bytes(self, tmp_path: Path) -> None:
+        from hexawyn.infrastructure.config.kubeconfig_reader import (
+            get_kubeconfig_stable_content,
+        )
+
+        kubeconfig_file = tmp_path / "config"
+        kubeconfig_file.write_text("apiVersion: v1\nclusters: not_a_list\n")
+
+        with patch.dict("os.environ", {"KUBECONFIG": str(kubeconfig_file)}):
+            content = get_kubeconfig_stable_content()
+
+        assert content is not None
+
+    def test_empty_stable_parts_returns_raw_bytes(self, tmp_path: Path) -> None:
+        from hexawyn.infrastructure.config.kubeconfig_reader import (
+            get_kubeconfig_stable_content,
+        )
+
+        kubeconfig_file = tmp_path / "config"
+        kubeconfig_file.write_text("apiVersion: v1\nclusters:\n- name: empty\n  cluster: {}\n")
+
+        with patch.dict("os.environ", {"KUBECONFIG": str(kubeconfig_file)}):
+            content = get_kubeconfig_stable_content()
+
+        assert content is not None
+
+    def test_yaml_parse_error_returns_none(self, tmp_path: Path) -> None:
+        from hexawyn.infrastructure.config.kubeconfig_reader import (
+            get_kubeconfig_stable_content,
+        )
+
+        kubeconfig_file = tmp_path / "config"
+        kubeconfig_file.write_text(": invalid: yaml: : :\n")
+
+        with patch.dict("os.environ", {"KUBECONFIG": str(kubeconfig_file)}):
+            content = get_kubeconfig_stable_content()
+
+        assert content is None
 
 
 class TestEndToEndEncryptDecrypt:

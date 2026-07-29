@@ -105,10 +105,10 @@ def startup_lines(startup_status: KubernetesStartupStatus | None) -> list[str]:
 
 
 def format_size(size_bytes: int) -> str:
-    if size_bytes < 1024:
+    if size_bytes < 1024:  # noqa: PLR2004
         return f"{size_bytes} B"
-    if size_bytes < 1_048_576:
+    if size_bytes < 1_048_576:  # noqa: PLR2004
         return f"{size_bytes / 1024:.1f} KB"
-    if size_bytes < 1_073_741_824:
+    if size_bytes < 1_073_741_824:  # noqa: PLR2004
         return f"{size_bytes / 1_048_576:.1f} MB"
     return f"{size_bytes / 1_073_741_824:.2f} GB"

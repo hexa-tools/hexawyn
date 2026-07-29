@@ -39,7 +39,7 @@ class TestCertificate:
             auto_renew=True,
             message=None,
         )
-        assert c.days_until_expiry == 60
+        assert c.days_until_expiry == 60  # noqa: PLR2004
         assert c.auto_renew is True
 
     def test_expired_cert(self) -> None:
@@ -103,4 +103,4 @@ class TestCertManagerDetectionResult:
             failed_certs=1,
             active_challenges=2,
         )
-        assert r.expiring_soon == 3
+        assert r.expiring_soon == 3  # noqa: PLR2004

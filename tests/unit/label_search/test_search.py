@@ -11,7 +11,7 @@ from hexawyn.domain.models.label_search import LabelSearchRequest
 from hexawyn.domain.services.label_search.search import search_resources_by_labels
 
 
-def _raw(
+def _raw(  # noqa: PLR0913
     name: str,
     namespace: str,
     kind: str = "pod",
@@ -46,10 +46,10 @@ class TestThreePodsAcrossTwoNamespaces:
 
         result = search_resources_by_labels(_request(), raw_matches)
 
-        assert result.total_matched == 3
-        assert len(result.groups) == 2
+        assert result.total_matched == 3  # noqa: PLR2004
+        assert len(result.groups) == 2  # noqa: PLR2004
         by_ns = {group.namespace: group for group in result.groups}
-        assert len(by_ns["production"].resources) == 2
+        assert len(by_ns["production"].resources) == 2  # noqa: PLR2004
         assert len(by_ns["staging"].resources) == 1
 
 
@@ -141,8 +141,8 @@ class TestTruncation:
 
         result = search_resources_by_labels(_request(), raw_matches)
 
-        assert result.total_matched == 600
+        assert result.total_matched == 600  # noqa: PLR2004
         assert result.has_more is True
-        assert result.remaining_count == 100
+        assert result.remaining_count == 100  # noqa: PLR2004
         total_returned = sum(len(group.resources) for group in result.groups)
-        assert total_returned == 500
+        assert total_returned == 500  # noqa: PLR2004

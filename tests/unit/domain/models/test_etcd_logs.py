@@ -30,7 +30,7 @@ class TestETCDLogsResult:
             request=ETCDLogsRequest(time_window_minutes=60),
             log_lines=lines,
         )
-        assert result.leader_election_count == 3
+        assert result.leader_election_count == 3  # noqa: PLR2004
         assert result.compaction_errors > 0
         assert result.leader_instability is True
 

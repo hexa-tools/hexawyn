@@ -12,7 +12,7 @@ def compute_stale_credentials_report(
             period_label=period, has_data=False, warning="Aucune donnee de rotation disponible."
         )
 
-    stale = [cred for cred in credentials if cred["days_unrotated"] >= 90]
+    stale = [cred for cred in credentials if cred["days_unrotated"] >= 90]  # noqa: PLR2004
     critical = sum(1 for cred in stale if cred["risk_level"] == "critical")
     return StaleCredentialsReport(
         period_label=period,

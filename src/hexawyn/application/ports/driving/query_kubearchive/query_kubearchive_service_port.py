@@ -2,15 +2,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.query_kubearchive.query_kubearchive_command import (
-    QueryKubeArchiveCommand,
+from hexawyn.application.use_case.troubleshooting.query_kubearchive.command import (
+    QueryKubearchiveCommand,
 )
-from hexawyn.application.ports.driving.query_kubearchive.query_kubearchive_response import (
-    QueryKubeArchiveResponse,
+from hexawyn.application.use_case.troubleshooting.query_kubearchive.response import (
+    QueryKubearchiveResponse,
 )
 
 
 class QueryKubeArchiveServicePort(ABC):
     @abstractmethod
-    def query(self, command: QueryKubeArchiveCommand) -> QueryKubeArchiveResponse:
-        """Query historical resource state and optionally compare with current state."""
+    def query(self, command: QueryKubearchiveCommand) -> QueryKubearchiveResponse: ...

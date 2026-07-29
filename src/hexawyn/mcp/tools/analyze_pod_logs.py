@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.analyze_pod_logs.analyze_pod_logs_command import (
-    AnalyzePodLogsCommand,
-)
-from hexawyn.application.use_case.analyze_pod_logs.analyze_pod_logs_use_case import (
+from hexawyn.application.use_case.observability.analyze_pod_logs.analyze_pod_logs_use_case import (
     AnalyzePodLogsUseCase,
+)
+from hexawyn.application.use_case.observability.analyze_pod_logs.command import (
+    AnalyzePodLogsCommand,
 )
 
 if TYPE_CHECKING:
@@ -18,16 +18,13 @@ if TYPE_CHECKING:
 def analyze_pod_logs(
     pod_name: str, namespace: str, time_window_minutes: int = 30
 ) -> dict[str, object]:
-    from hexawyn.application.service.analyze_pod_logs_service import AnalyzePodLogsService
     from hexawyn.mcp.server import build_pod_logs_adapter
 
     try:
         adapter = build_pod_logs_adapter()
-        r = AnalyzePodLogsUseCase(service=AnalyzePodLogsService(port=adapter)).execute(
+        r = AnalyzePodLogsUseCase(port=adapter).execute(
             AnalyzePodLogsCommand(
-                pod_name=pod_name,
-                namespace=namespace,
-                time_window_minutes=time_window_minutes,
+                pod_name=pod_name, namespace=namespace, time_window_minutes=time_window_minutes
             )
         )
         return {

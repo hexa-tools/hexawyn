@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.compute_team_cost.compute_team_cost_command import (
+from hexawyn.application.use_case.finops.compute_team_cost.command import (  # noqa: E501
     ComputeTeamCostCommand,
 )
-from hexawyn.application.ports.driving.compute_team_cost.compute_team_cost_response import (
+from hexawyn.application.use_case.finops.compute_team_cost.response import (  # noqa: E501
     ComputeTeamCostResponse,
 )
 

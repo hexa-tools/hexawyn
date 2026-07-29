@@ -71,7 +71,7 @@ class ComparisonResult:
         confidence = ConfidenceLevel.HIGH
         if canary.request_count < min_sample_threshold:
             confidence = ConfidenceLevel.LOW
-        elif traffic_split_pct < 20.0:
+        elif traffic_split_pct < 20.0:  # noqa: PLR2004
             confidence = ConfidenceLevel.MEDIUM
 
         if canary.request_count == 0 and stable.request_count == 0:

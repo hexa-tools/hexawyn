@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.version_regression.version_regression_command import (
+from hexawyn.application.use_case.pipelines.version_regression.command import (
     VersionRegressionCommand,
 )
-from hexawyn.application.use_case.version_regression.version_regression_use_case import (
+from hexawyn.application.use_case.pipelines.version_regression.version_regression_use_case import (
     VersionRegressionUseCase,
 )
 
@@ -16,12 +16,11 @@ if TYPE_CHECKING:
 
 
 def version_regression(service_name: str, time_window_minutes: int = 120) -> dict[str, object]:
-    from hexawyn.application.service.version_regression_service import VersionRegressionService
     from hexawyn.mcp.server import build_version_regression_adapter
 
     try:
         a = build_version_regression_adapter()
-        r = VersionRegressionUseCase(service=VersionRegressionService(port=a)).execute(
+        r = VersionRegressionUseCase(port=a).execute(
             VersionRegressionCommand(
                 service_name=service_name, time_window_minutes=time_window_minutes
             )

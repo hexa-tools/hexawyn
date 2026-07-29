@@ -4,8 +4,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.live_topology_mapper.live_topology_mapper_command import (
+from hexawyn.application.use_case.cluster.live_topology_mapper.command import (
     LiveTopologyMapperCommand,
+)
+from hexawyn.application.use_case.cluster.live_topology_mapper.live_topology_mapper_use_case import (  # noqa: E501
+    LiveTopologyMapperUseCase,
 )
 
 if TYPE_CHECKING:
@@ -23,12 +26,7 @@ def live_topology_mapper(namespace: str | None = None) -> dict[str, object]:
     Args:
         namespace: Optional — scope discovery to a single namespace.
     """
-    from hexawyn.application.service.live_topology_mapper_service import (
-        LiveTopologyMapperService,
-    )
-    from hexawyn.application.use_case.live_topology_mapper.live_topology_mapper_use_case import (
-        LiveTopologyMapperUseCase,
-    )
+
     from hexawyn.mcp.server import (
         build_istio_topology_adapter,
         build_kubernetes_topology_adapter,
@@ -43,13 +41,12 @@ def live_topology_mapper(namespace: str | None = None) -> dict[str, object]:
         except Exception:
             snapshot_adapter = None
 
-        service = LiveTopologyMapperService(
+        use_case = LiveTopologyMapperUseCase(
             kubernetes_topology_port=build_kubernetes_topology_adapter(),
             istio_topology_port=build_istio_topology_adapter(),
             snapshot_port=snapshot_adapter,
             cluster_name=context_name,
         )
-        use_case = LiveTopologyMapperUseCase(service=service)
         response = use_case.execute(LiveTopologyMapperCommand(namespace=namespace))
 
         return {

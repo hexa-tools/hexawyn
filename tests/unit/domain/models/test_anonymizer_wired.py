@@ -12,7 +12,7 @@ class TestSlackAnonymizerModule:
         masked, amap = RegexAnonymizerAdapter().mask(text, RedactionPolicy())
         assert "my-app-secret" not in masked
         assert "10.0.0.1" not in masked
-        assert len(amap.matches) == 2
+        assert len(amap.matches) == 2  # noqa: PLR2004
 
     def test_anonymizer_disabled_does_nothing(self) -> None:
         text = "Normal message"

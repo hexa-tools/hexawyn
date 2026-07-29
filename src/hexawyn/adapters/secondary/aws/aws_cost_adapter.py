@@ -16,7 +16,7 @@ _COST_EXPLORER_METRICS = ["UnblendedCost"]
 class CostExplorerClient(Protocol):
     """Minimal contract for the boto3 Cost Explorer client used here."""
 
-    def get_cost_and_usage(
+    def get_cost_and_usage(  # noqa: PLR0913
         self,
         time_period: dict[str, str],
         granularity: str,

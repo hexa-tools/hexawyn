@@ -30,6 +30,7 @@ class InvestigationOutput(TypedDict):
     error: str | None
     embedding: list[float]
     usage: dict[str, int | str]
+    predicted_intents: list[str]
 
 
 class QuotaCheckResult(TypedDict):

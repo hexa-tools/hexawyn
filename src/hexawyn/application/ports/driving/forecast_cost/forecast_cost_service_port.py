@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.forecast_cost.forecast_cost_command import (
+from hexawyn.application.use_case.finops.forecast_cost.command import (
     ForecastCostCommand,
 )
-from hexawyn.application.ports.driving.forecast_cost.forecast_cost_response import (
+from hexawyn.application.use_case.finops.forecast_cost.response import (
     ForecastCostResponse,
 )
 

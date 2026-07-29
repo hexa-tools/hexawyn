@@ -12,7 +12,7 @@ from hexawyn.domain.models.event import (
 
 class TestEventSeverity:
     def test_all_members_present(self) -> None:
-        assert len(EventSeverity) == 4
+        assert len(EventSeverity) == 4  # noqa: PLR2004
         assert EventSeverity.CRITICAL.value == "critical"
         assert EventSeverity.HIGH.value == "high"
         assert EventSeverity.MEDIUM.value == "medium"
@@ -29,7 +29,7 @@ class TestEventSeverity:
 
 class TestEventCategory:
     def test_all_members_present(self) -> None:
-        assert len(EventCategory) == 12
+        assert len(EventCategory) == 12  # noqa: PLR2004
 
     def test_values_are_lowercase(self) -> None:
         for category in EventCategory:
@@ -75,7 +75,7 @@ class TestClassifiedEvent:
             first_timestamp=now,
             last_timestamp=now,
         )
-        assert event.count == 15
+        assert event.count == 15  # noqa: PLR2004
         assert event.first_timestamp == now
         assert event.last_timestamp == now
 
@@ -141,7 +141,7 @@ class TestClassifiedEventEdgeCases:
             involved_object="Pod/app",
             count=100_000,
         )
-        assert event.count == 100_000
+        assert event.count == 100_000  # noqa: PLR2004
 
     def test_empty_event_type_accepted(self) -> None:
         event = ClassifiedEvent(

@@ -213,5 +213,5 @@ class TestRBACAuditReport:
             UnusedServiceAccount(name="idle-sa", namespace="staging")
         ]
         assert report.excluded_system_service_accounts == ["kube-system:default"]
-        assert report.total_service_accounts_checked == 12
+        assert report.total_service_accounts_checked == 12  # noqa: PLR2004
         assert report.summary == "1 over-privileged service account found."

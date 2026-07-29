@@ -67,7 +67,7 @@ class UsageLedger(UsageLedgerPort):
 
     def monthly_report(self, year: int, month: int) -> MonthlyReport:
         start = datetime(year, month, 1, tzinfo=UTC).isoformat()
-        if month == 12:
+        if month == 12:  # noqa: PLR2004
             end = datetime(year + 1, 1, 1, tzinfo=UTC).isoformat()
         else:
             end = datetime(year, month + 1, 1, tzinfo=UTC).isoformat()

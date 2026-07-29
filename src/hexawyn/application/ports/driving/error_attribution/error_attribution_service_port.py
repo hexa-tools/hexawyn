@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.error_attribution.error_attribution_command import (
+from hexawyn.application.use_case.observability.error_attribution.command import (
     ErrorAttributionCommand,
 )
-from hexawyn.application.ports.driving.error_attribution.error_attribution_response import (
+from hexawyn.application.use_case.observability.error_attribution.response import (
     ErrorAttributionResponse,
 )
 

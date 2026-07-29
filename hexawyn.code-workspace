@@ -1,9 +1,10 @@
 {
-    "folders": [
-        { "path": "src", "name": "hexawyn" },
-        { "path": ".", "name": "root" }
-    ],
-    "settings": {
-        "python.defaultInterpreterPath": ".venv/bin/python"
-    }
+  "folders": [
+    { "path": "src", "name": "hexawyn" },
+    { "path": ".", "name": "root" },
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": ".venv/bin/python",
+    "liveServer.settings.multiRootWorkspaceName": "root",
+  },
 }

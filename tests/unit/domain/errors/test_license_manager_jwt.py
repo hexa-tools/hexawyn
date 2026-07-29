@@ -53,8 +53,8 @@ class TestLicenseClaims:
         assert claims.plan == "starter"
         assert claims.clusters_max == 1
         assert claims.users_max == 1
-        assert claims.investigations_monthly == 50
-        assert claims.history_days == 7
+        assert claims.investigations_monthly == 50  # noqa: PLR2004
+        assert claims.history_days == 7  # noqa: PLR2004
         assert claims.providers == ["vanilla"]
 
 
@@ -118,8 +118,8 @@ class TestVerifyLicense:
 
                 claims = verify_license()
                 assert claims.plan == "team"
-                assert claims.clusters_max == 3
-                assert claims.investigations_monthly == 500
+                assert claims.clusters_max == 3  # noqa: PLR2004
+                assert claims.investigations_monthly == 500  # noqa: PLR2004
 
     def test_expired_jwt_raises_error(self) -> None:
         private_pem, public_pem = _generate_rsa_keypair()

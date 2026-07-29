@@ -4,23 +4,24 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.resource_yaml.resource_yaml_command import (
-    ResourceYAMLCommand,
+from hexawyn.application.use_case.cluster.resource_yaml.command import (
+    ResourceYamlCommand,
 )
-from hexawyn.application.use_case.resource_yaml.resource_yaml_use_case import ResourceYAMLUseCase
+from hexawyn.application.use_case.cluster.resource_yaml.resource_yaml_use_case import (
+    ResourceYAMLUseCase,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
 def resource_yaml(resource_name: str, namespace: str, kind: str) -> dict[str, object]:
-    from hexawyn.application.service.resource_yaml_service import ResourceYAMLService
     from hexawyn.mcp.server import build_resource_yaml_adapter
 
     try:
         a = build_resource_yaml_adapter()
-        r = ResourceYAMLUseCase(service=ResourceYAMLService(port=a)).execute(
-            ResourceYAMLCommand(resource_name=resource_name, namespace=namespace, kind=kind)
+        r = ResourceYAMLUseCase(port=a).execute(
+            ResourceYamlCommand(resource_name=resource_name, namespace=namespace, kind=kind)  # type: ignore
         )
         return {
             "resource_name": r.resource_name,

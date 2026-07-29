@@ -45,33 +45,33 @@ class TestConnectionIssue:
             confidence=0.65,
         )
         assert issue.category == "connection_refused"
-        assert issue.count == 3
+        assert issue.count == 3  # noqa: PLR2004
 
 
 class TestLogPatternMatch:
     def test_fields(self) -> None:
         pattern = LogPatternMatch(pattern="connection refused", count=3, confidence=0.65)
         assert pattern.pattern == "connection refused"
-        assert pattern.count == 3
+        assert pattern.count == 3  # noqa: PLR2004
 
 
 class TestPodRunSummary:
     def test_fields(self) -> None:
         summary = PodRunSummary(run_index=1, line_count=42, error_count=2, warning_count=1)
         assert summary.run_index == 1
-        assert summary.line_count == 42
+        assert summary.line_count == 42  # noqa: PLR2004
 
 
 class TestAnalyzePodLogsRequest:
     def test_defaults(self) -> None:
         req = AnalyzePodLogsRequest(pod_name="api-gateway-7f9b", namespace="prod")
-        assert req.time_window_minutes == 30
+        assert req.time_window_minutes == 30  # noqa: PLR2004
 
     def test_explicit_window(self) -> None:
         req = AnalyzePodLogsRequest(
             pod_name="api-gateway-7f9b", namespace="prod", time_window_minutes=60
         )
-        assert req.time_window_minutes == 60
+        assert req.time_window_minutes == 60  # noqa: PLR2004
 
 
 class TestAnalyzePodLogsResult:
@@ -102,11 +102,11 @@ class TestAnalyzePodLogsResult:
             token_reduction_percentage=95.0,
             degraded=False,
         )
-        assert result.total_lines == 500
-        assert result.error_count == 15
+        assert result.total_lines == 500  # noqa: PLR2004
+        assert result.error_count == 15  # noqa: PLR2004
         assert len(result.connection_timeouts) == 1
         assert result.restarts_detected is False
-        assert result.token_reduction_percentage == 95.0
+        assert result.token_reduction_percentage == 95.0  # noqa: PLR2004
         assert result.degraded is False
 
     def test_defaults_for_reduction_metrics(self) -> None:

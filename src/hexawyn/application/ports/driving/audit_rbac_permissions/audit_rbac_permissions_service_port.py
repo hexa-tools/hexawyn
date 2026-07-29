@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.audit_rbac_permissions.audit_rbac_permissions_command import (
+from hexawyn.application.use_case.security.audit_rbac_permissions.command import (  # type: ignore
     AuditRBACPermissionsCommand,
 )
-from hexawyn.application.ports.driving.audit_rbac_permissions.audit_rbac_permissions_response import (
+from hexawyn.application.use_case.security.audit_rbac_permissions.response import (  # type: ignore
     AuditRBACPermissionsResponse,
 )
 

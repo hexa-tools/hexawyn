@@ -36,5 +36,5 @@ GCP_GKE_SCENARIO = {
         },
     ],
     "chips": ["SLO breach p99 820ms", "OOM risk payments-api", "Memory 91%"],
-    "slack_message": "Alert: GKE prod — SLO breach payments-api p99=820ms (target 500ms). Score 84.",
+    "slack_message": "Alert: GKE prod — SLO breach payments-api p99=820ms (target 500ms). Score 84.",  # noqa: E501
 }

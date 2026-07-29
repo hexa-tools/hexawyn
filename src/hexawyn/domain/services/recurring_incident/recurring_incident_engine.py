@@ -64,9 +64,9 @@ class RecurringIncidentEngine:
 def _recommend(count: int, recurring: bool, recurrence_count: int) -> str:
     if recurring and recurrence_count > _RECURRENCE_THRESHOLD:
         return "Recurring pattern detected — invest in code quality and root cause fix"
-    if count >= 5:
+    if count >= 5:  # noqa: PLR2004
         return "High incident frequency — prioritize reliability improvements and auto-scaling"
-    if count >= 3:
+    if count >= 3:  # noqa: PLR2004
         return "Moderate incident frequency — review capacity limits and resource allocation"
     return "Low incident frequency — monitor and address root cause individually"
 

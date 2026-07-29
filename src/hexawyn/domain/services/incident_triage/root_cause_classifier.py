@@ -38,10 +38,10 @@ _REMEDIATION: dict[IncidentCauseCategory, str] = {
         "configuration/environment variables."
     ),
     IncidentCauseCategory.DEPLOYMENT: (
-        "Review the most recent deployment/rollout for this workload; " "consider rolling back."
+        "Review the most recent deployment/rollout for this workload; consider rolling back."
     ),
     IncidentCauseCategory.UNKNOWN: (
-        "Investigate the affected objects' events and logs; no known failure " "pattern matched."
+        "Investigate the affected objects' events and logs; no known failure pattern matched."
     ),
 }
 

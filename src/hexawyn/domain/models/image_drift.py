@@ -5,6 +5,7 @@ from typing import Literal
 
 DriftType = Literal["tag_mismatch", "digest_mismatch"]
 ImageDriftSeverity = Literal["critical"]
+ResourceKey = tuple[str, str, str]
 
 
 @dataclass(frozen=True)

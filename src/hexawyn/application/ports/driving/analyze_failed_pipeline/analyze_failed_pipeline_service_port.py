@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.analyze_failed_pipeline.analyze_failed_pipeline_command import (
+from hexawyn.application.use_case.pipelines.analyze_failed_pipeline.command import (
     AnalyzeFailedPipelineCommand,
 )
-from hexawyn.application.ports.driving.analyze_failed_pipeline.analyze_failed_pipeline_response import (
+from hexawyn.application.use_case.pipelines.analyze_failed_pipeline.response import (
     AnalyzeFailedPipelineResponse,
 )
 

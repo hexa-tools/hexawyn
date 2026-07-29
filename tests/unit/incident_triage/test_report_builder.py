@@ -16,7 +16,7 @@ from hexawyn.domain.models.pipeline_failure_analysis import FailureAnalysis, Fai
 from hexawyn.domain.services.incident_triage.report_builder import generate_incident_triage_report
 
 
-def _event(
+def _event(  # noqa: PLR0913
     event_type: str,
     reason: str,
     message: str,
@@ -94,7 +94,7 @@ _OBSERVED_AT = datetime(2024, 6, 1, 16, 0, 0, tzinfo=UTC)
 
 
 class TestClearRootCause:
-    """TC1: Clear root cause (DB down) → timeline shows cascade, remediation mentions restoring the DB."""
+    """TC1: Clear root cause (DB down) → timeline shows cascade, remediation mentions restoring the DB."""  # noqa: E501
 
     def test_cascade_unified_under_single_database_root_cause(self) -> None:
         report = generate_incident_triage_report(
@@ -169,7 +169,7 @@ class TestClearRootCause:
 
 
 class TestAmbiguousRootCause:
-    """TC2: Ambiguous root cause (multiple concurrent failures) → candidates ranked by confidence."""
+    """TC2: Ambiguous root cause (multiple concurrent failures) → candidates ranked by confidence."""  # noqa: E501
 
     def test_two_unrelated_concurrent_failures_both_ranked(self) -> None:
         events = [
@@ -198,12 +198,12 @@ class TestAmbiguousRootCause:
             observed_at=_OBSERVED_AT,
         )
 
-        assert len(report.root_causes) == 2
+        assert len(report.root_causes) == 2  # noqa: PLR2004
         categories = {candidate.category for candidate in report.root_causes}
         assert categories == {IncidentCauseCategory.DATABASE, IncidentCauseCategory.NETWORK}
         confidences = [candidate.confidence for candidate in report.root_causes]
         assert confidences == sorted(confidences, reverse=True)
-        assert len(report.remediation_steps) == 2
+        assert len(report.remediation_steps) == 2  # noqa: PLR2004
 
 
 class TestResolvedIncident:
@@ -232,7 +232,7 @@ class TestResolvedIncident:
 
         assert report.resolved is True
         assert report.resolution_time == "2024-06-01T15:42:00Z"
-        assert report.mttr_minutes == 87
+        assert report.mttr_minutes == 87  # noqa: PLR2004
         assert report.impact.ongoing is False
 
     def test_unresolved_incident_reports_ongoing(self) -> None:
@@ -291,7 +291,7 @@ class TestPipelineFailureIntegration:
 
         assert len(report.root_causes) == 1
         assert report.root_causes[0].category == IncidentCauseCategory.DEPLOYMENT
-        assert report.root_causes[0].confidence == 0.85
+        assert report.root_causes[0].confidence == 0.85  # noqa: PLR2004
         assert report.timeline[0].source == "pipeline"
 
 

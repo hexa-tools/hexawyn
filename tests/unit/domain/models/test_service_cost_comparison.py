@@ -43,5 +43,5 @@ class TestServiceCostComparison:
             trend="increasing",
             recommendation="Review scaling",
         )
-        assert c.cost_delta == 50.0
+        assert c.cost_delta == 50.0  # noqa: PLR2004
         assert c.trend == "increasing"

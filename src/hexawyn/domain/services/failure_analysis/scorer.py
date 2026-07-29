@@ -69,7 +69,7 @@ class RcaScorer:
             cascade_risk=cascade_risk,
         )
 
-    def assess_severity(
+    def assess_severity(  # noqa: PLR0913
         self,
         logs_analyzed: bool,
         root_cause_found: bool,

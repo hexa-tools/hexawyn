@@ -142,5 +142,5 @@ class TestTestDataScenario:
             safe_threshold_pct=85.0,
         )
 
-        assert result.node_count >= 3
+        assert result.node_count >= 3  # noqa: PLR2004
         assert result.node_type == "compute_optimized"

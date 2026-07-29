@@ -1,11 +1,9 @@
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.detect_log_anomalies.detect_log_anomalies_command import (
+from hexawyn.application.use_case.troubleshooting.detect_log_anomalies.command import (
     DetectLogAnomaliesCommand,
 )
-from hexawyn.application.ports.driving.detect_log_anomalies.detect_log_anomalies_response import (
+from hexawyn.application.use_case.troubleshooting.detect_log_anomalies.response import (
     DetectLogAnomaliesResponse,
 )
 

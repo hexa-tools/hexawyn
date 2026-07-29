@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.watch_pod_logs.watch_pod_logs_command import (
+from hexawyn.application.use_case.troubleshooting.watch_pod_logs.command import (
     WatchPodLogsCommand,
 )
-from hexawyn.application.ports.driving.watch_pod_logs.watch_pod_logs_response import (
+from hexawyn.application.use_case.troubleshooting.watch_pod_logs.response import (
     WatchPodLogsResponse,
 )
 

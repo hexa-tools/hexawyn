@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.analyze_incident_cost.analyze_incident_cost_command import (  # noqa: E501
+from hexawyn.application.use_case.finops.analyze_incident_cost.command import (  # noqa: E501
     AnalyzeIncidentCostCommand,
 )
-from hexawyn.application.ports.driving.analyze_incident_cost.analyze_incident_cost_response import (  # noqa: E501
+from hexawyn.application.use_case.finops.analyze_incident_cost.response import (  # noqa: E501
     AnalyzeIncidentCostResponse,
 )
 

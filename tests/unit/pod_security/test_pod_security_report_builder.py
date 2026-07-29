@@ -30,7 +30,7 @@ class TestBuildReport:
         report = build_report(findings=[], compliant_pod_count=5, total_pods_checked=5)
 
         assert report.findings == []
-        assert report.total_pods_checked == 5
+        assert report.total_pods_checked == 5  # noqa: PLR2004
         assert "No" in report.summary
 
     def test_tc4_all_pods_compliant_produces_empty_findings(self) -> None:
@@ -39,7 +39,7 @@ class TestBuildReport:
         report = build_report(findings=[], compliant_pod_count=12, total_pods_checked=12)
 
         assert report.findings == []
-        assert report.compliant_pod_count == 12
+        assert report.compliant_pod_count == 12  # noqa: PLR2004
 
     def test_tc5_ten_violating_pods_across_three_namespaces_are_all_listed(self) -> None:
         from hexawyn.domain.services.pod_security.pod_security_report_builder import build_report
@@ -52,7 +52,7 @@ class TestBuildReport:
 
         report = build_report(findings=findings, compliant_pod_count=2, total_pods_checked=12)
 
-        assert len(report.findings) == 10
+        assert len(report.findings) == 10  # noqa: PLR2004
         assert "10" in report.summary
         assert "3" in report.summary
 

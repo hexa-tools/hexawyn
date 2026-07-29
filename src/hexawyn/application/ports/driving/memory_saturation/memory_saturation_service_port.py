@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.memory_saturation.memory_saturation_command import (
+from hexawyn.application.use_case.troubleshooting.memory_saturation.command import (
     MemorySaturationCommand,
 )
-from hexawyn.application.ports.driving.memory_saturation.memory_saturation_response import (
+from hexawyn.application.use_case.troubleshooting.memory_saturation.response import (
     MemorySaturationResponse,
 )
 

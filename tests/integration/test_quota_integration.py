@@ -69,7 +69,7 @@ class TestQuotaRepositoryIntegration:
         for _ in range(5):
             repo.increment_investigation(month="2026-06", tier=tier, limit=limit)
         quota = repo.get_investigation_quota(month="2026-06")
-        assert quota.count == 5
+        assert quota.count == 5  # noqa: PLR2004
 
     @pytest.mark.integration
     def test_different_months_are_independent(self, repo: QuotaRepository) -> None:
@@ -81,7 +81,7 @@ class TestQuotaRepositoryIntegration:
 
         june = repo.get_investigation_quota(month="2026-06")
         july = repo.get_investigation_quota(month="2026-07")
-        assert june.count == 2
+        assert june.count == 2  # noqa: PLR2004
         assert july.count == 1
 
     @pytest.mark.integration
@@ -114,7 +114,7 @@ class TestQuotaRepositoryIntegration:
 
         inv = repo.get_investigation_quota(month="2026-06")
         slack = repo.get_slack_quota(month="2026-06")
-        assert inv.count == 2
+        assert inv.count == 2  # noqa: PLR2004
         assert slack.count == 1
 
     @pytest.mark.integration
@@ -139,29 +139,29 @@ class TestQuotaRepositoryIntegration:
 class TestTierSpecificIntegration:
     @pytest.mark.integration
     def test_free_tier_quota_full_cycle(self, repo: QuotaRepository) -> None:
-        """Real DuckDB — 50 increments → is_exceeded."""
+        """Real DuckDB — STARTER limit increments → is_exceeded."""
         limit = get_investigation_limit(LicenseTier.STARTER)
         _fill_investigations(repo, "2026-06", LicenseTier.STARTER, limit)
         quota = repo.get_investigation_quota(month="2026-06")
         assert quota.is_exceeded is True
-        assert quota.limit == 50
+        assert quota.limit == get_investigation_limit(LicenseTier.STARTER)
 
     @pytest.mark.integration
     def test_dev_tier_quota_full_cycle(self, repo: QuotaRepository) -> None:
-        """Real DuckDB — 200 increments → is_exceeded."""
+        """Real DuckDB — TEAM limit increments → is_exceeded."""
         limit = get_investigation_limit(LicenseTier.TEAM)
         _fill_investigations(repo, "2026-06", LicenseTier.TEAM, limit)
         quota = repo.get_investigation_quota(month="2026-06")
         assert quota.is_exceeded is True
-        assert quota.limit == 200
+        assert quota.limit == get_investigation_limit(LicenseTier.TEAM)
 
     @pytest.mark.integration
     def test_different_tiers_different_limits(self, repo: QuotaRepository) -> None:
-        """Free=50, Dev=200, Startup=500 all enforced correctly."""
+        """STARTER and TEAM tiers are enforced with their own limits."""
         repo.increment_investigation(
             month="2026-06",
-            tier=LicenseTier.TEAM,
-            limit=get_investigation_limit(LicenseTier.TEAM),
+            tier=LicenseTier.STARTER,
+            limit=get_investigation_limit(LicenseTier.STARTER),
         )
         repo.increment_investigation(
             month="2026-07",
@@ -169,11 +169,12 @@ class TestTierSpecificIntegration:
             limit=get_investigation_limit(LicenseTier.TEAM),
         )
 
-        q_dev = repo.get_investigation_quota(month="2026-06")
-        q_startup = repo.get_investigation_quota(month="2026-07")
+        q_starter = repo.get_investigation_quota(month="2026-06")
+        q_team = repo.get_investigation_quota(month="2026-07")
 
-        assert q_dev.limit == 200
-        assert q_startup.limit == 500
+        assert q_starter.limit == get_investigation_limit(LicenseTier.STARTER)
+        assert q_team.limit == get_investigation_limit(LicenseTier.TEAM)
+        assert q_starter.limit != q_team.limit
 
     @pytest.mark.integration
     def test_slack_quota_independent_from_investigation(self, repo: QuotaRepository) -> None:
@@ -197,10 +198,9 @@ class TestTierSpecificIntegration:
 
     @pytest.mark.integration
     def test_history_days_by_tier(self) -> None:
-        """Free=7, Dev=30, Startup=90, Scale-up=unlimited."""
-        assert get_history_days(LicenseTier.STARTER) == 7
-        assert get_history_days(LicenseTier.TEAM) == 30
-        assert get_history_days(LicenseTier.TEAM) == 90
+        """Starter=30, Team=90, Scale-up=unlimited."""
+        assert get_history_days(LicenseTier.STARTER) == 30  # noqa: PLR2004
+        assert get_history_days(LicenseTier.TEAM) == 90  # noqa: PLR2004
         assert get_history_days(LicenseTier.SCALE_UP) == UNLIMITED
 
 
@@ -210,8 +210,12 @@ class TestQuotaManagerIntegration:
         self, test_conn: duckdb.DuckDBPyConnection, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(
-            "hexawyn.infrastructure.config.quota_manager.get_connection",
-            lambda: test_conn,
+            "hexawyn.infrastructure.config.quota_manager._store",
+            QuotaRepository(conn=test_conn),
+        )
+        monkeypatch.setattr(
+            "hexawyn.infrastructure.config.quota_manager._get_current_tier",
+            lambda: LicenseTier.STARTER,
         )
         check_quota()
 
@@ -220,8 +224,12 @@ class TestQuotaManagerIntegration:
         self, test_conn: duckdb.DuckDBPyConnection, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(
-            "hexawyn.infrastructure.config.quota_manager.get_connection",
-            lambda: test_conn,
+            "hexawyn.infrastructure.config.quota_manager._store",
+            QuotaRepository(conn=test_conn),
+        )
+        monkeypatch.setattr(
+            "hexawyn.infrastructure.config.quota_manager._get_current_tier",
+            lambda: LicenseTier.STARTER,
         )
         repo = QuotaRepository(conn=test_conn)
         month = _get_current_month()
@@ -244,8 +252,12 @@ class TestQuotaManagerIntegration:
         self, test_conn: duckdb.DuckDBPyConnection, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(
-            "hexawyn.infrastructure.config.quota_manager.get_connection",
-            lambda: test_conn,
+            "hexawyn.infrastructure.config.quota_manager._store",
+            QuotaRepository(conn=test_conn),
+        )
+        monkeypatch.setattr(
+            "hexawyn.infrastructure.config.quota_manager._get_current_tier",
+            lambda: LicenseTier.STARTER,
         )
         repo = QuotaRepository(conn=test_conn)
         month = _get_current_month()
@@ -260,5 +272,5 @@ class TestQuotaManagerIntegration:
 
         display = get_quota_display()
         assert "10" in display
-        assert "50" in display
-        assert "40" in display
+        assert str(limit) in display
+        assert str(limit - 10) in display

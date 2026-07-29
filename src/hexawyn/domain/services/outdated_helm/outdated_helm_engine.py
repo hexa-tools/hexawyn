@@ -102,7 +102,7 @@ def _parse_semver(version: str) -> tuple[int, int, int]:
     try:
         major = int(parts[0]) if len(parts) > 0 else 0
         minor = int(parts[1]) if len(parts) > 1 else 0
-        patch = int(parts[2]) if len(parts) > 2 else 0
+        patch = int(parts[2]) if len(parts) > 2 else 0  # noqa: PLR2004
         return (major, minor, patch)
     except (ValueError, IndexError):
         return (0, 0, 0)

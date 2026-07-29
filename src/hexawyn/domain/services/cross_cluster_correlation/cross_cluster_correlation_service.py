@@ -27,12 +27,12 @@ def correlate(
 
     largest = max(grouped.items(), key=lambda item: len(item[1]))
 
-    if len(largest[1]) < 2:
+    if len(largest[1]) < 2:  # noqa: PLR2004
         return CrossClusterCorrelationReport(scope="isolated")
 
     clusters = sorted(largest[1], key=lambda sig: sig["onset_utc"])
     in_window = _filter_within_window(clusters, window_minutes)
-    cascading = len(in_window) >= 2 and _onset_gap_seconds(in_window) > 0
+    cascading = len(in_window) >= 2 and _onset_gap_seconds(in_window) > 0  # noqa: PLR2004
     scope = _classify_scope(len(in_window), len(failures))
     common_factor = _extract_common_factor(in_window)
 
@@ -71,7 +71,9 @@ def _parse_utc(onset: str) -> datetime:
 def _filter_within_window(
     clusters: list[ClusterFailureSignature], window_minutes: int
 ) -> list[ClusterFailureSignature]:
-    if len(clusters) < 2:  # pragma: no cover — always called with ≥2 after line 28 check
+    if (
+        len(clusters) < 2  # noqa: PLR2004
+    ):  # pragma: no cover — always called with ≥2 after line 28 check  # noqa: E501, PLR2004
         return clusters
     start = _parse_utc(clusters[0]["onset_utc"])
     window = _timedelta(minutes=window_minutes)
@@ -87,7 +89,9 @@ def _timedelta(minutes: int):  # type: ignore[no-untyped-def]  # returns timedel
 
 
 def _onset_gap_seconds(clusters: list[ClusterFailureSignature]) -> int:
-    if len(clusters) < 2:  # pragma: no cover — always called with cascading=True precondition
+    if (
+        len(clusters) < 2  # noqa: PLR2004
+    ):  # pragma: no cover — always called with cascading=True precondition  # noqa: E501, PLR2004
         return 0
     first = _parse_utc(clusters[0]["onset_utc"])
     last = _parse_utc(clusters[-1]["onset_utc"])
@@ -95,9 +99,9 @@ def _onset_gap_seconds(clusters: list[ClusterFailureSignature]) -> int:
 
 
 def _classify_scope(in_window: int, total: int) -> str:
-    if in_window >= total and in_window >= 3:
+    if in_window >= total and in_window >= 3:  # noqa: PLR2004
         return "global"
-    if in_window >= 2:
+    if in_window >= 2:  # noqa: PLR2004
         return "regional"
     return "isolated"
 

@@ -75,7 +75,7 @@ class PrometheusClusterResourceMetricsAdapter(ClusterResourceMetricsPort):
         samples = self._metrics.instant_query(promql, timeout_seconds=timeout_seconds)
         return samples[0]["value"] if samples else 0.0
 
-    def _single_series(
+    def _single_series(  # noqa: PLR0913
         self, promql: str, start: datetime, end: datetime, step: str, timeout_seconds: float
     ) -> list[float]:
         samples = self._range_query(promql, start, end, step, timeout_seconds)
@@ -83,7 +83,7 @@ class PrometheusClusterResourceMetricsAdapter(ClusterResourceMetricsPort):
             return []
         return [value for _, value in samples[0]["values"]]
 
-    def _series_by_node(
+    def _series_by_node(  # noqa: PLR0913
         self, promql: str, start: datetime, end: datetime, step: str, timeout_seconds: float
     ) -> dict[str, list[tuple[str, float]]]:
         samples = self._range_query(promql, start, end, step, timeout_seconds)
@@ -95,7 +95,7 @@ class PrometheusClusterResourceMetricsAdapter(ClusterResourceMetricsPort):
             grouped[node_name] = sample["values"]
         return grouped
 
-    def _range_query(
+    def _range_query(  # noqa: PLR0913
         self, promql: str, start: datetime, end: datetime, step: str, timeout_seconds: float
     ) -> list[PrometheusRangeSample]:
         return self._metrics.range_query(

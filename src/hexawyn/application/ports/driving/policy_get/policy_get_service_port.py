@@ -2,15 +2,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.policy_get.policy_get_command import (
+from hexawyn.application.use_case.governance.policy_get.command import (
     PolicyGetCommand,
 )
-from hexawyn.application.ports.driving.policy_get.policy_get_response import (
+from hexawyn.application.use_case.governance.policy_get.response import (
     PolicyGetResponse,
 )
 
 
 class PolicyGetServicePort(ABC):
     @abstractmethod
-    def get_policy(self, command: PolicyGetCommand) -> PolicyGetResponse:
-        """Get a specific policy detail."""
+    def get_policy(self, command: PolicyGetCommand) -> PolicyGetResponse: ...

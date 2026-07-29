@@ -58,8 +58,7 @@ def detect_node_pressure_context(
     if pending_count == 0:
         return None
     return (
-        f"{pending_count} pod(s) pending — likely cluster resource pressure; "
-        "check node capacity."
+        f"{pending_count} pod(s) pending — likely cluster resource pressure; check node capacity."
     )
 
 

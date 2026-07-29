@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.deployment_latency.deployment_latency_command import (
+from hexawyn.application.use_case.observability.deployment_latency.command import (
     DeploymentLatencyCommand,
 )
-from hexawyn.application.ports.driving.deployment_latency.deployment_latency_response import (
+from hexawyn.application.use_case.observability.deployment_latency.response import (
     DeploymentLatencyResponse,
 )
 

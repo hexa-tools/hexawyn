@@ -43,7 +43,7 @@ class TraceEventResult:
                 trace_id=request.trace_id,
                 matching_events=[],
                 slowest_span=slowest_span,
-                conclusion="No system events (OOM, restart, eviction) found during this trace window",
+                conclusion="No system events (OOM, restart, eviction) found during this trace window",  # noqa: E501
             )
 
         parts = [f"Found {len(events)} system event(s) during trace {request.trace_id}"]

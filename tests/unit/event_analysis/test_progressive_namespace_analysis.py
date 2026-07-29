@@ -46,15 +46,15 @@ class TestSummarizeNamespaceEventsPhase1:
         summary = summarize_namespace_events("staging", _staging_test_data())
 
         assert summary.namespace == "staging"
-        assert summary.total_events == 15
-        assert summary.severity_breakdown["critical"] == 3
-        assert summary.severity_breakdown["high"] == 2
-        assert summary.severity_breakdown["low"] == 10
+        assert summary.total_events == 15  # noqa: PLR2004
+        assert summary.severity_breakdown["critical"] == 3  # noqa: PLR2004
+        assert summary.severity_breakdown["high"] == 2  # noqa: PLR2004
+        assert summary.severity_breakdown["low"] == 10  # noqa: PLR2004
 
     def test_top_affected_pods_ranks_by_event_count(self) -> None:
         summary = summarize_namespace_events("staging", _staging_test_data())
 
-        assert len(summary.top_affected_pods) <= 3
+        assert len(summary.top_affected_pods) <= 3  # noqa: PLR2004
         assert summary.top_affected_pods[0] == "pod/payment-api"
 
     def test_empty_events_returns_zeroed_summary(self) -> None:
@@ -74,7 +74,7 @@ class TestAnalyzeCriticalEventsPhase2:
         assert len(analysis.critical_incidents) == 1
         incident = analysis.critical_incidents[0]
         assert incident.incident.reason == "OOMKilling"
-        assert len(incident.incident.events) == 3
+        assert len(incident.incident.events) == 3  # noqa: PLR2004
         assert incident.runbook.runbook_id == "runbook-memory-001"
 
     def test_non_critical_events_excluded(self) -> None:

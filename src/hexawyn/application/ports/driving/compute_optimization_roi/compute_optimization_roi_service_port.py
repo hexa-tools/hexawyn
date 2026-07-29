@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.compute_optimization_roi.compute_optimization_roi_command import (  # noqa: E501
+from hexawyn.application.use_case.finops.compute_optimization_roi.command import (  # noqa: E501
     ComputeOptimizationRoiCommand,
 )
-from hexawyn.application.ports.driving.compute_optimization_roi.compute_optimization_roi_response import (  # noqa: E501
+from hexawyn.application.use_case.finops.compute_optimization_roi.response import (  # noqa: E501
     ComputeOptimizationRoiResponse,
 )
 

@@ -41,7 +41,7 @@ class TestGroupingAndSummary:
         )
 
         assert report.in_sync is False
-        assert report.total_differences == 3
+        assert report.total_differences == 3  # noqa: PLR2004
         assert [d.key_path for d in report.critical] == ["image.tag"]
         assert [d.key_path for d in report.warning] == ["replicaCount"]
         assert [d.key_path for d in report.informational] == ["logging.level"]

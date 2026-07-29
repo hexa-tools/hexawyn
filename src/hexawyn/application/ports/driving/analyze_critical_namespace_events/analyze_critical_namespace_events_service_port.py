@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.analyze_critical_namespace_events.analyze_critical_namespace_events_command import (
+from hexawyn.application.use_case.troubleshooting.analyze_critical_namespace_events.command import (
     AnalyzeCriticalNamespaceEventsCommand,
 )
-from hexawyn.application.ports.driving.analyze_critical_namespace_events.analyze_critical_namespace_events_response import (
+from hexawyn.application.use_case.troubleshooting.analyze_critical_namespace_events.response import (  # noqa: E501
     AnalyzeCriticalNamespaceEventsResponse,
 )
 

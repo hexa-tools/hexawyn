@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.cluster_headroom_simulation.cluster_headroom_simulation_command import (
+from hexawyn.application.use_case.cluster.cluster_headroom_simulation.command import (
     ClusterHeadroomSimulationCommand,
 )
-from hexawyn.application.ports.driving.cluster_headroom_simulation.cluster_headroom_simulation_response import (
+from hexawyn.application.use_case.cluster.cluster_headroom_simulation.response import (
     ClusterHeadroomSimulationResponse,
 )
 

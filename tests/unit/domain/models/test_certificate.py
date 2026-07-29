@@ -31,9 +31,9 @@ class TestCertificateInfo:
             serial_number="AB:CD:EF",
             signature_algorithm="sha256WithRSAEncryption",
         )
-        assert cert.days_remaining == 30
-        assert len(cert.san_list) == 2
-        assert cert.key_size == 2048
+        assert cert.days_remaining == 30  # noqa: PLR2004
+        assert len(cert.san_list) == 2  # noqa: PLR2004
+        assert cert.key_size == 2048  # noqa: PLR2004
 
     def test_is_dataclass(self) -> None:
         assert dataclasses.is_dataclass(CertificateInfo)

@@ -12,16 +12,16 @@ from hexawyn.domain.models.scoring import (
 class TestRcaScoringConfig:
     def test_defaults(self) -> None:
         config = RcaScoringConfig()
-        assert config.base_confidence == 0.5
-        assert config.logs_analyzed_weight == 0.2
-        assert config.root_cause_found_weight == 0.2
-        assert config.timeline_available_weight == 0.1
+        assert config.base_confidence == 0.5  # noqa: PLR2004
+        assert config.logs_analyzed_weight == 0.2  # noqa: PLR2004
+        assert config.root_cause_found_weight == 0.2  # noqa: PLR2004
+        assert config.timeline_available_weight == 0.1  # noqa: PLR2004
         assert config.max_confidence == 1.0
-        assert config.base_impact == 5.0
-        assert config.affected_task_weight == 0.5
+        assert config.base_impact == 5.0  # noqa: PLR2004
+        assert config.affected_task_weight == 0.5  # noqa: PLR2004
         assert config.related_incident_weight == 1.0
-        assert config.timeline_event_weight == 0.2
-        assert config.max_impact == 10.0
+        assert config.timeline_event_weight == 0.2  # noqa: PLR2004
+        assert config.max_impact == 10.0  # noqa: PLR2004
         assert config.min_impact == 1.0
 
     def test_custom_config(self) -> None:
@@ -31,8 +31,8 @@ class TestRcaScoringConfig:
             base_impact=3.0,
             max_impact=8.0,
         )
-        assert config.base_confidence == 0.6
-        assert config.base_impact == 3.0
+        assert config.base_confidence == 0.6  # noqa: PLR2004
+        assert config.base_impact == 3.0  # noqa: PLR2004
 
     def test_is_dataclass(self) -> None:
         assert dataclasses.is_dataclass(RcaScoringConfig)
@@ -51,9 +51,9 @@ class TestRcaConfidenceScore:
             label="high",
             factors={"logs": 0.2, "root_cause": 0.15},
         )
-        assert score.value == 0.85
+        assert score.value == 0.85  # noqa: PLR2004
         assert score.label == "high"
-        assert score.factors["logs"] == 0.2
+        assert score.factors["logs"] == 0.2  # noqa: PLR2004
 
     def test_is_dataclass(self) -> None:
         assert dataclasses.is_dataclass(RcaConfidenceScore)
@@ -73,9 +73,9 @@ class TestFailureImpactScore:
             affected_components=3,
             cascade_risk="high",
         )
-        assert score.value == 8.5
+        assert score.value == 8.5  # noqa: PLR2004
         assert score.label == "critical"
-        assert score.affected_components == 3
+        assert score.affected_components == 3  # noqa: PLR2004
         assert score.cascade_risk == "high"
 
     def test_is_dataclass(self) -> None:

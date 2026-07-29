@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.semantic_log_search.semantic_log_search_command import (
+from hexawyn.application.use_case.observability.semantic_log_search.command import (
     SemanticLogSearchCommand,
 )
-from hexawyn.application.ports.driving.semantic_log_search.semantic_log_search_response import (
+from hexawyn.application.use_case.observability.semantic_log_search.response import (
     SemanticLogSearchResponse,
 )
 

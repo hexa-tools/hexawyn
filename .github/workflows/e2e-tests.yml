@@ -1,0 +1,57 @@
+name: E2E Tests (k3d)
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'src/hexawyn/adapters/**'
+      - 'tests/e2e/**'
+      - 'Makefile'
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  e2e-tests:
+    name: E2E Tests — k3d cluster
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install k3d
+        run: |
+          curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+          k3d version
+
+      - uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Install Poetry + deps
+        run: |
+          pip install poetry
+          poetry install --with dev
+
+      - name: Create k3d cluster
+        run: make cluster-up
+
+      - name: Load E2E fixtures
+        run: make cluster-load
+
+      - name: Run E2E tests
+        run: |
+          poetry run pytest tests/e2e/ \
+            -v -m e2e \
+            --strict-markers \
+            --tb=short \
+            --durations=10
+
+      - name: Delete cluster
+        if: always()
+        run: make cluster-down

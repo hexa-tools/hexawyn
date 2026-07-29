@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.compute_security_posture.compute_security_posture_command import (  # noqa: E501
+from hexawyn.application.use_case.security.compute_security_posture.command import (  # noqa: E501
     ComputeSecurityPostureCommand,
 )
-from hexawyn.application.ports.driving.compute_security_posture.compute_security_posture_response import (  # noqa: E501
+from hexawyn.application.use_case.security.compute_security_posture.response import (  # noqa: E501
     ComputeSecurityPostureResponse,
 )
 

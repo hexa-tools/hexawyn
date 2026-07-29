@@ -17,7 +17,7 @@ class TestExactMatches:
             pattern, "ERROR", raw_lines, max_lines=5, semantic_threshold=_THRESHOLD
         )
 
-        assert len(matches) == 5
+        assert len(matches) == 5  # noqa: PLR2004
         assert all(match.match_type == "exact" for match in matches)
 
     def test_timestamp_split_from_k8s_prefix(self) -> None:

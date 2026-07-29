@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.generate_weekly_reliability_report.generate_weekly_reliability_report_command import (
+from hexawyn.application.use_case.workloads.generate_weekly_reliability_report.command import (
     GenerateWeeklyReliabilityReportCommand,
 )
-from hexawyn.application.ports.driving.generate_weekly_reliability_report.generate_weekly_reliability_report_response import (
+from hexawyn.application.use_case.workloads.generate_weekly_reliability_report.response import (
     GenerateWeeklyReliabilityReportResponse,
 )
 

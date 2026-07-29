@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.estimate_cost_saving.estimate_cost_saving_command import (
+from hexawyn.application.use_case.finops.estimate_cost_saving.command import (
     EstimateCostSavingCommand,
 )
-from hexawyn.application.ports.driving.estimate_cost_saving.estimate_cost_saving_response import (
+from hexawyn.application.use_case.finops.estimate_cost_saving.response import (
     EstimateCostSavingResponse,
 )
 
@@ -13,6 +13,5 @@ from hexawyn.application.ports.driving.estimate_cost_saving.estimate_cost_saving
 class EstimateCostSavingServicePort(ABC):
     @abstractmethod
     def estimate_cost_saving(
-        self,
-        command: EstimateCostSavingCommand,
+        self, command: EstimateCostSavingCommand
     ) -> EstimateCostSavingResponse: ...

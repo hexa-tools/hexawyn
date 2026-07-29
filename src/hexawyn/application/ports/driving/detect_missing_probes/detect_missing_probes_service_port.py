@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.detect_missing_probes.detect_missing_probes_command import (
+from hexawyn.application.use_case.security.detect_missing_probes.command import (
     DetectMissingProbesCommand,
 )
-from hexawyn.application.ports.driving.detect_missing_probes.detect_missing_probes_response import (
+from hexawyn.application.use_case.security.detect_missing_probes.response import (
     DetectMissingProbesResponse,
 )
 

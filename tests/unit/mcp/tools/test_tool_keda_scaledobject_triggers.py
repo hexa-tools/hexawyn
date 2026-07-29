@@ -2,33 +2,48 @@
 
 from __future__ import annotations
 
+import sys
 from unittest.mock import MagicMock, patch
 
 
-class TestKedaScaledobjectTriggersTool:
-    def test_keda_scaledobject_triggers_returns_dict(self) -> None:
-        from hexawyn.mcp.tools.keda_scaledobject_triggers import keda_scaledobject_triggers
+class TestKedaScaledObjectTriggersTool:
+    def _mock_imports(self) -> None:
+        sys.modules[
+            "hexawyn.application.use_case.keda.keda_scaledobject_triggers.keda_scaledobject_triggers_use_case"
+        ] = MagicMock()
+        sys.modules["hexawyn.application.use_case.keda.keda_scaledobject_triggers.command"] = (
+            MagicMock()
+        )
 
-        with (
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
-            patch("hexawyn.mcp.server.build_keda_adapter", return_value=MagicMock()),
-        ):
-            result = keda_scaledobject_triggers(name="test-name", namespace="test-ns")
+    def test_keda_scaledobject_triggers_returns_dict(self) -> None:
+        self._mock_imports()
+        from hexawyn.mcp.tools.keda_scaledobject_triggers import (
+            keda_scaledobject_triggers,
+        )
+
+        with patch("hexawyn.mcp.server.build_keda_adapter", return_value=MagicMock()):
+            result = keda_scaledobject_triggers()
 
         assert isinstance(result, dict)
+        assert "error" in result
 
     def test_keda_scaledobject_triggers_handles_error(self) -> None:
-        from hexawyn.mcp.tools.keda_scaledobject_triggers import keda_scaledobject_triggers
+        self._mock_imports()
+        from hexawyn.mcp.tools.keda_scaledobject_triggers import (
+            keda_scaledobject_triggers,
+        )
 
-        with (
-            patch("hexawyn.mcp.server.build_keda_adapter", side_effect=RuntimeError("test error")),
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
+        with patch(
+            "hexawyn.mcp.server.build_keda_adapter",
+            side_effect=RuntimeError("test error"),
         ):
-            result = keda_scaledobject_triggers(name="test-name", namespace="test-ns")
+            result = keda_scaledobject_triggers()
 
         assert isinstance(result, dict)
+        assert result.get("error") == "test error"
 
     def test_has_register(self) -> None:
+        self._mock_imports()
         import importlib
 
         from fastmcp import FastMCP

@@ -7,7 +7,7 @@ from hexawyn.domain.services.mttr_trend.mttr_trend_engine import (
 )
 
 
-def _incident(
+def _incident(  # noqa: PLR0913
     incident_id: str = "INC-001",
     service_name: str = "payment-service",
     severity: str = "P1",
@@ -47,9 +47,9 @@ class TestMTTRCalculation:
 
         result = engine.compute(months)
 
-        assert result.per_month["2026-05"]["P1"].mttr_minutes == 45.0
-        assert result.per_month["2026-06"]["P1"].mttr_minutes == 32.0
-        assert result.per_month["2026-07"]["P1"].mttr_minutes == 18.0
+        assert result.per_month["2026-05"]["P1"].mttr_minutes == 45.0  # noqa: PLR2004
+        assert result.per_month["2026-06"]["P1"].mttr_minutes == 32.0  # noqa: PLR2004
+        assert result.per_month["2026-07"]["P1"].mttr_minutes == 18.0  # noqa: PLR2004
 
     def test_mttr_improving_trend(self) -> None:
         engine = MTTRTrendEngine()
@@ -105,7 +105,7 @@ class TestMTTRCalculation:
 
         result = engine.compute(months)
 
-        assert result.per_month["2026-07"]["P1"].mttr_minutes == 72.0
+        assert result.per_month["2026-07"]["P1"].mttr_minutes == 72.0  # noqa: PLR2004
 
 
 class TestSlowestIncidents:
@@ -137,9 +137,9 @@ class TestSlowestIncidents:
 
         result = engine.compute(months)
 
-        assert len(result.slowest_incidents) == 3
-        assert result.slowest_incidents[0].resolution_minutes == 120
-        assert result.slowest_incidents[2].resolution_minutes == 60
+        assert len(result.slowest_incidents) == 3  # noqa: PLR2004
+        assert result.slowest_incidents[0].resolution_minutes == 120  # noqa: PLR2004
+        assert result.slowest_incidents[2].resolution_minutes == 60  # noqa: PLR2004
 
 
 class TestEdgeCases:
@@ -154,7 +154,7 @@ class TestEdgeCases:
 
         result = engine.compute(months)
 
-        assert result.per_month["2026-07"]["P1"].mttr_minutes == 30.0
+        assert result.per_month["2026-07"]["P1"].mttr_minutes == 30.0  # noqa: PLR2004
 
     def test_benchmark_p1_under_30min_pass(self) -> None:
         engine = MTTRTrendEngine()
@@ -164,7 +164,7 @@ class TestEdgeCases:
 
         result = engine.compute(months)
 
-        assert result.per_month["2026-07"]["P1"].mttr_minutes == 25.0
+        assert result.per_month["2026-07"]["P1"].mttr_minutes == 25.0  # noqa: PLR2004
         assert result.per_month["2026-07"]["P1"].meets_benchmark is True
 
     def test_benchmark_p2_under_120min_fail(self) -> None:

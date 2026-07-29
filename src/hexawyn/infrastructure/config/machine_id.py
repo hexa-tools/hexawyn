@@ -48,7 +48,7 @@ def _macos_platform_uuid() -> str | None:
         for line in result.stdout.splitlines():
             if "IOPlatformUUID" in line:
                 parts = line.strip().split('"')
-                if len(parts) >= 3:
+                if len(parts) >= 3:  # noqa: PLR2004
                     return parts[-2]
     except Exception:
         pass
@@ -99,7 +99,7 @@ def _read_stored() -> str | None:
     if not MACHINE_ID_PATH.exists():
         return None
     stored = MACHINE_ID_PATH.read_text(encoding="utf-8").strip().split("\n")[0]
-    return stored if len(stored) >= 20 else None
+    return stored if len(stored) >= 20 else None  # noqa: PLR2004
 
 
 def _validate_or_repair(stored: str) -> str:

@@ -43,8 +43,7 @@ class GCPManagedPrometheusAdapter(MetricsQueryPort):
     ) -> None:
         self._project_id = project_id
         self._endpoint = (
-            f"https://monitoring.googleapis.com/v1/projects/"
-            f"{project_id}/location/global/prometheus"
+            f"https://monitoring.googleapis.com/v1/projects/{project_id}/location/global/prometheus"
         )
         self._http_client = http_client
         self._token_provider = token_provider
@@ -62,7 +61,7 @@ class GCPManagedPrometheusAdapter(MetricsQueryPort):
         )
         return [_to_instant_sample(item) for item in raw_results]
 
-    def range_query(
+    def range_query(  # noqa: PLR0913
         self, promql: str, start: str, end: str, step: str, timeout_seconds: float
     ) -> list[PrometheusRangeSample]:
         raw_results = self._execute(

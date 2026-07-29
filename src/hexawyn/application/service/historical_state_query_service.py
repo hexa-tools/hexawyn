@@ -7,14 +7,14 @@ from hexawyn.application.ports.driven.kubearchive_port import (
     KubeArchivePort,
     KubeArchiveQuery,
 )
-from hexawyn.application.ports.driving.query_kubearchive.query_kubearchive_command import (
-    QueryKubeArchiveCommand,
-)
-from hexawyn.application.ports.driving.query_kubearchive.query_kubearchive_response import (
-    QueryKubeArchiveResponse,
-)
 from hexawyn.application.ports.driving.query_kubearchive.query_kubearchive_service_port import (
     QueryKubeArchiveServicePort,
+)
+from hexawyn.application.use_case.troubleshooting.query_kubearchive.command import (
+    QueryKubearchiveCommand,
+)
+from hexawyn.application.use_case.troubleshooting.query_kubearchive.response import (
+    QueryKubearchiveResponse,
 )
 from hexawyn.domain.models.historical_pod import (
     HistoricalPod,
@@ -27,7 +27,7 @@ class HistoricalStateQueryService(QueryKubeArchiveServicePort):
         self._kubearchive = kubearchive_port
         self._k8s = k8s_port
 
-    def query(self, command: QueryKubeArchiveCommand) -> QueryKubeArchiveResponse:
+    def query(self, command: QueryKubearchiveCommand) -> QueryKubearchiveResponse:
         archive_query: KubeArchiveQuery = {
             "namespace": command.namespace,
             "resource_type": command.resource_type,
@@ -36,7 +36,7 @@ class HistoricalStateQueryService(QueryKubeArchiveServicePort):
         try:
             archive_response = self._kubearchive.query_historical_state(archive_query)
         except Exception as exc:
-            return QueryKubeArchiveResponse(error=str(exc))
+            return QueryKubearchiveResponse(error=str(exc))
 
         pods: list[HistoricalPodInfo] = archive_response["pods"]
 
@@ -79,16 +79,16 @@ class HistoricalStateQueryService(QueryKubeArchiveServicePort):
                 "removed_pod_names": comparison.removed_pod_names,
                 "delta_message": self._build_delta_message(comparison),
             }
-            return QueryKubeArchiveResponse(
+            return QueryKubearchiveResponse(
                 total_resources=archive_response["total_resources"],
-                pods=pods,
+                pods=list(pods),  # type: ignore[arg-type]
                 queried_timestamp=archive_response["queried_timestamp"],
-                comparison=result,
+                comparison=dict(result),
             )
 
-        return QueryKubeArchiveResponse(
+        return QueryKubearchiveResponse(
             total_resources=archive_response["total_resources"],
-            pods=pods,
+            pods=list(pods),  # type: ignore[arg-type]
             queried_timestamp=archive_response["queried_timestamp"],
         )
 
@@ -101,7 +101,7 @@ class HistoricalStateQueryService(QueryKubeArchiveServicePort):
         parts: list[str] = []
         if comparison.pods_removed > 0:
             parts.append(
-                f"\u2212{comparison.pods_removed} pods removed since {comparison.historical_timestamp}"
+                f"\u2212{comparison.pods_removed} pods removed since {comparison.historical_timestamp}"  # noqa: E501
             )
         if comparison.pods_added > 0:
             parts.append(

@@ -23,7 +23,7 @@ def _write_kubeconfig(path: Path, current_context: str, contexts: list[str]) -> 
         for context_name in contexts
     )
     user_entries = "\n".join(
-        f"- name: user-{context_name}\n" f"  user:\n" f"    token: token-{context_name}"
+        f"- name: user-{context_name}\n  user:\n    token: token-{context_name}"
         for context_name in contexts
     )
     path.write_text(
@@ -86,7 +86,7 @@ class TestKubernetesContextDiscovery:
             contexts = service.discover()
             current_context = service.current()
 
-        assert len(contexts) == 3
+        assert len(contexts) == 3  # noqa: PLR2004
         assert current_context is not None
         assert current_context.name == "prod"
 

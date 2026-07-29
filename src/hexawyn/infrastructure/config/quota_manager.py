@@ -143,7 +143,7 @@ def get_quota_display() -> str:
     if quota.is_unlimited:
         return f"[\u2b50 {label} \u2014 unlimited investigations]"
 
-    warning = " \u26a0\ufe0f" if quota.remaining <= 5 else ""
+    warning = " \u26a0\ufe0f" if quota.remaining <= 5 else ""  # noqa: PLR2004
     return (
         f"[{quota.count}/{quota.limit} {label} investigations"
         f" \u00b7 {quota.remaining} remaining{warning}]"

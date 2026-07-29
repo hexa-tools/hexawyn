@@ -18,7 +18,7 @@ def parse_gke_context(context_name: str) -> GKEContextInfo | None:
     if not context_name.startswith(_PREFIX):
         return None
     parts = context_name[len(_PREFIX) :].split("_")
-    if len(parts) != 3:
+    if len(parts) != 3:  # noqa: PLR2004
         return None
     project_id, region, cluster = parts
     if not project_id or not region or not cluster:

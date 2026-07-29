@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.trace_k8s_events.trace_k8s_events_command import (
+from hexawyn.application.use_case.troubleshooting.trace_k8s_events.command import (
     TraceK8sEventsCommand,
 )
-from hexawyn.application.use_case.trace_k8s_events.trace_k8s_events_use_case import (
+from hexawyn.application.use_case.troubleshooting.trace_k8s_events.trace_k8s_events_use_case import (  # noqa: E501
     TraceK8sEventsUseCase,
 )
 
@@ -16,14 +16,11 @@ if TYPE_CHECKING:
 
 
 def trace_k8s_events(trace_id: str) -> dict[str, object]:
-    from hexawyn.application.service.trace_k8s_events_service import TraceK8sEventsService
     from hexawyn.mcp.server import build_trace_event_correlation_adapter
 
     try:
         a = build_trace_event_correlation_adapter()
-        r = TraceK8sEventsUseCase(service=TraceK8sEventsService(port=a)).execute(
-            TraceK8sEventsCommand(trace_id=trace_id)
-        )
+        r = TraceK8sEventsUseCase(port=a).execute(TraceK8sEventsCommand(trace_id=trace_id))
         return {
             "trace_id": r.trace_id,
             "matching_events": r.matching_events,

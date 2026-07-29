@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.conservative_namespace_overview.conservative_namespace_overview_command import (
+from hexawyn.application.use_case.troubleshooting.conservative_namespace_overview.command import (
     ConservativeNamespaceOverviewCommand,
 )
-from hexawyn.application.ports.driving.conservative_namespace_overview.conservative_namespace_overview_response import (
+from hexawyn.application.use_case.troubleshooting.conservative_namespace_overview.response import (
     ConservativeNamespaceOverviewResponse,
 )
 

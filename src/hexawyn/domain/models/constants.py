@@ -13,7 +13,21 @@ TELEMETRY_URL: str = "https://api.hexawyn.com/v1/telemetry"
 
 # ── Kubernetes ──────────────────────────────────────────────────
 K8S_API_TIMEOUT_SECONDS: int = 5
+STUCK_PIPELINE_RUN_THRESHOLD_SECONDS: int = 3600
+PIPELINE_OUTLIER_THRESHOLD: float = 2.0
+PIPELINE_CANCELLED_STATUS: str = "Cancelled"
+PIPELINE_RUN_STATUS_PRIORITY: dict[str, int] = {"Failed": 0, "Running": 1, "Succeeded": 2}
+HOURS_PER_MONTH: int = 730
 HEALTHY_POD_STATUSES: frozenset[str] = frozenset({"Running", "Succeeded"})
+POD_UNHEALTHY_ORDER: dict[str, int] = {
+    "CrashLoop": 0,
+    "CrashLoopBackOff": 0,
+    "Error": 1,
+    "ImagePullBackOff": 1,
+    "Pending": 2,
+    "Unknown": 3,
+    "Terminating": 4,
+}
 POD_CACHE_TTL_SECONDS: float = 5.0
 
 # ── Cache ───────────────────────────────────────────────────────
@@ -145,6 +159,7 @@ class IncidentTriageConstants:
     default_time_window_minutes: int = 120
     ntp_drift_threshold_seconds: int = 30
     max_pods_logs_fetched: int = 5
+    failed_run_status: str = "Failed"
 
 
 @dataclass(frozen=True)
@@ -284,6 +299,7 @@ class ClusterCapacityForecastConstants:
     max_forecast_horizon_days: int = 365
     trend_window_days: int = 3
     jump_outlier_multiplier: float = 3.0
+    query_timeout_seconds: float = 15.0
 
 
 @dataclass(frozen=True)
@@ -294,6 +310,7 @@ class HeadroomSimulationConstants:
     tight_utilization_threshold: float = 80.0
     needs_nodes_utilization_threshold: float = 95.0
     target_utilization_after_scaling_percent: float = 80.0
+    query_timeout_seconds: float = 15.0
 
 
 @dataclass(frozen=True)
@@ -308,6 +325,7 @@ class HotNodeAnalysisConstants:
     business_hours_end: int = 18
     business_hours_match_ratio: float = 0.8
     single_dominant_pod_ratio: float = 0.6
+    query_timeout_seconds: float = 15.0
 
 
 @dataclass(frozen=True)
@@ -386,6 +404,7 @@ class PodSecurityConstants:
         "filebeat",
         "datadog",
     )
+    system_workload_note: str = "expected system workload (known system DaemonSet)"
 
 
 @dataclass(frozen=True)
@@ -428,6 +447,7 @@ class SecretRotationConstants:
     external_secrets_annotation_key: str = "externalsecrets.io/secret-store"
     cert_manager_annotation_key: str = "cert-manager.io/certificate-name"
     rotation_exempt_namespace_annotation_key: str = "hexawyn.io/secret-rotation-exempt"
+    unused_note: str = "unused by any pod or deployment — safe to delete"
 
 
 @dataclass(frozen=True)
@@ -436,6 +456,11 @@ class NetworkPolicyConstants:
     segmentation audit."""
 
     system_namespaces: tuple[str, ...] = ("kube-system", "kube-public", "kube-node-lease")
+    istio_note: str = "Istio mTLS provides equivalent protection"
+    calico_note: str = (
+        "Calico GlobalNetworkPolicy detected — may provide protection beyond "
+        "vanilla NetworkPolicy visibility"
+    )
 
 
 @dataclass(frozen=True)
@@ -453,3 +478,6 @@ class ExternalExposureConstants:
         ("networking.gke.io/load-balancer-type", "Internal"),
         ("cloud.google.com/load-balancer-type", "Internal"),
     )
+    source_ranges_note: str = "risk reduced by IP allowlist (loadBalancerSourceRanges)"
+    allowlisted_reason: str = "allowlisted"
+    internal_lb_reason: str = "internal LoadBalancer (not public)"

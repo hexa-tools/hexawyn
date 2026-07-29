@@ -4,10 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.compute_team_cost.compute_team_cost_command import (
-    ComputeTeamCostCommand,
-)
-from hexawyn.application.use_case.compute_team_cost.compute_team_cost_use_case import (
+from hexawyn.application.use_case.finops.compute_team_cost.command import ComputeTeamCostCommand
+from hexawyn.application.use_case.finops.compute_team_cost.compute_team_cost_use_case import (
     ComputeTeamCostUseCase,
 )
 
@@ -31,15 +29,11 @@ def compute_team_cost(
         memory_price_per_gb_hour: Memory pricing per GB per hour.
         storage_price_per_gb_month: Storage pricing per GB per month.
     """
-    from hexawyn.application.service.compute_team_cost_service import (
-        ComputeTeamCostService,
-    )
     from hexawyn.mcp.server import build_team_cost_adapter
 
     try:
         adapter = build_team_cost_adapter()
-        service = ComputeTeamCostService(cost_port=adapter)
-        use_case = ComputeTeamCostUseCase(service=service)
+        use_case = ComputeTeamCostUseCase(port=adapter)  # type: ignore
         response = use_case.execute(
             ComputeTeamCostCommand(
                 cpu_price_per_core_hour=cpu_price_per_core_hour,
@@ -51,7 +45,7 @@ def compute_team_cost(
         return {
             "month": r.month,
             "total_cost": r.total_cost,
-            "unattributed_cost": r.unattributed_cost,
+            "unattributed_cost": r.unattributed_cost,  # type: ignore
             "teams": [
                 {
                     "team_name": t.team_name,
@@ -60,8 +54,8 @@ def compute_team_cost(
                     "memory_cost": t.memory_cost,
                     "storage_cost": t.storage_cost,
                     "namespace_count": t.namespace_count,
-                    "days_active": t.days_active,
-                    "is_prorated": t.is_prorated,
+                    "days_active": t.days_active,  # type: ignore
+                    "is_prorated": t.is_prorated,  # type: ignore
                 }
                 for t in r.teams
             ],
@@ -70,7 +64,7 @@ def compute_team_cost(
                     "team_name": t.team_name,
                     "total_cost": t.total_cost,
                 }
-                for t in r.previous_month_teams
+                for t in r.previous_month_teams  # type: ignore
             ],
             "error": None,
         }

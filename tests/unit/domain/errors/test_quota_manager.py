@@ -25,8 +25,8 @@ class TestCheckQuota:
 
             with pytest.raises(QuotaExceededError) as exc_info:
                 check_quota()
-            assert exc_info.value.used == 50
-            assert exc_info.value.limit == 50
+            assert exc_info.value.used == 50  # noqa: PLR2004
+            assert exc_info.value.limit == 50  # noqa: PLR2004
 
     def test_raises_when_team_limit_reached(self) -> None:
         with patch(
@@ -37,7 +37,7 @@ class TestCheckQuota:
 
             with pytest.raises(QuotaExceededError) as exc_info:
                 check_quota()
-            assert exc_info.value.limit == 500
+            assert exc_info.value.limit == 500  # noqa: PLR2004
 
     def test_passes_when_scale_up_unlimited(self) -> None:
         with patch(
@@ -70,7 +70,7 @@ class TestCheckSlackQuota:
 
             with pytest.raises(SlackQuotaExceededError) as exc_info:
                 check_slack_quota()
-            assert exc_info.value.limit == 50
+            assert exc_info.value.limit == 50  # noqa: PLR2004
 
     def test_passes_when_team_unlimited(self) -> None:
         with patch(
@@ -108,7 +108,7 @@ class TestGetHistoryDays:
         ):
             from hexawyn.infrastructure.config.quota_manager import get_history_days
 
-            assert get_history_days() == 30
+            assert get_history_days() == 30  # noqa: PLR2004
 
     def test_team_returns_90(self) -> None:
         with patch(
@@ -117,7 +117,7 @@ class TestGetHistoryDays:
         ):
             from hexawyn.infrastructure.config.quota_manager import get_history_days
 
-            assert get_history_days() == 90
+            assert get_history_days() == 90  # noqa: PLR2004
 
     def test_scale_up_returns_unlimited(self) -> None:
         with patch(
@@ -307,7 +307,7 @@ class TestGetCurrentMonth:
         from hexawyn.infrastructure.config.quota_manager import _get_current_month
 
         month = _get_current_month()
-        assert len(month) == 7
+        assert len(month) == 7  # noqa: PLR2004
         assert month[4] == "-"
         assert month[:4].isdigit()
         assert month[5:].isdigit()

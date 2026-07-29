@@ -36,7 +36,7 @@ class TestDetectLogAnomaliesVolumeSpike:
         volume_anomalies = [a for a in result.anomalies if a.type == "volume"]
         assert len(volume_anomalies) == 1
         assert volume_anomalies[0].timestamp == "2024-01-01T14:32"
-        assert volume_anomalies[0].anomaly_score > 3.0
+        assert volume_anomalies[0].anomaly_score > 3.0  # noqa: PLR2004
 
 
 class TestDetectLogAnomaliesSilentError:
@@ -46,7 +46,7 @@ class TestDetectLogAnomaliesSilentError:
         lines = []
         for minute in range(20):
             for i in range(5):
-                if minute == 10 and i < 3:
+                if minute == 10 and i < 3:  # noqa: PLR2004
                     message = "DB query completed in 8000ms"
                 else:
                     message = f"DB query completed in {5 + (i % 3)}ms"
@@ -104,7 +104,7 @@ class TestDetectLogAnomaliesEdgeCases:
 
         result = detect_log_anomalies(request, lines)
 
-        assert result.formats_analyzed_separately == 2
+        assert result.formats_analyzed_separately == 2  # noqa: PLR2004
 
     def test_anomaly_in_first_10_lines_flagged_low_confidence(self) -> None:
         """Anomaly detected in first 10 lines → still returned with low-confidence flag."""

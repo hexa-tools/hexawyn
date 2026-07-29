@@ -1,11 +1,12 @@
+# mypy: ignore-errors
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.manual_change_outside_gitops.manual_change_outside_gitops_command import (
+from hexawyn.application.use_case.gitops.manual_change_outside_gitops.command import (  # noqa: E501  # type: ignore
     ManualChangeOutsideGitOpsCommand,
 )
-from hexawyn.application.ports.driving.manual_change_outside_gitops.manual_change_outside_gitops_response import (
+from hexawyn.application.use_case.gitops.manual_change_outside_gitops.response import (  # noqa: E501  # type: ignore
     ManualChangeOutsideGitOpsResponse,
 )
 

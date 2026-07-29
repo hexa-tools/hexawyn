@@ -73,8 +73,8 @@ class TestCacheL1RepositoryIntegration:
             )
 
         evicted = repo.evict_expired()
-        assert evicted == 2
-        assert repo.size() == 3
+        assert evicted == 2  # noqa: PLR2004
+        assert repo.size() == 3  # noqa: PLR2004
 
     @pytest.mark.integration
     def test_size_counts_only_valid_entries(self):
@@ -146,7 +146,7 @@ class TestCacheManagerIntegration:
             )
 
         stats_before = get_cache_stats()
-        assert stats_before["l1_size"] == 5
+        assert stats_before["l1_size"] == 5  # noqa: PLR2004
 
         clear_l1()
 
@@ -174,7 +174,7 @@ class TestCacheManagerIntegration:
         set_l1(query="question 1", cluster_name="prod-eu", result="result 1")
         set_l1(query="question 2", cluster_name="prod-eu", result="result 2")
         stats = get_cache_stats()
-        assert stats["l1_size"] == 2
+        assert stats["l1_size"] == 2  # noqa: PLR2004
         assert stats["l1_ttl_seconds"] == CACHE_TTL_SECONDS
 
 
@@ -199,8 +199,8 @@ class TestCacheAndQuotaIntegration:
         conn.execute(schema_sql)
 
         monkeypatch.setattr(
-            "hexawyn.infrastructure.config.quota_manager.get_connection",
-            lambda: conn,
+            "hexawyn.infrastructure.config.quota_manager._store",
+            QuotaRepository(conn=conn),
         )
 
         set_l1(

@@ -18,7 +18,7 @@ class TestAffectedCluster:
             failure_type="ImagePullBackOff",
         )
 
-        assert cluster.pod_count == 8
+        assert cluster.pod_count == 8  # noqa: PLR2004
         assert cluster.failure_type == "ImagePullBackOff"
 
 

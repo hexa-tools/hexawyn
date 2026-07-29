@@ -30,4 +30,4 @@ class TestTLSComplianceReport:
 
     def test_with_issues(self) -> None:
         r = TLSComplianceReport(all_compliant=False, total_issues=3)
-        assert r.total_issues == 3
+        assert r.total_issues == 3  # noqa: PLR2004

@@ -17,10 +17,10 @@ class TestParseInstantResults:
 
         result = parse_instant_results(raw, promql="rate(...)", unit_hint="cores")
 
-        assert result.result_count == 2
+        assert result.result_count == 2  # noqa: PLR2004
         assert result.no_data is False
         assert result.results[0].labels == {"pod": "payment-pod-abc", "container": "app"}
-        assert result.results[0].value == 0.0032
+        assert result.results[0].value == 0.0032  # noqa: PLR2004
         assert result.results[0].formatted_value == "3.2m cores"
 
     def test_empty_result_returns_clear_no_data_message(self) -> None:
@@ -37,7 +37,7 @@ class TestParseInstantResults:
         result = parse_instant_results(raw, promql="up", unit_hint="raw")
 
         assert result.truncated is True
-        assert result.result_count == 10_000
+        assert result.result_count == 10_000  # noqa: PLR2004
         assert "truncated" in result.summary.lower()
 
 

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.estimate_rightsizing_savings.estimate_rightsizing_savings_command import (
+from hexawyn.application.use_case.finops.estimate_rightsizing_savings.command import (
     EstimateRightsizingSavingsCommand,
 )
-from hexawyn.application.ports.driving.estimate_rightsizing_savings.estimate_rightsizing_savings_response import (
+from hexawyn.application.use_case.finops.estimate_rightsizing_savings.response import (
     EstimateRightsizingSavingsResponse,
 )
 
@@ -13,6 +13,5 @@ from hexawyn.application.ports.driving.estimate_rightsizing_savings.estimate_rig
 class EstimateRightsizingSavingsServicePort(ABC):
     @abstractmethod
     def estimate_rightsizing_savings(
-        self,
-        command: EstimateRightsizingSavingsCommand,
+        self, command: EstimateRightsizingSavingsCommand
     ) -> EstimateRightsizingSavingsResponse: ...

@@ -48,14 +48,14 @@ def _insert_row(conn, **kwargs):
     conn.execute(
         f"""
         INSERT INTO incidents VALUES
-        ({defaults['id']}, {defaults['timestamp']}, {defaults['age_days']},
-         '{defaults['cluster_name']}', {defaults['namespace']},
-         '{defaults['tool_name']}',
-         {defaults['resource_name']}, {defaults['resource_kind']},
-         '{defaults['cause']}', '{defaults['solution']}',
-         '{defaults['severity']}', {defaults['weight']},
-         {defaults['embedding']},
-         {defaults['retained_until']}, {defaults['sanitized']})
+        ({defaults["id"]}, {defaults["timestamp"]}, {defaults["age_days"]},
+         '{defaults["cluster_name"]}', {defaults["namespace"]},
+         '{defaults["tool_name"]}',
+         {defaults["resource_name"]}, {defaults["resource_kind"]},
+         '{defaults["cause"]}', '{defaults["solution"]}',
+         '{defaults["severity"]}', {defaults["weight"]},
+         {defaults["embedding"]},
+         {defaults["retained_until"]}, {defaults["sanitized"]})
     """
     )
 

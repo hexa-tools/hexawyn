@@ -9,31 +9,35 @@ class TestAnalyzeFailedPipelineTool:
     def test_analyze_failed_pipeline_returns_dict(self) -> None:
         from hexawyn.mcp.tools.analyze_failed_pipeline import analyze_failed_pipeline
 
+        mock_response = MagicMock()
+        mock_response.analysis = "test analysis"
+        mock_response.error = None
+        mock_uc = MagicMock()
+        mock_uc.execute.return_value = mock_response
+
         with (
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
-            patch("hexawyn.mcp.server.build_pipeline_run_logs_adapter", return_value=MagicMock()),
             patch("hexawyn.mcp.server.build_tekton_adapter", return_value=MagicMock()),
+            patch(
+                "hexawyn.mcp.tools.analyze_failed_pipeline.AnalyzeFailedPipelineUseCase",
+                return_value=mock_uc,
+            ),
         ):
-            result = analyze_failed_pipeline(pipeline_name="test-pipeline_name")
+            result = analyze_failed_pipeline("test-pipeline")
 
         assert isinstance(result, dict)
+        assert "analysis" in result
 
     def test_analyze_failed_pipeline_handles_error(self) -> None:
         from hexawyn.mcp.tools.analyze_failed_pipeline import analyze_failed_pipeline
 
-        with (
-            patch(
-                "hexawyn.mcp.server.build_pipeline_run_logs_adapter",
-                side_effect=RuntimeError("test error"),
-            ),
-            patch(
-                "hexawyn.mcp.server.build_tekton_adapter", side_effect=RuntimeError("test error")
-            ),
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
+        with patch(
+            "hexawyn.mcp.server.build_tekton_adapter",
+            side_effect=RuntimeError("test error"),
         ):
-            result = analyze_failed_pipeline(pipeline_name="test-pipeline_name")
+            result = analyze_failed_pipeline("test-pipeline")
 
         assert isinstance(result, dict)
+        assert result.get("error") == "test error"
 
     def test_has_register(self) -> None:
         import importlib

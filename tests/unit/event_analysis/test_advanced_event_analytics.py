@@ -47,7 +47,7 @@ class TestAdvancedEventAnalyticsStorm:
         report = generate_advanced_event_analytics("data-pipeline", events)
 
         assert len(report.storms) == 1
-        assert report.storms[0].event_count == 80
+        assert report.storms[0].event_count == 80  # noqa: PLR2004
         spike_minutes = [b for b in report.timeline if b.is_spike]
         assert len(spike_minutes) > 0
         assert spike_minutes[0].minute == "2024-01-01T14:32"
@@ -64,8 +64,8 @@ class TestAdvancedEventAnalyticsCorrelation:
         assert len(report.correlated_incidents) == 1
         incident = report.correlated_incidents[0]
         assert incident.reason == "BackOff"
-        assert len(incident.involved_objects) == 5
-        assert incident.event_count == 5
+        assert len(incident.involved_objects) == 5  # noqa: PLR2004
+        assert incident.event_count == 5  # noqa: PLR2004
 
     def test_normal_events_excluded_from_correlation(self) -> None:
         events = [_event("Scheduled", "pod/a", _STORM_TIME, event_type="Normal")]
@@ -99,7 +99,7 @@ class TestAdvancedEventAnalyticsCleanReport:
 
 
 class TestAdvancedEventAnalyticsSampling:
-    """TC4: Namespace with 10000+ events in 6h → sampling applied, storm detection still accurate."""
+    """TC4: Namespace with 10000+ events in 6h → sampling applied, storm detection still accurate."""  # noqa: E501
 
     def test_large_volume_applies_sampling_but_keeps_accurate_counts(self) -> None:
         # Baseline lives an hour after the storm so no baseline timestamp can ever
@@ -120,11 +120,11 @@ class TestAdvancedEventAnalyticsSampling:
         assert report.sampling_applied is True
         assert report.total_events == len(events)
         assert len(report.storms) == 1
-        assert report.storms[0].event_count == 80
+        assert report.storms[0].event_count == 80  # noqa: PLR2004
 
         incident = report.correlated_incidents[0]
         assert incident.event_count == len(baseline) + 80
-        assert len(incident.sample_events) <= 50
+        assert len(incident.sample_events) <= 50  # noqa: PLR2004
 
 
 class TestAdvancedEventAnalyticsTopReasons:
@@ -135,9 +135,9 @@ class TestAdvancedEventAnalyticsTopReasons:
         report = generate_advanced_event_analytics("data-pipeline", events)
 
         assert report.top_reasons[0].reason == "BackOff"
-        assert report.top_reasons[0].count == 340
+        assert report.top_reasons[0].count == 340  # noqa: PLR2004
         assert report.top_reasons[1].reason == "OOMKilling"
-        assert report.top_reasons[1].count == 12
+        assert report.top_reasons[1].count == 12  # noqa: PLR2004
 
     def test_normal_events_excluded_from_top_reasons(self) -> None:
         events = [
@@ -159,4 +159,4 @@ class TestAdvancedEventAnalyticsOutOfOrderTimestamps:
         report = generate_advanced_event_analytics("data-pipeline", events)
 
         assert len(report.storms) == 1
-        assert report.storms[0].event_count == 80
+        assert report.storms[0].event_count == 80  # noqa: PLR2004

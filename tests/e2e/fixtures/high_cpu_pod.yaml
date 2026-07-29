@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: high-cpu-test
+  namespace: hexawyn-test
+  labels:
+    hexawyn.io/fixture: "true"
+    test: high-cpu
+spec:
+  containers:
+  - name: high-cpu
+    image: polinux/stress:latest
+    command: ["stress"]
+    args: ["--cpu", "2", "--timeout", "300s"]
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "64Mi"
+      limits:
+        cpu: "500m"
+        memory: "128Mi"
+  restartPolicy: Never

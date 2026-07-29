@@ -37,7 +37,7 @@ _FAILURE_TYPE_TO_CAUSE_CATEGORY: dict[FailureType, IncidentCauseCategory] = {
 }
 
 
-def generate_incident_triage_report(
+def generate_incident_triage_report(  # noqa: PLR0913
     request: IncidentTriageRequest,
     events: list[NamespaceEvent],
     pods: list[PodInfo],
@@ -238,7 +238,7 @@ def _detect_resolution(
     return True, resolution_time, mttr_minutes
 
 
-def _build_impact(
+def _build_impact(  # noqa: PLR0913
     failure_entries: list[TimelineEntry],
     pods: list[PodInfo],
     root_causes: list[RootCauseCandidate],

@@ -55,7 +55,7 @@ class TestCertificateDiagnosis:
             hostname="payment.example.com",
         )
         assert result.status == CertificateStatus.VALID
-        assert result.days_remaining >= 44
+        assert result.days_remaining >= 44  # noqa: PLR2004
 
     def test_san_mismatch(self) -> None:
         cert_pem = _make_cert("other.example.com", ["other.example.com"], 45)

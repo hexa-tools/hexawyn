@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.get_namespace_events.get_namespace_events_command import (
+from hexawyn.application.use_case.troubleshooting.get_namespace_events.command import (
     GetNamespaceEventsCommand,
 )
-from hexawyn.application.ports.driving.get_namespace_events.get_namespace_events_response import (
+from hexawyn.application.use_case.troubleshooting.get_namespace_events.response import (
     GetNamespaceEventsResponse,
 )
 

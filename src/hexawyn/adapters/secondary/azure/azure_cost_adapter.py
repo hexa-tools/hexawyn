@@ -81,7 +81,7 @@ def _parse_azure_rows(response: dict[str, object]) -> list[dict[str, object]]:
     return [
         {"namespace": str(row[0]), "monthly_cost_usd": float(str(row[1]))}
         for row in rows
-        if isinstance(row, list) and len(row) >= 2
+        if isinstance(row, list) and len(row) >= 2  # noqa: PLR2004
     ]
 
 

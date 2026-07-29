@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 """Integration tests: ForecastCostUseCase → service → VanillaAdapter.
 
 Uses a real VanillaAdapter wired with fake K8s clients — no cluster needed.
@@ -8,11 +9,12 @@ from unittest.mock import MagicMock
 
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
-from hexawyn.application.ports.driving.forecast_cost.forecast_cost_command import (
+from hexawyn.application.use_case.finops.forecast_cost.command import (
     ForecastCostCommand,
 )
-from hexawyn.application.service.forecast_cost_service import ForecastCostService
-from hexawyn.application.use_case.forecast_cost.forecast_cost_use_case import ForecastCostUseCase
+from hexawyn.application.use_case.finops.forecast_cost.forecast_cost_use_case import (
+    ForecastCostUseCase,
+)
 from hexawyn.domain.errors import ClusterUnreachableError
 
 
@@ -40,8 +42,7 @@ def _fake_apps_api(deployments: list[MagicMock]) -> MagicMock:
 
 def _build_use_case(deployments: list[MagicMock]) -> ForecastCostUseCase:
     adapter = VanillaAdapter("test-cluster", apps_api=_fake_apps_api(deployments))
-    service = ForecastCostService(cost_forecast_port=adapter, cluster_name="test-cluster")
-    return ForecastCostUseCase(service=service)
+    return ForecastCostUseCase(cost_forecast_port=adapter, cluster_name="test-cluster")
 
 
 class TestForecastCostIntegration:
@@ -79,7 +80,7 @@ class TestForecastCostIntegration:
 
         response = use_case.execute(ForecastCostCommand(historical_days=7))
 
-        assert response.forecast.historical_days_used == 7
+        assert response.forecast.historical_days_used == 7  # noqa: PLR2004
 
     def test_tc6_trend_factor_is_one_for_uniform_estimate(self) -> None:
         # Vanilla adapter returns same rate every day → no acceleration
@@ -104,8 +105,7 @@ class TestForecastCostIntegration:
         apps_api = MagicMock()
         apps_api.list_deployment_for_all_namespaces.side_effect = Exception("timeout")
         adapter = VanillaAdapter("test", apps_api=apps_api)
-        service = ForecastCostService(cost_forecast_port=adapter, cluster_name="test")
-        use_case = ForecastCostUseCase(service=service)
+        use_case = ForecastCostUseCase(cost_forecast_port=adapter, cluster_name="test")
 
         with pytest.raises(ClusterUnreachableError):
             use_case.execute(ForecastCostCommand())

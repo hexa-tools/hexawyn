@@ -11,8 +11,8 @@ class TestSLOErrorBudgetRequest:
             rolling_window_days=30,
         )
         assert req.service_name == "payment-service"
-        assert req.slo_target == 0.999
-        assert req.rolling_window_days == 30
+        assert req.slo_target == 0.999  # noqa: PLR2004
+        assert req.rolling_window_days == 30  # noqa: PLR2004
 
     def test_is_frozen(self) -> None:
         import pytest
@@ -26,7 +26,7 @@ class TestSLOErrorBudgetResult:
     def test_default_values(self) -> None:
         result = SLOErrorBudgetResult()
         assert result.service_name == ""
-        assert result.slo_target == 0.999
+        assert result.slo_target == 0.999  # noqa: PLR2004
         assert result.total_budget_minutes == 0.0
         assert result.verdict == "budget_safe"
 
@@ -49,6 +49,6 @@ class TestSLOErrorBudgetResult:
             failed_requests=500,
         )
         assert result.service_name == "payment-service"
-        assert result.burn_rate == 5.0
+        assert result.burn_rate == 5.0  # noqa: PLR2004
         assert result.verdict == "budget_exhausted"
-        assert result.total_requests == 100000
+        assert result.total_requests == 100000  # noqa: PLR2004

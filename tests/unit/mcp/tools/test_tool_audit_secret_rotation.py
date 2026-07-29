@@ -9,29 +9,26 @@ class TestAuditSecretRotationTool:
     def test_audit_secret_rotation_returns_dict(self) -> None:
         from hexawyn.mcp.tools.audit_secret_rotation import audit_secret_rotation
 
-        with (
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
-            patch(
-                "hexawyn.mcp.server.build_secret_rotation_audit_adapter", return_value=MagicMock()
-            ),
+        with patch(
+            "hexawyn.mcp.server.build_secret_rotation_audit_adapter",
+            return_value=MagicMock(),
         ):
             result = audit_secret_rotation()
 
         assert isinstance(result, dict)
+        assert "error" in result
 
     def test_audit_secret_rotation_handles_error(self) -> None:
         from hexawyn.mcp.tools.audit_secret_rotation import audit_secret_rotation
 
-        with (
-            patch(
-                "hexawyn.mcp.server.build_secret_rotation_audit_adapter",
-                side_effect=RuntimeError("test error"),
-            ),
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
+        with patch(
+            "hexawyn.mcp.server.build_secret_rotation_audit_adapter",
+            side_effect=RuntimeError("test error"),
         ):
             result = audit_secret_rotation()
 
         assert isinstance(result, dict)
+        assert result.get("error") == "test error"
 
     def test_has_register(self) -> None:
         import importlib

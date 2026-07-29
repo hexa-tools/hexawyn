@@ -85,10 +85,10 @@ class TestLicenseClaims:
         assert claims.sub == "anonymous"
         assert claims.clusters_max == 1
         assert claims.users_max == 1
-        assert claims.investigations_monthly == 50
-        assert claims.history_days == 7
+        assert claims.investigations_monthly == 50  # noqa: PLR2004
+        assert claims.history_days == 7  # noqa: PLR2004
         assert claims.providers == ["vanilla"]
-        assert claims.exp == 9999999999
+        assert claims.exp == 9999999999  # noqa: PLR2004
         assert claims.iat == 0
 
     def test_constructs_with_custom_values(self) -> None:
@@ -107,10 +107,10 @@ class TestLicenseClaims:
         )
         assert claims.sub == "user-123"
         assert claims.plan == "team"
-        assert claims.clusters_max == 3
-        assert claims.users_max == 5
-        assert claims.investigations_monthly == 500
-        assert claims.history_days == 90
+        assert claims.clusters_max == 3  # noqa: PLR2004
+        assert claims.users_max == 5  # noqa: PLR2004
+        assert claims.investigations_monthly == 500  # noqa: PLR2004
+        assert claims.history_days == 90  # noqa: PLR2004
         assert claims.providers == ["vanilla", "aws", "gcp"]
 
     def test_equality(self) -> None:

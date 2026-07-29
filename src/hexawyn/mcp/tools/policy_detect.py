@@ -1,13 +1,11 @@
-"""MCP tool: policy_detect — Detect Kyverno or OPA Gatekeeper."""
+"""MCP tool: policy_detect."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.policy_detect.policy_detect_command import (
-    PolicyDetectCommand,
-)
-from hexawyn.application.use_case.policy_detect.policy_detect_use_case import (
+from hexawyn.application.use_case.governance.policy_detect.command import PolicyDetectCommand
+from hexawyn.application.use_case.governance.policy_detect.policy_detect_use_case import (
     PolicyDetectUseCase,
 )
 
@@ -16,29 +14,25 @@ if TYPE_CHECKING:
 
 
 def policy_detect() -> dict[str, object]:
-    """Detect which policy engine is installed (Kyverno or OPA Gatekeeper)."""
-    from hexawyn.application.service.policy_detect_service import PolicyDetectService
     from hexawyn.mcp.server import build_policy_adapter
 
     try:
-        adapter = build_policy_adapter()
-        service = PolicyDetectService(policy_port=adapter)
-        use_case = PolicyDetectUseCase(service=service)
-        r = use_case.execute(PolicyDetectCommand())
+        use_case = PolicyDetectUseCase(policy_port=build_policy_adapter())
+        response = use_case.execute(PolicyDetectCommand())
         return {
-            "engine": r.engine,
-            "version": r.version,
-            "namespace": r.namespace,
-            "total_policies": r.total_policies,
-            "enforce_policies": r.enforce_policies,
-            "audit_policies": r.audit_policies,
-            "total_violations": r.total_violations,
-            "high_severity": r.high_severity,
-            "error": r.error,
+            "engine": response.engine,
+            "version": response.version,
+            "namespace": response.namespace,
+            "total_policies": response.total_policies,
+            "enforce_policies": response.enforce_policies,
+            "audit_policies": response.audit_policies,
+            "total_violations": response.total_violations,
+            "high_severity": response.high_severity,
+            "error": None,
         }
     except Exception as exc:
         return {
-            "engine": "unknown",
+            "engine": "",
             "version": None,
             "namespace": None,
             "total_policies": 0,

@@ -4,10 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.pipeline_run_logs.pipeline_run_logs_command import (
-    PipelineRunLogsCommand,
-)
-from hexawyn.application.use_case.pipeline_run_logs.pipeline_run_logs_use_case import (
+from hexawyn.application.use_case.pipelines.pipeline_run_logs.command import PipelineRunLogsCommand
+from hexawyn.application.use_case.pipelines.pipeline_run_logs.pipeline_run_logs_use_case import (
     PipelineRunLogsUseCase,
 )
 
@@ -16,12 +14,11 @@ if TYPE_CHECKING:
 
 
 def pipeline_run_logs(pipeline_run_name: str, namespace: str) -> dict[str, object]:
-    from hexawyn.application.service.pipeline_run_logs_service import PipelineRunLogsService
     from hexawyn.mcp.server import build_pipeline_run_logs_adapter
 
     try:
         a = build_pipeline_run_logs_adapter()
-        r = PipelineRunLogsUseCase(service=PipelineRunLogsService(port=a)).execute(
+        r = PipelineRunLogsUseCase(port=a).execute(
             PipelineRunLogsCommand(pipeline_run_name=pipeline_run_name, namespace=namespace)
         )
         return {

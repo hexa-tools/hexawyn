@@ -18,12 +18,12 @@ class TestQuotaRenderer:
         from hexawyn.cli.presentation.quota_renderer import compute_bar_fill
 
         filled, pct = compute_bar_fill(5, 10, 20)
-        assert filled == 10
-        assert pct == 50.0
+        assert filled == 10  # noqa: PLR2004
+        assert pct == 50.0  # noqa: PLR2004
 
         filled, pct = compute_bar_fill(10, 10, 20)
-        assert filled == 20
-        assert pct == 100.0
+        assert filled == 20  # noqa: PLR2004
+        assert pct == 100.0  # noqa: PLR2004
 
         filled, pct = compute_bar_fill(0, 10, 20)
         assert filled == 0

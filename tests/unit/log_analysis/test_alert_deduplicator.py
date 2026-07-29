@@ -33,4 +33,4 @@ class TestAlertDeduplicator:
 
     def test_default_window_is_5_seconds(self) -> None:
         dedup = AlertDeduplicator()
-        assert dedup.window_seconds == 5.0
+        assert dedup.window_seconds == 5.0  # noqa: PLR2004

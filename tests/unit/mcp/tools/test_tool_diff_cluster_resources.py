@@ -9,27 +9,42 @@ class TestDiffClusterResourcesTool:
     def test_diff_cluster_resources_returns_dict(self) -> None:
         from hexawyn.mcp.tools.diff_cluster_resources import diff_cluster_resources
 
-        with (
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
-            patch("hexawyn.mcp.server.build_cluster_diff_adapter", return_value=MagicMock()),
-        ):
-            result = diff_cluster_resources(source_context="test", target_context="test")
+        with patch("hexawyn.mcp.server.build_cluster_diff_adapter", return_value=MagicMock()):
+            result = diff_cluster_resources()
 
         assert isinstance(result, dict)
+        assert "error" in result
 
     def test_diff_cluster_resources_handles_error(self) -> None:
+        from hexawyn.mcp.tools.diff_cluster_resources import diff_cluster_resources
+
+        with patch(
+            "hexawyn.mcp.server.build_cluster_diff_adapter",
+            side_effect=RuntimeError("test error"),
+        ):
+            result = diff_cluster_resources()
+
+        assert isinstance(result, dict)
+        assert result.get("error") == "test error"
+
+    def test_diff_cluster_resources_success_path(self) -> None:
         from hexawyn.mcp.tools.diff_cluster_resources import diff_cluster_resources
 
         with (
             patch(
                 "hexawyn.mcp.server.build_cluster_diff_adapter",
-                side_effect=RuntimeError("test error"),
+                return_value=MagicMock(),
             ),
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
+            patch(
+                "hexawyn.mcp.tools.diff_cluster_resources.DiffClusterResourcesUseCase"
+            ) as mock_uc,
+            patch("hexawyn.mcp.tools.diff_cluster_resources.DiffClusterResourcesCommand"),
         ):
-            result = diff_cluster_resources(source_context="test", target_context="test")
+            mock_uc.return_value.execute.return_value = MagicMock()
+            result = diff_cluster_resources()
 
         assert isinstance(result, dict)
+        assert result.get("error") is None
 
     def test_has_register(self) -> None:
         import importlib

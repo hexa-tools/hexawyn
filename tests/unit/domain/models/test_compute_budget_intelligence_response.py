@@ -3,7 +3,7 @@ from hexawyn.domain.models.budget_intelligence import BudgetIntelligenceReport
 
 class TestComputeBudgetIntelligenceResponse:
     def test_wraps_report(self) -> None:
-        from hexawyn.application.ports.driving.compute_budget_intelligence.compute_budget_intelligence_response import (  # noqa: E501
+        from hexawyn.application.use_case.finops.compute_budget_intelligence.response import (  # noqa: E501
             ComputeBudgetIntelligenceResponse,
         )
 

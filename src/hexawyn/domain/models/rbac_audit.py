@@ -5,6 +5,8 @@ from typing import Literal
 
 RiskLevel = Literal["critical", "high", "medium", "low"]
 PermissionBasis = Literal["audit_log", "estimated"]
+ServiceAccountKey = tuple[str, str]
+RoleKey = tuple[str | None, str]
 
 
 @dataclass(frozen=True)

@@ -95,7 +95,7 @@ class CloudWatchLogsAdapter(LogSearchPort):
             ) from exc
         return messages
 
-    def _filter_page(
+    def _filter_page(  # noqa: PLR0913
         self,
         client: LogsClient,
         pod_name: str,

@@ -15,7 +15,7 @@ class TestConfigPredictionRoiSource:
         ):
             data = ConfigPredictionRoiSource().fetch_prediction_roi_data("2026-06")
 
-        assert data["revenue_per_minute"] == 500.0
+        assert data["revenue_per_minute"] == 500.0  # noqa: PLR2004
 
     def test_missing_business_config_returns_none(self) -> None:
         from hexawyn.adapters.secondary.gitops.prediction_roi_source import (

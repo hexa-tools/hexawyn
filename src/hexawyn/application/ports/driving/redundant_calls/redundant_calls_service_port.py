@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.redundant_calls.redundant_calls_command import (
+from hexawyn.application.use_case.observability.redundant_calls.command import (
     RedundantCallsCommand,
 )
-from hexawyn.application.ports.driving.redundant_calls.redundant_calls_response import (
+from hexawyn.application.use_case.observability.redundant_calls.response import (
     RedundantCallsResponse,
 )
 

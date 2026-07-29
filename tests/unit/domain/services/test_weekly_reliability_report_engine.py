@@ -8,7 +8,7 @@ from hexawyn.domain.services.reliability_report.weekly_reliability_report_engine
 )
 
 
-def _service(
+def _service(  # noqa: PLR0913
     name: str = "payment-service",
     uptime_pct: float = 99.92,
     error_rate: float = 0.08,
@@ -78,7 +78,7 @@ class TestSLOEvaluation:
 
         assert result.slo_pass_count == 1
         assert result.slo_fail_count == 1
-        assert result.total_services == 2
+        assert result.total_services == 2  # noqa: PLR2004
         assert result.services[0].slo_status == "pass"
         assert result.services[1].slo_status == "fail"
 
@@ -104,11 +104,11 @@ class TestIncidentRanking:
 
         result = engine.compute([], incidents)
 
-        assert len(result.top_incidents) == 3
+        assert len(result.top_incidents) == 3  # noqa: PLR2004
         assert result.top_incidents[0].service_name == "payment"
-        assert result.top_incidents[0].impact_score == 40.0
+        assert result.top_incidents[0].impact_score == 40.0  # noqa: PLR2004
         assert result.top_incidents[1].service_name == "auth-service"
-        assert result.top_incidents[1].impact_score == 36.0
+        assert result.top_incidents[1].impact_score == 36.0  # noqa: PLR2004
         assert result.top_incidents[2].service_name == "cart"
 
     def test_worst_error_spike_selected_as_incident(self) -> None:
@@ -121,7 +121,7 @@ class TestIncidentRanking:
 
         result = engine.compute([], incidents)
 
-        assert result.top_incidents[0].impact_score == 30.0
+        assert result.top_incidents[0].impact_score == 30.0  # noqa: PLR2004
         assert result.top_incidents[0].description == "spike-3"
 
     def test_more_than_three_incidents_keeps_total_count(self) -> None:
@@ -133,8 +133,8 @@ class TestIncidentRanking:
 
         result = engine.compute([], incidents)
 
-        assert len(result.top_incidents) == 3
-        assert result.total_incident_count == 7
+        assert len(result.top_incidents) == 3  # noqa: PLR2004
+        assert result.total_incident_count == 7  # noqa: PLR2004
 
     def test_no_incidents_empty_list(self) -> None:
         engine = WeeklyReliabilityReportEngine()
@@ -155,8 +155,8 @@ class TestHealthScore:
 
         result = engine.compute(services, [])
 
-        assert result.health_score == 100.0
-        assert result.slo_pass_count == 2
+        assert result.health_score == 100.0  # noqa: PLR2004
+        assert result.slo_pass_count == 2  # noqa: PLR2004
 
     def test_half_fail_health_50(self) -> None:
         engine = WeeklyReliabilityReportEngine()
@@ -167,7 +167,7 @@ class TestHealthScore:
 
         result = engine.compute(services, [])
 
-        assert result.health_score == 50.0
+        assert result.health_score == 50.0  # noqa: PLR2004
 
     def test_empty_services_health_zero(self) -> None:
         engine = WeeklyReliabilityReportEngine()
@@ -193,7 +193,7 @@ class TestEdgeCases:
 
         result = engine.compute(services, [])
 
-        assert result.services[0].data_gap_minutes == 30
+        assert result.services[0].data_gap_minutes == 30  # noqa: PLR2004
 
     def test_service_with_p99_regression_slo_still_evaluated(self) -> None:
         engine = WeeklyReliabilityReportEngine()
@@ -202,7 +202,7 @@ class TestEdgeCases:
         result = engine.compute(services, [])
 
         assert result.services[0].slo_status == "pass"
-        assert result.services[0].p99_latency_ms == 950.0
+        assert result.services[0].p99_latency_ms == 950.0  # noqa: PLR2004
 
     def test_mixed_slo_targets_evaluated_individually(self) -> None:
         engine = WeeklyReliabilityReportEngine()

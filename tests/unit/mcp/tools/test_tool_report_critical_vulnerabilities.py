@@ -11,29 +11,28 @@ class TestReportCriticalVulnerabilitiesTool:
             report_critical_vulnerabilities,
         )
 
-        with (
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
-            patch("hexawyn.mcp.server.build_critical_cve_adapter", return_value=MagicMock()),
+        with patch(
+            "hexawyn.mcp.server.build_critical_cve_adapter",
+            return_value=MagicMock(),
         ):
             result = report_critical_vulnerabilities()
 
         assert isinstance(result, dict)
+        assert "error" in result
 
     def test_report_critical_vulnerabilities_handles_error(self) -> None:
         from hexawyn.mcp.tools.report_critical_vulnerabilities import (
             report_critical_vulnerabilities,
         )
 
-        with (
-            patch(
-                "hexawyn.mcp.server.build_critical_cve_adapter",
-                side_effect=RuntimeError("test error"),
-            ),
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
+        with patch(
+            "hexawyn.mcp.server.build_critical_cve_adapter",
+            side_effect=RuntimeError("test error"),
         ):
             result = report_critical_vulnerabilities()
 
         assert isinstance(result, dict)
+        assert result.get("error") == "test error"
 
     def test_has_register(self) -> None:
         import importlib

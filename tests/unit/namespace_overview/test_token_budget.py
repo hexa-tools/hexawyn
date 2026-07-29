@@ -70,7 +70,7 @@ class TestEnforceTokenBudget:
         assert trimmed == resources
         assert has_more is False
         assert remaining == 0
-        assert tokens <= 2000
+        assert tokens <= 2000  # noqa: PLR2004
 
     def test_large_list_truncated_under_tight_budget(self) -> None:
         """TC4: namespace with 200 resources → output stays under token budget."""
@@ -90,7 +90,7 @@ class TestEnforceTokenBudget:
             max_tokens=200,
         )
 
-        assert tokens <= 200
+        assert tokens <= 200  # noqa: PLR2004
         assert has_more is True
         assert remaining == 200 - len(trimmed)
-        assert len(trimmed) < 200
+        assert len(trimmed) < 200  # noqa: PLR2004

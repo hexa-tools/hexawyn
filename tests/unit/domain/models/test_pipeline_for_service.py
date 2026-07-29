@@ -67,7 +67,7 @@ class TestPipelineForServiceResult:
             request=PipelineForServiceRequest(service_name="payment-service"),
             pipelines=pipelines,
         )
-        assert result.pipelines_found == 2
+        assert result.pipelines_found == 2  # noqa: PLR2004
 
     def test_not_found(self) -> None:
         result = PipelineForServiceResult.compute(

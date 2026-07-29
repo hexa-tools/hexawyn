@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.cost_profiling.cost_profiling_command import (
+from hexawyn.application.use_case.finops.cost_profiling.command import (
     CostProfilingCommand,
 )
-from hexawyn.application.ports.driving.cost_profiling.cost_profiling_response import (
+from hexawyn.application.use_case.finops.cost_profiling.response import (
     CostProfilingResponse,
 )
 

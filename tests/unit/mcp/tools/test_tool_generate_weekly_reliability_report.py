@@ -11,15 +11,27 @@ class TestGenerateWeeklyReliabilityReportTool:
             generate_weekly_reliability_report,
         )
 
-        with (
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
-            patch("hexawyn.mcp.server.build_reliability_report_adapter", return_value=MagicMock()),
+        with patch("hexawyn.mcp.server.build_reliability_report_adapter", return_value=MagicMock()):
+            result = generate_weekly_reliability_report()
+
+        assert isinstance(result, dict)
+        assert "error" in result
+
+    def test_generate_weekly_reliability_report_handles_error(self) -> None:
+        from hexawyn.mcp.tools.generate_weekly_reliability_report import (
+            generate_weekly_reliability_report,
+        )
+
+        with patch(
+            "hexawyn.mcp.server.build_reliability_report_adapter",
+            side_effect=RuntimeError("test error"),
         ):
             result = generate_weekly_reliability_report()
 
         assert isinstance(result, dict)
+        assert result.get("error") == "test error"
 
-    def test_generate_weekly_reliability_report_handles_error(self) -> None:
+    def test_generate_weekly_reliability_report_success_path(self) -> None:
         from hexawyn.mcp.tools.generate_weekly_reliability_report import (
             generate_weekly_reliability_report,
         )
@@ -27,13 +39,16 @@ class TestGenerateWeeklyReliabilityReportTool:
         with (
             patch(
                 "hexawyn.mcp.server.build_reliability_report_adapter",
-                side_effect=RuntimeError("test error"),
+                return_value=MagicMock(),
             ),
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
+            patch(
+                "hexawyn.mcp.tools.generate_weekly_reliability_report.GenerateWeeklyReliabilityReportUseCase"
+            ),
         ):
             result = generate_weekly_reliability_report()
 
         assert isinstance(result, dict)
+        assert result.get("error") is None
 
     def test_has_register(self) -> None:
         import importlib

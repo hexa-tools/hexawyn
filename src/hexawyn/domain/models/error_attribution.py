@@ -46,7 +46,7 @@ class ErrorAttributionResult:
             pct = round((count / total) * 100.0, 1)
             ranked.append(ServiceErrorCount(service_name=svc, error_count=count, percentage=pct))
 
-        culprit = ranked[0].service_name if ranked and ranked[0].percentage >= 80.0 else None
+        culprit = ranked[0].service_name if ranked and ranked[0].percentage >= 80.0 else None  # noqa: PLR2004
         return ErrorAttributionResult(
             gateway=request.gateway,
             time_window_minutes=request.time_window_minutes,

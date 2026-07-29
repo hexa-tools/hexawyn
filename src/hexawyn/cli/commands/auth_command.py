@@ -38,7 +38,7 @@ def set_token(token: str, endpoint: str) -> None:
         click.echo(f"❌ Failed to connect to {endpoint}. Is the API reachable?", err=True)
         raise SystemExit(1)
 
-    if response.status_code != 200:
+    if response.status_code != 200:  # noqa: PLR2004
         detail = "Unknown error"
         try:
             detail = response.json().get("detail", detail)
@@ -151,8 +151,8 @@ def account() -> None:
         click.echo("❌ Cannot reach hexa-cloud. Visit polar.sh/purchases directly.")
         raise SystemExit(1)
 
-    if resp.status_code != 200:
-        if resp.status_code == 404:
+    if resp.status_code != 200:  # noqa: PLR2004
+        if resp.status_code == 404:  # noqa: PLR2004
             click.echo(
                 "❌ Portal not available yet. Visit [link]https://polar.sh/purchases/subscriptions[/link]"
             )

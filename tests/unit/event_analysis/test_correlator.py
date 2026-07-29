@@ -40,7 +40,7 @@ class TestEventCorrelatorSamePodGrouping:
 
         assert len(incidents) == 1
         assert incidents[0].involved_objects == ["pod/payment-api"]
-        assert len(incidents[0].events) == 5
+        assert len(incidents[0].events) == 5  # noqa: PLR2004
 
 
 class TestEventCorrelatorGroupsByReasonNotPod:
@@ -53,7 +53,7 @@ class TestEventCorrelatorGroupsByReasonNotPod:
 
         assert len(incidents) == 1
         assert incidents[0].reason == "OOMKilling"
-        assert len(incidents[0].involved_objects) == 10
+        assert len(incidents[0].involved_objects) == 10  # noqa: PLR2004
 
     def test_different_reasons_produce_separate_incidents(self) -> None:
         events = [
@@ -64,7 +64,7 @@ class TestEventCorrelatorGroupsByReasonNotPod:
 
         incidents = correlator.correlate(events)
 
-        assert len(incidents) == 2
+        assert len(incidents) == 2  # noqa: PLR2004
         assert {i.reason for i in incidents} == {"OOMKilling", "BackOff"}
 
 

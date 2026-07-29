@@ -35,7 +35,7 @@ class TestRedundantCallResult:
         assert len(result.patterns) >= 1
         n1 = [p for p in result.patterns if p.type == RedundancyType.N_PLUS_ONE]
         assert len(n1) == 1
-        assert n1[0].occurrences == 47
+        assert n1[0].occurrences == 47  # noqa: PLR2004
 
     def test_duplicate(self) -> None:
         spans = [

@@ -15,7 +15,7 @@ AWS_EKS_SCENARIO = {
     "findings": [
         {
             "severity": "critical",
-            "message": "OOM kill detected in payments-api — memory limit 256Mi too low for peak load",
+            "message": "OOM kill detected in payments-api — memory limit 256Mi too low for peak load",  # noqa: E501
             "remediation": "Increase memory limit to 512Mi and enable HPA",
         },
         {
@@ -25,5 +25,5 @@ AWS_EKS_SCENARIO = {
         },
     ],
     "chips": ["CrashLoop in payments-api", "Pending ML worker", "OOM kill detected"],
-    "slack_message": "Alert: EKS prod — OOM kill in payments-api. Score 76. Action: increase memory limit.",
+    "slack_message": "Alert: EKS prod — OOM kill in payments-api. Score 76. Action: increase memory limit.",  # noqa: E501
 }

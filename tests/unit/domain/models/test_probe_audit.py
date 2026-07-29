@@ -35,7 +35,7 @@ class TestMissingProbe:
             is_exposed_externally=True,
         )
         assert probe.deployment_name == "payment-service"
-        assert probe.exposed_port == 8080
+        assert probe.exposed_port == 8080  # noqa: PLR2004
         assert probe.workload_type == "Deployment"
         assert probe.is_exposed_externally is True
 

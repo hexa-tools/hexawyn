@@ -25,16 +25,16 @@ class TestProjection:
 
         result = project_demand(_snapshot(used_cpu=70.0, used_mem=130.0), multiplier=2.0)
 
-        assert result.projected_cpu_pct == 140.0
-        assert result.projected_memory_pct == 130.0
+        assert result.projected_cpu_pct == 140.0  # noqa: PLR2004
+        assert result.projected_memory_pct == 130.0  # noqa: PLR2004
 
     def test_current_headroom_computed(self) -> None:
         from hexawyn.domain.services.spike_provisioning.demand_projector import project_demand
 
         result = project_demand(_snapshot(used_cpu=70.0, used_mem=130.0), multiplier=1.0)
 
-        assert result.current_cpu_headroom_pct == 30.0
-        assert result.current_memory_headroom_pct == 35.0
+        assert result.current_cpu_headroom_pct == 30.0  # noqa: PLR2004
+        assert result.current_memory_headroom_pct == 35.0  # noqa: PLR2004
 
 
 class TestBindingConstraint:

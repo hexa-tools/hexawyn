@@ -8,7 +8,7 @@ from hexawyn.domain.models.namespace_waste import (
 )
 
 
-def _waste(
+def _waste(  # noqa: PLR0913
     namespace: str = "dev",
     cpu_req: float = 8.0,
     cpu_actual: float = 0.45,
@@ -42,15 +42,15 @@ class TestNamespaceWaste:
 
     def test_max_waste_pct_returns_cpu_when_cpu_higher(self) -> None:
         ns = _waste(cpu_waste_pct=94.4, mem_waste_pct=92.5)
-        assert ns.max_waste_pct == 94.4
+        assert ns.max_waste_pct == 94.4  # noqa: PLR2004
 
     def test_max_waste_pct_returns_memory_when_memory_higher(self) -> None:
         ns = _waste(cpu_waste_pct=30.0, mem_waste_pct=80.0)
-        assert ns.max_waste_pct == 80.0
+        assert ns.max_waste_pct == 80.0  # noqa: PLR2004
 
     def test_max_waste_pct_equal_values(self) -> None:
         ns = _waste(cpu_waste_pct=50.0, mem_waste_pct=50.0)
-        assert ns.max_waste_pct == 50.0
+        assert ns.max_waste_pct == 50.0  # noqa: PLR2004
 
     def test_is_over_provisioned_true(self) -> None:
         ns = _waste(is_over=True)
@@ -63,12 +63,12 @@ class TestNamespaceWaste:
     def test_all_fields_stored(self) -> None:
         ns = _waste()
         assert ns.namespace == "dev"
-        assert ns.cpu_requested_cores == 8.0
-        assert ns.cpu_actual_avg_cores == 0.45
-        assert ns.cpu_wasted_cores == 7.55
-        assert ns.memory_requested_gb == 16.0
-        assert ns.memory_actual_avg_gb == 1.2
-        assert ns.memory_wasted_gb == 14.8
+        assert ns.cpu_requested_cores == 8.0  # noqa: PLR2004
+        assert ns.cpu_actual_avg_cores == 0.45  # noqa: PLR2004
+        assert ns.cpu_wasted_cores == 7.55  # noqa: PLR2004
+        assert ns.memory_requested_gb == 16.0  # noqa: PLR2004
+        assert ns.memory_actual_avg_gb == 1.2  # noqa: PLR2004
+        assert ns.memory_wasted_gb == 14.8  # noqa: PLR2004
 
 
 class TestExcludedNamespace:
@@ -96,7 +96,7 @@ class TestOverProvisioningReport:
         assert report.excluded == []
         assert report.total_wasted_cpu_cores == 0.0
         assert report.total_wasted_memory_gb == 0.0
-        assert report.analysis_window_days == 7
+        assert report.analysis_window_days == 7  # noqa: PLR2004
 
     def test_stores_namespaces_list(self) -> None:
         ns = _waste()

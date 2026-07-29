@@ -11,31 +11,28 @@ class TestDetectUnintendedExternalExposureTool:
             detect_unintended_external_exposure,
         )
 
-        with (
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
-            patch(
-                "hexawyn.mcp.server.build_external_exposure_audit_adapter", return_value=MagicMock()
-            ),
+        with patch(
+            "hexawyn.mcp.server.build_external_exposure_audit_adapter",
+            return_value=MagicMock(),
         ):
             result = detect_unintended_external_exposure()
 
         assert isinstance(result, dict)
+        assert "error" in result
 
     def test_detect_unintended_external_exposure_handles_error(self) -> None:
         from hexawyn.mcp.tools.detect_unintended_external_exposure import (
             detect_unintended_external_exposure,
         )
 
-        with (
-            patch(
-                "hexawyn.mcp.server.build_external_exposure_audit_adapter",
-                side_effect=RuntimeError("test error"),
-            ),
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
+        with patch(
+            "hexawyn.mcp.server.build_external_exposure_audit_adapter",
+            side_effect=RuntimeError("test error"),
         ):
             result = detect_unintended_external_exposure()
 
         assert isinstance(result, dict)
+        assert result.get("error") == "test error"
 
     def test_has_register(self) -> None:
         import importlib

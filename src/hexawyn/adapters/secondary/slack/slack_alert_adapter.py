@@ -66,7 +66,7 @@ class SlackAlertAdapter(AlertNotificationPort):
         message = finding.get("message", "")
         remediation = finding.get("remediation", "")
         emoji = _SEVERITY_EMOJI.get(severity, "ℹ️")
-        status = "DEGRADED" if score < 85 else "HEALTHY"
+        status = "DEGRADED" if score < 85 else "HEALTHY"  # noqa: PLR2004
 
         text = (
             f"{emoji} *hexawyn Alert — {cluster_name}*\n"
@@ -88,7 +88,7 @@ class SlackAlertAdapter(AlertNotificationPort):
         if not message["is_pro"]:
             return SlackMessage(text=message["text"], is_pro_format=False)
 
-        status = "DEGRADED" if message["score"] < 85 else "HEALTHY"
+        status = "DEGRADED" if message["score"] < 85 else "HEALTHY"  # noqa: PLR2004
         title = message["title"] or message["text"]
         blocks = [
             SlackBlock(type="header", text=title),
@@ -111,7 +111,7 @@ class SlackAlertAdapter(AlertNotificationPort):
                 json=message.to_payload(),
                 timeout=10.0,
             )
-            if response.status_code == 200:
+            if response.status_code == 200:  # noqa: PLR2004
                 if track_quota:
                     increment_slack_quota()
                 return True

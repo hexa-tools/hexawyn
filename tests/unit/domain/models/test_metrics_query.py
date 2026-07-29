@@ -17,7 +17,7 @@ class TestPrometheusMetricResult:
             formatted_value="3.2m cores",
         )
         assert result.labels == {"pod": "payment-pod-abc", "container": "app"}
-        assert result.value == 0.0032
+        assert result.value == 0.0032  # noqa: PLR2004
         assert result.values == []
         assert result.formatted_value == "3.2m cores"
 
@@ -27,7 +27,7 @@ class TestPrometheusMetricResult:
             values=[("2024-06-01T14:00:00Z", 0.001), ("2024-06-01T14:01:00Z", 0.002)],
         )
         assert result.value is None
-        assert len(result.values) == 2
+        assert len(result.values) == 2  # noqa: PLR2004
 
 
 class TestPrometheusQueryRequest:

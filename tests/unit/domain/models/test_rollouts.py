@@ -46,8 +46,8 @@ class TestRolloutStepStatus:
             paused_at=None,
             pause_reason=None,
         )
-        assert step.step_index == 2
-        assert step.canary_weight == 20
+        assert step.step_index == 2  # noqa: PLR2004
+        assert step.canary_weight == 20  # noqa: PLR2004
 
     def test_paused_step(self) -> None:
         step = RolloutStepStatus(
@@ -102,7 +102,7 @@ class TestRollout:
             analysis_run_name="payments-api-analysis-abc123",
         )
         assert rollout.strategy == RolloutStrategy.CANARY
-        assert rollout.current_step.canary_weight == 20
+        assert rollout.current_step.canary_weight == 20  # noqa: PLR2004
         assert rollout.analysis_run_name is not None
 
 
@@ -152,7 +152,7 @@ class TestRolloutsDetectionResult:
         )
         assert result.installed is True
         assert result.version == "v1.7.2"
-        assert result.total_rollouts == 5
+        assert result.total_rollouts == 5  # noqa: PLR2004
 
     def test_not_installed(self) -> None:
         result = RolloutsDetectionResult(

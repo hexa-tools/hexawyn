@@ -39,7 +39,7 @@ class TestEventStormDetector:
         storms = detector.detect(events)
 
         assert len(storms) == 1
-        assert storms[0].event_count == 80
+        assert storms[0].event_count == 80  # noqa: PLR2004
 
     def test_no_storm_for_normal_low_volume_period(self) -> None:
         """TC3: Normal 6h period with low event volume → no storms detected."""
@@ -75,7 +75,7 @@ class TestEventStormDetector:
         storms = detector.detect(shuffled)
 
         assert len(storms) == 1
-        assert storms[0].event_count == 80
+        assert storms[0].event_count == 80  # noqa: PLR2004
 
     def test_empty_events_returns_no_storms(self) -> None:
         detector = EventStormDetector()
@@ -90,4 +90,4 @@ class TestEventStormDetector:
             end_time="2024-01-01T14:33:30+00:00",
             event_count=80,
         )
-        assert storm.event_count == 80
+        assert storm.event_count == 80  # noqa: PLR2004

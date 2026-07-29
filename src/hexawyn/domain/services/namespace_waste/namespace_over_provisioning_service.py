@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from hexawyn.application.ports.driven.namespace_waste_port import NamespaceRawData
 from hexawyn.domain.models.namespace_waste import (
     ExcludedNamespace,
+    NamespaceRawData,
     NamespaceWaste,
     OverProvisioningReport,
 )
@@ -81,6 +81,14 @@ def _compute_namespace_waste(item: NamespaceRawData) -> NamespaceWaste:
         memory_waste_pct=mem_waste_pct,
         memory_wasted_gb=mem_wasted,
         is_over_provisioned=max(cpu_waste_pct, mem_waste_pct) > _OVER_PROVISION_THRESHOLD_PCT,
+    )
+
+
+def any_actual_usage_present(raw_data: list[NamespaceRawData]) -> bool:
+    return any(
+        (rd["cpu_actual_avg_cores"] is not None and rd["cpu_actual_avg_cores"] > 0)
+        or (rd["memory_actual_avg_gb"] is not None and rd["memory_actual_avg_gb"] > 0)
+        for rd in raw_data
     )
 
 

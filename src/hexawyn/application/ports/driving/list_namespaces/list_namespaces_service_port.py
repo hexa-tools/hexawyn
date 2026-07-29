@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.list_namespaces.list_namespaces_command import (
+from hexawyn.application.use_case.cluster.list_namespaces.command import (
     ListNamespacesCommand,
 )
-from hexawyn.application.ports.driving.list_namespaces.list_namespaces_response import (
+from hexawyn.application.use_case.cluster.list_namespaces.response import (
     ListNamespacesResponse,
 )
 

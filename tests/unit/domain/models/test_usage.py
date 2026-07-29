@@ -23,7 +23,7 @@ class TestInvestigationUsageTypedDict:
         assert entry["timestamp"] == "2026-07-16T14:32:01Z"
         assert entry["tool_name"] == "crashloop_detector"
         assert entry["verdict"] == "PASS"
-        assert entry["duration_ms"] == 4200
+        assert entry["duration_ms"] == 4200  # noqa: PLR2004
 
     def test_namespace_can_be_none(self) -> None:
         entry: InvestigationUsage = {
@@ -137,7 +137,7 @@ class TestInvestigationUsageTypedDict:
             "model": "large-model",
             "provider": "openai",
         }
-        assert entry["prompt_tokens"] == 100000
+        assert entry["prompt_tokens"] == 100000  # noqa: PLR2004
 
     def test_empty_cluster_name(self) -> None:
         entry: InvestigationUsage = {
@@ -162,8 +162,8 @@ class TestToolStatTypedDict:
 
         ts: ToolStat = {"tool_name": "crashloop", "count": 5, "avg_duration_ms": 4200}
         assert ts["tool_name"] == "crashloop"
-        assert ts["count"] == 5
-        assert ts["avg_duration_ms"] == 4200
+        assert ts["count"] == 5  # noqa: PLR2004
+        assert ts["avg_duration_ms"] == 4200  # noqa: PLR2004
 
 
 class TestUsageStatsTypedDict:
@@ -191,8 +191,8 @@ class TestUsageStatsTypedDict:
             verdict_distribution={"PASS": 8, "DEGRADED": 2},
             models_used={"qwen3:8b": 10},
         )
-        assert stats["total_investigations"] == 10
-        assert stats["verdict_distribution"]["PASS"] == 8
+        assert stats["total_investigations"] == 10  # noqa: PLR2004
+        assert stats["verdict_distribution"]["PASS"] == 8  # noqa: PLR2004
         assert len(stats["top_tools"]) == 1
 
     def test_top_tools_multiple_entries(self) -> None:
@@ -208,7 +208,7 @@ class TestUsageStatsTypedDict:
             verdict_distribution={},
             models_used={},
         )
-        assert len(stats["top_tools"]) == 2
+        assert len(stats["top_tools"]) == 2  # noqa: PLR2004
 
     def test_models_used_multiple_models(self) -> None:
         stats = UsageStats(
@@ -220,8 +220,8 @@ class TestUsageStatsTypedDict:
             verdict_distribution={},
             models_used={"qwen3:8b": 5, "deepseek-r1:7b": 3},
         )
-        assert stats["models_used"]["qwen3:8b"] == 5
-        assert stats["models_used"]["deepseek-r1:7b"] == 3
+        assert stats["models_used"]["qwen3:8b"] == 5  # noqa: PLR2004
+        assert stats["models_used"]["deepseek-r1:7b"] == 3  # noqa: PLR2004
 
     def test_verdict_distribution_multiple_keys(self) -> None:
         stats = UsageStats(
@@ -233,7 +233,7 @@ class TestUsageStatsTypedDict:
             verdict_distribution={"PASS": 5, "FAIL": 2, "FLAG": 1},
             models_used={},
         )
-        assert len(stats["verdict_distribution"]) == 3
+        assert len(stats["verdict_distribution"]) == 3  # noqa: PLR2004
 
 
 class TestDailyStatsTypedDict:
@@ -243,8 +243,8 @@ class TestDailyStatsTypedDict:
 
     def test_populated_daily(self) -> None:
         daily = DailyStats(date="2026-07-16", investigations=10, tokens=5000)
-        assert daily["investigations"] == 10
-        assert daily["tokens"] == 5000
+        assert daily["investigations"] == 10  # noqa: PLR2004
+        assert daily["tokens"] == 5000  # noqa: PLR2004
 
 
 class TestMonthlyReportDataclass:
@@ -252,8 +252,8 @@ class TestMonthlyReportDataclass:
         from hexawyn.domain.models.usage import MonthlyReport
 
         report = MonthlyReport(year=2026, month=7)
-        assert report.year == 2026
-        assert report.month == 7
+        assert report.year == 2026  # noqa: PLR2004
+        assert report.month == 7  # noqa: PLR2004
         assert report.stats["total_investigations"] == 0
         assert report.daily_breakdown == []
 
@@ -268,7 +268,7 @@ class TestMonthlyReportDataclass:
                 DailyStats(date="2026-07-17", investigations=3, tokens=1500),
             ],
         )
-        assert len(report.daily_breakdown) == 2
+        assert len(report.daily_breakdown) == 2  # noqa: PLR2004
 
     def test_month_boundary_january(self) -> None:
         from hexawyn.domain.models.usage import MonthlyReport
@@ -280,4 +280,4 @@ class TestMonthlyReportDataclass:
         from hexawyn.domain.models.usage import MonthlyReport
 
         report = MonthlyReport(year=2026, month=12)
-        assert report.month == 12
+        assert report.month == 12  # noqa: PLR2004

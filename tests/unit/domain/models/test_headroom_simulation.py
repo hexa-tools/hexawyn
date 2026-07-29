@@ -19,7 +19,7 @@ class TestProposedWorkload:
             memory_request_per_pod="256Mi",
         )
 
-        assert workload.replicas == 2
+        assert workload.replicas == 2  # noqa: PLR2004
 
     def test_custom_replicas(self) -> None:
         workload = ProposedWorkload(
@@ -29,7 +29,7 @@ class TestProposedWorkload:
             replicas=3,
         )
 
-        assert workload.replicas == 3
+        assert workload.replicas == 3  # noqa: PLR2004
 
 
 class TestClusterHeadroomSnapshot:
@@ -45,8 +45,8 @@ class TestClusterHeadroomSnapshot:
             autoscaler_enabled=False,
         )
 
-        assert snapshot.node_count == 10
-        assert snapshot.largest_node_cpu_cores == 8.0
+        assert snapshot.node_count == 10  # noqa: PLR2004
+        assert snapshot.largest_node_cpu_cores == 8.0  # noqa: PLR2004
 
 
 class TestHeadroomSimulationRequest:

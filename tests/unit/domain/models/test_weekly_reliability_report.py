@@ -71,6 +71,6 @@ class TestWeeklyReliabilityReport:
             slo_fail_count=1,
             total_services=4,
         )
-        assert report.health_score == 75.0
-        assert report.slo_pass_count == 3
+        assert report.health_score == 75.0  # noqa: PLR2004
+        assert report.slo_pass_count == 3  # noqa: PLR2004
         assert report.slo_fail_count == 1

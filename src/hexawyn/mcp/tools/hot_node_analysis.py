@@ -1,15 +1,11 @@
-"""MCP tool: hot_node_analysis — identifies nodes consistently above 80% CPU
-or memory, their top resource-consuming pods, and whether redistribution,
-vertical scaling, or adding a node is the right fix."""
+"""MCP tool: hot_node_analysis."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.hot_node_analysis.hot_node_analysis_command import (
-    HotNodeAnalysisCommand,
-)
-from hexawyn.application.use_case.hot_node_analysis.hot_node_analysis_use_case import (
+from hexawyn.application.use_case.cluster.hot_node_analysis.command import HotNodeAnalysisCommand
+from hexawyn.application.use_case.cluster.hot_node_analysis.hot_node_analysis_use_case import (
     HotNodeAnalysisUseCase,
 )
 
@@ -17,31 +13,35 @@ if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def hot_node_analysis(window_hours: int = 24) -> dict[str, object]:
-    from hexawyn.application.service.hot_node_analysis_service import HotNodeAnalysisService
+def hot_node_analysis() -> dict[str, object]:
     from hexawyn.mcp.server import (
         build_cluster_resource_metrics_adapter,
         build_node_analysis_adapter,
     )
 
     try:
-        service = HotNodeAnalysisService(
+        use_case = HotNodeAnalysisUseCase(
             metrics_port=build_cluster_resource_metrics_adapter(),
             node_port=build_node_analysis_adapter(),
         )
-        r = HotNodeAnalysisUseCase(service=service).execute(
-            HotNodeAnalysisCommand(window_hours=window_hours)
-        )
+        response = use_case.execute(HotNodeAnalysisCommand())
         return {
-            "hot_nodes": r.hot_nodes,
-            "healthy_node_count": r.healthy_node_count,
-            "excluded_cordoned_nodes": r.excluded_cordoned_nodes,
-            "warnings": r.warnings,
-            "summary": r.summary,
-            "error": r.error,
+            "hot_nodes": response.hot_nodes,
+            "healthy_node_count": response.healthy_node_count,
+            "excluded_cordoned_nodes": response.excluded_cordoned_nodes,
+            "warnings": response.warnings,
+            "summary": response.summary,
+            "error": None,
         }
     except Exception as exc:
-        return {"error": str(exc)}
+        return {
+            "hot_nodes": [],
+            "healthy_node_count": 0,
+            "excluded_cordoned_nodes": [],
+            "warnings": [],
+            "summary": "",
+            "error": str(exc),
+        }
 
 
 def register(mcp: FastMCP) -> None:

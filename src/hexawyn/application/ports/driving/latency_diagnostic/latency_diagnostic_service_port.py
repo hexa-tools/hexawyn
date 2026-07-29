@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.latency_diagnostic.latency_diagnostic_command import (
+from hexawyn.application.use_case.observability.latency_diagnostic.command import (
     LatencyDiagnosticCommand,
 )
-from hexawyn.application.ports.driving.latency_diagnostic.latency_diagnostic_response import (
+from hexawyn.application.use_case.observability.latency_diagnostic.response import (
     LatencyDiagnosticResponse,
 )
 

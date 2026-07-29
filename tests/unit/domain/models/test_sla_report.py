@@ -25,8 +25,8 @@ class TestSlaBreach:
             root_cause_ref="INC-482",
         )
 
-        assert breach.duration_minutes == 45
-        assert breach.impacted_users == 1200
+        assert breach.duration_minutes == 45  # noqa: PLR2004
+        assert breach.impacted_users == 1200  # noqa: PLR2004
 
 
 class TestServiceSla:
@@ -61,7 +61,7 @@ class TestServiceSla:
             coverage_days=90,
         )
 
-        assert service.actual_uptime_pct == 99.95
+        assert service.actual_uptime_pct == 99.95  # noqa: PLR2004
         assert service.exceeded is True
 
 
@@ -93,5 +93,5 @@ class TestSlaReport:
             current_avg_uptime_pct=99.8,
         )
 
-        assert report.overall_met_count == 2
+        assert report.overall_met_count == 2  # noqa: PLR2004
         assert report.trend == "improving"

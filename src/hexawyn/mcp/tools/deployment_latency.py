@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.deployment_latency.deployment_latency_command import (
+from hexawyn.application.use_case.observability.deployment_latency.command import (
     DeploymentLatencyCommand,
 )
-from hexawyn.application.use_case.deployment_latency.deployment_latency_use_case import (
+from hexawyn.application.use_case.observability.deployment_latency.deployment_latency_use_case import (  # noqa: E501
     DeploymentLatencyUseCase,
 )
 
@@ -18,12 +18,11 @@ if TYPE_CHECKING:
 def deployment_latency(
     service_name: str, regression_threshold_pct: float = 20.0
 ) -> dict[str, object]:
-    from hexawyn.application.service.deployment_latency_service import DeploymentLatencyService
     from hexawyn.mcp.server import build_deployment_latency_comparison_adapter
 
     try:
         a = build_deployment_latency_comparison_adapter()
-        r = DeploymentLatencyUseCase(service=DeploymentLatencyService(port=a)).execute(
+        r = DeploymentLatencyUseCase(port=a).execute(
             DeploymentLatencyCommand(
                 service_name=service_name, regression_threshold_pct=regression_threshold_pct
             )
