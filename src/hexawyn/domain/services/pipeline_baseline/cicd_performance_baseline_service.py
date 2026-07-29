@@ -77,24 +77,92 @@ def _detect_outliers(runs: list[PipelineRunRecord], stage_avgs: dict[str, float]
     return outliers
 
 
-def _compute_trend(runs: list[PipelineRunRecord]) -> str:
+def _compute_trend(runs: list[PipelineRunRecord]) -> tuple[str, float | None]:
     if len(runs) < 5:  # noqa: PLR2004
-        return "insufficient_data"
+        return "insufficient_data", None
     sorted_runs = sorted(runs, key=lambda r: r.get("start_time") or "")
     first_5 = [r for r in sorted_runs[:5] if r.get("duration_seconds")]
     last_5 = [r for r in sorted_runs[-5:] if r.get("duration_seconds")]
     if len(first_5) < 3 or len(last_5) < 3:  # noqa: PLR2004
-        return "insufficient_data"
+        return "insufficient_data", None
     first_avg = statistics.mean([r.get("duration_seconds") or 0 for r in first_5])
     last_avg = statistics.mean([r.get("duration_seconds") or 0 for r in last_5])
     if first_avg == 0:
-        return "insufficient_data"
+        return "insufficient_data", None
     delta = (last_avg - first_avg) / first_avg
+    pct = round(delta * 100, 1)
     if delta < -_SIGNIFICANT_TREND_PCT:
-        return "improving"
+        return "improving", pct
     if delta > _SIGNIFICANT_TREND_PCT:
-        return "degrading"
-    return "stable"
+        return "degrading", pct
+    return "stable", pct
+
+
+def _bucket_stage_durations_by_window(
+    task_runs_by_pipeline: dict[str, list[TaskRunRecord]],
+    first_5_names: set[str],
+    last_5_names: set[str],
+) -> tuple[dict[str, list[float]], dict[str, list[float]]]:
+    """Split per-stage task durations into the first-5/last-5 run windows."""
+    first_durations: dict[str, list[float]] = {}
+    last_durations: dict[str, list[float]] = {}
+    for run_name, tasks in task_runs_by_pipeline.items():
+        if run_name not in first_5_names and run_name not in last_5_names:
+            continue
+        for tr in tasks:
+            dur = tr.get("duration_seconds") or 0
+            if dur <= 0:
+                continue
+            stage = _parse_stage_name(tr.get("task_name", "unknown"))
+            if run_name in first_5_names:
+                first_durations.setdefault(stage, []).append(float(dur))
+            if run_name in last_5_names:
+                last_durations.setdefault(stage, []).append(float(dur))
+    return first_durations, last_durations
+
+
+def _worst_degrading_stage(
+    first_durations: dict[str, list[float]],
+    last_durations: dict[str, list[float]],
+) -> str | None:
+    """Pick the stage with the largest first-5-vs-last-5 relative increase,
+    only if it clears the same significance threshold as _compute_trend.
+    """
+    worst_stage: str | None = None
+    worst_delta = _SIGNIFICANT_TREND_PCT
+    for stage, first_list in first_durations.items():
+        last_list = last_durations.get(stage)
+        if not last_list or not first_list:
+            continue
+        first_avg = statistics.mean(first_list)
+        if first_avg == 0:
+            continue
+        delta = (statistics.mean(last_list) - first_avg) / first_avg
+        if delta > worst_delta:
+            worst_delta = delta
+            worst_stage = stage
+    return worst_stage
+
+
+def _find_bottleneck_stage(
+    succeeded_runs: list[PipelineRunRecord],
+    task_runs_by_pipeline: dict[str, list[TaskRunRecord]],
+) -> str | None:
+    """Among all stages, find the one whose duration increased the most
+    between the first 5 and last 5 runs (by start_time) — the same
+    first-5-vs-last-5 comparison as _compute_trend, applied per stage
+    instead of to the total run duration, to name which stage is actually
+    driving an overall slowdown.
+    """
+    if len(succeeded_runs) < 5:  # noqa: PLR2004
+        return None
+    sorted_runs = sorted(succeeded_runs, key=lambda r: r.get("start_time") or "")
+    first_5_names = {r["name"] for r in sorted_runs[:5]}
+    last_5_names = {r["name"] for r in sorted_runs[-5:]}
+    first_durations, last_durations = _bucket_stage_durations_by_window(
+        task_runs_by_pipeline, first_5_names, last_5_names
+    )
+    return _worst_degrading_stage(first_durations, last_durations)
 
 
 def compute_baseline(  # noqa: C901
@@ -161,7 +229,8 @@ def compute_baseline(  # noqa: C901
         stage_avgs["_total"] = total_stats.avg
     outliers = _detect_outliers(succeeded, stage_avgs)
 
-    trend = _compute_trend(succeeded)
+    trend, trend_pct = _compute_trend(succeeded)
+    bottleneck_stage = _find_bottleneck_stage(succeeded, task_runs_by_pipeline)
 
     note = ""
     if len(succeeded) < requested_limit:
@@ -177,5 +246,7 @@ def compute_baseline(  # noqa: C901
         excluded_running=excluded_running,
         excluded_failed=excluded_failed,
         trend=trend,
+        trend_pct=trend_pct,
+        bottleneck_stage=bottleneck_stage,
         note=note,
     )

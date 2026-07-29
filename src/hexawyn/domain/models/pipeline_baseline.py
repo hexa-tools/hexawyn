@@ -23,4 +23,6 @@ class PipelineBaselineResult:
     excluded_running: int = 0
     excluded_failed: int = 0
     trend: str = "insufficient_data"
+    trend_pct: float | None = None
+    bottleneck_stage: str | None = None
     note: str = ""

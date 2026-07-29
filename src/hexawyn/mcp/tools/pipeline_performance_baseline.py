@@ -29,7 +29,9 @@ def pipeline_performance_baseline(
 
     Returns:
         dict with pipeline, runs_analyzed, stages (avg/p50/p95/max per stage),
-        trend (improving/stable/degrading/insufficient_data), outliers, and error.
+        trend (improving/stable/degrading/insufficient_data), trend_pct (signed
+        percent change, None if insufficient_data), bottleneck_stage (the stage
+        driving the trend, None if no single stage stands out), outliers, error.
     """
     from hexawyn.mcp.server import build_pipeline_baseline_adapter
 
@@ -73,6 +75,8 @@ def pipeline_performance_baseline(
             "excluded_running": r.excluded_running,
             "excluded_failed": r.excluded_failed,
             "trend": r.trend,
+            "trend_pct": r.trend_pct,
+            "bottleneck_stage": r.bottleneck_stage,
             "note": r.note,
             "error": r.error,
         }
@@ -87,6 +91,8 @@ def pipeline_performance_baseline(
             "excluded_running": 0,
             "excluded_failed": 0,
             "trend": "insufficient_data",
+            "trend_pct": None,
+            "bottleneck_stage": None,
             "note": "",
             "error": str(exc),
         }

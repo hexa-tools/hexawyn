@@ -40,6 +40,8 @@ class TestPipelineBaselineResult:
         assert r.excluded_running == 0
         assert r.excluded_failed == 0
         assert r.trend == "insufficient_data"
+        assert r.trend_pct is None
+        assert r.bottleneck_stage is None
         assert r.note == ""
 
     def test_full_baseline(self) -> None:
@@ -57,7 +59,9 @@ class TestPipelineBaselineResult:
             outliers=["run-17", "run-28"],
             excluded_running=3,
             excluded_failed=2,
-            trend="stable",
+            trend="degrading",
+            trend_pct=22.3,
+            bottleneck_stage="build",
             note="Only 28 runs had completionTime",
         )
         assert r.pipeline == "payment-service"
@@ -67,5 +71,7 @@ class TestPipelineBaselineResult:
         assert r.total_duration is not None
         assert r.total_duration.max == 600.0  # noqa: PLR2004
         assert r.outliers == ["run-17", "run-28"]
-        assert r.trend == "stable"
+        assert r.trend == "degrading"
+        assert r.trend_pct == 22.3  # noqa: PLR2004
+        assert r.bottleneck_stage == "build"
         assert r.note == "Only 28 runs had completionTime"
