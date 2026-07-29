@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 
 from hexawyn.application.use_case.pipelines.list_pipeline_runs.command import (
     ListPipelineRunsCommand,
@@ -10,50 +10,42 @@ from hexawyn.application.use_case.pipelines.list_pipeline_runs.command import (
 from hexawyn.application.use_case.pipelines.list_pipeline_runs.list_pipeline_runs_use_case import (
     ListPipelineRunsUseCase,
 )
+from hexawyn.application.use_case.pipelines.list_pipeline_runs.response import (
+    PipelineRunStats,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def _compute_outliers(runs: list[dict[str, object]]) -> list[str]:
-    if len(runs) < 3:  # noqa: PLR2004
-        return []
-    outlier_names: list[str] = []
-    for i, run in enumerate(runs):
-        dur = run.get("duration_seconds")
-        if dur is None:
-            continue
-        if isinstance(dur, int | float) and dur > 0:
-            other_durations: list[float] = [
-                float(runs[j].get("duration_seconds") or 0)  # type: ignore[arg-type]
-                for j in range(len(runs))
-                if j != i
-            ]
-            other_mean = sum(other_durations) / len(other_durations)
-            if other_mean > 0 and dur > other_mean * 2:
-                outlier_names.append(str(run.get("name", "")))
-    return outlier_names
+class PipelineRunStatsPayload(TypedDict):
+    total_runs: int
+    succeeded_runs: int
+    failed_runs: int
+    cancelled_runs: int
+    success_rate: float
+    average_duration_seconds: float | None
+    fastest_run_name: str | None
+    slowest_run_name: str | None
 
 
-def _compute_duration_stats(runs: list[dict[str, object]]) -> dict[str, object]:
-    durations: list[float] = []
-    for run in runs:
-        dur = run.get("duration_seconds")
-        if dur is not None and isinstance(dur, int | float):
-            durations.append(float(dur))
-    if not durations:
-        return {"mean_s": 0, "median_s": 0}
-    sorted_durations = sorted(durations)
-    n = len(sorted_durations)
-    median = (
-        sorted_durations[n // 2]
-        if n % 2 == 1
-        else (sorted_durations[n // 2 - 1] + sorted_durations[n // 2]) / 2
+def _stats_payload(stats: PipelineRunStats) -> PipelineRunStatsPayload:
+    """Serialize the use case's already-computed PipelineRunStats.
+
+    Previously this tool discarded `stats` entirely and recomputed a
+    partial mean/median-only dict locally — success_rate (and the
+    succeeded/failed/cancelled counts) never reached the LLM.
+    """
+    return PipelineRunStatsPayload(
+        total_runs=stats.total_runs,
+        succeeded_runs=stats.succeeded_runs,
+        failed_runs=stats.failed_runs,
+        cancelled_runs=stats.cancelled_runs,
+        success_rate=round(stats.success_rate, 1),
+        average_duration_seconds=stats.average_duration_seconds,
+        fastest_run_name=stats.fastest_run_name,
+        slowest_run_name=stats.slowest_run_name,
     )
-    return {
-        "mean_s": round(sum(durations) / len(durations), 1),
-        "median_s": round(median, 1),
-    }
 
 
 def list_pipeline_runs(
@@ -68,13 +60,11 @@ def list_pipeline_runs(
             ListPipelineRunsCommand(service_name=service_name, namespace=namespace)
         )
         runs: list[dict[str, object]] = list(r.runs)  # type: ignore[arg-type]
-        outliers = _compute_outliers(runs)
-        stats = _compute_duration_stats(runs)
         return {
             "runs": runs,
-            "stats": stats,
-            "outliers": outliers,
-            "note": f"{len(runs)} runs, {len(outliers)} outliers" if outliers else None,
+            "stats": _stats_payload(r.stats),
+            "outliers": r.outliers,
+            "note": r.note,
             "error": r.error,
         }
     except Exception as exc:
