@@ -163,7 +163,7 @@ cluster-status:
 	@echo ""
 	@kubectl get nodes 2>/dev/null || echo "No cluster running"
 
-cluster-load:
+cluster-load: cluster-operators
 	@echo "📦 Creating namespace and loading E2E fixtures..."
 	@k3d kubeconfig get $(CLUSTER_NAME) > /tmp/k3d-$(CLUSTER_NAME).yaml 2>/dev/null || true
 	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml create namespace hexawyn-test --dry-run=client -o yaml | kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f -
@@ -181,9 +181,13 @@ cluster-otel:
 cluster-operators:
 	@echo "📦 Installing cert-manager + Tekton + KEDA + ArgoCD..."
 	@k3d kubeconfig get $(CLUSTER_NAME) > /tmp/k3d-$(CLUSTER_NAME).yaml 2>/dev/null || true
-	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.yaml
-	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
-	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f https://github.com/kedacore/keda/releases/download/v2.14.0/keda-2.14.0.yaml
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply --server-side --force-conflicts -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.yaml
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply --server-side --force-conflicts -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply --server-side --force-conflicts -f https://github.com/kedacore/keda/releases/download/v2.14.0/keda-2.14.0.yaml
+	@echo "⏳ Waiting for operator CRDs to be established..."
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml wait --for=condition=Established --timeout=120s \
+		crd/issuers.cert-manager.io crd/certificates.cert-manager.io \
+		crd/scaledobjects.keda.sh crd/pipelineruns.tekton.dev
 	@echo "✅ Operators installed"
 
 # ─────────────────────────────────────
