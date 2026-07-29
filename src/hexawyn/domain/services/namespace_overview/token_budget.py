@@ -15,7 +15,7 @@ def estimate_tokens(text: str) -> int:
     return max(1, int(len(text) / _cfg.chars_per_token_divisor))
 
 
-def format_overview_summary(
+def format_overview_summary(  # noqa: PLR0913
     namespace: str,
     namespace_status: str,
     counts: NamespaceCounts,
@@ -41,7 +41,7 @@ def format_overview_summary(
     return "\n".join(lines)
 
 
-def enforce_token_budget(
+def enforce_token_budget(  # noqa: PLR0913
     namespace: str,
     namespace_status: str,
     counts: NamespaceCounts,

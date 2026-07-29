@@ -4,12 +4,67 @@ import asyncio
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+from unittest.mock import patch
 
 from hexawyn.infrastructure.logging.tool_decorator import (
+    _AnonymizerFilter,
     get_logger,
     log_tool_execution,
     setup_logging,
 )
+
+
+class TestAnonymizerFilter:
+    """Cover _AnonymizerFilter and _anonymize_log (lines 28-29)."""
+
+    def test_filter_returns_true(self) -> None:
+        record = logging.LogRecord(
+            name="test",
+            level=0,
+            pathname="",
+            lineno=0,
+            msg="test",
+            args=(),
+            exc_info=None,
+        )
+        filter_instance = _AnonymizerFilter()
+        assert filter_instance.filter(record) is True
+
+    def test_anonymize_handles_import_error(self) -> None:
+        record = logging.LogRecord(
+            name="test",
+            level=0,
+            pathname="",
+            lineno=0,
+            msg="API_KEY=secret",
+            args=(),
+            exc_info=None,
+        )
+        filter_instance = _AnonymizerFilter()
+        with patch(
+            "hexawyn.runtime.adapters.anonymize.regex_anonymizer.RegexAnonymizerAdapter",
+            side_effect=ImportError,
+        ):
+            result = filter_instance.filter(record)
+            assert result is True
+
+    def test_anonymize_handles_runtime_error(self) -> None:
+        record = logging.LogRecord(
+            name="test",
+            level=0,
+            pathname="",
+            lineno=0,
+            msg="API_KEY=secret",
+            args=(),
+            exc_info=None,
+        )
+        filter_instance = _AnonymizerFilter()
+        with patch(
+            "hexawyn.runtime.adapters.anonymize.regex_anonymizer.RegexAnonymizerAdapter",
+            side_effect=TypeError("bad type"),
+        ):
+            result = filter_instance.filter(record)
+            assert result is True
 
 
 class TestSetupLogging:

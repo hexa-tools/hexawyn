@@ -20,8 +20,8 @@ class TestQuotaExceededError:
 
     def test_stores_used_and_limit(self):
         err = QuotaExceededError(used=23, limit=50)
-        assert err.used == 23
-        assert err.limit == 50
+        assert err.used == 23  # noqa: PLR2004
+        assert err.limit == 50  # noqa: PLR2004
 
     def test_can_be_caught_as_hexawyn_error(self):
         with pytest.raises(HexawynError):
@@ -34,8 +34,8 @@ class TestSlackQuotaExceededError:
 
     def test_stores_used_and_limit(self):
         err = SlackQuotaExceededError(used=3, limit=5)
-        assert err.used == 3
-        assert err.limit == 5
+        assert err.used == 3  # noqa: PLR2004
+        assert err.limit == 5  # noqa: PLR2004
 
     def test_includes_slack_context(self):
         err = SlackQuotaExceededError(used=5, limit=5)

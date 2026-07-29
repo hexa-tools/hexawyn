@@ -2,9 +2,19 @@ from typing import cast
 
 from hexawyn.adapters.secondary.mock.scenarios.aws_eks import AWS_EKS_SCENARIO
 from hexawyn.adapters.secondary.mock.scenarios.azure_aks import AZURE_AKS_SCENARIO
+from hexawyn.adapters.secondary.mock.scenarios.canary_rollback import CANARY_ROLLBACK_SCENARIO
+from hexawyn.adapters.secondary.mock.scenarios.cluster_audit import CLUSTER_AUDIT_SCENARIO
 from hexawyn.adapters.secondary.mock.scenarios.datadog import DATADOG_SCENARIO
 from hexawyn.adapters.secondary.mock.scenarios.gcp_gke import GCP_GKE_SCENARIO
+from hexawyn.adapters.secondary.mock.scenarios.incident_cost import INCIDENT_COST_SCENARIO
+from hexawyn.adapters.secondary.mock.scenarios.incident_rca import INCIDENT_RCA_SCENARIO
+from hexawyn.adapters.secondary.mock.scenarios.latency_spike import LATENCY_SPIKE_SCENARIO
+from hexawyn.adapters.secondary.mock.scenarios.namespace_degraded import NAMESPACE_DEGRADED_SCENARIO
 from hexawyn.adapters.secondary.mock.scenarios.openshift import OPENSHIFT_SCENARIO
+from hexawyn.adapters.secondary.mock.scenarios.platform_health import PLATFORM_HEALTH_SCENARIO
+from hexawyn.adapters.secondary.mock.scenarios.production_outage import PRODUCTION_OUTAGE_SCENARIO
+from hexawyn.adapters.secondary.mock.scenarios.resource_waste import RESOURCE_WASTE_SCENARIO
+from hexawyn.adapters.secondary.mock.scenarios.zombie_pods import ZOMBIE_PODS_SCENARIO
 from hexawyn.application.ports.driven.extended_cluster_port import ExtendedClusterPort
 from hexawyn.application.ports.driven.k8s_port import (
     ClusterContext,
@@ -26,6 +36,16 @@ SCENARIO_MAP = {
     "gcp_gke": GCP_GKE_SCENARIO,
     "openshift": OPENSHIFT_SCENARIO,
     "datadog": DATADOG_SCENARIO,
+    "production_outage": PRODUCTION_OUTAGE_SCENARIO,
+    "resource_waste": RESOURCE_WASTE_SCENARIO,
+    "cluster_audit": CLUSTER_AUDIT_SCENARIO,
+    "platform_health": PLATFORM_HEALTH_SCENARIO,
+    "namespace_degraded": NAMESPACE_DEGRADED_SCENARIO,
+    "zombie_pods": ZOMBIE_PODS_SCENARIO,
+    "latency_spike": LATENCY_SPIKE_SCENARIO,
+    "canary_rollback": CANARY_ROLLBACK_SCENARIO,
+    "incident_rca": INCIDENT_RCA_SCENARIO,
+    "incident_cost": INCIDENT_COST_SCENARIO,
 }
 
 _AUGMENTED_PODS: list[PodInfo] = [
@@ -128,6 +148,21 @@ class DemoAdapter(
     def get_health_score(self) -> int:
         health = cast(dict[str, str | int], self._data["health"])
         return int(health["score"])
+
+    def context_system_message(self) -> str:
+        findings = self.get_findings()
+        metrics = self.get_cluster_metrics()
+        ctx = self.get_cluster_context()
+        lines = [
+            f"Cluster: {ctx.get('name', 'unknown')} ({ctx.get('provider', 'unknown')})",
+            f"Health: {self.get_health_score()}/100",
+            f"Resources: {metrics.get('cpu_usage_pct', 0):.0f}% CPU, {metrics.get('memory_usage_pct', 0):.0f}% memory",  # noqa: E501
+        ]
+        if findings:
+            lines.append("Key findings:")
+            for f in findings:
+                lines.append(f"  [{f['severity']}] {f['message']} → {f['remediation']}")
+        return "\n".join(lines)
 
     def get_health_status(self) -> str:
         health = cast(dict[str, str | int], self._data["health"])
@@ -244,7 +279,7 @@ class DemoAdapter(
         return [
             {
                 "timestamp": "2025-06-20T14:23:05Z",
-                "message": f"Mock log matching pattern '{pattern}' in namespace {namespace or 'all'}",
+                "message": f"Mock log matching pattern '{pattern}' in namespace {namespace or 'all'}",  # noqa: E501
                 "severity": "ERROR",
             },
             {

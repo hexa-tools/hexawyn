@@ -31,7 +31,7 @@ def schedule() -> None:
 @click.option(
     "--alert", "destinations_str", default="slack", help="Alert destinations (comma-separated)"
 )
-def create(
+def create(  # noqa: PLR0913
     name: str,
     use_case: str,
     every: str | None,
@@ -84,7 +84,7 @@ def list() -> None:
 
     if not checks:
         click.echo(
-            "No scheduled checks. Create one with: hexawyn schedule create --name X --use-case Y --every 6h"
+            "No scheduled checks. Create one with: hexawyn schedule create --name X --use-case Y --every 6h"  # noqa: E501
         )
         return
 
@@ -93,7 +93,7 @@ def list() -> None:
     for check in checks:
         enabled = "✅" if check.enabled else "❌"
         click.echo(
-            f"{check.name:<30} {check.schedule:<20} {check.use_case:<25} {enabled:<8} {check.notify_policy:<12}"
+            f"{check.name:<30} {check.schedule:<20} {check.use_case:<25} {enabled:<8} {check.notify_policy:<12}"  # noqa: E501
         )
 
 
@@ -247,7 +247,7 @@ def run(name: str) -> None:
 
 @schedule.command()
 @click.option("--dry-run", is_flag=True, help="Show next runs without starting")
-def start(dry_run: bool) -> None:
+def start(dry_run: bool) -> None:  # noqa: C901
     """Start the scheduler (long-running, native Python loop)."""
     import os
     import time

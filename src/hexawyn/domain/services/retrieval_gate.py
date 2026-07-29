@@ -44,4 +44,4 @@ class RetrievalGate:
             if re.search(pattern, lowered):
                 return False
 
-        return len(lowered.split()) >= 4
+        return len(lowered.split()) >= 4  # noqa: PLR2004

@@ -31,9 +31,9 @@ class TestScenarioInput:
         )
         assert cmd.target_service == "auth-service"
         assert cmd.namespace == "production"
-        assert cmd.current_replicas == 3
+        assert cmd.current_replicas == 3  # noqa: PLR2004
         assert cmd.proposed_replicas == 1
-        assert cmd.current_cpu_utilization == 62.0
+        assert cmd.current_cpu_utilization == 62.0  # noqa: PLR2004
 
     def test_repr_contains_key_fields(self) -> None:
         cmd = ScenarioInput(
@@ -51,7 +51,7 @@ class TestScenarioInput:
 class TestRiskLevel:
     def test_has_four_levels(self) -> None:
         levels = list(RiskLevel)
-        assert len(levels) == 4
+        assert len(levels) == 4  # noqa: PLR2004
 
     def test_low_lt_medium(self) -> None:
         assert RiskLevel.LOW.value < RiskLevel.MEDIUM.value
@@ -71,8 +71,8 @@ class TestServiceImpact:
             estimated_latency_delta_percent=35,
         )
         assert impact.name == "checkout-service"
-        assert impact.calls_per_second == 450
-        assert impact.estimated_latency_delta_percent == 35
+        assert impact.calls_per_second == 450  # noqa: PLR2004
+        assert impact.estimated_latency_delta_percent == 35  # noqa: PLR2004
 
     def test_default_latency_delta_is_zero(self) -> None:
         impact = ServiceImpact(name="payment-service", calls_per_second=200)
@@ -114,8 +114,8 @@ class TestImpactReport:
             error_risk="potential 503s under peak load",
             recommendation="Do not scale below 2 replicas during business hours",
         )
-        assert len(report.affected_services) == 2
-        assert report.estimated_latency_increase_percent == 35.0
+        assert len(report.affected_services) == 2  # noqa: PLR2004
+        assert report.estimated_latency_increase_percent == 35.0  # noqa: PLR2004
         assert report.recommendation != ""
 
     def test_pdb_violation_flag(self) -> None:

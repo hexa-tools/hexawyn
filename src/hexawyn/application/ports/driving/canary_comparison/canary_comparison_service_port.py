@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.canary_comparison.canary_comparison_command import (
+from hexawyn.application.use_case.pipelines.canary_comparison.command import (
     CanaryComparisonCommand,
 )
-from hexawyn.application.ports.driving.canary_comparison.canary_comparison_response import (
+from hexawyn.application.use_case.pipelines.canary_comparison.response import (
     CanaryComparisonResponse,
 )
 

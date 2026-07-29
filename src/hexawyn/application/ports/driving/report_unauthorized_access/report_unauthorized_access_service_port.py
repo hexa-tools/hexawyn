@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.report_unauthorized_access.report_unauthorized_access_command import (  # noqa: E501
+from hexawyn.application.use_case.security.report_unauthorized_access.command import (  # noqa: E501
     ReportUnauthorizedAccessCommand,
 )
-from hexawyn.application.ports.driving.report_unauthorized_access.report_unauthorized_access_response import (  # noqa: E501
+from hexawyn.application.use_case.security.report_unauthorized_access.response import (  # noqa: E501
     ReportUnauthorizedAccessResponse,
 )
 

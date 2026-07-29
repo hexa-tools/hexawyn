@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.compare_service_cost.compare_service_cost_command import (
+from hexawyn.application.use_case.finops.compare_service_cost.command import (  # noqa: E501
     CompareServiceCostCommand,
 )
-from hexawyn.application.ports.driving.compare_service_cost.compare_service_cost_response import (
+from hexawyn.application.use_case.finops.compare_service_cost.response import (  # noqa: E501
     CompareServiceCostResponse,
 )
 

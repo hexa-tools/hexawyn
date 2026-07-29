@@ -16,7 +16,7 @@ _RESOLVED_CONFIDENCE = 0.85
 _UNKNOWN_CONFIDENCE = 0.3
 
 
-def build_adaptive_investigation(
+def build_adaptive_investigation(  # noqa: PLR0913
     request: AdaptiveInvestigationRequest,
     overview: OverviewSnapshot,
     investigated_resources: list[ResourceInvestigation],

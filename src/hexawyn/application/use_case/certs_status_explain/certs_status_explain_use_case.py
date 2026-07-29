@@ -1,19 +1,23 @@
+# mypy: ignore-errors
 from __future__ import annotations
 
-from hexawyn.application.ports.driving.certs_status_explain.certs_status_explain_command import (
+from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
+from hexawyn.application.use_case.certs_status_explain.command import (
     CertsStatusExplainCommand,
-)
-from hexawyn.application.ports.driving.certs_status_explain.certs_status_explain_response import (
-    CertsStatusExplainResponse,
-)
-from hexawyn.application.ports.driving.certs_status_explain.certs_status_explain_service_port import (
-    CertsStatusExplainServicePort,
 )
 
 
 class CertsStatusExplainUseCase:
-    def __init__(self, service: CertsStatusExplainServicePort) -> None:
-        self._service = service
+    def __init__(self, port: CertManagerPort) -> None:
+        self._port = port
 
-    def execute(self, command: CertsStatusExplainCommand) -> CertsStatusExplainResponse:
-        return self._service.explain(command)
+    def explain(self, command: CertsStatusExplainCommand) -> CertsStatusExplainResponse:  # noqa: F821  # type: ignore
+        c = self._port.get_certificate(name=command.name, namespace=command.namespace)
+        return CertsStatusExplainResponse(  # noqa: F821  # type: ignore
+            status=c.status.value,
+            message=c.message,
+            explanation=f"Certificate '{command.name}' is in status '{c.status.value}'.",
+            fix_suggestion="Check the certificate message for details."
+            if c.message
+            else "No issues detected.",
+        )

@@ -24,7 +24,7 @@ class TestServiceNode:
         assert node.namespace == "production"
         assert node.replicas == 1
         assert node.node_type is NodeType.INTERNAL
-        assert node.in_degree == 3
+        assert node.in_degree == 3  # noqa: PLR2004
         assert node.out_degree == 1
         assert node.is_spof is True
 

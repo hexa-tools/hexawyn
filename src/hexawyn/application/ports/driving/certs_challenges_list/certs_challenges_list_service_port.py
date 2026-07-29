@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.certs_challenges_list.certs_challenges_list_command import (
+from hexawyn.application.use_case.cert_manager.certs_challenges_list.command import (
     CertsChallengesListCommand,
 )
-from hexawyn.application.ports.driving.certs_challenges_list.certs_challenges_list_response import (
+from hexawyn.application.use_case.cert_manager.certs_challenges_list.response import (
     CertsChallengesListResponse,
 )
 

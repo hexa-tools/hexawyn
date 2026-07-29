@@ -151,7 +151,7 @@ def _recommended(request: float | None, p95: float | None) -> float | None:
     if p95 is None or request is None:
         return request
     rec = p95 * _P95_BUFFER
-    if request > 0.1:  # CPU vs memory threshold
+    if request > 0.1:  # CPU vs memory threshold  # noqa: PLR2004
         return round(max(rec, _MIN_CPU_CORES), 3)
     return round(max(rec, _MIN_MEM_MI), 1)
 
@@ -215,3 +215,17 @@ def _f(value: object) -> float | None:
         return float(value)  # type: ignore[arg-type]
     except (TypeError, ValueError):
         return None
+
+
+_SIGNIFICANT_TREND_PCT = 0.10
+
+
+def compute_trend(previous: float | None, current: float | None) -> str | None:
+    if previous is None or current is None or previous == 0:
+        return None
+    delta_pct = (current - previous) / previous
+    if delta_pct > _SIGNIFICANT_TREND_PCT:
+        return "increasing"
+    if delta_pct < -_SIGNIFICANT_TREND_PCT:
+        return "decreasing"
+    return "stable"

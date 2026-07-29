@@ -46,8 +46,8 @@ class TestCostForecastEngineProjection:
             days_elapsed=22,
             days_in_month=30,
         )
-        assert result.days_elapsed == 22
-        assert result.days_remaining == 8
+        assert result.days_elapsed == 22  # noqa: PLR2004
+        assert result.days_remaining == 8  # noqa: PLR2004
 
     def test_cluster_name_and_month_passed_through(self) -> None:
         daily_costs = [_daily("2026-06-22", 50.0)]
@@ -70,7 +70,7 @@ class TestCostForecastEngineProjection:
             days_elapsed=22,
             days_in_month=30,
         )
-        assert result.historical_days_used == 7
+        assert result.historical_days_used == 7  # noqa: PLR2004
 
 
 class TestCostForecastEngineTrend:
@@ -192,7 +192,7 @@ class TestCostForecastEngineTopDrivers:
             days_in_month=30,
             top_n=3,
         )
-        assert len(result.top_cost_drivers) == 3
+        assert len(result.top_cost_drivers) == 3  # noqa: PLR2004
 
     def test_resource_cost_percentage_computed(self) -> None:
         ns_costs = [{"name": "ml", "cost_usd": 400.0}, {"name": "api", "cost_usd": 400.0}]
@@ -257,7 +257,7 @@ class TestCostForecastEngineEdgeCases:
             days_in_month=30,
         )
         assert result.days_elapsed == 0
-        assert result.days_remaining == 30
+        assert result.days_remaining == 30  # noqa: PLR2004
 
     def test_days_elapsed_exceeds_days_in_month(self) -> None:
         result = _engine().forecast(
@@ -267,7 +267,7 @@ class TestCostForecastEngineEdgeCases:
             days_elapsed=31,
             days_in_month=30,
         )
-        assert result.days_elapsed == 31
+        assert result.days_elapsed == 31  # noqa: PLR2004
         assert result.days_remaining < 0
 
     def test_previous_month_zero_is_treated_same_as_none(self) -> None:
@@ -334,7 +334,7 @@ class TestCostForecastEngineEdgeCases:
             days_elapsed=14,
             days_in_month=28,
         )
-        assert result.days_remaining == 14
+        assert result.days_remaining == 14  # noqa: PLR2004
         assert result.projected_total_usd == pytest.approx(1400.0, abs=0.01)
 
     def test_billing_events_list_is_always_empty(self) -> None:

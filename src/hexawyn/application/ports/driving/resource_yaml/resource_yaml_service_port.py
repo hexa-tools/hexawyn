@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.resource_yaml.resource_yaml_command import (
+from hexawyn.application.use_case.cluster.resource_yaml.command import (  # type: ignore
     ResourceYAMLCommand,
 )
-from hexawyn.application.ports.driving.resource_yaml.resource_yaml_response import (
+from hexawyn.application.use_case.cluster.resource_yaml.response import (  # type: ignore
     ResourceYAMLResponse,
 )
 

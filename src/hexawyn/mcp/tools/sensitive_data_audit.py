@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.sensitive_data_audit.sensitive_data_audit_command import (
+from hexawyn.application.use_case.security.sensitive_data_audit.command import (
     SensitiveDataAuditCommand,
 )
-from hexawyn.application.use_case.sensitive_data_audit.sensitive_data_audit_use_case import (
+from hexawyn.application.use_case.security.sensitive_data_audit.sensitive_data_audit_use_case import (  # noqa: E501
     SensitiveDataAuditUseCase,
 )
 
@@ -18,13 +18,12 @@ if TYPE_CHECKING:
 def sensitive_data_audit(
     pattern: str, time_window_minutes: int = 10, allowlist: str | None = None
 ) -> dict[str, object]:
-    from hexawyn.application.service.sensitive_data_audit_service import SensitiveDataAuditService
     from hexawyn.mcp.server import build_compliance_audit_adapter
 
     try:
         lst = [s.strip() for s in allowlist.split(",")] if allowlist else []
         a = build_compliance_audit_adapter()
-        r = SensitiveDataAuditUseCase(service=SensitiveDataAuditService(port=a)).execute(
+        r = SensitiveDataAuditUseCase(port=a).execute(
             SensitiveDataAuditCommand(
                 pattern=pattern, time_window_minutes=time_window_minutes, allowlist=lst
             )
@@ -35,7 +34,7 @@ def sensitive_data_audit(
             "flagged": r.flagged,
             "unflagged": r.unflagged,
             "alert_level": r.alert_level,
-            "error": r.error,
+            "error": r.error,  # type: ignore
         }
     except Exception as exc:
         return {"pattern": pattern, "error": str(exc)}

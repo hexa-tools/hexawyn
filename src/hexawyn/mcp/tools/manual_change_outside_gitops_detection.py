@@ -1,44 +1,47 @@
-"""MCP tool: detect_manual_changes_outside_gitops — flags ConfigMap/Secret
-writes made by a human or CI service account rather than a GitOps controller
-(ArgoCD/Flux), within a trailing window."""
+"""MCP tool: manual_change_outside_gitops_detection."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.manual_change_outside_gitops.manual_change_outside_gitops_command import (
-    ManualChangeOutsideGitOpsCommand,
+from hexawyn.application.use_case.gitops.manual_change_outside_gitops.command import (
+    ManualChangeOutsideGitopsCommand,
 )
-from hexawyn.application.use_case.manual_change_outside_gitops.manual_change_outside_gitops_use_case import (
-    ManualChangeOutsideGitOpsUseCase,
+from hexawyn.application.use_case.gitops.manual_change_outside_gitops.manual_change_outside_gitops_use_case import (  # noqa: E501
+    ManualChangeOutsideGitopsUseCase,
 )
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def detect_manual_changes_outside_gitops(namespace: str, window_days: int = 7) -> dict[str, object]:
-    from hexawyn.application.service.manual_change_outside_gitops_service import (
-        ManualChangeOutsideGitOpsService,
-    )
+def detect_manual_changes_outside_gitops(namespace: str | None = None) -> dict[str, object]:
     from hexawyn.mcp.server import build_audit_log_adapter
 
     try:
-        service = ManualChangeOutsideGitOpsService(audit_port=build_audit_log_adapter())
-        r = ManualChangeOutsideGitOpsUseCase(service=service).execute(
-            ManualChangeOutsideGitOpsCommand(namespace=namespace, window_days=window_days)
+        use_case = ManualChangeOutsideGitopsUseCase(audit_port=build_audit_log_adapter())
+        response = use_case.detect_manual_changes(
+            ManualChangeOutsideGitopsCommand(namespace=namespace or "")
         )
         return {
-            "manual_changes": r.manual_changes,
-            "total_manual_changes": r.total_manual_changes,
-            "excluded_gitops_change_count": r.excluded_gitops_change_count,
-            "used_managed_fields_fallback": r.used_managed_fields_fallback,
-            "partial_window": r.partial_window,
-            "notes": r.notes,
-            "error": r.error,
+            "manual_changes": response.manual_changes,
+            "total_manual_changes": response.total_manual_changes,
+            "excluded_gitops_change_count": response.excluded_gitops_change_count,
+            "used_managed_fields_fallback": response.used_managed_fields_fallback,
+            "partial_window": response.partial_window,
+            "notes": response.notes,
+            "error": None,
         }
     except Exception as exc:
-        return {"error": str(exc)}
+        return {
+            "manual_changes": [],
+            "total_manual_changes": 0,
+            "excluded_gitops_change_count": 0,
+            "used_managed_fields_fallback": False,
+            "partial_window": False,
+            "notes": [],
+            "error": str(exc),
+        }
 
 
 def register(mcp: FastMCP) -> None:

@@ -1,10 +1,9 @@
 import click
 
-from hexawyn.application.ports.driving.get_quota_usage.get_quota_usage_command import (
+from hexawyn.application.use_case.cluster.get_quota_usage.command import (
     GetQuotaUsageCommand,
 )
-from hexawyn.application.service.get_quota_usage_service import GetQuotaUsageService
-from hexawyn.application.use_case.get_quota_usage.get_quota_usage_use_case import (
+from hexawyn.application.use_case.cluster.get_quota_usage.get_quota_usage_use_case import (
     GetQuotaUsageUseCase,
 )
 from hexawyn.cli.presentation.quota_renderer import (
@@ -97,11 +96,7 @@ def quota() -> None:
     meter_adapter.set_usage("investigations", inv_quota.count)
     meter_adapter.set_usage("slack_alerts", slack_quota.count)
 
-    service = GetQuotaUsageService(
-        plan_port=plan_adapter,
-        usage_meter=meter_adapter,
-    )
-    use_case = GetQuotaUsageUseCase(service=service)
+    use_case = GetQuotaUsageUseCase(plan_port=plan_adapter, usage_meter=meter_adapter)
     response = use_case.execute(GetQuotaUsageCommand())
 
     tier_label = _get_tier_label()

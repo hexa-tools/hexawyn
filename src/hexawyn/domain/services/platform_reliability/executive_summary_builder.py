@@ -3,7 +3,7 @@ from __future__ import annotations
 from hexawyn.domain.models.platform_reliability import IncidentSummary
 
 
-def build_summary(
+def build_summary(  # noqa: PLR0913
     uptime_pct: float,
     incidents: list[IncidentSummary],
     avg_resolution_minutes: int,

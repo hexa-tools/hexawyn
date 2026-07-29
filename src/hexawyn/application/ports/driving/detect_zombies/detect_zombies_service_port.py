@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.detect_zombies.detect_zombies_command import (
+from hexawyn.application.use_case.troubleshooting.detect_zombies.command import (
     DetectZombiesCommand,
 )
-from hexawyn.application.ports.driving.detect_zombies.detect_zombies_response import (
+from hexawyn.application.use_case.troubleshooting.detect_zombies.response import (
     DetectZombiesResponse,
 )
 

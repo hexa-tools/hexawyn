@@ -24,8 +24,8 @@ class TestServiceEdge:
             error_rate=0.02,
         )
         assert edge.source == "api-gateway"
-        assert edge.call_count == 12450
-        assert edge.error_rate == 0.02
+        assert edge.call_count == 12450  # noqa: PLR2004
+        assert edge.error_rate == 0.02  # noqa: PLR2004
 
 
 class TestDependencyGraph:
@@ -57,10 +57,10 @@ class TestDependencyGraph:
             request=DependencyGraphRequest(time_window_minutes=60),
             raw_edges=raw,
         )
-        assert len(graph.nodes) == 4
-        assert len(graph.edges) == 2
+        assert len(graph.nodes) == 4  # noqa: PLR2004
+        assert len(graph.edges) == 2  # noqa: PLR2004
         edge_ag = [e for e in graph.edges if e.source == "api-gateway"][0]
-        assert edge_ag.call_count == 12750
+        assert edge_ag.call_count == 12750  # noqa: PLR2004
 
     def test_no_edges(self) -> None:
         graph = DependencyGraph.compute(

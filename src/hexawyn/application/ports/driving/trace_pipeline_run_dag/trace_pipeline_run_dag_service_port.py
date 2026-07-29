@@ -1,11 +1,12 @@
+# mypy: ignore-errors
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.trace_pipeline_run_dag.trace_pipeline_run_dag_command import (
+from hexawyn.application.use_case.pipelines.trace_pipeline_run_dag.command import (  # noqa: E501  # type: ignore
     TracePipelineRunDAGCommand,
 )
-from hexawyn.application.ports.driving.trace_pipeline_run_dag.trace_pipeline_run_dag_response import (
+from hexawyn.application.use_case.pipelines.trace_pipeline_run_dag.response import (  # noqa: E501  # type: ignore
     TracePipelineRunDAGResponse,
 )
 

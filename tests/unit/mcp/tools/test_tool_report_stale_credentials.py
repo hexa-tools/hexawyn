@@ -9,27 +9,26 @@ class TestReportStaleCredentialsTool:
     def test_report_stale_credentials_returns_dict(self) -> None:
         from hexawyn.mcp.tools.report_stale_credentials import report_stale_credentials
 
-        with (
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
-            patch("hexawyn.mcp.server.build_stale_credentials_adapter", return_value=MagicMock()),
+        with patch(
+            "hexawyn.mcp.server.build_stale_credentials_adapter",
+            return_value=MagicMock(),
         ):
             result = report_stale_credentials()
 
         assert isinstance(result, dict)
+        assert "error" in result
 
     def test_report_stale_credentials_handles_error(self) -> None:
         from hexawyn.mcp.tools.report_stale_credentials import report_stale_credentials
 
-        with (
-            patch(
-                "hexawyn.mcp.server.build_stale_credentials_adapter",
-                side_effect=RuntimeError("test error"),
-            ),
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
+        with patch(
+            "hexawyn.mcp.server.build_stale_credentials_adapter",
+            side_effect=RuntimeError("test error"),
         ):
             result = report_stale_credentials()
 
         assert isinstance(result, dict)
+        assert result.get("error") == "test error"
 
     def test_has_register(self) -> None:
         import importlib

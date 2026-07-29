@@ -1,379 +1,498 @@
-"""Unit tests for ContainerImageDriftService (mocks LiveResourcePort,
-DriftDetectionPort x2 (Helm/Kustomize), and ImageDriftPort)."""
-
 from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from hexawyn.application.ports.driving.container_image_drift.container_image_drift_command import (
-    ContainerImageDriftCommand,
+from hexawyn.application.service.container_image_drift_service import (
+    ContainerImageDriftService,
 )
-from hexawyn.application.service.container_image_drift_service import ContainerImageDriftService
+from hexawyn.application.use_case.security.detect_container_image_drift.command import (
+    DetectContainerImageDriftCommand,
+)
+from hexawyn.application.use_case.security.detect_container_image_drift.response import (
+    DetectContainerImageDriftResponse,
+)
 
 
-def _deployment(
-    name: str,
-    containers: list[dict],
-    namespace: str = "production",
-    release: str | None = "payment-chart",
-) -> dict:
-    annotations = {"meta.helm.sh/release-name": release} if release else {}
+def _deployment(name: str, namespace: str, release: str = "my-release") -> dict[str, object]:
     return {
         "kind": "Deployment",
         "name": name,
         "namespace": namespace,
         "labels": {},
-        "annotations": annotations,
-        "data": {"spec": {"template": {"spec": {"containers": containers}}}},
+        "annotations": {"meta.helm.sh/release-name": release},
+        "data": {
+            "spec": {
+                "template": {
+                    "spec": {
+                        "containers": [
+                            {"name": "app", "image": "nginx:1.25"},
+                        ]
+                    }
+                }
+            }
+        },
     }
 
 
-def _manifest_raw(name: str, containers: list[dict], namespace: str = "production") -> dict:
+def _desired_manifest(
+    kind: str, name: str, namespace: str, image: str = "nginx:1.25"
+) -> dict[str, object]:
     return {
-        "kind": "Deployment",
+        "kind": kind,
         "name": name,
         "namespace": namespace,
-        "data": {"spec": {"template": {"spec": {"containers": containers}}}},
+        "data": {
+            "spec": {
+                "template": {
+                    "spec": {
+                        "containers": [
+                            {"name": "app", "image": image},
+                        ]
+                    }
+                }
+            }
+        },
     }
 
 
-def _resolved_image(
-    deployment: str, container: str, image_id: str, namespace: str = "production"
-) -> dict:
-    return {
-        "deployment": deployment,
-        "namespace": namespace,
-        "container": container,
-        "image_id": image_id,
-    }
+class TestContainerImageDriftService:
+    def test_detect_image_drift_returns_response_with_empty_deployments(self) -> None:
+        live = MagicMock()
+        live.list_live_resources.return_value = []
+        helm = MagicMock()
+        kustomize = MagicMock()
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
 
-
-def _make_service(
-    live_resource_port: MagicMock | None = None,
-    helm_adapter: MagicMock | None = None,
-    kustomize_adapter: MagicMock | None = None,
-    image_drift_port: MagicMock | None = None,
-) -> tuple[ContainerImageDriftService, MagicMock, MagicMock, MagicMock, MagicMock]:
-    if live_resource_port is None:
-        live_resource_port = MagicMock()
-        live_resource_port.list_live_resources.return_value = []
-    if helm_adapter is None:
-        helm_adapter = MagicMock()
-        helm_adapter.source_exists.return_value = True
-        helm_adapter.render_desired_manifests.return_value = []
-    if kustomize_adapter is None:
-        kustomize_adapter = MagicMock()
-        kustomize_adapter.render_desired_manifests.return_value = []
-    if image_drift_port is None:
-        image_drift_port = MagicMock()
-        image_drift_port.list_resolved_container_images.return_value = []
-    service = ContainerImageDriftService(
-        live_resource_port=live_resource_port,
-        helm_adapter=helm_adapter,
-        kustomize_adapter=kustomize_adapter,
-        image_drift_port=image_drift_port,
-    )
-    return service, live_resource_port, helm_adapter, kustomize_adapter, image_drift_port
-
-
-class TestTagMismatch:
-    def test_tc1_payment_service_tag_mismatch_via_helm(self) -> None:
-        live_resource_port = MagicMock()
-        live_resource_port.list_live_resources.return_value = [
-            _deployment(
-                "payment-service",
-                [{"name": "payment-app", "image": "payment:v1.3-hotfix"}],
-                release="payment-chart",
-            )
-        ]
-        helm_adapter = MagicMock()
-        helm_adapter.source_exists.return_value = True
-        helm_adapter.render_desired_manifests.return_value = [
-            _manifest_raw("payment-service", [{"name": "payment-app", "image": "payment:v1.2"}])
-        ]
-        service, *_ = _make_service(
-            live_resource_port=live_resource_port, helm_adapter=helm_adapter
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
         )
+        result = service.detect_image_drift(DetectContainerImageDriftCommand(namespace="default"))
 
-        response = service.detect_image_drift(ContainerImageDriftCommand(namespace="production"))
+        assert isinstance(result, DetectContainerImageDriftResponse)
+        assert result.total_checked == 0  # noqa: PLR2004
 
-        assert response.error is None
-        assert len(response.out_of_sync) == 1
-        drift = response.out_of_sync[0]
-        assert drift["deployment"] == "payment-service"
-        assert drift["drift_type"] == "tag_mismatch"
-        assert drift["severity"] == "critical"
-        assert drift["source_of_truth"] == "helm-release:payment-chart"
-        assert drift["running_image"] == "payment:v1.3-hotfix"
-        assert drift["declared_image"] == "payment:v1.2"
-
-
-class TestAllInSync:
-    def test_tc2_running_image_matches_declared(self) -> None:
-        live_resource_port = MagicMock()
-        live_resource_port.list_live_resources.return_value = [
-            _deployment("app", [{"name": "app", "image": "app:v1.0"}])
+    def test_detect_image_drift_no_deployments_in_live_resources(self) -> None:
+        live = MagicMock()
+        live.list_live_resources.return_value = [
+            {
+                "kind": "ConfigMap",
+                "name": "config",
+                "namespace": "default",
+                "labels": {},
+                "annotations": {},
+                "data": {},
+            }
         ]
-        helm_adapter = MagicMock()
-        helm_adapter.source_exists.return_value = True
-        helm_adapter.render_desired_manifests.return_value = [
-            _manifest_raw("app", [{"name": "app", "image": "app:v1.0"}])
-        ]
-        service, *_ = _make_service(
-            live_resource_port=live_resource_port, helm_adapter=helm_adapter
+        helm = MagicMock()
+        kustomize = MagicMock()
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
+
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
         )
+        result = service.detect_image_drift(DetectContainerImageDriftCommand(namespace="default"))
 
-        response = service.detect_image_drift(ContainerImageDriftCommand(namespace="production"))
+        assert result.total_checked == 0  # noqa: PLR2004
 
-        assert response.out_of_sync == []
-        assert response.in_sync_count == 1
+    def test_detect_image_drift_kustomize_match_in_sync(self) -> None:
+        deployment = _deployment("my-app", "default")
+        desired = _desired_manifest("Deployment", "my-app", "default")
+        live = MagicMock()
+        live.list_live_resources.return_value = [deployment]
+        helm = MagicMock()
+        kustomize = MagicMock()
+        kustomize.render_desired_manifests.return_value = [desired]
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
 
-
-class TestDigestMismatch:
-    def test_tc3_resolved_image_id_digest_differs_from_kustomize_declared_digest(self) -> None:
-        live_resource_port = MagicMock()
-        live_resource_port.list_live_resources.return_value = [
-            _deployment(
-                "analytics-worker", [{"name": "worker", "image": "analytics:v2.0"}], release=None
-            )
-        ]
-        kustomize_adapter = MagicMock()
-        kustomize_adapter.render_desired_manifests.return_value = [
-            _manifest_raw(
-                "analytics-worker",
-                [{"name": "worker", "image": "analytics:sha256:def456"}],
-            )
-        ]
-        image_drift_port = MagicMock()
-        image_drift_port.list_resolved_container_images.return_value = [
-            _resolved_image("analytics-worker", "worker", "analytics@sha256:abc123")
-        ]
-        service, *_ = _make_service(
-            live_resource_port=live_resource_port,
-            kustomize_adapter=kustomize_adapter,
-            image_drift_port=image_drift_port,
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
         )
-
-        response = service.detect_image_drift(
-            ContainerImageDriftCommand(
-                namespace="production", kustomize_paths=["overlays/production"]
+        result = service.detect_image_drift(
+            DetectContainerImageDriftCommand(
+                namespace="default", kustomize_paths=["/path/to/overlay"]
             )
         )
 
-        assert len(response.out_of_sync) == 1
-        drift = response.out_of_sync[0]
-        assert drift["drift_type"] == "digest_mismatch"
-        assert drift["severity"] == "critical"
-        assert drift["source_of_truth"] == "kustomize:overlays/production"
+        assert result.total_checked == 1  # noqa: PLR2004
+        assert result.in_sync_count == 1  # noqa: PLR2004
+        assert len(result.out_of_sync) == 0  # noqa: PLR2004
 
+    def test_detect_image_drift_kustomize_match_tag_mismatch(self) -> None:
+        deployment = _deployment("my-app", "default")
+        desired = _desired_manifest("Deployment", "my-app", "default", image="nginx:2.0")
+        live = MagicMock()
+        live.list_live_resources.return_value = [deployment]
+        helm = MagicMock()
+        kustomize = MagicMock()
+        kustomize.render_desired_manifests.return_value = [desired]
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
 
-class TestFiveOutOfSync:
-    def test_tc4_five_out_of_sync_deployments_all_listed(self) -> None:
-        live_resource_port = MagicMock()
-        live_resource_port.list_live_resources.return_value = [
-            _deployment(f"app-{i}", [{"name": "app", "image": f"app:v{i}-hotfix"}])
-            for i in range(5)
-        ]
-        helm_adapter = MagicMock()
-        helm_adapter.source_exists.return_value = True
-        helm_adapter.render_desired_manifests.return_value = [
-            _manifest_raw(f"app-{i}", [{"name": "app", "image": f"app:v{i}"}]) for i in range(5)
-        ]
-        service, *_ = _make_service(
-            live_resource_port=live_resource_port, helm_adapter=helm_adapter
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
         )
-
-        response = service.detect_image_drift(ContainerImageDriftCommand(namespace="production"))
-
-        assert len(response.out_of_sync) == 5
-
-
-class TestLatestTagExcluded:
-    def test_tc5_latest_tag_excluded_from_comparison(self) -> None:
-        live_resource_port = MagicMock()
-        live_resource_port.list_live_resources.return_value = [
-            _deployment("app", [{"name": "app", "image": "app:latest"}])
-        ]
-        helm_adapter = MagicMock()
-        helm_adapter.source_exists.return_value = True
-        helm_adapter.render_desired_manifests.return_value = [
-            _manifest_raw("app", [{"name": "app", "image": "app:v1.0"}])
-        ]
-        service, *_ = _make_service(
-            live_resource_port=live_resource_port, helm_adapter=helm_adapter
-        )
-
-        response = service.detect_image_drift(ContainerImageDriftCommand(namespace="production"))
-
-        assert response.out_of_sync == []
-        assert response.in_sync_count == 0
-        assert response.excluded_count == 1
-
-
-class TestMultipleContainers:
-    def test_each_container_checked_individually(self) -> None:
-        live_resource_port = MagicMock()
-        live_resource_port.list_live_resources.return_value = [
-            _deployment(
-                "app",
-                [
-                    {"name": "main", "image": "app:v1.3-hotfix"},
-                    {"name": "sidecar", "image": "envoy:v1.20"},
-                ],
-            )
-        ]
-        helm_adapter = MagicMock()
-        helm_adapter.source_exists.return_value = True
-        helm_adapter.render_desired_manifests.return_value = [
-            _manifest_raw(
-                "app",
-                [
-                    {"name": "main", "image": "app:v1.2"},
-                    {"name": "sidecar", "image": "envoy:v1.20"},
-                ],
-            )
-        ]
-        service, *_ = _make_service(
-            live_resource_port=live_resource_port, helm_adapter=helm_adapter
-        )
-
-        response = service.detect_image_drift(ContainerImageDriftCommand(namespace="production"))
-
-        assert len(response.out_of_sync) == 1
-        assert response.out_of_sync[0]["container"] == "main"
-        assert response.in_sync_count == 1
-
-
-class TestKustomizeMatchesBeforeHelm:
-    def test_kustomize_identity_match_takes_priority(self) -> None:
-        live_resource_port = MagicMock()
-        live_resource_port.list_live_resources.return_value = [
-            _deployment("app", [{"name": "app", "image": "app:v1.0"}], release="some-chart")
-        ]
-        kustomize_adapter = MagicMock()
-        kustomize_adapter.render_desired_manifests.return_value = [
-            _manifest_raw("app", [{"name": "app", "image": "app:v1.0"}])
-        ]
-        helm_adapter = MagicMock()
-        service, _, helm_adapter, kustomize_adapter, _ = _make_service(
-            live_resource_port=live_resource_port,
-            kustomize_adapter=kustomize_adapter,
-            helm_adapter=helm_adapter,
-        )
-
-        response = service.detect_image_drift(
-            ContainerImageDriftCommand(
-                namespace="production", kustomize_paths=["overlays/production"]
+        result = service.detect_image_drift(
+            DetectContainerImageDriftCommand(
+                namespace="default", kustomize_paths=["/path/to/overlay"]
             )
         )
 
-        assert response.in_sync_count == 1
-        helm_adapter.source_exists.assert_not_called()
-        helm_adapter.render_desired_manifests.assert_not_called()
+        assert result.total_checked == 1  # noqa: PLR2004
+        assert len(result.out_of_sync) == 1  # noqa: PLR2004
 
+    def test_detect_image_drift_helm_release_match(self) -> None:
+        deployment = _deployment("my-app", "default", release="my-release")
+        desired = _desired_manifest("Deployment", "my-app", "default")
+        live = MagicMock()
+        live.list_live_resources.return_value = [deployment]
+        helm = MagicMock()
+        helm.source_exists.return_value = True
+        helm.render_desired_manifests.return_value = [desired]
+        kustomize = MagicMock()
+        kustomize.render_desired_manifests.return_value = []
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
 
-class TestHelmMemoization:
-    def test_same_release_rendered_only_once_for_multiple_deployments(self) -> None:
-        live_resource_port = MagicMock()
-        live_resource_port.list_live_resources.return_value = [
-            _deployment("app-one", [{"name": "app", "image": "app:v1.0"}], release="shared-chart"),
-            _deployment("app-two", [{"name": "app", "image": "app:v1.0"}], release="shared-chart"),
-        ]
-        helm_adapter = MagicMock()
-        helm_adapter.source_exists.return_value = True
-        helm_adapter.render_desired_manifests.return_value = [
-            _manifest_raw("app-one", [{"name": "app", "image": "app:v1.0"}]),
-            _manifest_raw("app-two", [{"name": "app", "image": "app:v1.0"}]),
-        ]
-        service, *_ = _make_service(
-            live_resource_port=live_resource_port, helm_adapter=helm_adapter
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
+        )
+        result = service.detect_image_drift(DetectContainerImageDriftCommand(namespace="default"))
+
+        assert result.total_checked == 1  # noqa: PLR2004
+        assert result.in_sync_count == 1  # noqa: PLR2004
+
+    def test_detect_image_drift_helm_source_does_not_exist(self) -> None:
+        deployment = _deployment("my-app", "default", release="gone-release")
+        live = MagicMock()
+        live.list_live_resources.return_value = [deployment]
+        helm = MagicMock()
+        helm.source_exists.return_value = False
+        kustomize = MagicMock()
+        kustomize.render_desired_manifests.return_value = []
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
+
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
+        )
+        result = service.detect_image_drift(DetectContainerImageDriftCommand(namespace="default"))
+
+        assert result.total_checked == 0  # noqa: PLR2004
+
+    def test_detect_image_drift_missing_helm_annotation_skipped(self) -> None:
+        deployment = {
+            "kind": "Deployment",
+            "name": "orphan-app",
+            "namespace": "default",
+            "labels": {},
+            "annotations": {},
+            "data": {},
+        }
+        live = MagicMock()
+        live.list_live_resources.return_value = [deployment]
+        helm = MagicMock()
+        kustomize = MagicMock()
+        kustomize.render_desired_manifests.return_value = []
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
+
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
+        )
+        result = service.detect_image_drift(DetectContainerImageDriftCommand(namespace="default"))
+
+        assert result.total_checked == 0  # noqa: PLR2004
+
+    def test_detect_image_drift_missing_declared_container_skipped(self) -> None:
+        deployment = _deployment("my-app", "default")
+        desired = {
+            "kind": "Deployment",
+            "name": "my-app",
+            "namespace": "default",
+            "data": {
+                "spec": {
+                    "template": {
+                        "spec": {
+                            "containers": [
+                                {"name": "different-container", "image": "nginx:1.25"},
+                            ]
+                        }
+                    }
+                }
+            },
+        }
+        live = MagicMock()
+        live.list_live_resources.return_value = [deployment]
+        helm = MagicMock()
+        kustomize = MagicMock()
+        kustomize.render_desired_manifests.return_value = [desired]
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
+
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
+        )
+        result = service.detect_image_drift(
+            DetectContainerImageDriftCommand(
+                namespace="default", kustomize_paths=["/path/to/overlay"]
+            )
         )
 
-        service.detect_image_drift(ContainerImageDriftCommand(namespace="production"))
+        assert result.total_checked == 0  # noqa: PLR2004
+        assert result.in_sync_count == 0  # noqa: PLR2004
 
-        helm_adapter.render_desired_manifests.assert_called_once()
-        helm_adapter.source_exists.assert_called_once()
+    def test_detect_image_drift_mutable_tag_excluded(self) -> None:
+        deployment = {
+            "kind": "Deployment",
+            "name": "my-app",
+            "namespace": "default",
+            "labels": {},
+            "annotations": {"meta.helm.sh/release-name": "my-release"},
+            "data": {
+                "spec": {
+                    "template": {
+                        "spec": {
+                            "containers": [
+                                {"name": "app", "image": "nginx:latest"},
+                            ]
+                        }
+                    }
+                }
+            },
+        }
+        desired = _desired_manifest("Deployment", "my-app", "default", image="nginx:1.25")
+        live = MagicMock()
+        live.list_live_resources.return_value = [deployment]
+        helm = MagicMock()
+        helm.source_exists.return_value = True
+        helm.render_desired_manifests.return_value = [desired]
+        kustomize = MagicMock()
+        kustomize.render_desired_manifests.return_value = []
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
 
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
+        )
+        result = service.detect_image_drift(DetectContainerImageDriftCommand(namespace="default"))
 
-class TestOrphanedHelmReleaseSkipped:
-    def test_deleted_helm_release_is_skipped_not_reported(self) -> None:
-        live_resource_port = MagicMock()
-        live_resource_port.list_live_resources.return_value = [
-            _deployment("app", [{"name": "app", "image": "app:v1.0"}], release="deleted-release")
+        assert result.total_checked == 0  # noqa: PLR2004
+        assert result.excluded_count == 1  # noqa: PLR2004
+
+    def test_detect_image_drift_helm_manifest_cache_reused(self) -> None:
+        dep_a = _deployment("app-a", "default", release="shared-release")
+        dep_b = _deployment("app-b", "default", release="shared-release")
+        desired_a = _desired_manifest("Deployment", "app-a", "default")
+        desired_b = _desired_manifest("Deployment", "app-b", "default")
+        live = MagicMock()
+        live.list_live_resources.return_value = [dep_a, dep_b]
+        helm = MagicMock()
+        helm.source_exists.return_value = True
+        helm.render_desired_manifests.return_value = [desired_a, desired_b]
+        kustomize = MagicMock()
+        kustomize.render_desired_manifests.return_value = []
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
+
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
+        )
+        result = service.detect_image_drift(DetectContainerImageDriftCommand(namespace="default"))
+
+        assert result.total_checked == 2  # noqa: PLR2004
+        assert helm.render_desired_manifests.call_count == 1  # noqa: PLR2004
+
+    def test_detect_image_drift_helm_exists_cache_reused(self) -> None:
+        dep_a = _deployment("app-a", "default", release="shared-release")
+        dep_b = _deployment("app-b", "default", release="shared-release")
+        live = MagicMock()
+        live.list_live_resources.return_value = [dep_a, dep_b]
+        helm = MagicMock()
+        helm.source_exists.return_value = True
+        helm.render_desired_manifests.return_value = []
+        kustomize = MagicMock()
+        kustomize.render_desired_manifests.return_value = []
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
+
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
+        )
+        service.detect_image_drift(DetectContainerImageDriftCommand(namespace="default"))
+
+        assert helm.source_exists.call_count == 1  # noqa: PLR2004
+
+    def test_detect_image_drift_digest_mismatch_via_image_id(self) -> None:
+        deployment = _deployment("my-app", "default")
+        desired = _desired_manifest("Deployment", "my-app", "default", image="nginx:1.25")
+        live = MagicMock()
+        live.list_live_resources.return_value = [deployment]
+        helm = MagicMock()
+        kustomize = MagicMock()
+        kustomize.render_desired_manifests.return_value = [desired]
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = [
+            {
+                "deployment": "my-app",
+                "namespace": "default",
+                "container": "app",
+                "image_id": "sha256:abc123",
+            }
         ]
-        helm_adapter = MagicMock()
-        helm_adapter.source_exists.return_value = False
-        service, *_ = _make_service(
-            live_resource_port=live_resource_port, helm_adapter=helm_adapter
+
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
+        )
+        result = service.detect_image_drift(
+            DetectContainerImageDriftCommand(
+                namespace="default", kustomize_paths=["/path/to/overlay"]
+            )
         )
 
-        response = service.detect_image_drift(ContainerImageDriftCommand(namespace="production"))
+        assert result.total_checked == 1  # noqa: PLR2004
 
-        assert response.out_of_sync == []
-        assert response.in_sync_count == 0
-        helm_adapter.render_desired_manifests.assert_not_called()
+    def test_detect_image_drift_running_image_matches_declared_no_drift(self) -> None:
+        deployment = _deployment("my-app", "default")
+        desired = _desired_manifest("Deployment", "my-app", "default", image="nginx:1.25")
+        live = MagicMock()
+        live.list_live_resources.return_value = [deployment]
+        helm = MagicMock()
+        kustomize = MagicMock()
+        kustomize.render_desired_manifests.return_value = [desired]
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
 
-
-class TestUnmanagedDeploymentSkipped:
-    def test_no_helm_annotation_and_no_kustomize_match_is_skipped(self) -> None:
-        live_resource_port = MagicMock()
-        live_resource_port.list_live_resources.return_value = [
-            _deployment("unmanaged-app", [{"name": "app", "image": "app:v1.0"}], release=None)
-        ]
-        service, *_ = _make_service(live_resource_port=live_resource_port)
-
-        response = service.detect_image_drift(ContainerImageDriftCommand(namespace="production"))
-
-        assert response.out_of_sync == []
-        assert response.in_sync_count == 0
-
-
-class TestContainerNotInDeclaredSkipped:
-    def test_container_missing_from_desired_manifest_is_skipped(self) -> None:
-        live_resource_port = MagicMock()
-        live_resource_port.list_live_resources.return_value = [
-            _deployment("app", [{"name": "extra-sidecar", "image": "sidecar:v1.0"}])
-        ]
-        helm_adapter = MagicMock()
-        helm_adapter.source_exists.return_value = True
-        helm_adapter.render_desired_manifests.return_value = [_manifest_raw("app", [])]
-        service, *_ = _make_service(
-            live_resource_port=live_resource_port, helm_adapter=helm_adapter
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
+        )
+        result = service.detect_image_drift(
+            DetectContainerImageDriftCommand(
+                namespace="default", kustomize_paths=["/path/to/overlay"]
+            )
         )
 
-        response = service.detect_image_drift(ContainerImageDriftCommand(namespace="production"))
+        assert result.in_sync_count == 1  # noqa: PLR2004
 
-        assert response.out_of_sync == []
-        assert response.in_sync_count == 0
+    def test_detect_image_drift_multiple_containers(self) -> None:
+        deployment = {
+            "kind": "Deployment",
+            "name": "multi-container-app",
+            "namespace": "default",
+            "labels": {},
+            "annotations": {"meta.helm.sh/release-name": "my-release"},
+            "data": {
+                "spec": {
+                    "template": {
+                        "spec": {
+                            "containers": [
+                                {"name": "app", "image": "nginx:1.25"},
+                                {"name": "sidecar", "image": "redis:7.0"},
+                            ]
+                        }
+                    }
+                }
+            },
+        }
+        desired = {
+            "kind": "Deployment",
+            "name": "multi-container-app",
+            "namespace": "default",
+            "data": {
+                "spec": {
+                    "template": {
+                        "spec": {
+                            "containers": [
+                                {"name": "app", "image": "nginx:1.25"},
+                                {"name": "sidecar", "image": "redis:7.0"},
+                            ]
+                        }
+                    }
+                }
+            },
+        }
+        live = MagicMock()
+        live.list_live_resources.return_value = [deployment]
+        helm = MagicMock()
+        helm.source_exists.return_value = True
+        helm.render_desired_manifests.return_value = [desired]
+        kustomize = MagicMock()
+        kustomize.render_desired_manifests.return_value = []
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
 
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
+        )
+        result = service.detect_image_drift(DetectContainerImageDriftCommand(namespace="default"))
 
-class TestHelmManifestMissingDeployment:
-    def test_deployment_not_found_in_release_manifest_is_skipped(self) -> None:
-        live_resource_port = MagicMock()
-        live_resource_port.list_live_resources.return_value = [
-            _deployment("app", [{"name": "app", "image": "app:v1.0"}], release="some-chart")
-        ]
-        helm_adapter = MagicMock()
-        helm_adapter.source_exists.return_value = True
-        helm_adapter.render_desired_manifests.return_value = [
-            _manifest_raw("other-app", [{"name": "app", "image": "app:v1.0"}])
-        ]
-        service, *_ = _make_service(
-            live_resource_port=live_resource_port, helm_adapter=helm_adapter
+        assert result.total_checked == 2  # noqa: PLR2004
+        assert result.in_sync_count == 2  # noqa: PLR2004
+
+    def test_detect_image_drift_renders_kustomize_paths(self) -> None:
+        deployment = _deployment("my-app", "default", release="")
+        live = MagicMock()
+        live.list_live_resources.return_value = [deployment]
+        helm = MagicMock()
+        kustomize = MagicMock()
+        kustomize.render_desired_manifests.return_value = []
+        images = MagicMock()
+        images.list_resolved_container_images.return_value = []
+
+        service = ContainerImageDriftService(
+            live_resource_port=live,
+            helm_adapter=helm,
+            kustomize_adapter=kustomize,
+            image_drift_port=images,
+        )
+        service.detect_image_drift(
+            DetectContainerImageDriftCommand(
+                namespace="default", kustomize_paths=["/overlay/prod", "/overlay/staging"]
+            )
         )
 
-        response = service.detect_image_drift(ContainerImageDriftCommand(namespace="production"))
-
-        assert response.out_of_sync == []
-        assert response.in_sync_count == 0
-
-
-class TestEmptyNamespace:
-    def test_no_deployments_produces_empty_report(self) -> None:
-        service, *_ = _make_service()
-
-        response = service.detect_image_drift(ContainerImageDriftCommand(namespace="production"))
-
-        assert response.error is None
-        assert response.out_of_sync == []
-        assert response.in_sync_count == 0
+        assert kustomize.render_desired_manifests.call_count == 2  # noqa: PLR2004

@@ -30,7 +30,7 @@ def get_api_key() -> str | None:
     """
     Get LLM API key.
     Priority: LLM_API_KEY env var > DEEPSEEK_API_KEY env var > ANTHROPIC_API_KEY env var > config.yaml
-    """
+    """  # noqa: E501
     for env_var in ("LLM_API_KEY", "DEEPSEEK_API_KEY", "ANTHROPIC_API_KEY"):
         env_key = os.environ.get(env_var)
         if env_key:

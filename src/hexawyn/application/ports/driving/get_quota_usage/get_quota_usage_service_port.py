@@ -1,11 +1,7 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.get_quota_usage.get_quota_usage_command import (
-    GetQuotaUsageCommand,
-)
-from hexawyn.application.ports.driving.get_quota_usage.get_quota_usage_response import (
-    GetQuotaUsageResponse,
-)
+from hexawyn.application.use_case.cluster.get_quota_usage.command import GetQuotaUsageCommand
+from hexawyn.application.use_case.cluster.get_quota_usage.response import GetQuotaUsageResponse
 
 
 class GetQuotaUsageServicePort(ABC):

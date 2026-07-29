@@ -4,10 +4,17 @@ import pytest
 from hexawyn.domain.models.rightsizing import RightsizingType
 from hexawyn.domain.services.rightsizing.rightsizing_analysis_service import (
     RightsizingAnalysisService,
+    _as_float_or_none,
+    _classify,
+    _compute_savings,
+    _priority,
+    _recommend_cpu,
+    _recommend_memory,
+    _waste_percentage,
 )
 
 
-def _workload(
+def _workload(  # noqa: PLR0913
     resource_name: str = "ml-worker",
     namespace: str = "production",
     kind: str = "Deployment",
@@ -246,7 +253,7 @@ class TestRightsizingAnalysisServiceFiltering:
         ]
         service = RightsizingAnalysisService()
         report = service.analyze(workloads, top_n=3)
-        assert len(report.recommendations) <= 3
+        assert len(report.recommendations) <= 3  # noqa: PLR2004
 
 
 class TestRightsizingAnalysisServiceRanking:
@@ -281,3 +288,85 @@ class TestRightsizingAnalysisServiceRanking:
             r.monthly_savings_usd for r in report.recommendations if r.monthly_savings_usd > 0
         )
         assert report.total_monthly_savings_usd == pytest.approx(expected, abs=0.01)
+
+
+class TestHelperFunctions:
+    def test_as_float_or_none_returns_float(self) -> None:
+        assert _as_float_or_none(3.14) == 3.14  # noqa: PLR2004
+
+    def test_as_float_or_none_none_returns_none(self) -> None:
+        assert _as_float_or_none(None) is None
+
+    def test_as_float_or_none_invalid_returns_none(self) -> None:
+        assert _as_float_or_none("abc") is None
+        assert _as_float_or_none([1, 2]) is None
+
+    def test_classify_under_provisioned_ram(self) -> None:
+        rtype, reason = _classify(4.0, 100.0, 3.0, 90.0)
+        assert rtype == RightsizingType.UNDER_PROVISIONED
+        assert "OOM risk" in reason
+
+    def test_classify_optimal(self) -> None:
+        rtype, reason = _classify(4.0, 100.0, 2.0, 50.0)
+        assert rtype == RightsizingType.OPTIMAL
+
+    def test_classify_over_provisioned_cpu_only(self) -> None:
+        rtype, reason = _classify(4.0, 100.0, 0.8, 45.0)
+        assert rtype == RightsizingType.OVER_PROVISIONED
+        assert "CPU usage" in reason
+
+    def test_classify_over_provisioned_both(self) -> None:
+        rtype, reason = _classify(4.0, 100.0, 0.8, 30.0)
+        assert rtype == RightsizingType.OVER_PROVISIONED
+
+    def test_recommend_cpu_reduces_when_over_provisioned(self) -> None:
+        rec = _recommend_cpu(4.0, 0.8)
+        assert rec < 4.0  # noqa: PLR2004
+
+    def test_recommend_cpu_keeps_when_not_over(self) -> None:
+        rec = _recommend_cpu(4.0, 2.0)
+        assert rec == 4.0  # noqa: PLR2004
+
+    def test_recommend_memory_under_provisioned(self) -> None:
+        rec = _recommend_memory(RightsizingType.UNDER_PROVISIONED, 100.0, 90.0)
+        assert rec > 100.0  # noqa: PLR2004
+
+    def test_recommend_memory_reduces_when_over(self) -> None:
+        rec = _recommend_memory(RightsizingType.OVER_PROVISIONED, 200.0, 50.0)
+        assert rec < 200.0  # noqa: PLR2004
+
+    def test_recommend_memory_keeps(self) -> None:
+        rec = _recommend_memory(RightsizingType.OPTIMAL, 100.0, 50.0)
+        assert rec == 100.0  # noqa: PLR2004
+
+    def test_compute_savings_positive(self) -> None:
+        savings = _compute_savings(4.0, 1.0, 200.0, 100.0)
+        assert savings > 0
+
+    def test_compute_savings_zero(self) -> None:
+        savings = _compute_savings(4.0, 4.0, 100.0, 100.0)
+        assert savings == 0.0
+
+    def test_waste_percentage_over_provisioned(self) -> None:
+        waste = _waste_percentage(RightsizingType.OVER_PROVISIONED, 4.0, 100.0, 0.8, 30.0)
+        assert waste > 0
+
+    def test_waste_percentage_under_provisioned(self) -> None:
+        waste = _waste_percentage(RightsizingType.UNDER_PROVISIONED, 4.0, 100.0, 3.0, 90.0)
+        assert waste > 0
+
+    def test_waste_percentage_optimal(self) -> None:
+        waste = _waste_percentage(RightsizingType.OPTIMAL, 4.0, 100.0, 2.0, 50.0)
+        assert waste == 0.0
+
+    def test_priority_high(self) -> None:
+        assert _priority(60.0) == "high"
+
+    def test_priority_medium(self) -> None:
+        assert _priority(30.0) == "medium"
+
+    def test_priority_low(self) -> None:
+        assert _priority(10.0) == "low"
+
+    def test_priority_negative(self) -> None:
+        assert _priority(-100.0) == "high"

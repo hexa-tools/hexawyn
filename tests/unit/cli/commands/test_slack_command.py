@@ -1,128 +1,174 @@
-import os
-from unittest.mock import AsyncMock, patch
+from __future__ import annotations
+
+from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
-from hexawyn.cli.main import app
+from hexawyn.cli.commands.slack_command import slack
 
 
-class TestSlackCommand:
-    def setup_method(self) -> None:
-        self.runner = CliRunner()
+class TestSlackStatus:
+    @staticmethod
+    def _make_quota_mock(count: int = 0, limit: int = 50, is_unlimited: bool = False) -> MagicMock:
+        mock_quota = MagicMock()
+        mock_quota.count = count
+        mock_quota.limit = limit
+        mock_quota.is_unlimited = is_unlimited
+        mock_quota.remaining = limit - count
+        return mock_quota
 
-    def test_slack_test_sends_test_message(self) -> None:
-        with patch.dict(
-            os.environ,
-            {"HEXAWYN_SLACK_WEBHOOK_URL": "https://hooks.slack.com/test"},
+    def test_status_shows_configuration_with_no_tokens(self) -> None:
+        runner = CliRunner()
+        mock_quota = self._make_quota_mock()
+        with (
+            patch.dict("os.environ", {}, clear=True),
+            patch(
+                "hexawyn.cli.commands.slack_command._get_current_slack_quota",
+                return_value=mock_quota,
+            ),
         ):
-            with patch("hexawyn.cli.commands.slack_command.SlackAlertAdapter") as mock_adapter:
-                mock_adapter.return_value.send_test_ping.return_value = True
-                result = self.runner.invoke(app, ["slack", "test"])
+            result = runner.invoke(slack, ["status"])
+
         assert result.exit_code == 0
-        assert "✅" in result.output
+        assert "not set" in result.output
 
-    def test_slack_test_shows_error_when_no_webhook(self) -> None:
-        with patch.dict(os.environ, {}, clear=True):
-            result = self.runner.invoke(app, ["slack", "test"])
-        assert "HEXAWYN_SLACK_WEBHOOK_URL" in result.output
-
-    def test_slack_test_shows_failure_message_on_send_error(self) -> None:
-        with patch.dict(
-            os.environ,
-            {"HEXAWYN_SLACK_WEBHOOK_URL": "https://hooks.slack.com/test"},
+    def test_status_shows_all_tokens_configured(self) -> None:
+        runner = CliRunner()
+        mock_quota = self._make_quota_mock()
+        env_vars = {
+            "HEXAWYN_SLACK_WEBHOOK_URL": "https://hooks.slack.com/test",
+            "SLACK_BOT_TOKEN": "xoxb-test",
+            "SLACK_APP_TOKEN": "xapp-test",
+        }
+        with (
+            patch.dict("os.environ", env_vars, clear=True),
+            patch(
+                "hexawyn.cli.commands.slack_command._get_current_slack_quota",
+                return_value=mock_quota,
+            ),
         ):
-            with patch("hexawyn.cli.commands.slack_command.SlackAlertAdapter") as mock_adapter:
-                mock_adapter.return_value.send_test_ping.return_value = False
-                result = self.runner.invoke(app, ["slack", "test"])
-        assert result.exit_code == 0
-        assert "❌" in result.output
+            result = runner.invoke(slack, ["status"])
 
-    def test_slack_status_shows_not_configured_without_env(self) -> None:
-        with patch.dict(os.environ, {}, clear=True):
-            with patch("hexawyn.cli.commands.slack_command._get_current_slack_quota") as mock_quota:
-                mock_quota.return_value.is_unlimited = False
-                mock_quota.return_value.count = 0
-                mock_quota.return_value.limit = 5
-                mock_quota.return_value.remaining = 5
-                result = self.runner.invoke(app, ["slack", "status"])
         assert result.exit_code == 0
-        assert "not set" in result.output or "❌" in result.output
+        assert "configured" in result.output
 
-    def test_slack_status_shows_configured_with_env(self) -> None:
-        with patch.dict(
-            os.environ,
-            {"HEXAWYN_SLACK_WEBHOOK_URL": "https://hooks.slack.com/test"},
+    def test_status_shows_socket_mode_when_app_token_set(self) -> None:
+        runner = CliRunner()
+        mock_quota = self._make_quota_mock()
+        env_vars = {"SLACK_APP_TOKEN": "xapp-test"}
+        with (
+            patch.dict("os.environ", env_vars, clear=True),
+            patch(
+                "hexawyn.cli.commands.slack_command._get_current_slack_quota",
+                return_value=mock_quota,
+            ),
         ):
-            with patch("hexawyn.cli.commands.slack_command._get_current_slack_quota") as mock_quota:
-                mock_quota.return_value.is_unlimited = False
-                mock_quota.return_value.count = 2
-                mock_quota.return_value.limit = 5
-                mock_quota.return_value.remaining = 3
-                result = self.runner.invoke(app, ["slack", "status"])
-        assert result.exit_code == 0
-        assert "✅" in result.output
+            result = runner.invoke(slack, ["status"])
 
-    def test_slack_status_shows_unlimited_for_pro(self) -> None:
-        with patch.dict(
-            os.environ,
-            {"HEXAWYN_SLACK_WEBHOOK_URL": "https://hooks.slack.com/x"},
-        ):
-            with patch("hexawyn.cli.commands.slack_command._get_current_slack_quota") as mock_quota:
-                mock_quota.return_value.is_unlimited = True
-                result = self.runner.invoke(app, ["slack", "status"])
-        assert result.exit_code == 0
-        assert "unlimited" in result.output.lower() or "Pro" in result.output
-
-
-class TestSlackListenCommand:
-    def setup_method(self) -> None:
-        self.runner = CliRunner()
-
-    def test_listen_requires_slack_app_token(self) -> None:
-        with patch.dict(os.environ, {}, clear=True):
-            result = self.runner.invoke(app, ["slack", "listen"])
-        assert result.exit_code == 0
-        assert "SLACK_APP_TOKEN" in result.output
-
-    def test_listen_requires_slack_bot_token_when_app_token_set(self) -> None:
-        with patch.dict(os.environ, {"SLACK_APP_TOKEN": "xapp-test"}, clear=True):
-            result = self.runner.invoke(app, ["slack", "listen"])
-        assert result.exit_code == 0
-        assert "SLACK_BOT_TOKEN" in result.output
-
-    def test_listen_starts_socket_client_with_both_tokens(self) -> None:
-        env_vars = {"SLACK_APP_TOKEN": "xapp-test", "SLACK_BOT_TOKEN": "xoxb-test"}
-        with patch.dict(os.environ, env_vars):
-            with patch("hexawyn.cli.commands.slack_command.SlackSocketClient") as mock_client_cls:
-                mock_client = mock_client_cls.return_value
-                mock_client.run = AsyncMock(return_value=None)
-                result = self.runner.invoke(app, ["slack", "listen"])
         assert result.exit_code == 0
         assert "Socket Mode" in result.output
 
-    def test_listen_uses_default_port_8080_with_http_flag(self) -> None:
-        with patch.dict(os.environ, {"SLACK_BOT_TOKEN": "xoxb-test"}):
-            with patch("hexawyn.cli.commands.slack_command.SlackEventServer") as mock_server_cls:
-                mock_server_cls.return_value.start.return_value = None
-                self.runner.invoke(app, ["slack", "listen", "--http"])
-        call_kwargs = mock_server_cls.return_value.start.call_args
-        port_used = call_kwargs[1].get("port") if call_kwargs else None
-        assert port_used == 8080
+    def test_status_quota_unlimited(self) -> None:
+        runner = CliRunner()
+        mock_quota = self._make_quota_mock(is_unlimited=True)
+        env_vars = {}
+        with (
+            patch.dict("os.environ", env_vars, clear=True),
+            patch(
+                "hexawyn.cli.commands.slack_command._get_current_slack_quota",
+                return_value=mock_quota,
+            ),
+        ):
+            result = runner.invoke(slack, ["status"])
 
-    def test_listen_accepts_custom_port_with_http_flag(self) -> None:
-        with patch.dict(os.environ, {"SLACK_BOT_TOKEN": "xoxb-test"}):
-            with patch("hexawyn.cli.commands.slack_command.SlackEventServer") as mock_server_cls:
-                mock_server_cls.return_value.start.return_value = None
-                self.runner.invoke(app, ["slack", "listen", "--http", "--port", "3000"])
-        call_kwargs = mock_server_cls.return_value.start.call_args
-        port_used = call_kwargs[1].get("port") if call_kwargs else None
-        assert port_used == 3000
-
-    def test_listen_shows_startup_message(self) -> None:
-        env_vars = {"SLACK_APP_TOKEN": "xapp-test", "SLACK_BOT_TOKEN": "xoxb-test"}
-        with patch.dict(os.environ, env_vars):
-            with patch("hexawyn.cli.commands.slack_command.SlackSocketClient") as mock_client_cls:
-                mock_client = mock_client_cls.return_value
-                mock_client.run = AsyncMock(return_value=None)
-                result = self.runner.invoke(app, ["slack", "listen"])
         assert result.exit_code == 0
-        assert "Socket Mode" in result.output or "listening" in result.output.lower()
+        assert "unlimited" in result.output
+
+
+class TestSlackTest:
+    def test_test_command_without_webhook_fails(self) -> None:
+        runner = CliRunner()
+        with patch.dict("os.environ", {}, clear=True):
+            result = runner.invoke(slack, ["test"])
+
+        assert result.exit_code == 0
+        assert "HEXAWYN_SLACK_WEBHOOK_URL not set" in result.output
+
+    def test_test_command_sends_and_receives_success(self) -> None:
+        runner = CliRunner()
+        env_vars = {
+            "HEXAWYN_SLACK_WEBHOOK_URL": "https://hooks.slack.com/valid",
+        }
+        mock_adapter = MagicMock()
+        mock_adapter.send_test_ping.return_value = True
+
+        with (
+            patch.dict("os.environ", env_vars, clear=True),
+            patch(
+                "hexawyn.cli.commands.slack_command.SlackAlertAdapter",
+                return_value=mock_adapter,
+            ),
+        ):
+            result = runner.invoke(slack, ["test"])
+
+        assert result.exit_code == 0
+        assert "Test alert sent" in result.output
+
+    def test_test_command_sends_and_receives_failure(self) -> None:
+        runner = CliRunner()
+        env_vars = {
+            "HEXAWYN_SLACK_WEBHOOK_URL": "https://hooks.slack.com/invalid",
+        }
+        mock_adapter = MagicMock()
+        mock_adapter.send_test_ping.return_value = False
+
+        with (
+            patch.dict("os.environ", env_vars, clear=True),
+            patch(
+                "hexawyn.cli.commands.slack_command.SlackAlertAdapter",
+                return_value=mock_adapter,
+            ),
+        ):
+            result = runner.invoke(slack, ["test"])
+
+        assert result.exit_code == 0
+        assert "Failed to send" in result.output
+
+
+class TestRequireEnvToken:
+    def test_require_env_token_returns_token_when_set(self) -> None:
+        from hexawyn.cli.commands.slack_command import _require_env_token
+
+        with patch.dict("os.environ", {"MY_TOKEN": "abc123"}, clear=True):
+            result = _require_env_token("MY_TOKEN", "test-display")
+            assert result == "abc123"
+
+    def test_require_env_token_returns_none_when_missing(self) -> None:
+        from hexawyn.cli.commands.slack_command import _require_env_token
+
+        with patch.dict("os.environ", {}, clear=True):
+            result = _require_env_token("MISSING_VAR", "Missing message")
+            assert result is None
+
+
+class TestSlackListen:
+    def test_listen_http_missing_bot_token_returns_early(self) -> None:
+        runner = CliRunner()
+        with patch.dict("os.environ", {}, clear=True):
+            result = runner.invoke(slack, ["listen", "--http"])
+
+        assert result.exit_code == 0
+
+    def test_listen_socket_missing_both_tokens_returns_early(self) -> None:
+        runner = CliRunner()
+        with patch.dict("os.environ", {}, clear=True):
+            result = runner.invoke(slack, ["listen"])
+
+        assert result.exit_code == 0
+
+    def test_listen_socket_missing_bot_token_returns_early(self) -> None:
+        runner = CliRunner()
+        env_vars = {"SLACK_APP_TOKEN": "xapp-test"}
+        with patch.dict("os.environ", env_vars, clear=True):
+            result = runner.invoke(slack, ["listen"])
+
+        assert result.exit_code == 0

@@ -53,7 +53,7 @@ class ConsolidationJob:
 
         return results
 
-    def _consolidate_group(
+    def _consolidate_group(  # noqa: PLR0913
         self,
         namespace: str,
         resource_name: str,

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.detect_privileged_pods.detect_privileged_pods_command import (
+from hexawyn.application.use_case.security.detect_privileged_pods.command import (
     DetectPrivilegedPodsCommand,
 )
-from hexawyn.application.ports.driving.detect_privileged_pods.detect_privileged_pods_response import (
+from hexawyn.application.use_case.security.detect_privileged_pods.response import (
     DetectPrivilegedPodsResponse,
 )
 

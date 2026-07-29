@@ -10,7 +10,7 @@ from hexawyn.domain.models.cache import (
 
 class TestCacheEntry:
     def test_ttl_is_300_seconds(self) -> None:
-        assert CACHE_TTL_SECONDS == 300
+        assert CACHE_TTL_SECONDS == 300  # noqa: PLR2004
 
     def test_is_valid_when_fresh(self) -> None:
         entry = CacheEntry(
@@ -50,7 +50,7 @@ class TestCacheEntry:
             result="test",
             created_at=datetime.now() - timedelta(seconds=10),
         )
-        assert entry.age_seconds >= 10
+        assert entry.age_seconds >= 10  # noqa: PLR2004
 
     def test_age_seconds_for_old_entry(self) -> None:
         entry = CacheEntry(
@@ -58,7 +58,7 @@ class TestCacheEntry:
             result="test",
             created_at=datetime.now() - timedelta(seconds=3600),
         )
-        assert entry.age_seconds >= 3600
+        assert entry.age_seconds >= 3600  # noqa: PLR2004
 
     def test_is_valid_one_second_before_ttl(self) -> None:
         entry = CacheEntry(
@@ -71,7 +71,7 @@ class TestCacheEntry:
     def test_created_at_default_factory_is_recent(self) -> None:
         entry = CacheEntry(query_hash="abc123", result="test")
         assert entry.created_at is not None
-        assert entry.age_seconds < 5
+        assert entry.age_seconds < 5  # noqa: PLR2004
 
     def test_age_seconds_with_future_created_at_is_negative(self) -> None:
         entry = CacheEntry(
@@ -184,7 +184,7 @@ class TestCachedInvestigation:
 
     def test_large_restart_count_boundary(self) -> None:
         ci = self._make_ci(pod_restart_count_at_cache=999_999)
-        assert ci.pod_restart_count_at_cache == 999_999
+        assert ci.pod_restart_count_at_cache == 999_999  # noqa: PLR2004
 
     def test_empty_fields_accepted(self) -> None:
         ci = self._make_ci(

@@ -29,9 +29,9 @@ class TestGroupByNamespace:
 
         groups = group_by_namespace(resources)
 
-        assert len(groups) == 2
+        assert len(groups) == 2  # noqa: PLR2004
         by_ns = {group.namespace: group for group in groups}
-        assert len(by_ns["production"].resources) == 2
+        assert len(by_ns["production"].resources) == 2  # noqa: PLR2004
         assert len(by_ns["staging"].resources) == 1
 
     def test_groups_sorted_by_namespace_name(self) -> None:

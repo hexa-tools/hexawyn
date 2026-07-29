@@ -72,8 +72,8 @@ class TestKedaScaledObject:
             ready=True,
             message=None,
         )
-        assert so.current_replicas == 3
-        assert so.hpa_target_replicas == 5
+        assert so.current_replicas == 3  # noqa: PLR2004
+        assert so.hpa_target_replicas == 5  # noqa: PLR2004
 
     def test_cooldown(self) -> None:
         so = KedaScaledObject(
@@ -131,7 +131,7 @@ class TestKedaScaledJob:
             max_replica_count=1,
             message=None,
         )
-        assert job.successful_jobs == 42
+        assert job.successful_jobs == 42  # noqa: PLR2004
 
 
 class TestKedaDetectionResult:

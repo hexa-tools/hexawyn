@@ -41,7 +41,7 @@ class TestInstallSelectedProviders:
 
 class TestProvidersEdgeCases:
     def test_provider_count(self) -> None:
-        assert len(PROVIDERS) == 5
+        assert len(PROVIDERS) == 5  # noqa: PLR2004
 
     def test_provider_order_preserved(self) -> None:
         keys = list(PROVIDERS.keys())

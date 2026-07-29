@@ -53,7 +53,7 @@ class SensitiveAuditResult:
             else:
                 flagged.append(m)
 
-        if len(flagged) > 5:
+        if len(flagged) > 5:  # noqa: PLR2004
             level = AlertLevel.HIGH
         elif len(flagged) > 0:
             level = AlertLevel.MEDIUM

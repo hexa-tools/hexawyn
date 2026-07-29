@@ -28,9 +28,9 @@ class TestProjectedMonth:
             by_category={"compute": 10000.0, "storage": 3869.0, "network": 2000.0},
         )
 
-        assert month.month_offset == 6
-        assert month.realistic_usd == 15869.0
-        assert month.by_category["compute"] == 10000.0
+        assert month.month_offset == 6  # noqa: PLR2004
+        assert month.realistic_usd == 15869.0  # noqa: PLR2004
+        assert month.by_category["compute"] == 10000.0  # noqa: PLR2004
 
 
 class TestBudgetProjectionReport:
@@ -43,8 +43,8 @@ class TestBudgetProjectionReport:
             growth_model="linear",
         )
 
-        assert report.current_monthly_usd == 8000.0
-        assert report.growth_rate_pct == 12.0
+        assert report.current_monthly_usd == 8000.0  # noqa: PLR2004
+        assert report.growth_rate_pct == 12.0  # noqa: PLR2004
         assert report.growth_model == "linear"
         assert report.projected_months == []
         assert report.six_month_total_realistic == 0.0

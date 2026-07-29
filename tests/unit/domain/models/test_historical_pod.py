@@ -46,7 +46,7 @@ class TestHistoricalPod:
             queried_timestamp="2026-06-09T10:00:00Z",
         )
         assert pod.phase == "CrashLoopBackOff"
-        assert pod.restart_count == 23
+        assert pod.restart_count == 23  # noqa: PLR2004
 
     def test_high_restart_count_flagged(self) -> None:
         pod = HistoricalPod(
@@ -56,7 +56,7 @@ class TestHistoricalPod:
             restart_count=8,
             queried_timestamp="2026-06-09T10:00:00Z",
         )
-        assert pod.restart_count > 5
+        assert pod.restart_count > 5  # noqa: PLR2004
 
 
 class TestHistoricalStateSnapshot:
@@ -92,8 +92,8 @@ class TestHistoricalStateSnapshot:
             pods=pods,
         )
         assert snapshot.namespace == "payment"
-        assert snapshot.total_resources == 8
-        assert len(snapshot.pods) == 3
+        assert snapshot.total_resources == 8  # noqa: PLR2004
+        assert len(snapshot.pods) == 3  # noqa: PLR2004
 
     def test_empty_snapshot_no_pods_found(self) -> None:
         snapshot = HistoricalStateSnapshot(
@@ -145,7 +145,7 @@ class TestHistoricalStateSnapshot:
             pods=pods,
         )
         restarting = snapshot.get_restarting_pods(threshold=5)
-        assert len(restarting) == 2
+        assert len(restarting) == 2  # noqa: PLR2004
         assert restarting[0].name == "restarter-b"
         assert restarting[1].name == "crash-c"
 
@@ -181,7 +181,7 @@ class TestHistoricalStateSnapshot:
             pods=pods,
         )
         failing = snapshot.get_failing_pods()
-        assert len(failing) == 2
+        assert len(failing) == 2  # noqa: PLR2004
         names = {p.name for p in failing}
         assert names == {"crashloop-b", "error-c"}
 
@@ -233,8 +233,8 @@ class TestStateComparison:
             current_pods=current,
             historical_timestamp="t",
         )
-        assert comparison.historical_count == 2
-        assert comparison.current_count == 3
+        assert comparison.historical_count == 2  # noqa: PLR2004
+        assert comparison.current_count == 3  # noqa: PLR2004
         assert comparison.pods_added == 1
         assert comparison.pods_removed == 0
         assert "pod-c" in comparison.added_pod_names
@@ -278,10 +278,10 @@ class TestStateComparison:
             current_pods=current,
             historical_timestamp="t",
         )
-        assert comparison.historical_count == 3
+        assert comparison.historical_count == 3  # noqa: PLR2004
         assert comparison.current_count == 1
         assert comparison.pods_added == 0
-        assert comparison.pods_removed == 2
+        assert comparison.pods_removed == 2  # noqa: PLR2004
         assert "pod-b" in comparison.removed_pod_names
         assert "pod-c" in comparison.removed_pod_names
 

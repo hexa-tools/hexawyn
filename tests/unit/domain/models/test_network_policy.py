@@ -25,7 +25,7 @@ class TestNamespaceNetworkFinding:
         assert finding.namespace == "dev"
         assert finding.ingress_policies == 0
         assert finding.egress_policies == 0
-        assert finding.pod_count == 8
+        assert finding.pod_count == 8  # noqa: PLR2004
         assert finding.network_status == "open"
         assert finding.risk_level == "critical"
         assert (
@@ -108,8 +108,8 @@ class TestNetworkSegmentationReport:
 
         assert report.findings == [finding]
         assert report.excluded_namespaces == [excluded]
-        assert report.total_namespaces_checked == 8
-        assert report.fully_open_count == 2
-        assert report.partially_restricted_count == 3
-        assert report.restricted_count == 3
+        assert report.total_namespaces_checked == 8  # noqa: PLR2004
+        assert report.fully_open_count == 2  # noqa: PLR2004
+        assert report.partially_restricted_count == 3  # noqa: PLR2004
+        assert report.restricted_count == 3  # noqa: PLR2004
         assert "fully open" in report.summary

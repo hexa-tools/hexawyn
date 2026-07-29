@@ -11,7 +11,7 @@ class TestQuotaState:
             QuotaState.UNLIMITED,
             QuotaState.LOCKED,
         ]
-        assert len(states) == 6
+        assert len(states) == 6  # noqa: PLR2004
 
     def test_state_values(self) -> None:
         assert QuotaState.NORMAL.value == "normal"
@@ -25,15 +25,15 @@ class TestQuotaState:
 class TestQuotaUsage:
     def test_percentage_under_limit(self) -> None:
         usage = QuotaUsage(resource="investigations", used=247, limit=500, state=QuotaState.NORMAL)
-        assert usage.percentage == 49.4
+        assert usage.percentage == 49.4  # noqa: PLR2004
 
     def test_percentage_at_exhausted(self) -> None:
         usage = QuotaUsage(resource="investigations", used=50, limit=50, state=QuotaState.EXHAUSTED)
-        assert usage.percentage == 100.0
+        assert usage.percentage == 100.0  # noqa: PLR2004
 
     def test_percentage_caps_at_100(self) -> None:
         usage = QuotaUsage(resource="investigations", used=60, limit=50, state=QuotaState.EXHAUSTED)
-        assert usage.percentage == 100.0
+        assert usage.percentage == 100.0  # noqa: PLR2004
 
     def test_percentage_none_for_unlimited(self) -> None:
         usage = QuotaUsage(
@@ -101,7 +101,7 @@ class TestPricingMatrixClusters:
     def test_team_has_three_clusters(self) -> None:
         from hexawyn.domain.models.quota import get_cluster_limit
 
-        assert get_cluster_limit(LicenseTier.TEAM) == 3
+        assert get_cluster_limit(LicenseTier.TEAM) == 3  # noqa: PLR2004
 
     def test_scale_up_unlimited_clusters(self) -> None:
         from hexawyn.domain.models.quota import get_cluster_limit
@@ -118,12 +118,12 @@ class TestPricingMatrixUsers:
     def test_team_has_five_users(self) -> None:
         from hexawyn.domain.models.quota import get_user_limit
 
-        assert get_user_limit(LicenseTier.TEAM) == 5
+        assert get_user_limit(LicenseTier.TEAM) == 5  # noqa: PLR2004
 
     def test_scale_up_has_twenty_users(self) -> None:
         from hexawyn.domain.models.quota import get_user_limit
 
-        assert get_user_limit(LicenseTier.SCALE_UP) == 20
+        assert get_user_limit(LicenseTier.SCALE_UP) == 20  # noqa: PLR2004
 
 
 class TestPricingMatrixSlackChannels:
@@ -135,7 +135,7 @@ class TestPricingMatrixSlackChannels:
     def test_team_has_three_channels(self) -> None:
         from hexawyn.domain.models.quota import get_slack_channel_limit
 
-        assert get_slack_channel_limit(LicenseTier.TEAM) == 3
+        assert get_slack_channel_limit(LicenseTier.TEAM) == 3  # noqa: PLR2004
 
     def test_scale_up_unlimited_channels(self) -> None:
         from hexawyn.domain.models.quota import get_slack_channel_limit
@@ -147,7 +147,7 @@ class TestPricingMatrixBillingApi:
     def test_starter_has_two_calls(self) -> None:
         from hexawyn.domain.models.quota import get_billing_api_limit
 
-        assert get_billing_api_limit(LicenseTier.STARTER) == 2
+        assert get_billing_api_limit(LicenseTier.STARTER) == 2  # noqa: PLR2004
 
     def test_team_has_unlimited_billing_api(self) -> None:
         from hexawyn.domain.models.quota import get_billing_api_limit

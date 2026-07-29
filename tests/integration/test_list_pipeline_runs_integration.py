@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 """Integration tests for list_pipeline_runs — service + use_case full stack."""
 
 from unittest.mock import MagicMock
@@ -5,11 +6,10 @@ from unittest.mock import MagicMock
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.ports.driven.tekton_port import PipelineRunInfo, TektonPort
-from hexawyn.application.ports.driving.list_pipeline_runs.list_pipeline_runs_command import (
+from hexawyn.application.use_case.pipelines.list_pipeline_runs.command import (
     ListPipelineRunsCommand,
 )
-from hexawyn.application.service.list_pipeline_runs_service import ListPipelineRunsService
-from hexawyn.application.use_case.list_pipeline_runs.list_pipeline_runs_use_case import (
+from hexawyn.application.use_case.pipelines.list_pipeline_runs.list_pipeline_runs_use_case import (
     ListPipelineRunsUseCase,
 )
 from hexawyn.domain.errors import ServiceNotFoundError
@@ -49,16 +49,15 @@ class TestListPipelineRunsIntegration:
         mock_port = MagicMock(spec=TektonPort)
         mock_port.list_pipeline_runs.return_value = runs
 
-        service = ListPipelineRunsService(tekton_port=mock_port)
-        use_case = ListPipelineRunsUseCase(service=service)
+        use_case = ListPipelineRunsUseCase(tekton_port=mock_port)
         response = use_case.execute(
             ListPipelineRunsCommand(service_name="payment-service", namespace="ci")
         )
 
-        assert response.stats.success_rate == 80.0
-        assert response.stats.total_runs == 10
-        assert response.stats.succeeded_runs == 8
-        assert response.stats.failed_runs == 2
+        assert response.stats.success_rate == 80.0  # noqa: PLR2004
+        assert response.stats.total_runs == 10  # noqa: PLR2004
+        assert response.stats.succeeded_runs == 8  # noqa: PLR2004
+        assert response.stats.failed_runs == 2  # noqa: PLR2004
         assert response.stats.average_duration_seconds is not None
 
     @pytest.mark.integration
@@ -72,14 +71,13 @@ class TestListPipelineRunsIntegration:
         mock_port = MagicMock(spec=TektonPort)
         mock_port.list_pipeline_runs.return_value = normal + [outlier]
 
-        service = ListPipelineRunsService(tekton_port=mock_port)
-        use_case = ListPipelineRunsUseCase(service=service)
+        use_case = ListPipelineRunsUseCase(tekton_port=mock_port)
         response = use_case.execute(
             ListPipelineRunsCommand(service_name="payment-service", namespace="ci")
         )
 
         assert "run-outlier" in response.outliers
-        assert len([r for r in response.runs if r["name"] not in response.outliers]) == 9
+        assert len([r for r in response.runs if r["name"] not in response.outliers]) == 9  # noqa: PLR2004
 
     @pytest.mark.integration
     def test_tc3_fewer_than_ten_runs_note_added(self) -> None:
@@ -91,13 +89,12 @@ class TestListPipelineRunsIntegration:
         mock_port = MagicMock(spec=TektonPort)
         mock_port.list_pipeline_runs.return_value = runs
 
-        service = ListPipelineRunsService(tekton_port=mock_port)
-        use_case = ListPipelineRunsUseCase(service=service)
+        use_case = ListPipelineRunsUseCase(tekton_port=mock_port)
         response = use_case.execute(
             ListPipelineRunsCommand(service_name="payment-service", namespace="ci")
         )
 
-        assert len(response.runs) == 3
+        assert len(response.runs) == 3  # noqa: PLR2004
         assert response.note is not None
         assert "3" in response.note
 
@@ -107,8 +104,7 @@ class TestListPipelineRunsIntegration:
         mock_port = MagicMock(spec=TektonPort)
         mock_port.list_pipeline_runs.side_effect = ServiceNotFoundError(service_name="ghost-svc")
 
-        service = ListPipelineRunsService(tekton_port=mock_port)
-        use_case = ListPipelineRunsUseCase(service=service)
+        use_case = ListPipelineRunsUseCase(tekton_port=mock_port)
 
         with pytest.raises(ServiceNotFoundError) as exc_info:
             use_case.execute(ListPipelineRunsCommand(service_name="ghost-svc", namespace="ci"))
@@ -127,13 +123,12 @@ class TestListPipelineRunsIntegration:
         mock_port = MagicMock(spec=TektonPort)
         mock_port.list_pipeline_runs.return_value = runs
 
-        service = ListPipelineRunsService(tekton_port=mock_port)
-        use_case = ListPipelineRunsUseCase(service=service)
+        use_case = ListPipelineRunsUseCase(tekton_port=mock_port)
         response = use_case.execute(
             ListPipelineRunsCommand(service_name="payment-service", namespace="ci")
         )
 
-        assert response.stats.success_rate == 100.0
+        assert response.stats.success_rate == 100.0  # noqa: PLR2004
         assert response.stats.cancelled_runs == 1
 
     @pytest.mark.integration
@@ -147,8 +142,7 @@ class TestListPipelineRunsIntegration:
         mock_port = MagicMock(spec=TektonPort)
         mock_port.list_pipeline_runs.return_value = runs
 
-        service = ListPipelineRunsService(tekton_port=mock_port)
-        use_case = ListPipelineRunsUseCase(service=service)
+        use_case = ListPipelineRunsUseCase(tekton_port=mock_port)
         response = use_case.execute(
             ListPipelineRunsCommand(service_name="payment-service", namespace="ci")
         )

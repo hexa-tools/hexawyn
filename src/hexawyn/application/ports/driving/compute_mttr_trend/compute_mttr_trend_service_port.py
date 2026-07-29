@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.compute_mttr_trend.compute_mttr_trend_command import (
+from hexawyn.application.use_case.workloads.compute_mttr_trend.command import (
     ComputeMTTRTrendCommand,
 )
-from hexawyn.application.ports.driving.compute_mttr_trend.compute_mttr_trend_response import (
+from hexawyn.application.use_case.workloads.compute_mttr_trend.response import (
     ComputeMTTRTrendResponse,
 )
 

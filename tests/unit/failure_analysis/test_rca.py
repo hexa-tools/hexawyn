@@ -12,7 +12,7 @@ from hexawyn.domain.models.pipeline_run_logs import StepLog, StepStatus
 from hexawyn.domain.services.failure_analysis.rca import analyze_pipeline_failure
 
 
-def _task_run(
+def _task_run(  # noqa: PLR0913
     name: str,
     task_ref: str,
     status: str,
@@ -38,7 +38,7 @@ def _step_log(step_name: str, log_lines: list[str]) -> StepLog:
 
 
 class TestRegressionClassification:
-    """TC1: Unit test failed with "AssertionError" → classified as regression with confidence 0.85."""
+    """TC1: Unit test failed with "AssertionError" → classified as regression with confidence 0.85."""  # noqa: E501
 
     def test_assertion_error_classified_as_regression(self) -> None:
         history = [
@@ -71,7 +71,7 @@ class TestRegressionClassification:
 
 
 class TestInfrastructureClassification:
-    """TC2: Test failed due to "connection timeout" → classified as infrastructure, not regression."""
+    """TC2: Test failed due to "connection timeout" → classified as infrastructure, not regression."""  # noqa: E501
 
     def test_connection_timeout_classified_as_infrastructure(self) -> None:
         history = [
@@ -119,7 +119,7 @@ class TestConfigErrorClassification:
                 "Failed",
                 "2024-01-10T15:00:00Z",
                 failing_step="deploy",
-                failing_step_error="missing required field: environment variable DATABASE_URL not set",
+                failing_step_error="missing required field: environment variable DATABASE_URL not set",  # noqa: E501
             )
         ]
         request = AnalyzeFailedPipelineRequest(pipeline_name="deploy-payment-v3")
@@ -240,7 +240,7 @@ class TestMultipleFailuresAggregated:
 
         result = analyze_pipeline_failure(request, history, [])
 
-        assert len(result.failures) == 2
+        assert len(result.failures) == 2  # noqa: PLR2004
         assert result.aggregated_root_cause != ""
 
 

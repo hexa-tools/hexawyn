@@ -31,7 +31,7 @@ def _build_summary(
     rotation_threshold_days: int,
 ) -> str:
     if not findings:
-        summary = f"No secrets stale (>{rotation_threshold_days} days) out of {total_secrets_checked} checked."
+        summary = f"No secrets stale (>{rotation_threshold_days} days) out of {total_secrets_checked} checked."  # noqa: E501
     else:
         summary = (
             f"{len(findings)} secret(s) stale (>{rotation_threshold_days} days) "

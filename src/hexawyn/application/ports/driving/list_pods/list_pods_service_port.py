@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.list_pods.list_pods_command import ListPodsCommand
-from hexawyn.application.ports.driving.list_pods.list_pods_response import ListPodsResponse
+from hexawyn.application.use_case.workloads.list_pods.command import ListPodsCommand
+from hexawyn.application.use_case.workloads.list_pods.response import ListPodsResponse
 
 
 class ListPodsServicePort(ABC):

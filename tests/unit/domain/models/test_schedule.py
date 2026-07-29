@@ -25,7 +25,7 @@ class TestCronCheck:
 
         assert check.enabled is True
         assert check.notify_policy == "on_change"
-        assert check.timeout_seconds == 300
+        assert check.timeout_seconds == 300  # noqa: PLR2004
         assert check.params == {}
         assert check.destinations == ["slack"]
 

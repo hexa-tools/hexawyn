@@ -20,7 +20,7 @@ class TestMemoryPrediction:
             otel_root_cause="DB query returning 15MB on each /checkout",
             risk=PredictionRisk.CRITICAL,
         )
-        assert p.saturation_in_minutes == 20.0
+        assert p.saturation_in_minutes == 20.0  # noqa: PLR2004
         assert p.risk == PredictionRisk.CRITICAL
 
     def test_stable(self) -> None:

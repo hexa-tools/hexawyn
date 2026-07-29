@@ -1,11 +1,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Literal, TypedDict
 
 ComplianceCategory = Literal["tls", "rbac", "pod_security", "image_scanning", "secret_rotation"]
 ComplianceStatus = Literal["compliant", "non_compliant", "exempt", "policy_not_defined"]
 PostureTrend = Literal["improving", "degrading", "stable"]
+
+
+class WorkloadComplianceRaw(TypedDict):
+    workload: str
+    namespace: str
+    category: str
+    compliant: bool
+    exempt: bool
+    detail: str
 
 
 @dataclass(frozen=True)

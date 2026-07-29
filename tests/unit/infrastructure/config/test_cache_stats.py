@@ -8,11 +8,11 @@ class TestCacheStats:
         with patch("hexawyn.infrastructure.config.cache_manager._repository") as mock_repo:
             mock_repo.size.return_value = 5
             stats = get_cache_stats()
-            assert stats["l1_size"] == 5
+            assert stats["l1_size"] == 5  # noqa: PLR2004
 
     def test_returns_ttl_seconds(self):
         stats = get_cache_stats()
-        assert stats["l1_ttl_seconds"] == 300
+        assert stats["l1_ttl_seconds"] == 300  # noqa: PLR2004
 
     def test_health_includes_cache_stats(self):
         with patch(
@@ -34,4 +34,4 @@ class TestCacheStats:
         with patch("hexawyn.infrastructure.config.cache_manager._repository") as mock_repo:
             mock_repo.size.return_value = 9999
             stats = get_cache_stats()
-            assert stats["l1_size"] == 9999
+            assert stats["l1_size"] == 9999  # noqa: PLR2004

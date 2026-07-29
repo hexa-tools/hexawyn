@@ -9,8 +9,8 @@ class TestOpenShift:
             assert key in OPENSHIFT_SCENARIO
 
     def test_health_score(self):
-        assert OPENSHIFT_SCENARIO["health"]["score"] == 71
+        assert OPENSHIFT_SCENARIO["health"]["score"] == 71  # noqa: PLR2004
 
     def test_has_projects(self):
         assert "projects" in OPENSHIFT_SCENARIO
-        assert len(OPENSHIFT_SCENARIO["projects"]) == 3
+        assert len(OPENSHIFT_SCENARIO["projects"]) == 3  # noqa: PLR2004

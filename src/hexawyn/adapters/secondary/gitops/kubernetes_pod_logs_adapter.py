@@ -78,8 +78,7 @@ def _translate_error(exc: Exception, request: AnalyzePodLogsRequest) -> Exceptio
     context = {"pod_name": request.pod_name, "namespace": request.namespace}
     if status == _K8S_NOT_FOUND:
         return ResourceNotFoundError(
-            f"Pod {request.pod_name!r} not found or not running in namespace "
-            f"{request.namespace!r}",
+            f"Pod {request.pod_name!r} not found or not running in namespace {request.namespace!r}",
             context=context,
         )
     if status == _K8S_FORBIDDEN:

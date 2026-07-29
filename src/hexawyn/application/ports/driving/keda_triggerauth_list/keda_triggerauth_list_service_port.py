@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.keda_triggerauth_list.keda_triggerauth_list_command import (
+from hexawyn.application.use_case.keda.keda_triggerauth_list.command import (  # type: ignore
     KedaTriggerAuthListCommand,
 )
-from hexawyn.application.ports.driving.keda_triggerauth_list.keda_triggerauth_list_response import (
+from hexawyn.application.use_case.keda.keda_triggerauth_list.response import (  # type: ignore
     KedaTriggerAuthListResponse,
 )
 

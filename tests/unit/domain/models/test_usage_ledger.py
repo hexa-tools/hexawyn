@@ -7,7 +7,7 @@ from hexawyn.domain.models.usage import InvestigationUsage
 from hexawyn.infrastructure.monitoring.usage_ledger import UsageLedger, _parse_iso
 
 
-def _make_entry(
+def _make_entry(  # noqa: PLR0913
     timestamp: str = "2026-07-16T14:32:01Z",
     query: str = "why is payments-api OOM?",
     tool_name: str = "crashloop_detector",
@@ -48,7 +48,7 @@ class TestUsageLedgerRecord:
             assert len(lines) == 1
             entry = json.loads(lines[0])
             assert entry["tool_name"] == "crashloop_detector"
-            assert entry["duration_ms"] == 4200
+            assert entry["duration_ms"] == 4200  # noqa: PLR2004
 
     def test_record_creates_parent_directories(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -66,7 +66,7 @@ class TestUsageLedgerRecord:
             ledger.record(_make_entry(tool_name="tool_c"))
 
             lines = path.read_text().strip().split("\n")
-            assert len(lines) == 3
+            assert len(lines) == 3  # noqa: PLR2004
 
     def test_record_does_not_crash_on_disk_full(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -92,7 +92,7 @@ class TestUsageLedgerReadAll:
             ledger.record(_make_entry(tool_name="oomkilled_detector"))
 
             entries = ledger.read_all()
-            assert len(entries) == 2
+            assert len(entries) == 2  # noqa: PLR2004
             assert entries[0]["tool_name"] == "crashloop_detector"
             assert entries[1]["tool_name"] == "oomkilled_detector"
 
@@ -109,7 +109,7 @@ class TestUsageLedgerReadAll:
             ledger.record(_make_entry(timestamp="2026-07-17T08:00:00Z", tool_name="newest"))
 
             entries = ledger.read_all(since="2026-07-16T00:00:00Z")
-            assert len(entries) == 2
+            assert len(entries) == 2  # noqa: PLR2004
             assert all(e["tool_name"] in ("new", "newest") for e in entries)
 
     def test_read_all_tool_filter(self) -> None:
@@ -121,7 +121,7 @@ class TestUsageLedgerReadAll:
             ledger.record(_make_entry(tool_name="crashloop_detector"))
 
             entries = ledger.read_all(tool="crashloop_detector")
-            assert len(entries) == 2
+            assert len(entries) == 2  # noqa: PLR2004
             assert all(e["tool_name"] == "crashloop_detector" for e in entries)
 
     def test_read_all_skips_corrupted_lines(self) -> None:
@@ -131,7 +131,7 @@ class TestUsageLedgerReadAll:
             ledger = UsageLedger(path=path)
 
             entries = ledger.read_all()
-            assert len(entries) == 2
+            assert len(entries) == 2  # noqa: PLR2004
 
     def test_read_all_skips_blank_lines(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -145,7 +145,7 @@ class TestUsageLedgerReadAll:
             ledger = UsageLedger(path=path)
 
             entries = ledger.read_all()
-            assert len(entries) == 2
+            assert len(entries) == 2  # noqa: PLR2004
 
     def test_read_all_skips_non_dict_entries(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -159,7 +159,7 @@ class TestUsageLedgerReadAll:
             ledger = UsageLedger(path=path)
 
             entries = ledger.read_all()
-            assert len(entries) == 2
+            assert len(entries) == 2  # noqa: PLR2004
 
     def test_read_all_handles_os_error(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -185,8 +185,8 @@ class TestParseIso:
     def test_returns_datetime_for_valid_iso(self) -> None:
         result = _parse_iso("2026-07-16T10:00:00Z")
         assert result is not None
-        assert result.month == 7
-        assert result.day == 16
+        assert result.month == 7  # noqa: PLR2004
+        assert result.day == 16  # noqa: PLR2004
 
     def test_returns_none_for_invalid_string(self) -> None:
         assert _parse_iso("not-a-date") is None
@@ -236,11 +236,11 @@ class TestUsageLedgerStats:
             )
 
             stats = ledger.stats(days=365)
-            assert stats["total_investigations"] == 3
+            assert stats["total_investigations"] == 3  # noqa: PLR2004
             assert stats["total_tokens"] == 400 + 200 + 500 + 250 + 300 + 150
-            assert stats["total_duration_ms"] == 15000
-            assert stats["avg_duration_ms"] == 5000
-            assert stats["verdict_distribution"]["PASS"] == 2
+            assert stats["total_duration_ms"] == 15000  # noqa: PLR2004
+            assert stats["avg_duration_ms"] == 5000  # noqa: PLR2004
+            assert stats["verdict_distribution"]["PASS"] == 2  # noqa: PLR2004
             assert stats["verdict_distribution"]["DEGRADED"] == 1
 
     def test_stats_top_tools_sorted_by_count(self) -> None:
@@ -257,7 +257,7 @@ class TestUsageLedgerStats:
             stats = ledger.stats(days=365)
             tools = stats["top_tools"]
             assert tools[0]["tool_name"] == "zombie_detector"
-            assert tools[0]["count"] == 7
+            assert tools[0]["count"] == 7  # noqa: PLR2004
             assert tools[1]["tool_name"] == "crashloop_detector"
             assert tools[2]["tool_name"] == "oomkilled_detector"
 
@@ -270,7 +270,7 @@ class TestUsageLedgerStats:
             ledger.record(_make_entry(model="deepseek-r1:7b"))
 
             stats = ledger.stats(days=365)
-            assert stats["models_used"]["qwen3:8b"] == 2
+            assert stats["models_used"]["qwen3:8b"] == 2  # noqa: PLR2004
             assert stats["models_used"]["deepseek-r1:7b"] == 1
             assert "-" not in stats["models_used"]
 
@@ -306,13 +306,13 @@ class TestUsageLedgerMonthlyReport:
             )
 
             report = ledger.monthly_report(2026, 7)
-            assert report.year == 2026
-            assert report.month == 7
-            assert report.stats["total_investigations"] == 3
-            assert len(report.daily_breakdown) == 2
+            assert report.year == 2026  # noqa: PLR2004
+            assert report.month == 7  # noqa: PLR2004
+            assert report.stats["total_investigations"] == 3  # noqa: PLR2004
+            assert len(report.daily_breakdown) == 2  # noqa: PLR2004
 
             day_15 = next(d for d in report.daily_breakdown if d["date"] == "2026-07-15")
-            assert day_15["investigations"] == 2
+            assert day_15["investigations"] == 2  # noqa: PLR2004
             assert day_15["tokens"] == 100 + 50 + 200 + 100
 
             day_16 = next(d for d in report.daily_breakdown if d["date"] == "2026-07-16")
@@ -340,7 +340,7 @@ class TestUsageLedgerMonthlyReport:
             )
 
             report = ledger.monthly_report(2025, 12)
-            assert report.year == 2025
-            assert report.month == 12
+            assert report.year == 2025  # noqa: PLR2004
+            assert report.month == 12  # noqa: PLR2004
             assert report.stats["total_investigations"] == 1
             assert len(report.daily_breakdown) == 1

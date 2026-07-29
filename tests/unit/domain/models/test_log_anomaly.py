@@ -19,7 +19,7 @@ class TestLogAnomaly:
         )
         assert anomaly.timestamp == "2024-01-01T15:00:00Z"
         assert anomaly.log_line == "500 lines/min (10x baseline)"
-        assert anomaly.anomaly_score == 4.2
+        assert anomaly.anomaly_score == 4.2  # noqa: PLR2004
         assert anomaly.type == "volume"
         assert anomaly.low_confidence is False
 
@@ -35,15 +35,15 @@ class TestDetectLogAnomaliesRequest:
         request = DetectLogAnomaliesRequest(pod_name="inventory-service", namespace="prod")
         assert request.pod_name == "inventory-service"
         assert request.namespace == "prod"
-        assert request.time_window_minutes == 240
-        assert request.zscore_threshold == 3.0
+        assert request.time_window_minutes == 240  # noqa: PLR2004
+        assert request.zscore_threshold == 3.0  # noqa: PLR2004
 
     def test_custom_values(self) -> None:
         request = DetectLogAnomaliesRequest(
             pod_name="p", namespace="n", time_window_minutes=60, zscore_threshold=2.0
         )
-        assert request.time_window_minutes == 60
-        assert request.zscore_threshold == 2.0
+        assert request.time_window_minutes == 60  # noqa: PLR2004
+        assert request.zscore_threshold == 2.0  # noqa: PLR2004
 
 
 class TestDetectLogAnomaliesResult:

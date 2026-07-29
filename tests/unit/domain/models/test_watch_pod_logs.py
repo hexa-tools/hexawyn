@@ -31,9 +31,9 @@ class TestCriticalMatch:
 class TestWatchPodLogsRequest:
     def test_defaults(self) -> None:
         req = WatchPodLogsRequest(pod_name="payment-service-7f9b", namespace="prod")
-        assert req.timeout_seconds == 300
-        assert req.max_reconnect_attempts == 3
-        assert req.sample_rate == 100
+        assert req.timeout_seconds == 300  # noqa: PLR2004
+        assert req.max_reconnect_attempts == 3  # noqa: PLR2004
+        assert req.sample_rate == 100  # noqa: PLR2004
 
     def test_explicit_values(self) -> None:
         req = WatchPodLogsRequest(
@@ -43,9 +43,9 @@ class TestWatchPodLogsRequest:
             max_reconnect_attempts=1,
             sample_rate=5,
         )
-        assert req.timeout_seconds == 10
+        assert req.timeout_seconds == 10  # noqa: PLR2004
         assert req.max_reconnect_attempts == 1
-        assert req.sample_rate == 5
+        assert req.sample_rate == 5  # noqa: PLR2004
 
 
 class TestWatchPodLogsResult:
@@ -72,7 +72,7 @@ class TestWatchPodLogsResult:
         )
         assert result.stop_reason == "timeout"
         assert len(result.alerts) == 1
-        assert result.lines_observed == 501
+        assert result.lines_observed == 501  # noqa: PLR2004
 
     def test_defaults(self) -> None:
         result = WatchPodLogsResult(

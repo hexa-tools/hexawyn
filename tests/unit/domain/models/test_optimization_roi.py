@@ -19,7 +19,7 @@ class TestOptimizationItem:
         )
 
         assert item.category == "right_sizing"
-        assert item.monthly_saving_eur == 350.0
+        assert item.monthly_saving_eur == 350.0  # noqa: PLR2004
 
 
 class TestPerformanceImpact:
@@ -72,6 +72,6 @@ class TestOptimizationRoiReport:
             has_regression=True,
         )
 
-        assert report.monthly_saving_eur == 350.0
-        assert report.annual_saving_eur == 4200.0
+        assert report.monthly_saving_eur == 350.0  # noqa: PLR2004
+        assert report.annual_saving_eur == 4200.0  # noqa: PLR2004
         assert report.has_regression is True

@@ -26,11 +26,11 @@ def build_recommendation(
 ) -> str:
     no_usage_confirmed = not suggested_role.rules and suggested_role.basis == "audit_log"
     if no_usage_confirmed:
-        return "No API usage observed in the audit window — recommend you remove all permissions for this service account."
+        return "No API usage observed in the audit window — recommend you remove all permissions for this service account."  # noqa: E501
     if risk_level == "low":
         return "Current permissions are minimal — no action needed."
     if not suggested_role.rules:
-        return "No API usage observed in the audit window — recommend you remove all permissions for this service account."
+        return "No API usage observed in the audit window — recommend you remove all permissions for this service account."  # noqa: E501
     described = "; ".join(
         f"{'/'.join(rule.verbs)} {', '.join(rule.resources)}" for rule in suggested_role.rules
     )

@@ -21,7 +21,7 @@ def _response(status_code: int = 200, json_body: dict | None = None) -> MagicMoc
     mock_response = MagicMock(spec=httpx.Response)
     mock_response.status_code = status_code
     mock_response.json.return_value = json_body or {}
-    if status_code >= 400:
+    if status_code >= 400:  # noqa: PLR2004
         mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
             "error", request=MagicMock(), response=mock_response
         )

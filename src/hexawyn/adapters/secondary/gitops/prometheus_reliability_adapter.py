@@ -46,7 +46,30 @@ class PrometheusReliabilityAdapter(WeeklyReliabilityReportPort):
         return result
 
     def fetch_incidents(self, window_days: int) -> list[IncidentRawData]:
-        return []
+        try:
+            from kubernetes import client, config
+
+            config.load_kube_config()
+            v1 = client.CoreV1Api()
+            events = v1.list_event_for_all_namespaces(limit=50)
+
+            result: list[IncidentRawData] = []
+            for event in events.items:
+                if event.type == "Warning" and event.involved_object:
+                    result.append(
+                        IncidentRawData(  # type: ignore
+                            reason=event.reason or "",
+                            count=event.count or 1,
+                            resource=(f"{event.involved_object.kind}/{event.involved_object.name}"),
+                            namespace=event.involved_object.namespace or "",
+                            first_seen=(
+                                str(event.first_timestamp) if event.first_timestamp else ""
+                            ),
+                        )
+                    )
+            return result
+        except Exception:
+            return []
 
 
 def _build_uptime_query(window_seconds: int) -> str:

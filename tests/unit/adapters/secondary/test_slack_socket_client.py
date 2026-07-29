@@ -288,7 +288,7 @@ class TestHandleSocketMessage:
 
         adapter.handle_message.assert_called_once()
         publisher.update_message.assert_not_called()
-        assert publisher.post_message.call_count == 2  # thinking + fallback result
+        assert publisher.post_message.call_count == 2  # thinking + fallback result  # noqa: PLR2004
 
     @pytest.mark.asyncio
     async def test_handles_invalid_json_gracefully(self) -> None:
@@ -330,6 +330,35 @@ class TestRun:
         mock_connect = AsyncMock()
         mock_connect.__aenter__.side_effect = ConnectionError("refused")
         mock_connect.__aexit__.return_value = None
+
+        with patch.object(client, "_open_connection", return_value="wss://fake.slack.com/link"):
+            with patch("websockets.connect", return_value=mock_connect):
+                with patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
+                    client._running = True
+                    run_task = asyncio.ensure_future(client.run())
+                    await asyncio.sleep(0.05)
+                    client._running = False
+                    await run_task
+
+            assert mock_sleep.call_count >= 1
+
+    @pytest.mark.asyncio
+    async def test_handles_connection_closed(self) -> None:
+        from websockets.exceptions import ConnectionClosed
+        from websockets.frames import Close
+
+        client, _, _, _ = _make_client()
+
+        mock_ws = MagicMock()
+        mock_ws.__aiter__.side_effect = ConnectionClosed(
+            rcvd=Close(1000, "ok"), sent=Close(1000, "ok"), rcvd_then_sent=False
+        )
+
+        async def _ctx_manager() -> MagicMock:
+            return mock_ws
+
+        mock_connect = MagicMock()
+        mock_connect.__aenter__ = _ctx_manager
 
         with patch.object(client, "_open_connection", return_value="wss://fake.slack.com/link"):
             with patch("websockets.connect", return_value=mock_connect):

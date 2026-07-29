@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.hot_node_analysis.hot_node_analysis_command import (
+from hexawyn.application.use_case.cluster.hot_node_analysis.command import (
     HotNodeAnalysisCommand,
 )
-from hexawyn.application.ports.driving.hot_node_analysis.hot_node_analysis_response import (
+from hexawyn.application.use_case.cluster.hot_node_analysis.response import (
     HotNodeAnalysisResponse,
 )
 

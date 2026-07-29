@@ -15,7 +15,7 @@ class TestDemoAdapterInit:
     def test_unknown_scenario_falls_back_to_aws_eks(self):
         adapter = DemoAdapter(scenario="unknown_provider")
         assert adapter.scenario == "aws_eks"
-        assert adapter.get_health_score() == 76
+        assert adapter.get_health_score() == 76  # noqa: PLR2004
 
     def test_implements_all_ports(self):
         adapter = DemoAdapter()
@@ -33,14 +33,14 @@ class TestDemoAdapterAWSEKS:
         self.adapter = DemoAdapter(scenario="aws_eks")
 
     def test_health_score(self):
-        assert self.adapter.get_health_score() == 76
+        assert self.adapter.get_health_score() == 76  # noqa: PLR2004
 
     def test_health_status(self):
         assert self.adapter.get_health_status() == "degraded"
 
     def test_list_pods_returns_all(self):
         pods = self.adapter.list_pods()
-        assert len(pods) == 6
+        assert len(pods) == 6  # noqa: PLR2004
 
     def test_list_pods_filtered_by_namespace(self):
         pods = self.adapter.list_pods(namespace="production")
@@ -50,7 +50,7 @@ class TestDemoAdapterAWSEKS:
         pods = self.adapter.list_pods()
         crashloop = [p for p in pods if p["status"] == "CrashLoop"]
         assert len(crashloop) == 1
-        assert crashloop[0]["restarts"] == 8
+        assert crashloop[0]["restarts"] == 8  # noqa: PLR2004
 
     def test_list_pods_has_pending(self):
         pods = self.adapter.list_pods()
@@ -64,7 +64,7 @@ class TestDemoAdapterAWSEKS:
 
     def test_get_suggestion_chips_max_4(self):
         chips = self.adapter.get_suggestion_chips()
-        assert len(chips) <= 4
+        assert len(chips) <= 4  # noqa: PLR2004
 
     def test_get_cluster_metrics(self):
         metrics = self.adapter.get_cluster_metrics()
@@ -78,7 +78,7 @@ class TestDemoAdapterAzureAKS:
         self.adapter = DemoAdapter(scenario="azure_aks")
 
     def test_health_score_is_98(self):
-        assert self.adapter.get_health_score() == 98
+        assert self.adapter.get_health_score() == 98  # noqa: PLR2004
 
     def test_health_status_is_healthy(self):
         assert self.adapter.get_health_status() == "healthy"
@@ -94,7 +94,7 @@ class TestDemoAdapterGCPGKE:
         self.adapter = DemoAdapter(scenario="gcp_gke")
 
     def test_health_score_is_84(self):
-        assert self.adapter.get_health_score() == 84
+        assert self.adapter.get_health_score() == 84  # noqa: PLR2004
 
     def test_slo_breach_in_metrics(self):
         metrics = self.adapter.get_cluster_metrics()
@@ -106,11 +106,11 @@ class TestDemoAdapterOpenShift:
         self.adapter = DemoAdapter(scenario="openshift")
 
     def test_health_score_is_71(self):
-        assert self.adapter.get_health_score() == 71
+        assert self.adapter.get_health_score() == 71  # noqa: PLR2004
 
     def test_list_projects(self):
         projects = self.adapter.list_projects()
-        assert len(projects) == 3
+        assert len(projects) == 3  # noqa: PLR2004
         assert projects[0]["name"] == "production"
 
     def test_list_routes_has_no_tls_route(self):
@@ -130,11 +130,11 @@ class TestDemoAdapterDatadog:
         self.adapter = DemoAdapter(scenario="datadog")
 
     def test_health_score_is_79(self):
-        assert self.adapter.get_health_score() == 79
+        assert self.adapter.get_health_score() == 79  # noqa: PLR2004
 
     def test_triggered_monitors_count(self):
         monitors = self.adapter.get_triggered_monitors()
-        assert len(monitors) == 2
+        assert len(monitors) == 2  # noqa: PLR2004
 
     def test_has_alert_monitor(self):
         monitors = self.adapter.get_triggered_monitors()
@@ -144,7 +144,7 @@ class TestDemoAdapterDatadog:
     def test_apm_payments_api_p99(self):
         services = self.adapter.get_apm_services()
         payments = [s for s in services if s["service"] == "payments-api"]
-        assert payments[0]["p99_ms"] == 820
+        assert payments[0]["p99_ms"] == 820  # noqa: PLR2004
 
     def test_get_slow_traces_above_threshold(self):
         traces = self.adapter.get_slow_traces(
@@ -153,7 +153,7 @@ class TestDemoAdapterDatadog:
             time_window_minutes=15,
         )
         assert len(traces) >= 1
-        assert all(t["p99_ms"] > 500 for t in traces)
+        assert all(t["p99_ms"] > 500 for t in traces)  # noqa: PLR2004
 
 
 class TestDemoAdapterClusterContext:
@@ -255,7 +255,7 @@ class TestDemoAdapterLogs:
             pattern="error",
             time_window_minutes=15,
         )
-        assert len(logs) == 2
+        assert len(logs) == 2  # noqa: PLR2004
         assert all("timestamp" in entry for entry in logs)
         assert "namespace all" in logs[0]["message"]
 

@@ -3,7 +3,7 @@ from hexawyn.domain.models.helm_values_diff import HelmValuesDiffReport
 
 class TestDiffHelmValuesResponse:
     def test_wraps_report(self) -> None:
-        from hexawyn.application.ports.driving.diff_helm_values.diff_helm_values_response import (
+        from hexawyn.application.use_case.gitops.diff_helm_values.response import (
             DiffHelmValuesResponse,
         )
 

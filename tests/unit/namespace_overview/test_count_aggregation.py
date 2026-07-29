@@ -32,12 +32,12 @@ class TestAggregateCounts:
 
         counts = aggregate_counts(pods, deployments, services_count=5)
 
-        assert counts.pods_total == 12
-        assert counts.pods_running == 9
-        assert counts.pods_failed == 3
-        assert counts.deployments_total == 4
-        assert counts.deployments_ready == 3
-        assert counts.services_total == 5
+        assert counts.pods_total == 12  # noqa: PLR2004
+        assert counts.pods_running == 9  # noqa: PLR2004
+        assert counts.pods_failed == 3  # noqa: PLR2004
+        assert counts.deployments_total == 4  # noqa: PLR2004
+        assert counts.deployments_ready == 3  # noqa: PLR2004
+        assert counts.services_total == 5  # noqa: PLR2004
 
     def test_all_pods_running_no_failures(self) -> None:
         """TC1: 10 pods all Running."""
@@ -45,8 +45,8 @@ class TestAggregateCounts:
 
         counts = aggregate_counts(pods, [], services_count=0)
 
-        assert counts.pods_total == 10
-        assert counts.pods_running == 10
+        assert counts.pods_total == 10  # noqa: PLR2004
+        assert counts.pods_running == 10  # noqa: PLR2004
         assert counts.pods_failed == 0
 
     def test_empty_namespace_all_zero(self) -> None:

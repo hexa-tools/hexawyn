@@ -1,13 +1,15 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.audit_tls_compliance.audit_tls_compliance_command import (
-    AuditTLSComplianceCommand,
+from hexawyn.application.use_case.security.audit_tls_compliance.command import (
+    AuditTlsComplianceCommand,
 )
-from hexawyn.application.ports.driving.audit_tls_compliance.audit_tls_compliance_response import (
-    AuditTLSComplianceResponse,
+from hexawyn.application.use_case.security.audit_tls_compliance.response import (
+    AuditTlsComplianceResponse,
 )
 
 
 class AuditTLSComplianceServicePort(ABC):
     @abstractmethod
-    def audit(self, command: AuditTLSComplianceCommand) -> AuditTLSComplianceResponse: ...
+    def audit(self, command: AuditTlsComplianceCommand) -> AuditTlsComplianceResponse: ...

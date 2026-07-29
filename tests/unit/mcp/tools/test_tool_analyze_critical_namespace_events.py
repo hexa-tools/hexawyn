@@ -11,14 +11,24 @@ class TestAnalyzeCriticalNamespaceEventsTool:
             analyze_critical_namespace_events,
         )
 
+        mock_response = MagicMock()
+        mock_response.critical_events = []
+        mock_response.error = None
+        mock_uc = MagicMock()
+        mock_uc.execute.return_value = mock_response
+
         with (
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
             patch("hexawyn.mcp.server.build_k8s_adapter", return_value=MagicMock()),
             patch("hexawyn.mcp.server.build_namespace_events_adapter", return_value=MagicMock()),
+            patch(
+                "hexawyn.mcp.tools.analyze_critical_namespace_events.AnalyzeCriticalNamespaceEventsUseCase",
+                return_value=mock_uc,
+            ),
         ):
-            result = analyze_critical_namespace_events(namespace="test-ns")
+            result = analyze_critical_namespace_events()
 
         assert isinstance(result, dict)
+        assert "critical_events" in result
 
     def test_analyze_critical_namespace_events_handles_error(self) -> None:
         from hexawyn.mcp.tools.analyze_critical_namespace_events import (
@@ -26,16 +36,19 @@ class TestAnalyzeCriticalNamespaceEventsTool:
         )
 
         with (
-            patch("hexawyn.mcp.server.build_k8s_adapter", side_effect=RuntimeError("test error")),
+            patch(
+                "hexawyn.mcp.server.build_k8s_adapter",
+                side_effect=RuntimeError("test error"),
+            ),
             patch(
                 "hexawyn.mcp.server.build_namespace_events_adapter",
                 side_effect=RuntimeError("test error"),
             ),
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
         ):
-            result = analyze_critical_namespace_events(namespace="test-ns")
+            result = analyze_critical_namespace_events()
 
         assert isinstance(result, dict)
+        assert result.get("error") == "test error"
 
     def test_has_register(self) -> None:
         import importlib

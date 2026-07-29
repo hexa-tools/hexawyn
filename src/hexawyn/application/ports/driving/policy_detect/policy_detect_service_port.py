@@ -2,15 +2,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.policy_detect.policy_detect_command import (
+from hexawyn.application.use_case.governance.policy_detect.command import (
     PolicyDetectCommand,
 )
-from hexawyn.application.ports.driving.policy_detect.policy_detect_response import (
+from hexawyn.application.use_case.governance.policy_detect.response import (
     PolicyDetectResponse,
 )
 
 
 class PolicyDetectServicePort(ABC):
     @abstractmethod
-    def detect(self, command: PolicyDetectCommand) -> PolicyDetectResponse:
-        """Detect the policy engine."""
+    def detect(self, command: PolicyDetectCommand) -> PolicyDetectResponse: ...

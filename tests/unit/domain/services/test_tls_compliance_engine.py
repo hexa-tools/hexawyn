@@ -7,7 +7,7 @@ from hexawyn.domain.services.tls_compliance.tls_compliance_engine import (
 )
 
 
-def _service(
+def _service(  # noqa: PLR0913
     service_name: str = "payment-service",
     namespace: str = "production",
     tls_configured: bool = True,
@@ -44,7 +44,7 @@ class TestTLSDetection:
         result = engine.compute(services)
 
         assert result.services[0].severity == "warning"
-        assert result.services[0].days_remaining == 7
+        assert result.services[0].days_remaining == 7  # noqa: PLR2004
 
     def test_no_tls_high_risk(self) -> None:
         engine = TLSComplianceEngine()
@@ -80,7 +80,7 @@ class TestTLSDetection:
 
         assert result.services[0].severity == "critical"
         assert result.services[1].severity == "high_risk"
-        assert result.total_issues == 3
+        assert result.total_issues == 3  # noqa: PLR2004
 
 
 class TestEdgeCases:
@@ -101,7 +101,7 @@ class TestEdgeCases:
 
         result = engine.compute(services)
 
-        assert len(result.services) == 2
+        assert len(result.services) == 2  # noqa: PLR2004
         assert result.services[0].severity == "critical"
 
     def test_proxy_tls_termination_detected(self) -> None:

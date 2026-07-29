@@ -5,7 +5,7 @@ from hexawyn.domain.services.kustomize_patch_conflict.kustomize_patch_conflict_e
 )
 
 
-def _patch_field(
+def _patch_field(  # noqa: PLR0913
     field_path: str = "spec.replicas",
     resource: str = "Deployment/payment-service",
     value: str = "2",
@@ -49,7 +49,7 @@ class TestConflictDetection:
         assert result.total_conflicts == 1
         assert result.patch_conflicts[0].field_path == "spec.replicas"
         assert result.patch_conflicts[0].effective_value == "5"
-        assert len(result.patch_conflicts[0].conflicting_values) == 2
+        assert len(result.patch_conflicts[0].conflicting_values) == 2  # noqa: PLR2004
         assert (
             result.patch_conflicts[0].conflicting_values[0].source_file == "patches/scale-up.yaml"
         )
@@ -106,7 +106,7 @@ class TestConflictDetection:
 
         result = engine.compute(patches, base)
 
-        assert result.total_conflicts == 2
+        assert result.total_conflicts == 2  # noqa: PLR2004
 
     def test_last_patch_wins(self) -> None:
         engine = KustomizePatchConflictEngine()
@@ -177,7 +177,7 @@ class TestRedundancyDetection:
 
         result = engine.compute(patches, base)
 
-        assert result.total_redundancies == 2
+        assert result.total_redundancies == 2  # noqa: PLR2004
 
     def test_patch_redundant_from_earlier_patch_not_base(self) -> None:
         engine = KustomizePatchConflictEngine()

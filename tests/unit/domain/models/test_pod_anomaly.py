@@ -26,7 +26,7 @@ class TestPodAnomaly:
             baseline_mean=200.0,
         )
         assert anomaly.severity == EventSeverity.CRITICAL
-        assert anomaly.deviation_pct == 325.0
+        assert anomaly.deviation_pct == 325.0  # noqa: PLR2004
         assert anomaly.note == ""
 
 
@@ -42,11 +42,11 @@ class TestExcludedPod:
 class TestPodAnomalyDetectionRequest:
     def test_defaults(self) -> None:
         request = PodAnomalyDetectionRequest(namespace="production")
-        assert request.baseline_window_days == 7
+        assert request.baseline_window_days == 7  # noqa: PLR2004
 
     def test_custom_window(self) -> None:
         request = PodAnomalyDetectionRequest(namespace="production", baseline_window_days=14)
-        assert request.baseline_window_days == 14
+        assert request.baseline_window_days == 14  # noqa: PLR2004
 
 
 class TestPodAnomalyDetectionReport:

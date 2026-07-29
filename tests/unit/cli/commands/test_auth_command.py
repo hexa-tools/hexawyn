@@ -1,309 +1,247 @@
-"""Tests for hexa auth CLI commands."""
+from __future__ import annotations
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
-from hexawyn.cli.main import app
+from hexawyn.cli.commands.auth_command import auth
+
+
+class TestAuthStatus:
+    def test_status_shows_missing_when_no_license(self) -> None:
+        runner = CliRunner()
+        with patch(
+            "hexawyn.cli.commands.auth_command.read_license_state",
+        ) as mock_read:
+            mock_read.return_value = MagicMock(
+                state="missing", plan="unknown", days_remaining=0, expiry_date=""
+            )
+            result = runner.invoke(auth, ["status"])
+
+        assert result.exit_code == 0
+        assert "License not configured" in result.output
+
+    def test_status_shows_invalid_when_corrupt(self) -> None:
+        runner = CliRunner()
+        with patch(
+            "hexawyn.cli.commands.auth_command.read_license_state",
+        ) as mock_read:
+            mock_read.return_value = MagicMock(
+                state="invalid", plan="unknown", days_remaining=0, expiry_date=""
+            )
+            result = runner.invoke(auth, ["status"])
+
+        assert result.exit_code == 0
+        assert "Could not read license data" in result.output
+
+    def test_status_shows_expired_license(self) -> None:
+        runner = CliRunner()
+        with patch(
+            "hexawyn.cli.commands.auth_command.read_license_state",
+        ) as mock_read:
+            mock_read.return_value = MagicMock(
+                state="expired", plan="starter", days_remaining=-5, expiry_date="01 Jan 2026"
+            )
+            result = runner.invoke(auth, ["status"])
+
+        assert result.exit_code == 0
+        assert "expired" in result.output.lower()
+
+    def test_status_shows_active_license(self) -> None:
+        runner = CliRunner()
+        with patch(
+            "hexawyn.cli.commands.auth_command.read_license_state",
+        ) as mock_read:
+            mock_read.return_value = MagicMock(
+                state="active",
+                plan="starter",
+                days_remaining=25,
+                expiry_date="01 Jan 2027",
+            )
+            result = runner.invoke(auth, ["status"])
+
+        assert result.exit_code == 0
+        assert "active" in result.output.lower()
 
 
 class TestAuthSetToken:
-    def setup_method(self) -> None:
-        self.runner = CliRunner()
-
-    def test_set_token_stores_license_and_shows_plan(self) -> None:
+    def test_set_token_activates_successfully(self) -> None:
+        runner = CliRunner()
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "token": "eyJhbGciOiJSUzI1NiJ9.eyJwbGFuIjoic3RhcnRlciJ9.signature",
+            "token": "jwt-token-value",
             "plan": "starter",
-            "expires_at": "2026-08-17T00:00:00Z",
+            "expires_at": "2027-01-01T00:00:00Z",
         }
 
-        fake_client = MagicMock()
-        fake_client.__aenter__ = AsyncMock(return_value=fake_client)
-        fake_client.__aexit__ = AsyncMock(return_value=None)
-        fake_client.post = AsyncMock(return_value=mock_response)
-
         with (
-            patch("httpx.AsyncClient", return_value=fake_client),
-            patch("hexawyn.cli.commands.auth_command.save_config") as mock_save,
-            patch("pathlib.Path.mkdir"),
-            patch("pathlib.Path.write_text") as mock_write,
+            patch(
+                "hexawyn.cli.commands.auth_command._activate_license",
+                return_value=mock_response,
+            ),
+            patch(
+                "hexawyn.cli.commands.auth_command.load_config",
+                return_value={},
+            ),
+            patch(
+                "hexawyn.cli.commands.auth_command.save_config",
+            ) as mock_save,
+            patch(
+                "hexawyn.cli.commands.auth_command.LICENSE_KEY_PATH",
+            ) as mock_path,
         ):
-            result = self.runner.invoke(app, ["auth", "set-token", "hxw_test_abc123"])
-        assert result.exit_code == 0
-        assert "starter" in result.output
-        mock_save.assert_called_once()
-        mock_write.assert_called_once()
+            mock_path.parent.mkdir.return_value = None
+            result = runner.invoke(auth, ["set-token", "valid-token-1234567890"])
 
-    def test_set_token_prints_error_on_401(self) -> None:
+        assert result.exit_code == 0
+        assert "License activated" in result.output
+        mock_save.assert_called_once()
+
+    def test_set_token_handles_connection_error(self) -> None:
+        runner = CliRunner()
+        import httpx
+
+        with patch(
+            "hexawyn.cli.commands.auth_command._activate_license",
+            side_effect=httpx.ConnectError("connection refused"),
+        ):
+            result = runner.invoke(auth, ["set-token", "any-token"])
+
+        assert result.exit_code == 1
+        assert "Failed to connect" in result.output
+
+    def test_set_token_handles_non_200_response(self) -> None:
+        runner = CliRunner()
         mock_response = MagicMock()
         mock_response.status_code = 401
         mock_response.json.return_value = {"detail": "Invalid API key"}
 
-        fake_client = MagicMock()
-        fake_client.__aenter__ = AsyncMock(return_value=fake_client)
-        fake_client.__aexit__ = AsyncMock(return_value=None)
-        fake_client.post = AsyncMock(return_value=mock_response)
+        with patch(
+            "hexawyn.cli.commands.auth_command._activate_license",
+            return_value=mock_response,
+        ):
+            result = runner.invoke(auth, ["set-token", "bad-token"])
 
-        with patch("httpx.AsyncClient", return_value=fake_client):
-            result = self.runner.invoke(app, ["auth", "set-token", "hxw_bad_key"])
         assert result.exit_code == 1
-        assert "Invalid" in result.output
+        assert "Invalid API key" in result.output
 
-    def test_set_token_prints_error_on_connection_failure(self) -> None:
-        import httpx
+    def test_set_token_handles_non_json_error_response(self) -> None:
+        runner = CliRunner()
+        mock_response = MagicMock()
+        mock_response.status_code = 500
+        mock_response.json.side_effect = ValueError("not json")
 
-        fake_client = MagicMock()
-        fake_client.__aenter__ = AsyncMock(return_value=fake_client)
-        fake_client.__aexit__ = AsyncMock(return_value=None)
-        fake_client.post = AsyncMock(side_effect=httpx.ConnectError("connection refused"))
+        with patch(
+            "hexawyn.cli.commands.auth_command._activate_license",
+            return_value=mock_response,
+        ):
+            result = runner.invoke(auth, ["set-token", "some-token"])
 
-        with patch("httpx.AsyncClient", return_value=fake_client):
-            result = self.runner.invoke(app, ["auth", "set-token", "hxw_test_abc"])
         assert result.exit_code == 1
-
-    def test_set_token_requires_token_argument(self) -> None:
-        result = self.runner.invoke(app, ["auth", "set-token"])
-        assert result.exit_code != 0
-
-
-class TestAuthStatus:
-    def setup_method(self) -> None:
-        self.runner = CliRunner()
-
-    def test_status_shows_not_configured_when_no_license(self) -> None:
-        from hexawyn.domain.services.license_state import LicenseState
-
-        with patch(
-            "hexawyn.cli.commands.auth_command.read_license_state",
-            return_value=LicenseState(
-                state="missing", plan="unknown", days_remaining=0, expiry_date=""
-            ),
-        ):
-            result = self.runner.invoke(app, ["auth", "status"])
-        assert result.exit_code == 0
-        assert "not configured" in result.output.lower()
-
-    def test_status_shows_plan_when_license_exists(self) -> None:
-        from hexawyn.domain.services.license_state import LicenseState
-
-        with patch(
-            "hexawyn.cli.commands.auth_command.read_license_state",
-            return_value=LicenseState(
-                state="active", plan="starter", days_remaining=30, expiry_date="19 Aug 2026"
-            ),
-        ):
-            result = self.runner.invoke(app, ["auth", "status"])
-        assert result.exit_code == 0
-        assert "starter" in result.output.lower()
-
-    def test_status_shows_expiry_when_license_exists(self) -> None:
-        from hexawyn.domain.services.license_state import LicenseState
-
-        with patch(
-            "hexawyn.cli.commands.auth_command.read_license_state",
-            return_value=LicenseState(
-                state="active", plan="team", days_remaining=60, expiry_date="18 Sep 2026"
-            ),
-        ):
-            result = self.runner.invoke(app, ["auth", "status"])
-        assert result.exit_code == 0
-        assert "Team" in result.output
-        assert "Expires" in result.output
-
-    def test_status_shows_expired_when_license_expired(self) -> None:
-        from hexawyn.domain.services.license_state import LicenseState
-
-        with patch(
-            "hexawyn.cli.commands.auth_command.read_license_state",
-            return_value=LicenseState(
-                state="expired", plan="starter", days_remaining=-1, expiry_date="19 Jul 2026"
-            ),
-        ):
-            result = self.runner.invoke(app, ["auth", "status"])
-        assert result.exit_code == 0
-        assert "expired" in result.output.lower()
-
-    def test_status_shows_error_on_invalid_license(self) -> None:
-        from hexawyn.domain.services.license_state import LicenseState
-
-        with patch(
-            "hexawyn.cli.commands.auth_command.read_license_state",
-            return_value=LicenseState(
-                state="invalid", plan="unknown", days_remaining=0, expiry_date=""
-            ),
-        ):
-            result = self.runner.invoke(app, ["auth", "status"])
-        assert result.exit_code == 0
-        assert "not read" in result.output.lower() or "could not" in result.output.lower()
+        assert "Unknown error" in result.output
 
 
 class TestFormatExpiry:
-    def test_valid_iso_date(self) -> None:
+    def test_format_expiry_returns_unknown_for_empty_string(self) -> None:
         from hexawyn.cli.commands.auth_command import _format_expiry
 
-        result = _format_expiry("2026-08-17T00:00:00Z")
-        assert "Aug 2026" in result
-        assert "days" in result
+        result = _format_expiry("")
+        assert result == "unknown"
 
-    def test_empty_string_returns_unknown(self) -> None:
+    def test_format_expiry_handles_iso_format(self) -> None:
         from hexawyn.cli.commands.auth_command import _format_expiry
 
-        assert _format_expiry("") == "unknown"
+        result = _format_expiry("2027-06-15T00:00:00Z")
+        assert "Jun" in result
+        assert "2027" in result
 
-    def test_invalid_date_returns_input(self) -> None:
+    def test_format_expiry_handles_unix_timestamp(self) -> None:
         from hexawyn.cli.commands.auth_command import _format_expiry
 
-        assert _format_expiry("not-a-date") == "not-a-date"
+        result = _format_expiry("1800000000")
+        assert "2027" in result
 
+    def test_format_expiry_returns_original_on_parse_error(self) -> None:
+        from hexawyn.cli.commands.auth_command import _format_expiry
 
-class TestActivateLicense:
-    def test_calls_api_with_token(self) -> None:
-        from hexawyn.cli.commands.auth_command import _activate_license
-
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-
-        fake_client = MagicMock()
-        fake_client.__aenter__ = AsyncMock(return_value=fake_client)
-        fake_client.__aexit__ = AsyncMock(return_value=None)
-        fake_client.post = AsyncMock(return_value=mock_response)
-
-        with patch("hexawyn.cli.commands.auth_command.httpx.AsyncClient", return_value=fake_client):
-            result = _activate_license("https://test.local", "hxw_test")
-
-        assert result.status_code == 200
-
-    def test_connection_error_propagates(self) -> None:
-        import httpx
-
-        fake_client = MagicMock()
-        fake_client.__aenter__ = AsyncMock(return_value=fake_client)
-        fake_client.__aexit__ = AsyncMock(return_value=None)
-        fake_client.post = AsyncMock(side_effect=httpx.ConnectError("refused"))
-
-        from hexawyn.cli.commands.auth_command import _activate_license
-
-        with patch("hexawyn.cli.commands.auth_command.httpx.AsyncClient", return_value=fake_client):
-            import pytest
-
-            with pytest.raises(httpx.ConnectError):
-                _activate_license("https://test.local", "hxw_test")
-
-
-class TestSetTokenErrorHandling:
-    def test_set_token_handles_corrupted_response_json(self) -> None:
-        from click.testing import CliRunner
-        from hexawyn.cli.main import app
-
-        mock_response = MagicMock()
-        mock_response.status_code = 500
-        mock_response.json.side_effect = ValueError("corrupt json")
-        fake_client = MagicMock()
-        fake_client.__aenter__ = AsyncMock(return_value=fake_client)
-        fake_client.__aexit__ = AsyncMock(return_value=None)
-        fake_client.post = AsyncMock(return_value=mock_response)
-
-        with patch("httpx.AsyncClient", return_value=fake_client):
-            runner = CliRunner()
-            result = runner.invoke(app, ["auth", "set-token", "hxw_test"])
-        assert result.exit_code == 1
+        result = _format_expiry("not-a-date")
+        assert result == "not-a-date"
 
 
 class TestAuthAccount:
-    def setup_method(self) -> None:
-        self.runner = CliRunner()
-
-    def test_account_requires_token(self) -> None:
+    def test_account_without_token_shows_error(self) -> None:
+        runner = CliRunner()
         with patch(
             "hexawyn.infrastructure.config.config_manager.load_config",
             return_value={},
         ):
-            result = self.runner.invoke(app, ["auth", "account"])
+            result = runner.invoke(auth, ["account"])
+
         assert result.exit_code == 1
         assert "No license configured" in result.output
 
-    def test_account_opens_portal_on_success(self) -> None:
-        mock_resp = MagicMock()
-        mock_resp.status_code = 200
-        mock_resp.json.return_value = {"url": "https://polar.sh/portal/123"}
+    def test_account_handles_connection_error(self) -> None:
+        runner = CliRunner()
+        import httpx
 
         with (
             patch(
                 "hexawyn.infrastructure.config.config_manager.load_config",
-                return_value={"hexawyn_token": "hxw_live_test"},
+                return_value={"hexawyn_token": "valid-token"},
             ),
-            patch("httpx.post", return_value=mock_resp),
-            patch("webbrowser.open") as mock_browser,
+            patch(
+                "hexawyn.cli.commands.auth_command.httpx.post",
+                side_effect=httpx.ConnectError("refused"),
+            ),
         ):
-            result = self.runner.invoke(app, ["auth", "account"])
-        assert result.exit_code == 0
-        assert "Opening subscription portal" in result.output
-        mock_browser.assert_called_once_with("https://polar.sh/portal/123")
+            result = runner.invoke(auth, ["account"])
 
-    def test_account_shows_404_message(self) -> None:
+        assert result.exit_code == 1
+        assert "polar.sh/purchases" in result.output
+
+    def test_account_handles_404_response(self) -> None:
+        runner = CliRunner()
         mock_resp = MagicMock()
         mock_resp.status_code = 404
 
         with (
             patch(
                 "hexawyn.infrastructure.config.config_manager.load_config",
-                return_value={"hexawyn_token": "hxw_live_test"},
+                return_value={"hexawyn_token": "valid-token"},
             ),
-            patch("httpx.post", return_value=mock_resp),
-        ):
-            result = self.runner.invoke(app, ["auth", "account"])
-        assert result.exit_code == 1
-        assert "polar.sh/purchases" in result.output
-
-    def test_account_handles_connection_error(self) -> None:
-        import httpx
-
-        with (
             patch(
-                "hexawyn.infrastructure.config.config_manager.load_config",
-                return_value={"hexawyn_token": "hxw_live_test"},
+                "hexawyn.cli.commands.auth_command.httpx.post",
+                return_value=mock_resp,
             ),
-            patch("httpx.post", side_effect=httpx.ConnectError("refused")),
         ):
-            result = self.runner.invoke(app, ["auth", "account"])
-        assert result.exit_code == 1
-        assert "Cannot reach hexa-cloud" in result.output
+            result = runner.invoke(auth, ["account"])
 
-    def test_account_handles_other_http_error(self) -> None:
+        assert result.exit_code == 1
+        assert "polar.sh" in result.output
+
+    def test_account_handles_500_with_detail(self) -> None:
+        runner = CliRunner()
         mock_resp = MagicMock()
         mock_resp.status_code = 500
-        mock_resp.json.return_value = {"detail": "Server error"}
+        mock_resp.json.return_value = {"detail": "Internal error"}
 
         with (
             patch(
                 "hexawyn.infrastructure.config.config_manager.load_config",
-                return_value={"hexawyn_token": "hxw_live_test"},
+                return_value={"hexawyn_token": "valid-token"},
             ),
-            patch("httpx.post", return_value=mock_resp),
-        ):
-            result = self.runner.invoke(app, ["auth", "account"])
-        assert result.exit_code == 1
-        assert "Server error" in result.output
-
-    def test_account_handles_error_with_corrupt_json(self) -> None:
-        mock_resp = MagicMock()
-        mock_resp.status_code = 500
-        mock_resp.json.side_effect = ValueError("bad json")
-
-        with (
             patch(
-                "hexawyn.infrastructure.config.config_manager.load_config",
-                return_value={"hexawyn_token": "hxw_live_test"},
+                "hexawyn.cli.commands.auth_command.httpx.post",
+                return_value=mock_resp,
             ),
-            patch("httpx.post", return_value=mock_resp),
         ):
-            result = self.runner.invoke(app, ["auth", "account"])
-        assert result.exit_code == 1
-        assert "Unknown error" in result.output
+            result = runner.invoke(auth, ["account"])
 
-    def test_account_handles_missing_url_in_response(self) -> None:
+        assert result.exit_code == 1
+        assert "Internal error" in result.output
+
+    def test_account_handles_missing_portal_url(self) -> None:
+        runner = CliRunner()
         mock_resp = MagicMock()
         mock_resp.status_code = 200
         mock_resp.json.return_value = {}
@@ -311,10 +249,39 @@ class TestAuthAccount:
         with (
             patch(
                 "hexawyn.infrastructure.config.config_manager.load_config",
-                return_value={"hexawyn_token": "hxw_live_test"},
+                return_value={"hexawyn_token": "valid-token"},
             ),
-            patch("httpx.post", return_value=mock_resp),
+            patch(
+                "hexawyn.cli.commands.auth_command.httpx.post",
+                return_value=mock_resp,
+            ),
         ):
-            result = self.runner.invoke(app, ["auth", "account"])
+            result = runner.invoke(auth, ["account"])
+
         assert result.exit_code == 1
         assert "No portal URL returned" in result.output
+
+    def test_account_opens_browser_on_success(self) -> None:
+        runner = CliRunner()
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = {"url": "https://polar.sh/portal/xyz"}
+
+        with (
+            patch(
+                "hexawyn.infrastructure.config.config_manager.load_config",
+                return_value={"hexawyn_token": "valid-token"},
+            ),
+            patch(
+                "hexawyn.cli.commands.auth_command.httpx.post",
+                return_value=mock_resp,
+            ),
+            patch(
+                "webbrowser.open",
+            ) as mock_browser,
+        ):
+            result = runner.invoke(auth, ["account"])
+
+        assert result.exit_code == 0
+        assert "Opening subscription portal" in result.output
+        mock_browser.assert_called_once_with("https://polar.sh/portal/xyz")

@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.report_platform_reliability.report_platform_reliability_command import (  # noqa: E501
+from hexawyn.application.use_case.workloads.report_platform_reliability.command import (  # noqa: E501
     ReportPlatformReliabilityCommand,
 )
-from hexawyn.application.ports.driving.report_platform_reliability.report_platform_reliability_response import (  # noqa: E501
+from hexawyn.application.use_case.workloads.report_platform_reliability.response import (  # noqa: E501
     ReportPlatformReliabilityResponse,
 )
 

@@ -5,7 +5,7 @@ from hexawyn.cli.screens.provider_setup import ProviderSetupScreen
 
 class TestProviderSetupInit:
     def test_providers_list_has_nine_entries(self) -> None:
-        assert len(ProviderSetupScreen.PROVIDERS) == 9
+        assert len(ProviderSetupScreen.PROVIDERS) == 9  # noqa: PLR2004
 
     def test_providers_include_deepseek(self) -> None:
         names = [name for _, name, _ in ProviderSetupScreen.PROVIDERS]

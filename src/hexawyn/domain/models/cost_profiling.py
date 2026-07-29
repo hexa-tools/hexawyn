@@ -50,7 +50,7 @@ class CostProfilingResult:
                     endpoint=top[0].endpoint,
                     avg_cpu_ms_per_request=top[0].avg_cpu_ms_per_request,
                     request_count=top[0].request_count,
-                    reason=f"Highest total CPU cost ({top[0].total_cpu_ms}ms over {request.time_window_minutes}min)",
+                    reason=f"Highest total CPU cost ({top[0].total_cpu_ms}ms over {request.time_window_minutes}min)",  # noqa: E501
                 )
             )
         high_per_request = max(ranked, key=lambda e: e.avg_cpu_ms_per_request, default=None)

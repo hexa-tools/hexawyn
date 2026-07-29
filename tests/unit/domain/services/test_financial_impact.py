@@ -18,7 +18,7 @@ class TestFinancialImpact:
 
         result = compute_financial_impact(total_downtime_minutes=120, cost_per_minute=10.0)
 
-        assert result == 1200.0
+        assert result == 1200.0  # noqa: PLR2004
 
     def test_zero_downtime_zero_impact(self) -> None:
         from hexawyn.domain.services.platform_reliability.financial_impact import (

@@ -22,7 +22,7 @@ class TestComputeHotStatus:
         status = compute_hot_status(series, threshold_pct=80.0, duration_pct=50.0)
 
         assert status.is_hot is True
-        assert status.hot_hours == 20
+        assert status.hot_hours == 20  # noqa: PLR2004
         assert status.avg_percent == pytest.approx(85.0)
 
     def test_tc4_no_hot_hours_is_not_hot(self) -> None:

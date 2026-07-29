@@ -4,21 +4,19 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.keda_detect.keda_detect_command import KedaDetectCommand
-from hexawyn.application.use_case.keda_detect.keda_detect_use_case import KedaDetectUseCase
+from hexawyn.application.use_case.keda.keda_detect.command import KedaDetectCommand
+from hexawyn.application.use_case.keda.keda_detect.keda_detect_use_case import KedaDetectUseCase
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
 def keda_detect() -> dict[str, object]:
-    from hexawyn.application.service.keda_detect_service import KedaDetectService
     from hexawyn.mcp.server import build_keda_adapter
 
     try:
         a = build_keda_adapter()
-        svc = KedaDetectService(port=a)
-        uc = KedaDetectUseCase(service=svc)
+        uc = KedaDetectUseCase(port=a)
         r = uc.execute(KedaDetectCommand())
         return {
             "installed": r.installed,

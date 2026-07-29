@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.compare_cluster_health.compare_cluster_health_command import (  # noqa: E501
+from hexawyn.application.use_case.cluster.compare_cluster_health.command import (
     CompareClusterHealthCommand,
 )
-from hexawyn.application.ports.driving.compare_cluster_health.compare_cluster_health_response import (  # noqa: E501
+from hexawyn.application.use_case.cluster.compare_cluster_health.response import (
     CompareClusterHealthResponse,
 )
 

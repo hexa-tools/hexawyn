@@ -63,3 +63,17 @@ class TestGenerateSummaryUnrecognizedFormat:
 
         assert degraded is False
         assert len(summary) > 0
+
+    def test_high_severity_hint(self) -> None:
+        reduced_lines = [
+            "[5x] timeout to postgres — e.g. 'Error: timeout to postgres'",
+        ]
+        summary, _ = generate_summary(reduced_lines, severity="high")
+        assert "worth investigating" in summary.lower()
+
+    def test_low_severity_hint(self) -> None:
+        reduced_lines = [
+            "[1x] minor warning — e.g. 'Warning: deprecated API call'",
+        ]
+        summary, _ = generate_summary(reduced_lines, severity="low")
+        assert "monitor for recurrence" in summary.lower()

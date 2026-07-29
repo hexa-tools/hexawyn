@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.keda_scaledobjects_list.keda_scaledobjects_list_command import (
+from hexawyn.application.use_case.keda.keda_scaledobjects_list.command import (  # type: ignore
     KedaScaledObjectsListCommand,
 )
-from hexawyn.application.ports.driving.keda_scaledobjects_list.keda_scaledobjects_list_response import (
+from hexawyn.application.use_case.keda.keda_scaledobjects_list.response import (  # type: ignore
     KedaScaledObjectsListResponse,
 )
 

@@ -1,6 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TypedDict
+
+
+class NamespaceRawData(TypedDict):
+    namespace: str
+    cpu_requested_cores: float | None
+    memory_requested_gb: float | None
+    cpu_actual_avg_cores: float | None
+    memory_actual_avg_gb: float | None
+    age_hours: float
+    has_resource_requests: bool
 
 
 @dataclass(frozen=True)

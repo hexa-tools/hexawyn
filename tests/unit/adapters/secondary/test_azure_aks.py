@@ -9,7 +9,7 @@ class TestAzureAKS:
             assert key in AZURE_AKS_SCENARIO
 
     def test_health_score(self):
-        assert AZURE_AKS_SCENARIO["health"]["score"] == 98
+        assert AZURE_AKS_SCENARIO["health"]["score"] == 98  # noqa: PLR2004
 
     def test_all_pods_running(self):
         non_running = [p for p in AZURE_AKS_SCENARIO["pods"] if p["status"] != "Running"]

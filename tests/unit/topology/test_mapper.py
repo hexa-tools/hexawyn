@@ -37,7 +37,7 @@ class TestBuildGraph:
         graph = self.engine.build_graph(services, edges, InferenceSource.NETWORK_POLICY)
 
         assert {node.name for node in graph.nodes} == {"a", "b", "c", "d", "e"}
-        assert len(graph.edges) == 4
+        assert len(graph.edges) == 4  # noqa: PLR2004
         assert graph.edges[0].caller == "a"
         assert graph.edges[0].callee == "b"
 
@@ -112,7 +112,7 @@ class TestBuildGraph:
         graph = self.engine.build_graph(services, [], InferenceSource.NETWORK_POLICY)
 
         assert graph.truncated is True
-        assert len(graph.nodes) == 200
+        assert len(graph.nodes) == 200  # noqa: PLR2004
 
     def test_namespace_scope_prevents_truncation_even_over_200(self) -> None:
         services = [_service(f"svc-{i}", replicas=2) for i in range(250)]
@@ -122,7 +122,7 @@ class TestBuildGraph:
         )
 
         assert graph.truncated is False
-        assert len(graph.nodes) == 250
+        assert len(graph.nodes) == 250  # noqa: PLR2004
         assert graph.namespace_scope == "production"
 
     def test_edge_referencing_deleted_service_is_dropped(self) -> None:

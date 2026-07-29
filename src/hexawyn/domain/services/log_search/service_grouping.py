@@ -12,7 +12,7 @@ def derive_service_name(pod_name: str) -> str:
     naming-convention heuristic already duplicated privately, twice, in
     vanilla_adapter.py, relocated here as the single clean domain version."""
     parts = pod_name.rsplit("-", 2)
-    if len(parts) >= 2:
+    if len(parts) >= 2:  # noqa: PLR2004
         return parts[0]
     return pod_name
 

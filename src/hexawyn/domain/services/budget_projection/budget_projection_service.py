@@ -26,7 +26,7 @@ class BudgetProjectionService:
     with optimistic / realistic / pessimistic scenarios, a per-category
     breakdown, confidence based on data volume, and budget-threshold alerting."""
 
-    def project(
+    def project(  # noqa: PLR0913
         self,
         history: list[MonthlyCostRaw],
         horizon_months: int,

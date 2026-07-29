@@ -5,6 +5,24 @@ from hexawyn.domain.models.cluster_health_comparison import (
     ComparisonReport,
     HealthComparisonResult,
 )
+from hexawyn.domain.models.fleet_health import ClusterRawMetrics
+
+
+def to_snapshot(raw: ClusterRawMetrics) -> ClusterHealthSnapshot:
+    failing = raw.pods_total - raw.pods_running
+    return ClusterHealthSnapshot(
+        cluster_name=raw.context_name,
+        failing_pods=failing,
+        total_pods=raw.pods_total,
+        cpu_utilization_pct=(raw.cpu_utilization or 0.0) * 100,
+        memory_utilization_pct=(raw.memory_utilization or 0.0) * 100,
+        node_count=raw.nodes_total,
+        nodes_not_ready=raw.nodes_not_ready,
+        active_incidents=raw.pipelines_failing,
+        health_status="healthy" if failing == 0 else "degraded",
+        in_maintenance=False,
+        reachable=True,
+    )
 
 
 def compare(
@@ -36,7 +54,7 @@ def compare(
         + cluster_b.nodes_not_ready * 10
     )
 
-    if abs(score_a - score_b) < 0.5 and delta_failing == 0 and delta_incidents == 0:
+    if abs(score_a - score_b) < 0.5 and delta_failing == 0 and delta_incidents == 0:  # noqa: PLR2004
         return HealthComparisonResult(
             cluster_a=cluster_a,
             cluster_b=cluster_b,
@@ -54,7 +72,11 @@ def compare(
         cluster_b=cluster_b,
         comparison=ComparisonReport(
             worse_cluster=worse,
-            reason=f"{worse} has {abs(delta_failing)} more failing pods, {abs(delta_cpu):.0f}pp higher CPU, {abs(delta_incidents)} more active incidents",
+            reason=(
+                f"{worse} has {abs(delta_failing)} more failing pods, "
+                f"{abs(delta_cpu):.0f}pp higher CPU, "
+                f"{abs(delta_incidents)} more active incidents"
+            ),
             delta_failing_pods=delta_failing,
             delta_cpu_pct=round(delta_cpu, 1),
             delta_active_incidents=delta_incidents,

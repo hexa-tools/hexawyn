@@ -3,6 +3,15 @@ from enum import Enum
 
 UNLIMITED = -1  # sentinel: no limit
 
+QUOTA_RESOURCES = [
+    "investigations",
+    "slack_alerts",
+    "slack_channels",
+    "clusters",
+    "users",
+    "billing_api",
+]
+
 
 class LicenseTier(Enum):
     STARTER = "starter"
@@ -46,9 +55,9 @@ class QuotaUsage:
         if used >= limit:
             return QuotaState.EXHAUSTED
         pct = (used / limit) * 100
-        if pct >= 90:
+        if pct >= 90:  # noqa: PLR2004
             return QuotaState.CRITICAL
-        if pct >= 80:
+        if pct >= 80:  # noqa: PLR2004
             return QuotaState.WARNING
         return QuotaState.NORMAL
 

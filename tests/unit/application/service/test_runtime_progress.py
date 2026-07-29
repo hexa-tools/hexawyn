@@ -24,7 +24,7 @@ class TestRuntimePortProgress:
                 on_progress=on_progress,
             )
 
-        assert on_progress.call_count == 3
+        assert on_progress.call_count == 3  # noqa: PLR2004
         on_progress.assert_any_call("plan", "Plan")
         on_progress.assert_any_call("execute", "Execute")
         on_progress.assert_any_call("report", "Report")

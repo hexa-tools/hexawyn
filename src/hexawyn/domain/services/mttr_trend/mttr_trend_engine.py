@@ -77,7 +77,7 @@ def _compute_trend(
         if p1 and p1.mttr_minutes is not None:
             p1_values.append(p1.mttr_minutes)
 
-    if len(p1_values) < 2:
+    if len(p1_values) < 2:  # noqa: PLR2004
         return "insufficient_data", "Need at least 2 months of P1 data for trend analysis"
 
     first = p1_values[0]

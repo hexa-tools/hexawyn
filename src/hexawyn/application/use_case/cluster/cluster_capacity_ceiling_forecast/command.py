@@ -1,0 +1,6 @@
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class ClusterCapacityCeilingForecastCommand:
+    window_days: int = 14

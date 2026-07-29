@@ -1,11 +1,9 @@
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.configuration_drift_detection.configuration_drift_detection_command import (
+from hexawyn.application.use_case.security.configuration_drift_detection.command import (  # noqa: E501
     ConfigurationDriftDetectionCommand,
 )
-from hexawyn.application.ports.driving.configuration_drift_detection.configuration_drift_detection_response import (
+from hexawyn.application.use_case.security.configuration_drift_detection.response import (  # noqa: E501
     ConfigurationDriftDetectionResponse,
 )
 

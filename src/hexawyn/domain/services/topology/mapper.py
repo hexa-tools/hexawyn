@@ -27,7 +27,7 @@ class RawEdgeRecord(TypedDict):
 
 
 class TopologyGraphBuilderService:
-    def build_graph(
+    def build_graph(  # noqa: PLR0913
         self,
         services: list[RawServiceRecord],
         edges: list[RawEdgeRecord],

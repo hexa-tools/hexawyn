@@ -8,7 +8,7 @@ _TREND_WINDOW = 3  # days used to compute recent trend
 class CostForecastEngine:
     """Pure domain service — no infra deps, no try/catch."""
 
-    def forecast(
+    def forecast(  # noqa: PLR0913
         self,
         daily_costs: list[dict[str, object]],
         cluster_name: str,
@@ -60,7 +60,7 @@ def _compute_current_spend(daily_costs: list[dict[str, object]], days_elapsed: i
 
 
 def _compute_trend(daily_costs: list[dict[str, object]]) -> float:
-    if len(daily_costs) < 2:
+    if len(daily_costs) < 2:  # noqa: PLR2004
         return 1.0
     totals = [_as_float(d.get("total_usd")) for d in daily_costs]
     overall_avg = sum(totals) / len(totals)

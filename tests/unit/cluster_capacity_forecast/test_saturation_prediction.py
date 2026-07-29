@@ -22,7 +22,7 @@ class TestPredictSaturation:
             max_horizon_days=_MAX_HORIZON,
         )
 
-        assert result.days_to_saturation == 15
+        assert result.days_to_saturation == 15  # noqa: PLR2004
         assert result.saturation_date == "2026-07-02"
         assert result.capped_horizon is False
 
@@ -36,7 +36,7 @@ class TestPredictSaturation:
             max_horizon_days=_MAX_HORIZON,
         )
 
-        assert result.days_to_saturation == 40
+        assert result.days_to_saturation == 40  # noqa: PLR2004
 
     def test_negative_growth_means_no_risk(self) -> None:
         """TC4 / edge case: negative growth (decommissioned workloads) → capacity freeing."""
@@ -88,5 +88,5 @@ class TestPredictSaturation:
             max_horizon_days=_MAX_HORIZON,
         )
 
-        assert result.days_to_saturation == 365
+        assert result.days_to_saturation == 365  # noqa: PLR2004
         assert result.capped_horizon is False

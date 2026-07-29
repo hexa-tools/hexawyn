@@ -177,7 +177,7 @@ class TokenInputScreen(ModalScreen[str | None]):
             status.update(f"[bold red]Connection failed: {exc}[/]")
             return
 
-        if response.status_code != 200:
+        if response.status_code != 200:  # noqa: PLR2004
             detail = "Unknown error"
             try:
                 detail = response.json().get("detail", detail)

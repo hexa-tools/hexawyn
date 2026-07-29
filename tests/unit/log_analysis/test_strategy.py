@@ -89,9 +89,9 @@ class TestSmartSummaryStrategy:
 
         result = self.strategy.analyze(logs, self.context)
 
-        assert len(result.ranked_events) == 20
+        assert len(result.ranked_events) == 20  # noqa: PLR2004
         assert all("health" not in e.line.lower() for e in result.ranked_events)
-        assert result.token_reduction_percentage >= 90.0
+        assert result.token_reduction_percentage >= 90.0  # noqa: PLR2004
 
     def test_tc2_all_unique_lines_returns_all_severity_sorted(self) -> None:
         """TC2: 2000 lines all unique -> returns all 2000 with severity ranking."""
@@ -100,7 +100,7 @@ class TestSmartSummaryStrategy:
 
         result = self.strategy.analyze(logs, self.context)
 
-        assert len(result.ranked_events) == 2000
+        assert len(result.ranked_events) == 2000  # noqa: PLR2004
         assert result.ranked_events[0].severity == "high"
         severities = [e.severity for e in result.ranked_events]
         ranks = [{"critical": 3, "high": 2, "medium": 1, "info": 0}[s] for s in severities]
@@ -122,9 +122,9 @@ class TestSmartSummaryStrategy:
 
         result = self.strategy.analyze(logs, self.context)
 
-        assert len(result.ranked_events) == 2
+        assert len(result.ranked_events) == 2  # noqa: PLR2004
         counts = {e.line: e.count for e in result.ranked_events}
-        assert counts["upstream connect error"] == 2
+        assert counts["upstream connect error"] == 2  # noqa: PLR2004
         assert counts["Error: connection refused"] == 1
 
     def test_edge_case_line_repeated_10000_times_shown_once_with_count(self) -> None:
@@ -134,7 +134,7 @@ class TestSmartSummaryStrategy:
         result = self.strategy.analyze(logs, self.context)
 
         assert len(result.ranked_events) == 1
-        assert result.ranked_events[0].count == 10000
+        assert result.ranked_events[0].count == 10000  # noqa: PLR2004
 
     def test_edge_case_health_check_filtered_by_default(self) -> None:
         logs = ["GET /health HTTP/1.1 200" for _ in range(50)] + ["Error: real issue"]
@@ -151,7 +151,7 @@ class TestSmartSummaryStrategy:
 
         result = self.strategy.analyze(logs, ctx)
 
-        assert len(result.ranked_events) == 2
+        assert len(result.ranked_events) == 2  # noqa: PLR2004
         lines = {e.line for e in result.ranked_events}
         assert "GET /health HTTP/1.1 200" in lines
 
@@ -274,7 +274,7 @@ class TestHybridStrategy:
         result = self.strategy.analyze(logs, self.context)
 
         assert result.strategy_used == "hybrid"
-        assert result.token_reduction_percentage > 90.0
+        assert result.token_reduction_percentage > 90.0  # noqa: PLR2004
         assert result.degraded is False
         assert len(result.patterns) > 0
         assert "45" not in result.summary  # sanity: not hardcoded, reflects real count
@@ -323,7 +323,7 @@ class TestHybridStrategy:
         assert result.strategy_used == "hybrid"
         assert len(result.summary) > 0
         # 600 distinct reduced lines / _REDUCED_CHUNK_SIZE=500 -> 2 chunks summarized and joined
-        assert result.summary.count("Recurring") == 2
+        assert result.summary.count("Recurring") == 2  # noqa: PLR2004
 
 
 class TestRealtimeLogWatchStrategy:

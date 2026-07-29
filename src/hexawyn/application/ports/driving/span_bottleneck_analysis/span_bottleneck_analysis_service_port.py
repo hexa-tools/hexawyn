@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.span_bottleneck_analysis.span_bottleneck_analysis_command import (
+from hexawyn.application.use_case.observability.span_bottleneck_analysis.command import (
     SpanBottleneckAnalysisCommand,
 )
-from hexawyn.application.ports.driving.span_bottleneck_analysis.span_bottleneck_analysis_response import (
+from hexawyn.application.use_case.observability.span_bottleneck_analysis.response import (
     SpanBottleneckAnalysisResponse,
 )
 

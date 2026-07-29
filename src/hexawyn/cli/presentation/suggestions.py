@@ -3,7 +3,7 @@ from typing import Any
 from hexawyn.cli.presentation.findings import is_error_narrative
 
 
-def format_suggestion_lines(
+def format_suggestion_lines(  # noqa: C901
     app: Any,
     suggestions: list[str],
 ) -> list[str]:
@@ -44,7 +44,7 @@ def format_suggestion_lines(
             lines.append("")
             lines.append(f"[dim italic]{narrative}[/dim italic]")
 
-    if not lines or len(lines) <= 5:
+    if not lines or len(lines) <= 5:  # noqa: PLR2004
         if suggestions:
             lines.extend(f"\u2022 {s}" for s in suggestions[:4])
 

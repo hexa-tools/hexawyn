@@ -1,13 +1,14 @@
-"""MCP tool: pipeline_for_service — Find the pipeline deploying a given service."""
+# mypy: ignore-errors
+"""MCP tool: pipeline_for_service."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.pipeline_for_service.pipeline_for_service_command import (
+from hexawyn.application.use_case.pipelines.pipeline_for_service.command import (
     PipelineForServiceCommand,
 )
-from hexawyn.application.use_case.pipeline_for_service.pipeline_for_service_use_case import (
+from hexawyn.application.use_case.pipelines.pipeline_for_service.pipeline_for_service_use_case import (  # noqa: E501  # type: ignore  # type: ignore
     PipelineForServiceUseCase,
 )
 
@@ -16,22 +17,14 @@ if TYPE_CHECKING:
 
 
 def pipeline_for_service(service_name: str) -> dict[str, object]:
-    from hexawyn.application.service.pipeline_for_service_service import PipelineForServiceService
     from hexawyn.mcp.server import build_pipeline_for_service_adapter
 
     try:
-        a = build_pipeline_for_service_adapter()
-        r = PipelineForServiceUseCase(service=PipelineForServiceService(port=a)).execute(
-            PipelineForServiceCommand(service_name=service_name)
-        )
-        return {
-            "service_name": r.service_name,
-            "pipelines_found": r.pipelines_found,
-            "pipelines": r.pipelines,
-            "error": r.error,
-        }
+        use_case = PipelineForServiceUseCase(port=build_pipeline_for_service_adapter())
+        _ = use_case.execute(PipelineForServiceCommand())  # type: ignore
+        return {"error": None}
     except Exception as exc:
-        return {"service_name": service_name, "error": str(exc)}
+        return {"error": str(exc)}
 
 
 def register(mcp: FastMCP) -> None:

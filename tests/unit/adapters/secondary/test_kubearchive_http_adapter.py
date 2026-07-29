@@ -62,8 +62,8 @@ class TestKubeArchiveHTTPAdapter:
             }
             result = adapter.query_historical_state(query)
 
-        assert result["total_resources"] == 8
-        assert len(result["pods"]) == 2
+        assert result["total_resources"] == 8  # noqa: PLR2004
+        assert len(result["pods"]) == 2  # noqa: PLR2004
         assert result["kubearchive_available"] is True
         assert result["error"] is None
 
@@ -208,4 +208,4 @@ class TestKubeArchiveHTTPAdapter:
             }
             result = adapter.query_historical_state(query)
 
-        assert len(result["pods"]) == 2
+        assert len(result["pods"]) == 2  # noqa: PLR2004

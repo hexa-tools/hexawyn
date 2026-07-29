@@ -28,7 +28,7 @@ class SlackSocketClient:
     SLACK_BOT_TOKEN (xoxb-...) is used via SlackHttpClient for API calls.
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         chat_adapter: ChatPort,
         publisher: MessagePublisherPort,

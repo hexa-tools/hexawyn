@@ -68,5 +68,5 @@ class TraceLogResult:
             correlated_log_count=len(logs),
             error_spans=error_spans,
             correlated_logs=logs,
-            summary=f"Found {len(error_spans)} error span(s) with {len(logs)} correlated log(s) for trace {trace_id}",
+            summary=f"Found {len(error_spans)} error span(s) with {len(logs)} correlated log(s) for trace {trace_id}",  # noqa: E501
         )

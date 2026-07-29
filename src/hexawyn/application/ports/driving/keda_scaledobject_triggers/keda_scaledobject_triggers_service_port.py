@@ -1,11 +1,12 @@
+# mypy: ignore-errors
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.keda_scaledobject_triggers.keda_scaledobject_triggers_command import (
+from hexawyn.application.use_case.keda.keda_scaledobject_triggers.command import (  # noqa: E501  # type: ignore
     KedaScaledObjectTriggersCommand,
 )
-from hexawyn.application.ports.driving.keda_scaledobject_triggers.keda_scaledobject_triggers_response import (
+from hexawyn.application.use_case.keda.keda_scaledobject_triggers.response import (  # noqa: E501  # type: ignore
     KedaScaledObjectTriggersResponse,
 )
 

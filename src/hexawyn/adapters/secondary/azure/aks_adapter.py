@@ -52,7 +52,7 @@ class AzureAKSAdapter(K8sPort):
     behaviour is limited to cluster metadata via the Container Service API.
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         context: ClusterContext,
         k8s_delegate: K8sPort | None = None,

@@ -83,7 +83,7 @@ class RuntimeClient:
             time.sleep(interval)
         return status_response
 
-    def stream_investigation(
+    def stream_investigation(  # noqa: PLR0913
         self,
         query: str,
         cluster_name: str = "unknown",

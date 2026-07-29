@@ -11,7 +11,7 @@ class TestServiceErrorCount:
     def test_create(self) -> None:
         sec = ServiceErrorCount(service_name="auth-service", error_count=1012, percentage=81.6)
         assert sec.service_name == "auth-service"
-        assert sec.error_count == 1012
+        assert sec.error_count == 1012  # noqa: PLR2004
 
 
 class TestErrorAttributionResult:
@@ -26,8 +26,8 @@ class TestErrorAttributionResult:
             request=ErrorAttributionRequest(gateway="api-gateway"),
             raw_errors=raw,
         )
-        assert result.total_errors == 1240
-        assert len(result.attribution) == 3
+        assert result.total_errors == 1240  # noqa: PLR2004
+        assert len(result.attribution) == 3  # noqa: PLR2004
         assert result.attribution[0].service_name == "auth-service"
         assert result.pareto_culprit == "auth-service"
 

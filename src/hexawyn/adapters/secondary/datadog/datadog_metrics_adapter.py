@@ -32,8 +32,7 @@ _CPU_UTIL_BY_NODE_QUERY = (
     "/ avg:kubernetes.cpu.capacity{*} by {host}) * 100"
 )
 _MEMORY_UTIL_BY_NODE_QUERY = (
-    "(avg:kubernetes.memory.usage{*} by {host} "
-    "/ avg:kubernetes.memory.capacity{*} by {host}) * 100"
+    "(avg:kubernetes.memory.usage{*} by {host} / avg:kubernetes.memory.capacity{*} by {host}) * 100"
 )
 
 

@@ -74,7 +74,7 @@ check:
 #  Tests
 # ─────────────────────────────────────
 
-.PHONY: test test-integration test-all coverage update-badge
+.PHONY: test test-integration test-e2e test-e2e-ci test-all coverage update-badge
 
 test:
 	@echo "🧪 Running unit tests (parallel)..."
@@ -85,6 +85,21 @@ test-integration:
 	@echo "🔬 Running integration tests (real DuckDB, demo adapter)..."
 	$(PYTEST) tests/integration/ -v -m integration
 	@echo "✅ Integration tests passed"
+
+test-e2e:
+	@echo "🧪 Running E2E tests (real k3d cluster)..."
+	@k3d kubeconfig get $(CLUSTER_NAME) > /tmp/k3d-$(CLUSTER_NAME).yaml 2>/dev/null || true
+	KUBECONFIG=/tmp/k3d-$(CLUSTER_NAME).yaml $(PYTEST) tests/e2e/ -v -m e2e --strict-markers --tb=short
+	@echo "✅ E2E tests passed"
+
+test-e2e-ci:
+	@echo "🚀 Full E2E cycle: create cluster + load fixtures + test + teardown..."
+	@$(MAKE) cluster-up
+	@$(MAKE) cluster-load
+	@$(PYTEST) tests/e2e/ -v -m e2e --strict-markers --tb=short; \
+	EXIT_CODE=$$?; \
+	$(MAKE) cluster-down; \
+	exit $$EXIT_CODE
 
 test-all:
 	@echo "🧪 Running all tests (unit + integration)..."
@@ -100,6 +115,88 @@ update-badge:
 	@echo "🏷️  Updating test count badge in README.md..."
 	$(PYTHON) scripts/update_test_badge.py
 	@echo "✅ Badge updated"
+
+# ─────────────────────────────────────
+#  k3d E2E Cluster
+# ─────────────────────────────────────
+
+.PHONY: cluster-up cluster-down cluster-load cluster-reset cluster-status cluster-otel cluster-operators
+
+CLUSTER_NAME := hexawyn-e2e
+
+cluster-up:
+	@echo "🚀 Creating k3d test cluster..."
+	@which k3d > /dev/null 2>&1 || ( \
+		echo "❌ k3d not found. Install:"; \
+		echo "   curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash"; \
+		exit 1)
+	@which docker > /dev/null 2>&1 || ( \
+		echo "❌ Docker not found. Install Docker Desktop."; \
+		exit 1)
+	@if k3d cluster list --no-headers 2>/dev/null | grep -q $(CLUSTER_NAME); then \
+		echo "✅ Cluster '$(CLUSTER_NAME)' already exists."; \
+	else \
+		k3d cluster create $(CLUSTER_NAME) \
+			--agents 1 \
+			--wait \
+			--timeout 120s \
+			--k3s-arg "--disable=traefik@server:0" \
+			--k3s-arg "--disable=servicelb@server:0"; \
+	fi
+	@k3d kubeconfig merge $(CLUSTER_NAME) -d ~/.kube/config -s $(CLUSTER_NAME) 2>/dev/null || true
+	@kubectl --context k3d-$(CLUSTER_NAME) create namespace hexawyn-test --dry-run=client -o yaml | kubectl --context k3d-$(CLUSTER_NAME) apply -f -
+	@echo "✅ Cluster ready (context: k3d-$(CLUSTER_NAME))"
+	@echo "   Run: make cluster-load && make test-e2e"
+
+cluster-down:
+	@echo "🗑️  Deleting k3d test cluster..."
+	-k3d cluster delete $(CLUSTER_NAME)
+	@rm -f /tmp/k3d-$(CLUSTER_NAME).yaml
+	@echo "✅ Cluster deleted"
+
+cluster-reset:
+	@$(MAKE) cluster-down || true
+	@$(MAKE) cluster-up
+
+cluster-status:
+	@k3d cluster list
+	@echo ""
+	@kubectl get nodes 2>/dev/null || echo "No cluster running"
+
+cluster-load: cluster-operators cluster-otel
+	@echo "📦 Creating namespace and loading E2E fixtures..."
+	@k3d kubeconfig get $(CLUSTER_NAME) > /tmp/k3d-$(CLUSTER_NAME).yaml 2>/dev/null || true
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml create namespace hexawyn-test --dry-run=client -o yaml | kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f -
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f tests/e2e/fixtures/ -n hexawyn-test
+	@echo "✅ Fixtures loaded"
+
+cluster-otel:
+	@echo "📦 Installing Jaeger + Prometheus + Hotrod..."
+	@k3d kubeconfig get $(CLUSTER_NAME) > /tmp/k3d-$(CLUSTER_NAME).yaml 2>/dev/null || true
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml create namespace observability --dry-run=client -o yaml | kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f -
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f tests/e2e/fixtures/otel/jaeger.yaml
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f tests/e2e/fixtures/otel/prometheus.yaml
+	@echo "⏳ Waiting for Jaeger + Prometheus to be available..."
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml wait --for=condition=Available --timeout=120s \
+		-n observability deployment/jaeger-all-in-one deployment/prometheus
+	@echo "✅ OTEL stack ready"
+
+cluster-operators:
+	@echo "📦 Installing cert-manager + Tekton + KEDA + ArgoCD..."
+	@k3d kubeconfig get $(CLUSTER_NAME) > /tmp/k3d-$(CLUSTER_NAME).yaml 2>/dev/null || true
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply --server-side --force-conflicts -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.yaml
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply --server-side --force-conflicts -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply --server-side --force-conflicts -f https://github.com/kedacore/keda/releases/download/v2.14.0/keda-2.14.0.yaml
+	@echo "⏳ Waiting for operator CRDs to be established..."
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml wait --for=condition=Established --timeout=120s \
+		crd/issuers.cert-manager.io crd/certificates.cert-manager.io \
+		crd/scaledobjects.keda.sh crd/pipelineruns.tekton.dev
+	@echo "⏳ Waiting for admission webhooks to be available..."
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml wait --for=condition=Available --timeout=180s \
+		-n cert-manager deployment/cert-manager deployment/cert-manager-cainjector deployment/cert-manager-webhook
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml wait --for=condition=Available --timeout=180s \
+		-n tekton-pipelines deployment/tekton-pipelines-webhook
+	@echo "✅ Operators installed"
 
 # ─────────────────────────────────────
 #  Docker
@@ -253,9 +350,18 @@ help:
 	@echo "🧪 TESTS"
 	@echo "  make test                  → Run unit tests"
 	@echo "  make test-integration      → Run integration tests (real DuckDB)"
+	@echo "  make test-e2e              → Run E2E tests (requires: make cluster-up)"
 	@echo "  make test-all              → Run unit + integration tests"
 	@echo "  make coverage              → Run tests with coverage (≥80%)"
 	@echo "  make update-badge          → Update test count badge in README.md"
+	@echo ""
+	@echo "🚀 K3D CLUSTER (E2E)"
+	@echo "  make cluster-up            → Create k3d test cluster"
+	@echo "  make cluster-down          → Delete k3d test cluster"
+	@echo "  make cluster-load          → Load E2E fixtures into cluster"
+	@echo "  make cluster-reset         → Delete and recreate cluster"
+	@echo "  make cluster-status        → Show cluster status"
+	@echo "  make test-e2e-ci           → Full cycle: up + load + test + down"
 	@echo ""
 	@echo "🐳 DOCKER"
 	@echo "  make build                 → Build Docker image"

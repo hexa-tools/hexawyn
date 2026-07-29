@@ -39,7 +39,7 @@ class TestConsolidationJob:
         results = job.run(cluster_name="prod-eu")
 
         assert len(results) == 1
-        assert results[0].occurrence_count == 3
+        assert results[0].occurrence_count == 3  # noqa: PLR2004
         assert results[0].tool_name == "crashloop_detector"
         port.store_knowledge.assert_called_once()
         port.mark_consolidated.assert_called_once()
@@ -55,8 +55,8 @@ class TestConsolidationJob:
         job = ConsolidationJob(port=port)
         results = job.run(cluster_name="prod-eu")
 
-        assert len(results) == 2
-        assert port.store_knowledge.call_count == 2
+        assert len(results) == 2  # noqa: PLR2004
+        assert port.store_knowledge.call_count == 2  # noqa: PLR2004
 
     def test_weight_caps_at_5(self) -> None:
         port = self._make_port(
@@ -65,7 +65,7 @@ class TestConsolidationJob:
         )
         job = ConsolidationJob(port=port)
         results = job.run(cluster_name="test")
-        assert results[0].weight == 5.0
+        assert results[0].weight == 5.0  # noqa: PLR2004
 
     def test_confidence_caps_at_1(self) -> None:
         port = self._make_port(

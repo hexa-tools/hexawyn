@@ -51,11 +51,11 @@ class TestStaleSecretFinding:
         assert finding.name == "db-password"
         assert finding.namespace == "production"
         assert finding.secret_type == "Opaque"
-        assert finding.age_days == 180
+        assert finding.age_days == 180  # noqa: PLR2004
         assert finding.last_modified == "2025-12-17"
         assert finding.referenced_by == ["payment-deploy", "checkout-deploy"]
         assert finding.risk_level == "critical"
-        assert finding.urgency_score == 95
+        assert finding.urgency_score == 95  # noqa: PLR2004
         assert finding.note is None
 
     def test_note_can_flag_unused_secret(self) -> None:
@@ -142,6 +142,6 @@ class TestSecretRotationReport:
 
         assert report.findings == [finding]
         assert report.excluded_secrets == [excluded]
-        assert report.total_secrets_checked == 10
-        assert report.rotation_threshold_days == 90
+        assert report.total_secrets_checked == 10  # noqa: PLR2004
+        assert report.rotation_threshold_days == 90  # noqa: PLR2004
         assert "1 secret stale" in report.summary

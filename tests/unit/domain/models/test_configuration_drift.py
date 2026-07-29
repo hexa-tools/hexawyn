@@ -70,5 +70,5 @@ class TestConfigurationDriftReport:
             summary="All resources in sync.",
         )
 
-        assert report.in_sync_count == 42
+        assert report.in_sync_count == 42  # noqa: PLR2004
         assert report.drifted_by_namespace == {}

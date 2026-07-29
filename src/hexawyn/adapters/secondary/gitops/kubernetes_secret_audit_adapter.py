@@ -113,7 +113,7 @@ def _references_from_pod(pod: Any) -> list[SecretReferenceRaw]:
     ]
 
 
-def _extract_secret_names(pod_spec: Any) -> set[str]:
+def _extract_secret_names(pod_spec: Any) -> set[str]:  # noqa: C901
     names: set[str] = set()
     containers = list(pod_spec.containers or []) + list(pod_spec.init_containers or [])
     for container in containers:

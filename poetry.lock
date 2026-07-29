@@ -4259,6 +4259,18 @@ files = [
 ]
 
 [[package]]
+name = "pytz"
+version = "2026.3.post1"
+description = "World timezone definitions, modern and historical"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "pytz-2026.3.post1-py2.py3-none-any.whl", hash = "sha256:dd95840dd199baea12d9cc096a1d452caa6596a1c1e4b5f3dbd1541855d5e815"},
+    {file = "pytz-2026.3.post1.tar.gz", hash = "sha256:2211d3fcf9a797d3405cac96ac7f61d80e6a644f72a3309607282fe8a2010c5d"},
+]
+
+[[package]]
 name = "pywin32"
 version = "312"
 description = "Python for Windows Extensions"
@@ -5986,4 +5998,4 @@ openshift = ["openshift"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "a9f75a111d1d675dc689b717ec526dfd2d28042460b67d1eeff4b8e7c7451df1"
+content-hash = "e619e584f110d2a6e95c04b04c58285b5eb2780bb1a83c5f440e4db8d091e46e"

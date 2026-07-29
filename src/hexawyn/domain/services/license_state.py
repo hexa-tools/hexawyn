@@ -29,7 +29,7 @@ def compute_license_state(claims: LicenseClaims) -> LicenseState:
             days_remaining=days_remaining,
             expiry_date=expiry_date,
         )
-    if days_remaining <= 7:
+    if days_remaining <= 7:  # noqa: PLR2004
         return LicenseState(
             state="warning",
             plan=claims.plan,

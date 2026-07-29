@@ -6,12 +6,12 @@ from hexawyn.domain.services.log_analysis.analyzer import AdaptiveLogProcessor
 class TestAdaptiveLogProcessorConstruction:
     def test_default_budget(self) -> None:
         processor = AdaptiveLogProcessor()
-        assert processor.max_token_budget == 150000
+        assert processor.max_token_budget == 150000  # noqa: PLR2004
         assert processor.get_remaining_budget() > 0
 
     def test_custom_budget(self) -> None:
         processor = AdaptiveLogProcessor(max_token_budget=50000)
-        assert processor.max_token_budget == 50000
+        assert processor.max_token_budget == 50000  # noqa: PLR2004
 
 
 class TestAdaptiveLogProcessorBudget:
@@ -21,7 +21,7 @@ class TestAdaptiveLogProcessorBudget:
 
     def test_effective_budget_is_80_percent_of_max(self) -> None:
         processor = AdaptiveLogProcessor(max_token_budget=100000)
-        assert processor.get_remaining_budget() == 80000
+        assert processor.get_remaining_budget() == 80000  # noqa: PLR2004
 
     def test_can_process_more_within_budget(self) -> None:
         processor = AdaptiveLogProcessor(max_token_budget=100000)
@@ -41,7 +41,7 @@ class TestAdaptiveLogProcessorUsage:
     def test_record_usage_updates_count(self) -> None:
         processor = AdaptiveLogProcessor(max_token_budget=100000)
         processor.record_usage(30000)
-        assert processor.used_tokens == 30000
+        assert processor.used_tokens == 30000  # noqa: PLR2004
 
     def test_record_usage_exceeding_budget_raises(self) -> None:
         import pytest
@@ -54,8 +54,8 @@ class TestAdaptiveLogProcessorUsage:
         processor = AdaptiveLogProcessor(max_token_budget=100000)
         processor.record_usage(10000)
         processor.record_usage(20000)
-        assert processor.used_tokens == 30000
-        assert processor.get_remaining_budget() == 50000
+        assert processor.used_tokens == 30000  # noqa: PLR2004
+        assert processor.get_remaining_budget() == 50000  # noqa: PLR2004
 
 
 class TestAdaptiveLogProcessorReporting:
@@ -78,17 +78,17 @@ class TestAdaptiveLogProcessorReporting:
     def test_usage_percentage_after_recording(self) -> None:
         processor = AdaptiveLogProcessor(max_token_budget=100000)
         processor.record_usage(40000)
-        assert processor.get_usage_percentage() == 50.0
+        assert processor.get_usage_percentage() == 50.0  # noqa: PLR2004
 
     def test_usage_percentage_capped_at_100(self) -> None:
         processor = AdaptiveLogProcessor(max_token_budget=100000)
         processor.record_usage(80000)
-        assert processor.get_usage_percentage() == 100.0
+        assert processor.get_usage_percentage() == 100.0  # noqa: PLR2004
 
     def test_usage_ratio(self) -> None:
         processor = AdaptiveLogProcessor(max_token_budget=100000)
         processor.record_usage(40000)
-        assert processor.get_usage_ratio() == 0.5
+        assert processor.get_usage_ratio() == 0.5  # noqa: PLR2004
 
 
 class TestAdaptiveLogProcessorHelpers:
@@ -110,7 +110,7 @@ class TestAdaptiveLogProcessorHelpers:
             {"name": "warning", "restart_count": 1, "status": "Running"},
         ]
         prioritized = processor.prioritize_pods(pods)
-        assert len(prioritized) == 3
+        assert len(prioritized) == 3  # noqa: PLR2004
         assert prioritized[0]["name"] == "failing"
 
     def test_prioritize_pods_failed_first(self) -> None:

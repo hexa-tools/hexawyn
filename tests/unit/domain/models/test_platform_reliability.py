@@ -20,7 +20,7 @@ class TestIncidentSummary:
         )
 
         assert incident.severity == "major"
-        assert incident.downtime_minutes == 120
+        assert incident.downtime_minutes == 120  # noqa: PLR2004
 
 
 class TestPlatformReliabilityReport:
@@ -30,7 +30,7 @@ class TestPlatformReliabilityReport:
         report = PlatformReliabilityReport(period_label="2026-06", uptime_pct=100.0)
 
         assert report.period_label == "2026-06"
-        assert report.uptime_pct == 100.0
+        assert report.uptime_pct == 100.0  # noqa: PLR2004
         assert report.total_incidents == 0
         assert report.major_count == 0
         assert report.minor_count == 0
@@ -60,6 +60,6 @@ class TestPlatformReliabilityReport:
             executive_summary="99,95% de disponibilite...",
         )
 
-        assert report.uptime_pct == 99.95
-        assert report.resolution_delta_pct == -15.0
+        assert report.uptime_pct == 99.95  # noqa: PLR2004
+        assert report.resolution_delta_pct == -15.0  # noqa: PLR2004
         assert report.financial_impact_eur == 0.0

@@ -4,10 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.detect_zombies.detect_zombies_command import (
-    DetectZombiesCommand,
-)
-from hexawyn.application.use_case.detect_zombies.detect_zombies_use_case import (
+from hexawyn.application.use_case.troubleshooting.detect_zombies.command import DetectZombiesCommand
+from hexawyn.application.use_case.troubleshooting.detect_zombies.detect_zombies_use_case import (
     DetectZombiesUseCase,
 )
 
@@ -16,21 +14,12 @@ if TYPE_CHECKING:
 
 
 def detect_zombies(analysis_window_hours: int = 24) -> dict[str, object]:
-    """Find pods with zero network traffic — zombie deployments that waste resources.
-
-    Identifies pods with 0 RPS/bytes over the analysis window,
-    classifies risk, and computes wasted CPU/memory.
-
-    Args:
-        analysis_window_hours: Hours of traffic data to analyze (default: 24).
-    """
-    from hexawyn.application.service.detect_zombies_service import DetectZombiesService
+    """Find pods with zero network traffic — zombie deployments that waste resources."""
     from hexawyn.mcp.server import build_zombie_detection_adapter
 
     try:
         adapter = build_zombie_detection_adapter()
-        service = DetectZombiesService(zombie_detection_port=adapter)
-        use_case = DetectZombiesUseCase(service=service)
+        use_case = DetectZombiesUseCase(zombie_detection_port=adapter)
         response = use_case.execute(
             DetectZombiesCommand(analysis_window_hours=analysis_window_hours)
         )

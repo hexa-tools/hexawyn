@@ -1,13 +1,13 @@
-"""MCP tool: list_pipeline_runs_in_namespace — Operational view of all PipelineRuns in a namespace."""
+"""MCP tool: list_pipeline_runs_in_namespace — Operational view of all PipelineRuns in a namespace."""  # noqa: E501
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.list_pipeline_runs_in_namespace.list_pipeline_runs_in_namespace_command import (
+from hexawyn.application.use_case.pipelines.list_pipeline_runs_in_namespace.command import (
     ListPipelineRunsInNamespaceCommand,
 )
-from hexawyn.application.use_case.list_pipeline_runs_in_namespace.list_pipeline_runs_in_namespace_use_case import (
+from hexawyn.application.use_case.pipelines.list_pipeline_runs_in_namespace.list_pipeline_runs_in_namespace_use_case import (  # noqa: E501
     ListPipelineRunsInNamespaceUseCase,
 )
 
@@ -15,26 +15,19 @@ if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def list_pipeline_runs_in_namespace(
-    namespace: str,
-    limit: int = 100,
-) -> dict[str, object]:
+def list_pipeline_runs_in_namespace(namespace: str, limit: int = 100) -> dict[str, object]:
     """List all PipelineRuns in a namespace sorted by status (Failed first, then Running, Succeeded).
 
     Args:
         namespace: The Kubernetes namespace to query.
         limit: Maximum number of runs to return (default: 100).
-    """
-    from hexawyn.application.service.list_pipeline_runs_in_namespace_service import (
-        ListPipelineRunsInNamespaceService,
-    )
+    """  # noqa: E501
     from hexawyn.mcp.server import build_tekton_adapter
 
     try:
         adapter = build_tekton_adapter()
-        service = ListPipelineRunsInNamespaceService(tekton_port=adapter)
-        use_case = ListPipelineRunsInNamespaceUseCase(service=service)
-        response = use_case.execute(
+        use_case = ListPipelineRunsInNamespaceUseCase(tekton_port=adapter)
+        response = use_case.execute(  # type: ignore
             ListPipelineRunsInNamespaceCommand(namespace=namespace, limit=limit)
         )
         return {

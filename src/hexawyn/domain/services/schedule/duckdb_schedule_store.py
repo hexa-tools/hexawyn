@@ -50,14 +50,14 @@ class DuckDBScheduleStore(ScheduleStorePort):
 
     def list_checks(self) -> list[CronCheck]:
         rows = self._conn.execute(
-            "SELECT name, schedule, use_case, params, enabled, notify_policy, destinations, timeout_seconds "
+            "SELECT name, schedule, use_case, params, enabled, notify_policy, destinations, timeout_seconds "  # noqa: E501
             "FROM schedule_checks"
         ).fetchall()
         return [_row_to_check(row) for row in rows]
 
     def get_check(self, name: str) -> CronCheck | None:
         row = self._conn.execute(
-            "SELECT name, schedule, use_case, params, enabled, notify_policy, destinations, timeout_seconds "
+            "SELECT name, schedule, use_case, params, enabled, notify_policy, destinations, timeout_seconds "  # noqa: E501
             "FROM schedule_checks WHERE name = ?",
             [name],
         ).fetchone()
@@ -65,7 +65,7 @@ class DuckDBScheduleStore(ScheduleStorePort):
 
     def save_check(self, check: CronCheck) -> None:
         self._conn.execute(
-            "INSERT OR REPLACE INTO schedule_checks (name, schedule, use_case, params, enabled, notify_policy, destinations, timeout_seconds) "
+            "INSERT OR REPLACE INTO schedule_checks (name, schedule, use_case, params, enabled, notify_policy, destinations, timeout_seconds) "  # noqa: E501
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 check.name,
@@ -84,7 +84,7 @@ class DuckDBScheduleStore(ScheduleStorePort):
 
     def save_result(self, result: CheckResult) -> None:
         self._conn.execute(
-            "INSERT INTO schedule_results (check_name, phase, started_at, finished_at, duration_ms, summary, payload_digest, changed, error_message, notified) "
+            "INSERT INTO schedule_results (check_name, phase, started_at, finished_at, duration_ms, summary, payload_digest, changed, error_message, notified) "  # noqa: E501
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 result.check_name,
@@ -102,7 +102,7 @@ class DuckDBScheduleStore(ScheduleStorePort):
 
     def last_result(self, name: str) -> CheckResult | None:
         row = self._conn.execute(
-            "SELECT check_name, phase, started_at, finished_at, duration_ms, summary, payload_digest, changed, error_message, notified "
+            "SELECT check_name, phase, started_at, finished_at, duration_ms, summary, payload_digest, changed, error_message, notified "  # noqa: E501
             "FROM schedule_results WHERE check_name = ? ORDER BY id DESC LIMIT 1",
             [name],
         ).fetchone()
@@ -110,7 +110,7 @@ class DuckDBScheduleStore(ScheduleStorePort):
 
     def history(self, name: str, limit: int = 10) -> list[CheckResult]:
         rows = self._conn.execute(
-            "SELECT check_name, phase, started_at, finished_at, duration_ms, summary, payload_digest, changed, error_message, notified "
+            "SELECT check_name, phase, started_at, finished_at, duration_ms, summary, payload_digest, changed, error_message, notified "  # noqa: E501
             "FROM schedule_results WHERE check_name = ? ORDER BY id DESC LIMIT ?",
             [name, limit],
         ).fetchall()

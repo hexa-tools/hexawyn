@@ -9,27 +9,23 @@ class TestErrorAttributionTool:
     def test_error_attribution_returns_dict(self) -> None:
         from hexawyn.mcp.tools.error_attribution import error_attribution
 
-        with (
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
-            patch("hexawyn.mcp.server.build_error_attribution_adapter", return_value=MagicMock()),
-        ):
-            result = error_attribution(gateway="test")
+        with patch("hexawyn.mcp.server.build_error_attribution_adapter", return_value=MagicMock()):
+            result = error_attribution(gateway="test-gateway")
 
         assert isinstance(result, dict)
+        assert "error" in result
 
     def test_error_attribution_handles_error(self) -> None:
         from hexawyn.mcp.tools.error_attribution import error_attribution
 
-        with (
-            patch(
-                "hexawyn.mcp.server.build_error_attribution_adapter",
-                side_effect=RuntimeError("test error"),
-            ),
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
+        with patch(
+            "hexawyn.mcp.server.build_error_attribution_adapter",
+            side_effect=RuntimeError("test error"),
         ):
-            result = error_attribution(gateway="test")
+            result = error_attribution(gateway="test-gateway")
 
         assert isinstance(result, dict)
+        assert result.get("error") == "test error"
 
     def test_has_register(self) -> None:
         import importlib

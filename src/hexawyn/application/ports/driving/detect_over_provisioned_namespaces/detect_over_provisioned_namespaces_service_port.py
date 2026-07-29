@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_command import (
+from hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.command import (
     DetectOverProvisionedNamespacesCommand,
 )
-from hexawyn.application.ports.driving.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_response import (
+from hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.response import (
     DetectOverProvisionedNamespacesResponse,
 )
 

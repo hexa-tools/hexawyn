@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.metric_correlation.metric_correlation_command import (
+from hexawyn.application.use_case.observability.metric_correlation.command import (
     MetricCorrelationCommand,
 )
-from hexawyn.application.use_case.metric_correlation.metric_correlation_use_case import (
+from hexawyn.application.use_case.observability.metric_correlation.metric_correlation_use_case import (  # noqa: E501
     MetricCorrelationUseCase,
 )
 
@@ -18,12 +18,11 @@ if TYPE_CHECKING:
 def metric_correlation(
     primary_service: str, correlated_service: str, time_window_minutes: int = 30
 ) -> dict[str, object]:
-    from hexawyn.application.service.metric_correlation_service import MetricCorrelationService
     from hexawyn.mcp.server import build_metric_correlation_adapter
 
     try:
         a = build_metric_correlation_adapter()
-        r = MetricCorrelationUseCase(service=MetricCorrelationService(port=a)).execute(
+        r = MetricCorrelationUseCase(port=a).execute(
             MetricCorrelationCommand(
                 primary_service=primary_service,
                 correlated_service=correlated_service,

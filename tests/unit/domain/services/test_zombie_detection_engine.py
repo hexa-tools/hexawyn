@@ -7,7 +7,7 @@ from hexawyn.domain.services.zombie_detection.zombie_detection_engine import (
 )
 
 
-def _pod(
+def _pod(  # noqa: PLR0913
     name: str,
     namespace: str = "production",
     traffic_rps: float = 0.0,
@@ -167,7 +167,7 @@ class TestWasteComputation:
         result = engine.detect(pods, analysis_window_hours=24)
 
         assert len(result.zombie_candidates) == 1
-        assert result.total_wasted_cores == 0.5
+        assert result.total_wasted_cores == 0.5  # noqa: PLR2004
         assert result.total_wasted_gb == 1.0
 
     def test_multiple_zombies_total_waste_computed(self) -> None:
@@ -182,9 +182,9 @@ class TestWasteComputation:
 
         result = engine.detect(pods, analysis_window_hours=24)
 
-        assert len(result.zombie_candidates) == 5
-        assert result.total_wasted_cores == 2.35
-        assert result.total_wasted_gb == 9.0
+        assert len(result.zombie_candidates) == 5  # noqa: PLR2004
+        assert result.total_wasted_cores == 2.35  # noqa: PLR2004
+        assert result.total_wasted_gb == 9.0  # noqa: PLR2004
 
     def test_mixed_pods_only_zombie_waste_counted(self) -> None:
         engine = ZombieDetectionEngine()
@@ -195,8 +195,8 @@ class TestWasteComputation:
 
         result = engine.detect(pods, analysis_window_hours=24)
 
-        assert result.total_wasted_cores == 0.5
-        assert result.total_wasted_gb == 2.0
+        assert result.total_wasted_cores == 0.5  # noqa: PLR2004
+        assert result.total_wasted_gb == 2.0  # noqa: PLR2004
 
     def test_test_deploy_no_deps_wasted_memory(self) -> None:
         engine = ZombieDetectionEngine()
@@ -214,7 +214,7 @@ class TestWasteComputation:
 
         assert len(result.zombie_candidates) == 1
         assert result.zombie_candidates[0].pod_name == "test-deploy-xyz"
-        assert result.total_wasted_gb == 2.0
+        assert result.total_wasted_gb == 2.0  # noqa: PLR2004
 
 
 class TestResultMetadata:
@@ -224,7 +224,7 @@ class TestResultMetadata:
 
         result = engine.detect(pods, analysis_window_hours=48)
 
-        assert result.analysis_window_hours == 48
+        assert result.analysis_window_hours == 48  # noqa: PLR2004
 
     def test_empty_pods_returns_empty(self) -> None:
         engine = ZombieDetectionEngine()
@@ -241,10 +241,10 @@ class TestAsFloat:
         assert _as_float(None) == 0.0
 
     def test_int_converted_to_float(self) -> None:
-        assert _as_float(42) == 42.0
+        assert _as_float(42) == 42.0  # noqa: PLR2004
 
     def test_float_passthrough(self) -> None:
-        assert _as_float(3.14) == 3.14
+        assert _as_float(3.14) == 3.14  # noqa: PLR2004
 
     def test_non_numeric_string_returns_zero(self) -> None:
         assert _as_float("hello") == 0.0
@@ -337,7 +337,7 @@ class TestZombieDetectionEdgeCases:
         engine = ZombieDetectionEngine()
         pods = [_pod("neg-cpu", cpu_cores=-0.5, memory_gb=2.0)]
         result = engine.detect(pods, analysis_window_hours=24)
-        assert result.total_wasted_cores == -0.5
+        assert result.total_wasted_cores == -0.5  # noqa: PLR2004
 
     def test_empty_pod_name_accepted(self) -> None:
         engine = ZombieDetectionEngine()

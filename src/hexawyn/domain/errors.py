@@ -196,7 +196,7 @@ class HistoricalDataWindowExpiredError(HexawynError):
 
     def __init__(self, queried_timestamp: str, retention_window: str) -> None:
         super().__init__(
-            f"Requested timestamp {queried_timestamp} is outside the retention window ({retention_window}). "
+            f"Requested timestamp {queried_timestamp} is outside the retention window ({retention_window}). "  # noqa: E501
             "KubeArchive only retains data within the configured retention period."
         )
         self.queried_timestamp = queried_timestamp
@@ -232,7 +232,7 @@ class PolicyEngineNotFoundError(HexawynError):
     def __init__(self) -> None:
         super().__init__(
             "No policy engine detected in this cluster. "
-            "Install Kyverno (https://kyverno.io) or OPA Gatekeeper (https://open-policy-agent.github.io/gatekeeper) first."
+            "Install Kyverno (https://kyverno.io) or OPA Gatekeeper (https://open-policy-agent.github.io/gatekeeper) first."  # noqa: E501
         )
 
 
@@ -253,8 +253,7 @@ class KedaNotFoundError(HexawynError):
 
     def __init__(self) -> None:
         super().__init__(
-            "KEDA is not installed in this cluster. "
-            "Install it first: https://keda.sh/docs/deploy/"
+            "KEDA is not installed in this cluster. Install it first: https://keda.sh/docs/deploy/"
         )
 
 

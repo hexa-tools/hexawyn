@@ -28,7 +28,7 @@ class TestStepLog:
             truncated=True,
         )
         assert sl.truncated is True
-        assert len(sl.log_lines) == 500
+        assert len(sl.log_lines) == 500  # noqa: PLR2004
 
 
 class TestPipelineRunLogsResult:
@@ -89,4 +89,4 @@ class TestPipelineRunLogsResult:
             steps=steps,
         )
         assert result.steps[0].truncated is True
-        assert len(result.steps[0].log_lines) == 500
+        assert len(result.steps[0].log_lines) == 500  # noqa: PLR2004

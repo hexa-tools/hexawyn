@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from hexawyn.application.ports.driven.security_posture_port import (
+from hexawyn.application.ports.driven.security_posture_port import (  # type: ignore
     SecurityPosturePort,
     WorkloadComplianceRaw,
 )

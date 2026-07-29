@@ -25,9 +25,9 @@ class TestBuildReport:
         report = build_report([], in_sync_count=38, excluded_count=0)
 
         assert report.out_of_sync == []
-        assert report.in_sync_count == 38
+        assert report.in_sync_count == 38  # noqa: PLR2004
         assert report.excluded_count == 0
-        assert report.total_checked == 38
+        assert report.total_checked == 38  # noqa: PLR2004
         assert "in sync" in report.summary.lower()
 
     def test_drifts_reflected_and_total_checked_sums_correctly(self) -> None:
@@ -36,9 +36,9 @@ class TestBuildReport:
         report = build_report(drifts, in_sync_count=38, excluded_count=1)
 
         assert report.out_of_sync == drifts
-        assert report.in_sync_count == 38
+        assert report.in_sync_count == 38  # noqa: PLR2004
         assert report.excluded_count == 1
-        assert report.total_checked == 40
+        assert report.total_checked == 40  # noqa: PLR2004
         assert "2" in report.summary
 
     def test_excluded_count_noted_in_summary(self) -> None:

@@ -41,7 +41,7 @@ class KubernetesPodLogSearchAdapter(LogSearchPort):
             for container_name in container_names
         ]
 
-    def _read_container_log(
+    def _read_container_log(  # noqa: PLR0913
         self,
         core_api: CoreV1Api,
         pod_name: str,

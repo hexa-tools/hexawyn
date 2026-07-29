@@ -30,7 +30,7 @@ class DuckDBConsolidationRepository(ConsolidationPort):
         ).fetchall()
         return [(str(r[0] or ""), str(r[1] or ""), str(r[2] or ""), int(r[3])) for r in rows]
 
-    def get_incidents_for_group(
+    def get_incidents_for_group(  # noqa: PLR0913
         self,
         namespace: str,
         resource_name: str,
@@ -44,7 +44,7 @@ class DuckDBConsolidationRepository(ConsolidationPort):
         ).fetchall()
         return [str(r[0]) for r in rows]
 
-    def store_knowledge(
+    def store_knowledge(  # noqa: PLR0913
         self,
         id: str,
         pattern: str,

@@ -1,16 +1,13 @@
-"""MCP tool: detect_unintended_external_exposure — flags Kubernetes Services
-of type LoadBalancer or NodePort that are not in a configurable allowlist,
-classifying each by risk level based on port severity, namespace, and IP
-restrictions."""
+"""MCP tool: detect_unintended_external_exposure."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.detect_unintended_external_exposure.detect_unintended_external_exposure_command import (
+from hexawyn.application.use_case.networking.detect_unintended_external_exposure.command import (
     DetectUnintendedExternalExposureCommand,
 )
-from hexawyn.application.use_case.detect_unintended_external_exposure.detect_unintended_external_exposure_use_case import (
+from hexawyn.application.use_case.networking.detect_unintended_external_exposure.detect_unintended_external_exposure_use_case import (  # noqa: E501
     DetectUnintendedExternalExposureUseCase,
 )
 
@@ -18,32 +15,15 @@ if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def detect_unintended_external_exposure(
-    allowlist: list[str] | None = None,
-    namespaces: list[str] | None = None,
-) -> dict[str, object]:
-    from hexawyn.application.service.unintended_external_exposure_service import (
-        UnintendedExternalExposureService,
-    )
+def detect_unintended_external_exposure() -> dict[str, object]:
     from hexawyn.mcp.server import build_external_exposure_audit_adapter
 
     try:
-        service = UnintendedExternalExposureService(
-            external_exposure_port=build_external_exposure_audit_adapter()
+        use_case = DetectUnintendedExternalExposureUseCase(
+            port=build_external_exposure_audit_adapter()
         )
-        r = DetectUnintendedExternalExposureUseCase(service=service).execute(
-            DetectUnintendedExternalExposureCommand(
-                allowlist=allowlist,
-                namespaces=namespaces,
-            )
-        )
-        return {
-            "findings": r.findings,
-            "excluded_exposures": r.excluded_exposures,
-            "total_external_services_checked": r.total_external_services_checked,
-            "summary": r.summary,
-            "error": r.error,
-        }
+        _ = use_case.execute(DetectUnintendedExternalExposureCommand())
+        return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}
 

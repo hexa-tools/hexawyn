@@ -5,7 +5,7 @@ Requires the Control Plane to be running (default: http://localhost:8000).
 
 Run:
   CONTROL_PLANE_URL=http://localhost:8000 poetry run pytest tests/integration/test_startup_scan_integration.py -v -m integration
-"""
+"""  # noqa: E501
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ CONTROL_PLANE_URL = os.environ.get("CONTROL_PLANE_URL", "http://localhost:8000")
 def _is_control_plane_available() -> bool:
     try:
         response = httpx.get(f"{CONTROL_PLANE_URL}/health", timeout=2.0)
-        return response.status_code == 200
+        return response.status_code == 200  # noqa: PLR2004
     except Exception:
         return False
 
@@ -39,7 +39,7 @@ class TestStartupScanIntegration:
             timeout=60.0,
         )
         assert (
-            response.status_code == 200
+            response.status_code == 200  # noqa: PLR2004
         ), f"Expected 200, got {response.status_code}: {response.text}"
 
         data = response.json()

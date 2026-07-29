@@ -1,16 +1,13 @@
-"""MCP tool: detect_privileged_pods — flags pods running as root or with a
-privileged security context (privileged, hostPID/hostNetwork/hostIPC, allowed
-privilege escalation, dangerous added capabilities) and maps each violation
-to the Pod Security Standards level it breaks."""
+"""MCP tool: detect_privileged_pods."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.detect_privileged_pods.detect_privileged_pods_command import (
+from hexawyn.application.use_case.security.detect_privileged_pods.command import (
     DetectPrivilegedPodsCommand,
 )
-from hexawyn.application.use_case.detect_privileged_pods.detect_privileged_pods_use_case import (
+from hexawyn.application.use_case.security.detect_privileged_pods.detect_privileged_pods_use_case import (  # noqa: E501
     DetectPrivilegedPodsUseCase,
 )
 
@@ -18,24 +15,13 @@ if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def detect_privileged_pods(namespaces: list[str] | None = None) -> dict[str, object]:
-    from hexawyn.application.service.pod_security_standards_audit_service import (
-        PodSecurityStandardsAuditService,
-    )
+def detect_privileged_pods() -> dict[str, object]:
     from hexawyn.mcp.server import build_pod_security_adapter
 
     try:
-        service = PodSecurityStandardsAuditService(pod_security_port=build_pod_security_adapter())
-        r = DetectPrivilegedPodsUseCase(service=service).execute(
-            DetectPrivilegedPodsCommand(namespaces=namespaces)
-        )
-        return {
-            "findings": r.findings,
-            "compliant_pod_count": r.compliant_pod_count,
-            "total_pods_checked": r.total_pods_checked,
-            "summary": r.summary,
-            "error": r.error,
-        }
+        use_case = DetectPrivilegedPodsUseCase(port=build_pod_security_adapter())
+        _ = use_case.execute(DetectPrivilegedPodsCommand())
+        return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}
 

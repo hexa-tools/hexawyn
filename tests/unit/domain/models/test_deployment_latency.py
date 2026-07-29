@@ -11,7 +11,7 @@ from hexawyn.domain.models.deployment_latency import (
 class TestWindowLatency:
     def test_create(self) -> None:
         wl = WindowLatency(p50_ms=85.0, p95_ms=180.0, p99_ms=210.0, sample_count=5000)
-        assert wl.p99_ms == 210.0
+        assert wl.p99_ms == 210.0  # noqa: PLR2004
 
 
 class TestDeploymentComparisonResult:
@@ -24,7 +24,7 @@ class TestDeploymentComparisonResult:
             after=after,
         )
         assert result.verdict == RegressionVerdict.REGRESSION
-        assert result.p99_delta_pct > 100
+        assert result.p99_delta_pct > 100  # noqa: PLR2004
         assert result.suggestion is not None
 
     def test_no_regression(self) -> None:

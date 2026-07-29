@@ -47,11 +47,11 @@ class TestSimilarityScore:
         score = similarity_score(
             "connection refused to postgres", "connection reset by postgres peer"
         )
-        assert 0.4 < score < 1.0
+        assert 0.4 < score < 1.0  # noqa: PLR2004
 
     def test_unrelated_strings_score_low(self) -> None:
         score = similarity_score("connection refused to postgres", "heartbeat ok seq=42")
-        assert score < 0.3
+        assert score < 0.3  # noqa: PLR2004
 
 
 def test_compile_pattern_returns_real_pattern_object() -> None:

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from hexawyn.application.ports.driven.security_posture_port import WorkloadComplianceRaw
 from hexawyn.domain.models.security_posture import (
     CategoryScore,
     SecurityPostureReport,
     WorkloadCompliance,
+    WorkloadComplianceRaw,
 )
 from hexawyn.domain.services.security_posture.compliance_scorer import (
     compute_overall_score,

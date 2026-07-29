@@ -3,7 +3,20 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
+from hexawyn.domain.errors import (
+    ClusterUnreachableError,
+    InsufficientPermissionsError,
+    ResourceNotFoundError,
+)
+
 MatchType = Literal["exact", "semantic"]
+
+NO_LOG_STATUSES: frozenset[str] = frozenset({"Pending", "Unknown"})
+PER_POD_ERRORS: tuple[type[Exception], ...] = (
+    ResourceNotFoundError,
+    InsufficientPermissionsError,
+    ClusterUnreachableError,
+)
 
 
 @dataclass(frozen=True)

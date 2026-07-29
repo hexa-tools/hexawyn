@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.run_consolidation.run_consolidation_command import (
+from hexawyn.application.use_case.cluster.run_consolidation.command import (
     RunConsolidationCommand,
 )
-from hexawyn.application.ports.driving.run_consolidation.run_consolidation_response import (
+from hexawyn.application.use_case.cluster.run_consolidation.response import (
     RunConsolidationResponse,
 )
 

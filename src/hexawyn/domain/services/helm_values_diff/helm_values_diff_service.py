@@ -33,7 +33,7 @@ class HelmValuesDiffService:
     def __init__(self, diff_age_provider: DiffAgeProvider | None = None) -> None:
         self._diff_age_provider = diff_age_provider
 
-    def diff(
+    def diff(  # noqa: PLR0913
         self,
         release: str,
         source_env: str,
@@ -76,7 +76,7 @@ class HelmValuesDiffService:
             suggestion=suggestion,
         )
 
-    def _suggest(
+    def _suggest(  # noqa: PLR0913
         self,
         raw: ValueDiff,
         severity: DiffSeverity,
@@ -87,8 +87,7 @@ class HelmValuesDiffService:
         parts = [self._base_suggestion(raw, source_env, target_env, secret)]
         if raw.type_mismatch:
             parts.append(
-                "Type mismatch may cause runtime issues (e.g. a quoted number "
-                "parsed as a string)."
+                "Type mismatch may cause runtime issues (e.g. a quoted number parsed as a string)."
             )
         age_note = self._age_note(raw, severity)
         if age_note:

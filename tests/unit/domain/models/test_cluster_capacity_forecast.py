@@ -49,7 +49,7 @@ class TestResourceForecast:
         )
 
         assert forecast.resource_type == "cpu"
-        assert forecast.days_to_saturation == 15
+        assert forecast.days_to_saturation == 15  # noqa: PLR2004
         assert forecast.saturation_date == "2026-07-01"
 
 
@@ -57,12 +57,12 @@ class TestClusterCapacityForecastRequest:
     def test_default_window(self) -> None:
         request = ClusterCapacityForecastRequest()
 
-        assert request.window_days == 14
+        assert request.window_days == 14  # noqa: PLR2004
 
     def test_custom_window(self) -> None:
         request = ClusterCapacityForecastRequest(window_days=7)
 
-        assert request.window_days == 7
+        assert request.window_days == 7  # noqa: PLR2004
 
 
 class TestClusterCapacityForecastReport:
@@ -104,4 +104,4 @@ class TestClusterCapacityForecastReport:
 
         assert report.critical_resource == "CPU"
         assert report.confidence == "high"
-        assert report.window_days_used == 14
+        assert report.window_days_used == 14  # noqa: PLR2004

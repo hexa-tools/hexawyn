@@ -113,7 +113,7 @@ class TestContainerImageDriftReport:
         )
 
         assert report.out_of_sync == [drift]
-        assert report.in_sync_count == 38
+        assert report.in_sync_count == 38  # noqa: PLR2004
         assert report.excluded_count == 1
-        assert report.total_checked == 39
+        assert report.total_checked == 39  # noqa: PLR2004
         assert report.summary == "1 out of sync."

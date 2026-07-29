@@ -18,7 +18,7 @@ class TestVersionMetrics:
             request_count=5000,
         )
         assert vm.version == "v1.2"
-        assert vm.p99_ms == 150.0
+        assert vm.p99_ms == 150.0  # noqa: PLR2004
 
 
 class TestVersionComparisonResult:
@@ -45,7 +45,7 @@ class TestVersionComparisonResult:
             current=current,
         )
         assert result.baseline_version == "v1.2"
-        assert len(result.flags) >= 2
+        assert len(result.flags) >= 2  # noqa: PLR2004
         assert any(f.metric == "p99" for f in result.flags)
 
     def test_no_regression(self) -> None:

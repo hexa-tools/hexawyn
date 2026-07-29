@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.trace_log_correlation.trace_log_correlation_command import (
+from hexawyn.application.use_case.observability.trace_log_correlation.command import (
     TraceLogCorrelationCommand,
 )
-from hexawyn.application.ports.driving.trace_log_correlation.trace_log_correlation_response import (
+from hexawyn.application.use_case.observability.trace_log_correlation.response import (
     TraceLogCorrelationResponse,
 )
 

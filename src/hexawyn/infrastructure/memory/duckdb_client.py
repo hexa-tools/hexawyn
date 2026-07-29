@@ -96,7 +96,7 @@ def get_connection() -> duckdb.DuckDBPyConnection:
 _UNLIMITED_HISTORY_DAYS = 36500  # 100 years — effectively no date filter
 
 
-def search_similar(
+def search_similar(  # noqa: PLR0913
     conn: duckdb.DuckDBPyConnection,
     embedding: list[float],
     cluster_name: str,

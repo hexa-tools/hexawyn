@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_command import (
+from hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.command import (
     DetectOverProvisionedNamespacesCommand,
 )
-from hexawyn.application.use_case.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case import (
+from hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case import (  # noqa: E501
     DetectOverProvisionedNamespacesUseCase,
 )
 
@@ -16,8 +16,7 @@ if TYPE_CHECKING:
 
 
 def detect_over_provisioned_namespaces(
-    analysis_window_days: int = 7,
-    top_n: int = 5,
+    analysis_window_days: int = 7, top_n: int = 5
 ) -> dict[str, object]:
     """Identify over-provisioned namespaces by comparing K8s resource requests vs actual usage.
 
@@ -25,19 +24,14 @@ def detect_over_provisioned_namespaces(
         analysis_window_days: Prometheus lookback window in days (default: 7).
         top_n: Maximum number of namespaces to return, ranked by waste% (default: 5).
     """
-    from hexawyn.application.service.detect_over_provisioned_namespaces_service import (
-        DetectOverProvisionedNamespacesService,
-    )
     from hexawyn.mcp.server import build_waste_adapter
 
     try:
         adapter = build_waste_adapter()
-        service = DetectOverProvisionedNamespacesService(waste_port=adapter)
-        use_case = DetectOverProvisionedNamespacesUseCase(service=service)
-        response = use_case.execute(
+        use_case = DetectOverProvisionedNamespacesUseCase(waste_port=adapter)
+        response = use_case.execute(  # type: ignore
             DetectOverProvisionedNamespacesCommand(
-                analysis_window_days=analysis_window_days,
-                top_n=top_n,
+                analysis_window_days=analysis_window_days, top_n=top_n
             )
         )
         report = response.report

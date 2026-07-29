@@ -41,8 +41,8 @@ class TestBasicAggregation:
         changes = [_change("app-config"), _change("other-config")]
         report = build_report(changes, excluded_count=3, used_fallback=False, partial_window=False)
 
-        assert report.total_manual_changes == 2
-        assert report.excluded_gitops_change_count == 3
+        assert report.total_manual_changes == 2  # noqa: PLR2004
+        assert report.excluded_gitops_change_count == 3  # noqa: PLR2004
         assert report.manual_changes == changes
 
 
@@ -94,4 +94,4 @@ class TestPartialWindowNote:
             [_change()], excluded_count=0, used_fallback=True, partial_window=True
         )
 
-        assert len(report.notes) == 2
+        assert len(report.notes) == 2  # noqa: PLR2004

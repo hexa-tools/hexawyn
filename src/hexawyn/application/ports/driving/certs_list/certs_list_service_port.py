@@ -2,8 +2,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.certs_list.certs_list_command import CertsListCommand
-from hexawyn.application.ports.driving.certs_list.certs_list_response import CertsListResponse
+from hexawyn.application.use_case.cert_manager.certs_list.command import (
+    CertsListCommand,
+)
+from hexawyn.application.use_case.cert_manager.certs_list.response import (
+    CertsListResponse,
+)
 
 
 class CertsListServicePort(ABC):

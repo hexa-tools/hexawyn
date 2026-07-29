@@ -23,5 +23,5 @@ class TestNightInterventionReport:
             summary="Moins sollicites : -43% d'interventions nocturnes.",
         )
 
-        assert report.avg_interventions_per_night == 0.8
-        assert report.delta_pct == -42.9
+        assert report.avg_interventions_per_night == 0.8  # noqa: PLR2004
+        assert report.delta_pct == -42.9  # noqa: PLR2004

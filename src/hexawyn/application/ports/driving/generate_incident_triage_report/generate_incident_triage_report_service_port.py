@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.generate_incident_triage_report.generate_incident_triage_report_command import (
+from hexawyn.application.use_case.troubleshooting.generate_incident_triage_report.command import (
     GenerateIncidentTriageReportCommand,
 )
-from hexawyn.application.ports.driving.generate_incident_triage_report.generate_incident_triage_report_response import (
+from hexawyn.application.use_case.troubleshooting.generate_incident_triage_report.response import (
     GenerateIncidentTriageReportResponse,
 )
 

@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.live_topology_mapper.live_topology_mapper_command import (
+from hexawyn.application.use_case.cluster.live_topology_mapper.command import (
     LiveTopologyMapperCommand,
 )
-from hexawyn.application.ports.driving.live_topology_mapper.live_topology_mapper_response import (
+from hexawyn.application.use_case.cluster.live_topology_mapper.response import (
     LiveTopologyMapperResponse,
 )
 

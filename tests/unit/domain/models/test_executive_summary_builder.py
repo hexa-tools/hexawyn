@@ -147,4 +147,4 @@ class TestConciseness:
         )
 
         sentence_count = summary.count(".") + summary.count("!")
-        assert sentence_count <= 5
+        assert sentence_count <= 5  # noqa: PLR2004

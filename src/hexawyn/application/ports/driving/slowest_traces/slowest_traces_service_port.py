@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.slowest_traces.slowest_traces_command import (
+from hexawyn.application.use_case.observability.slowest_traces.command import (
     SlowestTracesCommand,
 )
-from hexawyn.application.ports.driving.slowest_traces.slowest_traces_response import (
+from hexawyn.application.use_case.observability.slowest_traces.response import (
     SlowestTracesResponse,
 )
 

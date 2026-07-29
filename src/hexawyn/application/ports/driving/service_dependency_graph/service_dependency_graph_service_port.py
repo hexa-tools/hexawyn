@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.service_dependency_graph.service_dependency_graph_command import (
+from hexawyn.application.use_case.observability.service_dependency_graph.command import (
     ServiceDependencyGraphCommand,
 )
-from hexawyn.application.ports.driving.service_dependency_graph.service_dependency_graph_response import (
+from hexawyn.application.use_case.observability.service_dependency_graph.response import (
     ServiceDependencyGraphResponse,
 )
 

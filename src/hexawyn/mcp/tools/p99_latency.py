@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.p99_latency.p99_latency_command import P99LatencyCommand
-from hexawyn.application.use_case.p99_latency.p99_latency_use_case import P99LatencyUseCase
+from hexawyn.application.use_case.observability.p99_latency.command import P99LatencyCommand
+from hexawyn.application.use_case.observability.p99_latency.p99_latency_use_case import (
+    P99LatencyUseCase,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -14,16 +16,15 @@ if TYPE_CHECKING:
 def p99_latency(
     endpoint: str, time_window_minutes: int = 120, slo_threshold_ms: float = 500.0
 ) -> dict[str, object]:
-    from hexawyn.application.service.p99_latency_service import P99LatencyService
     from hexawyn.mcp.server import build_latency_percentile_adapter
 
     try:
         a = build_latency_percentile_adapter()
-        r = P99LatencyUseCase(service=P99LatencyService(port=a)).execute(
+        r = P99LatencyUseCase(port=a).execute(
             P99LatencyCommand(
                 endpoint=endpoint,
-                time_window_minutes=time_window_minutes,
-                slo_threshold_ms=slo_threshold_ms,
+                time_window_minutes=time_window_minutes,  # type: ignore
+                slo_threshold_ms=slo_threshold_ms,  # type: ignore
             )
         )
         return {

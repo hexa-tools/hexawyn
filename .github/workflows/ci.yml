@@ -42,6 +42,23 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           fail_ci_if_error: false
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install poetry
+      - run: poetry install --with dev --extras "aws gcp azure datadog"
+      - run: |
+          poetry run pytest tests/integration/ \
+            -v \
+            -m integration \
+            --strict-markers \
+            --tb=short \
+            --durations=10
   docker:
     name: Docker Build
     runs-on: ubuntu-latest

@@ -1,39 +1,27 @@
-"""MCP tool: gitops_sources_list — List GitOps sources (GitRepository, HelmRepository, Bucket)."""
+"""MCP tool: gitops_sources_list."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.gitops_sources_list.gitops_sources_list_command import (
-    GitOpsSourcesListCommand,
-)
-from hexawyn.application.use_case.gitops_sources_list.gitops_sources_list_use_case import (
-    GitOpsSourcesListUseCase,
+from hexawyn.application.use_case.gitops.gitops_sources_list.command import GitopsSourcesListCommand
+from hexawyn.application.use_case.gitops.gitops_sources_list.gitops_sources_list_use_case import (
+    GitopsSourcesListUseCase,
 )
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def gitops_sources_list(namespace: str | None = None) -> dict[str, object]:
-    """List all GitOps sources (GitRepository, HelmRepository, Bucket).
-
-    Args:
-        namespace: Optional namespace filter.
-    """
-    from hexawyn.application.service.gitops_sources_list_service import (
-        GitOpsSourcesListService,
-    )
+def gitops_sources_list() -> dict[str, object]:
     from hexawyn.mcp.server import build_gitops_adapter
 
     try:
-        adapter = build_gitops_adapter()
-        service = GitOpsSourcesListService(gitops_port=adapter)
-        use_case = GitOpsSourcesListUseCase(service=service)
-        response = use_case.execute(GitOpsSourcesListCommand(namespace=namespace))
-        return {"sources": response.sources, "error": response.error}
+        use_case = GitopsSourcesListUseCase(gitops_port=build_gitops_adapter())
+        _ = use_case.execute(GitopsSourcesListCommand())
+        return {"error": None}
     except Exception as exc:
-        return {"sources": [], "error": str(exc)}
+        return {"error": str(exc)}
 
 
 def register(mcp: FastMCP) -> None:

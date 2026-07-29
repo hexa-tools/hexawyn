@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.detect_cross_cluster_incident.detect_cross_cluster_incident_command import (  # noqa: E501
+from hexawyn.application.use_case.troubleshooting.detect_cross_cluster_incident.command import (  # noqa: E501
     DetectCrossClusterIncidentCommand,
 )
-from hexawyn.application.ports.driving.detect_cross_cluster_incident.detect_cross_cluster_incident_response import (  # noqa: E501
+from hexawyn.application.use_case.troubleshooting.detect_cross_cluster_incident.response import (  # noqa: E501
     DetectCrossClusterIncidentResponse,
 )
 

@@ -1,15 +1,15 @@
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.detect_recurring_incidents.detect_recurring_incidents_command import (
+from hexawyn.application.use_case.troubleshooting.detect_recurring_incidents.command import (  # noqa: E501
     DetectRecurringIncidentsCommand,
 )
-from hexawyn.application.ports.driving.detect_recurring_incidents.detect_recurring_incidents_response import (
+from hexawyn.application.use_case.troubleshooting.detect_recurring_incidents.response import (  # noqa: E501
     DetectRecurringIncidentsResponse,
 )
 
 
 class DetectRecurringIncidentsServicePort(ABC):
     @abstractmethod
-    def detect(
+    def detect(  # noqa: E501
         self, command: DetectRecurringIncidentsCommand
     ) -> DetectRecurringIncidentsResponse: ...

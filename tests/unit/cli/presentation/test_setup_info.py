@@ -16,7 +16,7 @@ class TestSetupInfo:
         ):
             render_setup_info(mock_log)
 
-        assert mock_log.write.call_count >= 3
+        assert mock_log.write.call_count >= 3  # noqa: PLR2004
 
     def test_shows_missing_key_warning(self) -> None:
         from hexawyn.cli.presentation.setup_info import render_setup_info

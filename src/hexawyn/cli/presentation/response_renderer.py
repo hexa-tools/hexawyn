@@ -2,7 +2,7 @@ from rich import box
 from rich.table import Table
 from textual.widgets import RichLog
 
-from hexawyn.application.use_case.chat_cli.chat_cli_response import ChatCliResponse
+from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_response import ChatCliResponse
 from hexawyn.cli.presentation.constants import _POD_STATUS_COLORS
 
 

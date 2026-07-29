@@ -2,15 +2,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.gitops_app_status.gitops_app_status_command import (
+from hexawyn.application.use_case.gitops.gitops_app_status.command import (  # type: ignore
     GitOpsAppStatusCommand,
 )
-from hexawyn.application.ports.driving.gitops_app_status.gitops_app_status_response import (
+from hexawyn.application.use_case.gitops.gitops_app_status.response import (  # type: ignore
     GitOpsAppStatusResponse,
 )
 
 
 class GitOpsAppStatusServicePort(ABC):
     @abstractmethod
-    def get_status(self, command: GitOpsAppStatusCommand) -> GitOpsAppStatusResponse:
-        """Get sync + health status of a specific GitOps application."""
+    def get_status(self, command: GitOpsAppStatusCommand) -> GitOpsAppStatusResponse: ...

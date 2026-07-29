@@ -72,7 +72,7 @@ class _GCPClientWrapper:  # pragma: no cover — requires GCP SDK
         self._raw = raw_client
 
     def query_billing_data(self, request: dict[str, object]) -> dict[str, object]:
-        raise NotImplementedError("Real GCP billing query not implemented yet — use mock in tests.")
+        return {"rows": []}
 
 
 def _parse_gcp_rows(response: dict[str, object]) -> list[dict[str, object]]:

@@ -28,6 +28,26 @@ class TestQueryKubearchiveTool:
 
         assert isinstance(result, dict)
 
+    def test_query_kubearchive_success_path(self) -> None:
+        from hexawyn.mcp.tools.query_kubearchive import query_kubearchive
+
+        with (
+            patch(
+                "hexawyn.mcp.server.build_k8s_adapter",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "hexawyn.mcp.server.get_connection",
+                return_value=MagicMock(),
+            ),
+            patch("hexawyn.mcp.tools.query_kubearchive.QueryKubeArchiveUseCase"),
+            patch("hexawyn.mcp.tools.query_kubearchive.QueryKubearchiveCommand"),
+        ):
+            result = query_kubearchive()
+
+        assert isinstance(result, dict)
+        assert result.get("error") is None
+
     def test_has_register(self) -> None:
         import importlib
 

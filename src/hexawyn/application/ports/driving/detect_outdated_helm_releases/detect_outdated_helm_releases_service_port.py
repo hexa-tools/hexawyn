@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.detect_outdated_helm_releases.detect_outdated_helm_releases_command import (
+from hexawyn.application.use_case.gitops.detect_outdated_helm_releases.command import (
     DetectOutdatedHelmReleasesCommand,
 )
-from hexawyn.application.ports.driving.detect_outdated_helm_releases.detect_outdated_helm_releases_response import (
+from hexawyn.application.use_case.gitops.detect_outdated_helm_releases.response import (
     DetectOutdatedHelmReleasesResponse,
 )
 

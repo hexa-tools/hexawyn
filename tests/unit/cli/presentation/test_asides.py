@@ -27,7 +27,7 @@ class TestSafeFindings:
     def test_returns_list_when_adapter_has_get_findings(self) -> None:
         adapter = MagicMock()
         adapter.get_findings.return_value = [{"id": "f1"}, {"id": "f2"}]
-        assert len(safe_findings(adapter)) == 2
+        assert len(safe_findings(adapter)) == 2  # noqa: PLR2004
 
     def test_returns_empty_list_when_no_get_findings_attr(self) -> None:
         assert safe_findings("not an adapter") == []
@@ -48,7 +48,7 @@ class TestSafePods:
             "invalid",
         ]
         pods = safe_pods(adapter)
-        assert len(pods) == 2
+        assert len(pods) == 2  # noqa: PLR2004
 
     def test_returns_empty_when_no_list_pods(self) -> None:
         assert safe_pods("not an adapter") == []
@@ -83,20 +83,20 @@ class TestSafeHealthScore:
     def test_returns_int_score(self) -> None:
         adapter = MagicMock()
         adapter.get_health_score.return_value = 95
-        assert safe_health_score(adapter) == 95
+        assert safe_health_score(adapter) == 95  # noqa: PLR2004
 
     def test_returns_100_when_no_attr(self) -> None:
-        assert safe_health_score("invalid") == 100
+        assert safe_health_score("invalid") == 100  # noqa: PLR2004
 
     def test_returns_100_on_exception(self) -> None:
         adapter = MagicMock()
         adapter.get_health_score.side_effect = Exception("boom")
-        assert safe_health_score(adapter) == 100
+        assert safe_health_score(adapter) == 100  # noqa: PLR2004
 
     def test_returns_100_when_not_int(self) -> None:
         adapter = MagicMock()
         adapter.get_health_score.return_value = "high"
-        assert safe_health_score(adapter) == 100
+        assert safe_health_score(adapter) == 100  # noqa: PLR2004
 
 
 class TestSafeSuggestions:
@@ -126,10 +126,10 @@ class TestMappingHelpers:
         assert mapping_text({}, "key", "default") == "default"
 
     def test_mapping_int_returns_int(self) -> None:
-        assert mapping_int({"count": 5}, "count", 0) == 5
+        assert mapping_int({"count": 5}, "count", 0) == 5  # noqa: PLR2004
 
     def test_mapping_int_returns_from_float(self) -> None:
-        assert mapping_int({"count": 5.0}, "count", 0) == 5
+        assert mapping_int({"count": 5.0}, "count", 0) == 5  # noqa: PLR2004
 
     def test_mapping_int_returns_default_when_string(self) -> None:
         assert mapping_int({"count": "abc"}, "count", 0) == 0
@@ -142,7 +142,7 @@ class TestPodCounters:
             {"status": "Running"},
             {"status": "CrashLoopBackOff"},
         ]
-        assert running_pod_count(pods) == 2
+        assert running_pod_count(pods) == 2  # noqa: PLR2004
 
     def test_pending_pod_count(self) -> None:
         pods: list[dict[str, object]] = [
@@ -157,7 +157,7 @@ class TestPodCounters:
             {"status": "Error"},
             {"status": "Running"},
         ]
-        assert failed_pod_count(pods) == 2
+        assert failed_pod_count(pods) == 2  # noqa: PLR2004
 
     def test_namespace_count(self) -> None:
         pods: list[dict[str, object]] = [
@@ -165,7 +165,7 @@ class TestPodCounters:
             {"namespace": "default"},
             {"namespace": "kube-system"},
         ]
-        assert namespace_count(pods, "default") == 2
+        assert namespace_count(pods, "default") == 2  # noqa: PLR2004
 
     def test_namespace_count_empty(self) -> None:
         assert namespace_count([], "fallback") == 1
@@ -185,7 +185,7 @@ class TestFindingHelpers:
             FakeFinding("pod CrashLoopBackOff again"),
             FakeFinding("all good"),
         ]
-        assert crashloop_finding_count(findings) == 2
+        assert crashloop_finding_count(findings) == 2  # noqa: PLR2004
 
     def test_restarting_finding_count(self) -> None:
         class FakeFinding:
@@ -200,7 +200,7 @@ class TestFindingHelpers:
             FakeFinding("pod restarted 3 times"),
             FakeFinding("all good"),
         ]
-        assert restarting_finding_count(findings) == 2
+        assert restarting_finding_count(findings) == 2  # noqa: PLR2004
 
     def test_issue_name_from_pod_message(self) -> None:
         class FakeFinding:

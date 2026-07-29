@@ -27,7 +27,7 @@ class TestMCPToolRegistry:
         t1 = MCPToolSchema(name="a", description="aa", input_schema={})
         t2 = MCPToolSchema(name="b", description="bb", input_schema={})
         registry = MCPToolRegistry(tools=[t1, t2])
-        assert len(registry.tools) == 2
+        assert len(registry.tools) == 2  # noqa: PLR2004
 
     def test_to_payload_serializes_correctly(self) -> None:
         t = MCPToolSchema(

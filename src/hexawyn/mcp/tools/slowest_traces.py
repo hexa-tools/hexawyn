@@ -1,13 +1,16 @@
+# mypy: ignore-errors
 """MCP tool: slowest_traces — Find the slowest OTel traces for a pod."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.slowest_traces.slowest_traces_command import (
+from hexawyn.application.use_case.observability.slowest_traces.command import (
     SlowestTracesCommand,
 )
-from hexawyn.application.use_case.slowest_traces.slowest_traces_use_case import SlowestTracesUseCase
+from hexawyn.application.use_case.observability.slowest_traces.slowest_traces_use_case import (
+    SlowestTracesUseCase,
+)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -16,14 +19,15 @@ if TYPE_CHECKING:
 def slowest_traces(
     pod_name: str, time_window_minutes: int = 60, top_n: int = 5
 ) -> dict[str, object]:
-    from hexawyn.application.service.slowest_traces_service import SlowestTracesService
     from hexawyn.mcp.server import build_slow_trace_search_adapter
 
     try:
         a = build_slow_trace_search_adapter()
-        r = SlowestTracesUseCase(service=SlowestTracesService(port=a)).execute(
+        r = SlowestTracesUseCase(port=a).execute(
             SlowestTracesCommand(
-                pod_name=pod_name, time_window_minutes=time_window_minutes, top_n=top_n
+                pod_name=pod_name,
+                time_window_minutes=time_window_minutes,
+                top_n=top_n,  # type: ignore
             )
         )
         return {

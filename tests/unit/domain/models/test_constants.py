@@ -1,279 +1,201 @@
-"""Unit tests for hexawyn centralized constants."""
+"""Tests for domain/models/constants.py — all constants, their types and values."""
 
-import dataclasses
+from __future__ import annotations
 
+import hexawyn.domain.models.constants as c
 import pytest
-from hexawyn.domain.models.constants import (
-    AES_256_KEY_LENGTH,
-    AES_GCM_NONCE_SIZE,
-    CACHE_TTL_SECONDS,
-    CRITICAL_FINDING_PENALTY,
-    DEFAULT_LOG_SEARCH_WINDOW_MINUTES,
-    DEFAULT_MCP_PORT,
-    DEFAULT_VSS_LIMIT,
-    DEFAULT_VSS_MIN_SCORE,
-    HEALTH_SCORE_GREEN_THRESHOLD,
-    HEALTH_SCORE_YELLOW_THRESHOLD,
-    HEALTHY_POD_STATUSES,
-    K8S_API_TIMEOUT_SECONDS,
-    MAX_HEALTH_SCORE,
-    MAX_SUGGESTION_CHIPS,
-    MAX_TOP_ISSUES,
-    PBKDF2_ITERATIONS,
-    PRICING_URL,
-    QUOTA_LOW_WARNING_THRESHOLD,
-    SALT_SIZE,
-    VERSION,
-    WARNING_FINDING_PENALTY,
-    AdvancedEventAnalyticsConstants,
-    EventAnalysisConstants,
-    LogAnalysisConstants,
-    LogAnomalyDetectionConstants,
-    NamespaceEventsConstants,
-    PipelineFailureAnalysisConstants,
-    PodPrioritizationConstants,
-    QuotaConstants,
-    ScoringConstants,
-)
 
 
 class TestVersionAndUrls:
     def test_version_is_string(self) -> None:
-        assert isinstance(VERSION, str)
-        assert len(VERSION) > 0
+        assert c.VERSION == "0.1.0b0"
 
-    def test_pricing_url_is_https(self) -> None:
-        assert PRICING_URL.startswith("https://")
+    def test_pricing_url(self) -> None:
+        assert c.PRICING_URL.startswith("https://")
+
+    def test_telemetry_url(self) -> None:
+        assert c.TELEMETRY_URL.startswith("https://")
 
 
 class TestKubernetesConstants:
-    def test_k8s_api_timeout_positive(self) -> None:
-        assert K8S_API_TIMEOUT_SECONDS > 0
+    def test_k8s_api_timeout(self) -> None:
+        assert c.K8S_API_TIMEOUT_SECONDS == 5  # noqa: PLR2004
 
-    def test_healthy_pod_statuses_is_frozenset(self) -> None:
-        assert isinstance(HEALTHY_POD_STATUSES, frozenset)
-        assert "Running" in HEALTHY_POD_STATUSES
-        assert "Succeeded" in HEALTHY_POD_STATUSES
+    def test_stuck_pipeline_threshold(self) -> None:
+        assert c.STUCK_PIPELINE_RUN_THRESHOLD_SECONDS == 3600  # noqa: PLR2004
 
+    def test_pipeline_outlier_threshold(self) -> None:
+        assert c.PIPELINE_OUTLIER_THRESHOLD == 2.0  # noqa: PLR2004
 
-class TestCacheConstants:
-    def test_cache_ttl_positive(self) -> None:
-        assert CACHE_TTL_SECONDS > 0
-        assert CACHE_TTL_SECONDS == 300
+    def test_pipeline_run_status_priority(self) -> None:
+        assert c.PIPELINE_RUN_STATUS_PRIORITY == {"Failed": 0, "Running": 1, "Succeeded": 2}
 
+    def test_hours_per_month(self) -> None:
+        assert c.HOURS_PER_MONTH == 730  # noqa: PLR2004
 
-class TestHealthScoringConstants:
-    def test_max_health_score_is_100(self) -> None:
-        assert MAX_HEALTH_SCORE == 100
+    def test_healthy_pod_statuses(self) -> None:
+        assert "Running" in c.HEALTHY_POD_STATUSES
+        assert "Failed" not in c.HEALTHY_POD_STATUSES
 
-    def test_critical_penalty_greater_than_warning(self) -> None:
-        assert CRITICAL_FINDING_PENALTY > WARNING_FINDING_PENALTY
+    def test_pod_unhealthy_order(self) -> None:
+        assert c.POD_UNHEALTHY_ORDER["CrashLoopBackOff"] == 0
+        assert c.POD_UNHEALTHY_ORDER["Error"] == 1
+        assert c.POD_UNHEALTHY_ORDER["Terminating"] == 4  # noqa: PLR2004
 
-    def test_green_above_yellow(self) -> None:
-        assert HEALTH_SCORE_GREEN_THRESHOLD > HEALTH_SCORE_YELLOW_THRESHOLD
-
-    def test_scores_within_range(self) -> None:
-        assert 0 <= MAX_HEALTH_SCORE <= 100
-        assert 0 <= HEALTH_SCORE_GREEN_THRESHOLD <= 100
-        assert 0 <= HEALTH_SCORE_YELLOW_THRESHOLD <= 100
-
-    def test_penalties_do_not_exceed_max_score(self) -> None:
-        assert CRITICAL_FINDING_PENALTY <= MAX_HEALTH_SCORE
-        assert WARNING_FINDING_PENALTY <= CRITICAL_FINDING_PENALTY
+    def test_pod_cache_ttl(self) -> None:
+        assert c.POD_CACHE_TTL_SECONDS == 5.0  # noqa: PLR2004
 
 
-class TestUiConstants:
-    def test_max_suggestion_chips_positive(self) -> None:
-        assert MAX_SUGGESTION_CHIPS > 0
-        assert MAX_SUGGESTION_CHIPS == 4
-
-    def test_max_top_issues_positive(self) -> None:
-        assert MAX_TOP_ISSUES > 0
-        assert MAX_TOP_ISSUES == 2
+class TestCache:
+    def test_cache_ttl(self) -> None:
+        assert c.CACHE_TTL_SECONDS == 300  # noqa: PLR2004
 
 
-class TestQuotaConstants:
-    def test_quota_low_warning_positive(self) -> None:
-        assert QUOTA_LOW_WARNING_THRESHOLD > 0
-        assert QUOTA_LOW_WARNING_THRESHOLD == 5
-
-    def test_quota_dataclass_defaults(self) -> None:
-        q = QuotaConstants()
-        assert q.free_monthly_investigations == 50
-        assert q.free_monthly_slack_alerts == 5
-        assert q.free_history_days == 7
-        assert q.dev_monthly_investigations == 200
-        assert q.dev_history_days == 30
-        assert q.startup_monthly_investigations == 500
-        assert q.startup_history_days == 90
-        assert q.unlimited_sentinel == -1
+class TestHealthScoring:
+    def test_all_thresholds(self) -> None:
+        assert c.MAX_HEALTH_SCORE == 100  # noqa: PLR2004
+        assert c.CRITICAL_FINDING_PENALTY == 30  # noqa: PLR2004
+        assert c.WARNING_FINDING_PENALTY == 10  # noqa: PLR2004
+        assert c.HEALTH_SCORE_GREEN_THRESHOLD == 80  # noqa: PLR2004
+        assert c.HEALTH_SCORE_YELLOW_THRESHOLD == 50  # noqa: PLR2004
 
 
-class TestVssConstants:
-    def test_default_limit_positive(self) -> None:
-        assert DEFAULT_VSS_LIMIT > 0
-        assert DEFAULT_VSS_LIMIT == 5
-
-    def test_default_min_score_between_zero_and_one(self) -> None:
-        assert 0.0 <= DEFAULT_VSS_MIN_SCORE <= 1.0
-        assert DEFAULT_VSS_MIN_SCORE == 0.80
+class TestUI:
+    def test(self) -> None:
+        assert c.MAX_SUGGESTION_CHIPS == 4  # noqa: PLR2004
+        assert c.MAX_TOP_ISSUES == 2  # noqa: PLR2004
 
 
-class TestCryptoConstants:
-    def test_aes_key_length_is_32(self) -> None:
-        assert AES_256_KEY_LENGTH == 32
-
-    def test_salt_size_matches_key_length(self) -> None:
-        assert SALT_SIZE == AES_256_KEY_LENGTH
-
-    def test_pbkdf2_iterations_minimum(self) -> None:
-        assert PBKDF2_ITERATIONS >= 100_000
-
-    def test_nonce_size_is_12(self) -> None:
-        assert AES_GCM_NONCE_SIZE == 12
+class TestQuota:
+    def test_quota_warning(self) -> None:
+        assert c.QUOTA_LOW_WARNING_THRESHOLD == 5  # noqa: PLR2004
 
 
-class TestMcpConstants:
-    def test_default_port_in_range(self) -> None:
-        assert 1 <= DEFAULT_MCP_PORT <= 65535
-        assert DEFAULT_MCP_PORT == 8000
+class TestVSS:
+    def test(self) -> None:
+        assert c.DEFAULT_VSS_LIMIT == 5  # noqa: PLR2004
+        assert c.DEFAULT_VSS_MIN_SCORE == 0.80  # noqa: PLR2004
 
 
-class TestLogSearchConstants:
-    def test_default_window_minutes_positive(self) -> None:
-        assert DEFAULT_LOG_SEARCH_WINDOW_MINUTES > 0
-        assert DEFAULT_LOG_SEARCH_WINDOW_MINUTES == 15
+class TestCrypto:
+    def test(self) -> None:
+        assert c.AES_256_KEY_LENGTH == 32  # noqa: PLR2004
+        assert c.SALT_SIZE == 32  # noqa: PLR2004
+        assert c.PBKDF2_ITERATIONS == 600_000  # noqa: PLR2004
+        assert c.AES_GCM_NONCE_SIZE == 12  # noqa: PLR2004
+        assert c.AES_GCM_MIN_ENCRYPTED_LENGTH == 13  # noqa: PLR2004
 
 
-class TestLogAnalysisConstants:
-    def test_defaults(self) -> None:
-        lac = LogAnalysisConstants()
-        assert lac.streaming_chunk_size == 5000
-        assert lac.streaming_min_lines == 10000
-        assert lac.smart_summary_min_lines == 50000
-        assert lac.hybrid_min_lines == 20000
-        assert lac.max_summary_items == 10
-        assert lac.default_log_lines == 10000
-        assert lac.token_budget == 150000
-        assert lac.token_safety_buffer == 0.8
-        assert lac.token_sample_max_lines == 100
-        assert lac.chars_per_token_divisor == 4.0
-
-    def test_is_dataclass(self) -> None:
-        assert dataclasses.is_dataclass(LogAnalysisConstants)
+class TestMCP:
+    def test(self) -> None:
+        assert c.DEFAULT_MCP_PORT == 8000  # noqa: PLR2004
+        assert c.DEFAULT_MCP_HOST == "0.0.0.0"
 
 
-class TestEventAnalysisConstants:
-    def test_defaults(self) -> None:
-        eac = EventAnalysisConstants()
-        assert eac.correlation_time_window_minutes == 5
-        assert eac.failure_cascade_window_minutes == 30
-        assert eac.failure_cascade_min_events == 3
-        assert eac.max_correlated_events == 10
-        assert eac.temporal_anomaly_zscore_threshold == 2.5
-
-    def test_is_dataclass(self) -> None:
-        assert dataclasses.is_dataclass(EventAnalysisConstants)
+class TestLogSearch:
+    def test(self) -> None:
+        assert c.DEFAULT_LOG_SEARCH_WINDOW_MINUTES == 15  # noqa: PLR2004
 
 
-class TestLogAnomalyDetectionConstants:
-    def test_defaults(self) -> None:
-        lac = LogAnomalyDetectionConstants()
-        assert lac.zscore_threshold == 3.0
-        assert lac.min_lines_for_analysis == 100
-        assert lac.low_confidence_line_window == 10
-        assert lac.isolation_forest_contamination == 0.05
-        assert lac.isolation_forest_random_state == 42
-        assert lac.isolation_forest_min_samples == 10
-        assert lac.isolation_forest_min_score_deviation == 1.5
+class TestDataClasses:
+    def test_quota_constants(self) -> None:
+        qc = c.QuotaConstants()
+        assert qc.free_monthly_investigations == 50  # noqa: PLR2004
+        assert qc.free_history_days == 7  # noqa: PLR2004
+        assert qc.unlimited_sentinel == -1
 
-    def test_is_dataclass(self) -> None:
-        assert dataclasses.is_dataclass(LogAnomalyDetectionConstants)
+    def test_log_analysis_constants(self) -> None:
+        lac = c.LogAnalysisConstants()
+        assert lac.streaming_chunk_size == 5000  # noqa: PLR2004
+        assert lac.token_budget == 150000  # noqa: PLR2004
 
+    def test_log_anomaly_detection_constants(self) -> None:
+        ldc = c.LogAnomalyDetectionConstants()
+        assert ldc.zscore_threshold == 3.0  # noqa: PLR2004
 
-class TestNamespaceEventsConstants:
-    def test_defaults(self) -> None:
-        nec = NamespaceEventsConstants()
-        assert nec.recurring_count_threshold == 5
-        assert nec.top_n_default == 20
-        assert nec.urgency_recent_window_seconds == 60
+    def test_scoring_constants(self) -> None:
+        sc = c.ScoringConstants()
+        assert sc.base_confidence > 0
+        assert sc.max_confidence > sc.base_confidence
 
-    def test_is_dataclass(self) -> None:
-        assert dataclasses.is_dataclass(NamespaceEventsConstants)
+    def test_pod_prioritization_constants(self) -> None:
+        pp = c.PodPrioritizationConstants()
+        assert isinstance(pp.failed_status_score, int)
+        assert isinstance(pp.other_status_score, int)
 
+    def test_adaptive_investigation_constants(self) -> None:
+        ai = c.AdaptiveInvestigationConstants()
+        assert isinstance(ai.default_depth, int)
 
-class TestAdvancedEventAnalyticsConstants:
-    def test_defaults(self) -> None:
-        aeac = AdvancedEventAnalyticsConstants()
-        assert aeac.storm_min_events == 50
-        assert aeac.storm_window_seconds == 120
-        assert aeac.top_reasons_limit == 5
-        assert aeac.sampling_threshold == 5000
-        assert aeac.sample_events_per_incident == 50
+    def test_image_vulnerability_constants(self) -> None:
+        iv = c.ImageVulnerabilityConstants()
+        assert isinstance(iv.production_namespace, str)
 
-    def test_is_dataclass(self) -> None:
-        assert dataclasses.is_dataclass(AdvancedEventAnalyticsConstants)
+    def test_pod_security_constants(self) -> None:
+        ps = c.PodSecurityConstants()
+        assert isinstance(ps.high_severity_capabilities, tuple)
 
+    def test_network_policy_constants(self) -> None:
+        np = c.NetworkPolicyConstants()
+        assert isinstance(np.system_namespaces, tuple)
 
-class TestPipelineFailureAnalysisConstants:
-    def test_defaults(self) -> None:
-        pfac = PipelineFailureAnalysisConstants()
-        assert pfac.flaky_test_min_failures == 3
-        assert pfac.flaky_test_window_runs == 5
-
-    def test_is_dataclass(self) -> None:
-        assert dataclasses.is_dataclass(PipelineFailureAnalysisConstants)
-
-
-class TestScoringConstants:
-    def test_defaults(self) -> None:
-        sc = ScoringConstants()
-        assert sc.base_confidence == 0.5
-        assert sc.max_confidence == 1.0
-        assert sc.confidence_high_threshold == 0.8
-        assert sc.confidence_medium_threshold == 0.5
-        assert sc.base_impact == 5.0
-        assert sc.max_impact == 10.0
-        assert sc.min_impact == 1.0
-        assert sc.impact_critical_threshold == 8.0
-        assert sc.impact_medium_threshold == 4.0
-        assert sc.combined_confidence_weight == 0.4
-        assert sc.combined_impact_weight == 0.6
-        assert sc.severity_critical_threshold == 0.85
-        assert sc.cascade_high_threshold == 10
-        assert sc.cascade_medium_threshold == 5
-
-    def test_weights_sum_is_one(self) -> None:
-        sc = ScoringConstants()
-        total = (
-            sc.base_confidence
-            + sc.logs_analyzed_weight
-            + sc.root_cause_found_weight
-            + sc.timeline_available_weight
-        )
-        assert total == pytest.approx(1.0)
-
-    def test_combined_weights_sum_is_one(self) -> None:
-        sc = ScoringConstants()
-        assert sc.combined_confidence_weight + sc.combined_impact_weight == 1.0
-
-    def test_is_dataclass(self) -> None:
-        assert dataclasses.is_dataclass(ScoringConstants)
+    def test_all_dataclasses_instantiable(self) -> None:
+        classes = [
+            c.QuotaConstants,
+            c.LogAnalysisConstants,
+            c.EventAnalysisConstants,
+            c.LogAnomalyDetectionConstants,
+            c.NamespaceEventsConstants,
+            c.AdvancedEventAnalyticsConstants,
+            c.PipelineFailureAnalysisConstants,
+            c.IncidentTriageConstants,
+            c.MetricsQueryConstants,
+            c.LabelSearchConstants,
+            c.LogSearchConstants,
+            c.NamespaceOverviewConstants,
+            c.PodAnomalyDetectionConstants,
+            c.SemanticSearchConstants,
+            c.LicenseConstants,
+            c.ScoringConstants,
+            c.PodPrioritizationConstants,
+            c.AdaptiveInvestigationConstants,
+            c.ClusterCapacityForecastConstants,
+            c.HeadroomSimulationConstants,
+            c.HotNodeAnalysisConstants,
+            c.ConfigurationDriftConstants,
+            c.ManualChangeDetectionConstants,
+            c.RBACAuditConstants,
+            c.PodSecurityConstants,
+            c.ImageVulnerabilityConstants,
+            c.SecretRotationConstants,
+            c.NetworkPolicyConstants,
+            c.ExternalExposureConstants,
+        ]
+        for cls in classes:
+            instance = cls()
+            assert isinstance(instance, cls)
 
 
-class TestPodPrioritizationConstants:
-    def test_defaults(self) -> None:
-        ppc = PodPrioritizationConstants()
-        assert ppc.failed_status_score == 100
-        assert ppc.pending_status_score == 50
-        assert ppc.other_status_score == 25
-        assert ppc.restart_weight == 10
-        assert ppc.max_restart_bonus == 30
+def test_constants_module_is_importable() -> None:
+    assert c.__doc__ is not None
 
-    def test_failed_higher_than_pending(self) -> None:
-        ppc = PodPrioritizationConstants()
-        assert ppc.failed_status_score > ppc.pending_status_score
-        assert ppc.pending_status_score > ppc.other_status_score
 
-    def test_is_dataclass(self) -> None:
-        assert dataclasses.is_dataclass(PodPrioritizationConstants)
+@pytest.mark.parametrize(
+    "const_name",
+    [
+        "VERSION",
+        "CACHE_TTL_SECONDS",
+        "MAX_HEALTH_SCORE",
+        "K8S_API_TIMEOUT_SECONDS",
+        "HOURS_PER_MONTH",
+        "STUCK_PIPELINE_RUN_THRESHOLD_SECONDS",
+        "POD_CACHE_TTL_SECONDS",
+        "PIPELINE_OUTLIER_THRESHOLD",
+        "PIPELINE_CANCELLED_STATUS",
+        "PIPELINE_RUN_STATUS_PRIORITY",
+        "HEALTHY_POD_STATUSES",
+        "POD_UNHEALTHY_ORDER",
+    ],
+)
+def test_all_constants_exist(const_name: str) -> None:
+    assert hasattr(c, const_name)

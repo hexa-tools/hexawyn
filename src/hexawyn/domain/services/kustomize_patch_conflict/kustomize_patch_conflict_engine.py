@@ -9,7 +9,7 @@ from hexawyn.domain.models.kustomize_patch_conflict import (
 
 
 class KustomizePatchConflictEngine:
-    def compute(
+    def compute(  # noqa: C901, PLR0912
         self,
         patches: list[dict[str, object]],
         base_fields: list[dict[str, object]],

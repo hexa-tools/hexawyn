@@ -61,7 +61,7 @@ class MemorySaturationResult:
 
             risk = PredictionRisk.STABLE
             if minutes_to_sat is not None and minutes_to_sat <= request.critical_threshold_minutes:
-                risk = PredictionRisk.CRITICAL if minutes_to_sat <= 15 else PredictionRisk.AT_RISK
+                risk = PredictionRisk.CRITICAL if minutes_to_sat <= 15 else PredictionRisk.AT_RISK  # noqa: PLR2004
 
             p = MemoryPrediction(
                 pod_name=str(raw.get("name", "")),

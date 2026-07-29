@@ -9,26 +9,35 @@ class TestPolicyAuditTool:
     def test_policy_audit_returns_dict(self) -> None:
         from hexawyn.mcp.tools.policy_audit import policy_audit
 
+        mock_response = MagicMock()
+        mock_response.results = {}
+        mock_response.error = None
+        mock_uc = MagicMock()
+        mock_uc.execute.return_value = mock_response
+
         with (
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
             patch("hexawyn.mcp.server.build_policy_adapter", return_value=MagicMock()),
+            patch(
+                "hexawyn.mcp.tools.policy_audit.PolicyAuditUseCase",
+                return_value=mock_uc,
+            ),
         ):
             result = policy_audit()
 
         assert isinstance(result, dict)
+        assert "results" in result
 
     def test_policy_audit_handles_error(self) -> None:
         from hexawyn.mcp.tools.policy_audit import policy_audit
 
-        with (
-            patch(
-                "hexawyn.mcp.server.build_policy_adapter", side_effect=RuntimeError("test error")
-            ),
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
+        with patch(
+            "hexawyn.mcp.server.build_policy_adapter",
+            side_effect=RuntimeError("test error"),
         ):
             result = policy_audit()
 
         assert isinstance(result, dict)
+        assert result.get("error") == "test error"
 
     def test_has_register(self) -> None:
         import importlib

@@ -1,43 +1,46 @@
-"""MCP tool: audit_rbac_permissions — flags service accounts bound to
-cluster-admin, wildcard verbs, or all resources, and suggests a minimal
-Role/ClusterRole replacement for each."""
+"""MCP tool: audit_rbac_permissions."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.ports.driving.audit_rbac_permissions.audit_rbac_permissions_command import (
-    AuditRBACPermissionsCommand,
+from hexawyn.application.use_case.security.audit_rbac_permissions.audit_rbac_permissions_use_case import (  # noqa: E501
+    AuditRbacPermissionsUseCase,
 )
-from hexawyn.application.use_case.audit_rbac_permissions.audit_rbac_permissions_use_case import (
-    AuditRBACPermissionsUseCase,
+from hexawyn.application.use_case.security.audit_rbac_permissions.command import (
+    AuditRbacPermissionsCommand,
 )
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def audit_rbac_permissions(window_days: int = 30) -> dict[str, object]:
-    from hexawyn.application.service.audit_rbac_permissions_service import (
-        ServiceAccountRBACAuditService,
-    )
+def audit_rbac_permissions(namespace: str = "") -> dict[str, object]:
+    """Audit RBAC permissions for cluster-admin, wildcard verbs, and unused service accounts.
+
+    Args:
+        namespace: Optional namespace to scope (empty = all namespaces).
+    """
     from hexawyn.mcp.server import build_rbac_audit_adapter
 
     try:
-        service = ServiceAccountRBACAuditService(rbac_port=build_rbac_audit_adapter())
-        r = AuditRBACPermissionsUseCase(service=service).execute(
-            AuditRBACPermissionsCommand(window_days=window_days)
-        )
+        use_case = AuditRbacPermissionsUseCase(port=build_rbac_audit_adapter())  # type: ignore
+        response = use_case.execute(AuditRbacPermissionsCommand(namespace=namespace))  # type: ignore
         return {
-            "findings": r.findings,
-            "unused_service_accounts": r.unused_service_accounts,
-            "excluded_system_service_accounts": r.excluded_system_service_accounts,
-            "total_service_accounts_checked": r.total_service_accounts_checked,
-            "summary": r.summary,
-            "error": r.error,
+            "findings": response.findings,
+            "unused_service_accounts": response.unused_service_accounts,
+            "total_audited": response.total_audited,
+            "summary": response.summary,
+            "error": response.error,
         }
     except Exception as exc:
-        return {"error": str(exc)}
+        return {
+            "findings": [],
+            "unused_service_accounts": [],
+            "total_audited": 0,
+            "summary": "",
+            "error": str(exc),
+        }
 
 
 def register(mcp: FastMCP) -> None:

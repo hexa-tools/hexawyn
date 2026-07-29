@@ -9,27 +9,42 @@ class TestComputePredictionRoiTool:
     def test_compute_prediction_roi_returns_dict(self) -> None:
         from hexawyn.mcp.tools.compute_prediction_roi import compute_prediction_roi
 
-        with (
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
-            patch("hexawyn.mcp.server.build_prediction_roi_adapter", return_value=MagicMock()),
-        ):
-            result = compute_prediction_roi(period="test")
+        with patch("hexawyn.mcp.server.build_optimization_roi_adapter", return_value=MagicMock()):
+            result = compute_prediction_roi()
 
         assert isinstance(result, dict)
+        assert "error" in result
 
     def test_compute_prediction_roi_handles_error(self) -> None:
         from hexawyn.mcp.tools.compute_prediction_roi import compute_prediction_roi
 
-        with (
-            patch(
-                "hexawyn.mcp.server.build_prediction_roi_adapter",
-                side_effect=RuntimeError("test error"),
-            ),
-            patch("hexawyn.mcp.server.get_connection", return_value=MagicMock()),
+        with patch(
+            "hexawyn.mcp.server.build_optimization_roi_adapter",
+            side_effect=RuntimeError("test error"),
         ):
-            result = compute_prediction_roi(period="test")
+            result = compute_prediction_roi()
 
         assert isinstance(result, dict)
+        assert result.get("error") == "test error"
+
+    def test_compute_prediction_roi_success_path(self) -> None:
+        from hexawyn.mcp.tools.compute_prediction_roi import compute_prediction_roi
+
+        with (
+            patch(
+                "hexawyn.mcp.server.build_optimization_roi_adapter",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "hexawyn.mcp.tools.compute_prediction_roi.ComputePredictionRoiUseCase"
+            ) as mock_uc,
+            patch("hexawyn.mcp.tools.compute_prediction_roi.ComputePredictionRoiCommand"),
+        ):
+            mock_uc.return_value.execute.return_value = MagicMock()
+            result = compute_prediction_roi()
+
+        assert isinstance(result, dict)
+        assert result.get("error") is None
 
     def test_has_register(self) -> None:
         import importlib

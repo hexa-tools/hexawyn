@@ -16,7 +16,7 @@ class TestTraceSpan:
             duration_ms=580.0,
         )
         assert span.span_name == "postgres.query"
-        assert span.duration_ms == 580.0
+        assert span.duration_ms == 580.0  # noqa: PLR2004
 
 
 class TestSpanBreakdown:
@@ -27,7 +27,7 @@ class TestSpanBreakdown:
             avg_duration_ms=580.0,
         )
         assert sb.span_name == "postgres.query"
-        assert sb.avg_duration_ms == 580.0
+        assert sb.avg_duration_ms == 580.0  # noqa: PLR2004
 
 
 class TestLatencyDiagnosticResult:
@@ -46,7 +46,7 @@ class TestLatencyDiagnosticResult:
             slow_spans=traces,
             total_traces=2,
         )
-        assert result.slow_trace_count == 2
+        assert result.slow_trace_count == 2  # noqa: PLR2004
         assert len(result.bottlenecks) >= 1
         assert result.bottlenecks[0].span_name == "postgres.query"
 

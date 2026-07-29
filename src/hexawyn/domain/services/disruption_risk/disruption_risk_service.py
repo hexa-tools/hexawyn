@@ -12,7 +12,7 @@ def compute_disruption_risks(
             period_label=period, has_data=False, warning="Aucune donnee de prediction disponible."
         )
 
-    filtered = [risk for risk in risks if risk["days_from_now"] <= 7]
+    filtered = [risk for risk in risks if risk["days_from_now"] <= 7]  # noqa: PLR2004
     events = [
         RiskEvent(
             business_service_name=risk["business_service_name"],

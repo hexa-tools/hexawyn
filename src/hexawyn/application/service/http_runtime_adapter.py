@@ -35,7 +35,7 @@ class HttpRuntimeAdapter(RuntimePort):
                 pass
         with open("/tmp/hexawyn_pods.log", "a") as f:
             f.write(
-                f"adapter={type(self._adapter).__name__ if self._adapter else 'None'} pods={len(result)}\n"
+                f"adapter={type(self._adapter).__name__ if self._adapter else 'None'} pods={len(result)}\n"  # noqa: E501
             )
         return result
 
@@ -73,6 +73,7 @@ class HttpRuntimeAdapter(RuntimePort):
                         error=str(output.get("error", "stream error")),
                         embedding=[],
                         usage={},
+                        predicted_intents=[],
                     )
 
             usage_raw = report_output.get("usage")
@@ -96,6 +97,7 @@ class HttpRuntimeAdapter(RuntimePort):
                 error=None,
                 embedding=_extract_float_list(report_output.get("embedding")),
                 usage=usage_dict,
+                predicted_intents=_extract_string_list(report_output.get("predicted_intents")),
             )
         except Exception as exc:
             return InvestigationOutput(
@@ -107,6 +109,7 @@ class HttpRuntimeAdapter(RuntimePort):
                 error=str(exc),
                 embedding=[],
                 usage={},
+                predicted_intents=[],
             )
 
     def check_quota(self) -> QuotaCheckResult:
@@ -178,6 +181,7 @@ class HttpRuntimeAdapter(RuntimePort):
                 error="No result in response",
                 embedding=[],
                 usage={},
+                predicted_intents=[],
             )
         return InvestigationOutput(
             answer=str(result.get("answer", "")),
@@ -188,6 +192,7 @@ class HttpRuntimeAdapter(RuntimePort):
             error=str(result.get("error")) if result.get("error") else None,
             embedding=_extract_float_list(result.get("embedding")),
             usage={},
+            predicted_intents=_extract_string_list(result.get("predicted_intents")),
         )
 
 

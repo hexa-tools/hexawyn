@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from hexawyn.application.ports.driving.list_task_runs.list_task_runs_command import (
+from hexawyn.application.use_case.pipelines.list_task_runs.command import (
     ListTaskRunsCommand,
 )
-from hexawyn.application.ports.driving.list_task_runs.list_task_runs_response import (
+from hexawyn.application.use_case.pipelines.list_task_runs.response import (
     ListTaskRunsResponse,
 )
 
