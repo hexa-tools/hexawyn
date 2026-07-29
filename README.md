@@ -2,7 +2,7 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2.svg?logo=discord&logoColor=white)](https://discord.gg/HH3WsrnNw)
-[![Tests](https://img.shields.io/badge/tests-7971_passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-7981_passed-brightgreen.svg)]()
 [![codecov](https://codecov.io/gh/hexa-tools/hexawyn/branch/main/graph/badge.svg?token=E6PJX17GA8)](https://codecov.io/gh/hexa-tools/hexawyn)
 [![CI](https://github.com/hexa-tools/hexawyn/actions/workflows/ci.yml/badge.svg)](https://github.com/hexa-tools/hexawyn/actions/workflows/ci.yml)
 [![Security](https://github.com/hexa-tools/hexawyn/actions/workflows/security.yml/badge.svg)](https://github.com/hexa-tools/hexawyn/actions/workflows/security.yml)

@@ -63,7 +63,9 @@ class TestPipelinePerformanceBaselineUseCase:
             pipeline="build",
             runs_analyzed=1,
             requested_limit=30,
-            trend="stable",
+            trend="degrading",
+            trend_pct=15.4,
+            bottleneck_stage="test",
             note="All good",
         )
 
@@ -77,5 +79,7 @@ class TestPipelinePerformanceBaselineUseCase:
         assert isinstance(result, PipelinePerformanceBaselineResponse)
         assert result.pipeline == "build"
         assert result.runs_analyzed == 1
-        assert result.trend == "stable"
+        assert result.trend == "degrading"
+        assert result.trend_pct == 15.4  # noqa: PLR2004
+        assert result.bottleneck_stage == "test"
         assert result.note == "All good"

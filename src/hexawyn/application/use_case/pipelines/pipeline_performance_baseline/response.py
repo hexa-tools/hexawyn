@@ -16,6 +16,8 @@ class PipelinePerformanceBaselineResponse:
     excluded_running: int = 0
     excluded_failed: int = 0
     trend: str = "insufficient_data"
+    trend_pct: float | None = None
+    bottleneck_stage: str | None = None
     note: str = ""
     error: str | None = None
 
@@ -33,6 +35,8 @@ class PipelinePerformanceBaselineResponse:
             excluded_running=result.excluded_running,
             excluded_failed=result.excluded_failed,
             trend=result.trend,
+            trend_pct=result.trend_pct,
+            bottleneck_stage=result.bottleneck_stage,
             note=result.note,
             error=error,
         )
