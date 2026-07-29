@@ -204,10 +204,15 @@ class TestMCPBuilderFunctions:
         assert isinstance(result, FleetHealthPort)
 
     def test_build_cluster_certificate_health_adapter(self) -> None:
-        with patch.object(self.server_mod, "load_kubeconfig", return_value=MagicMock()):
-            with patch.object(self.server_mod, "context_name", "test-cluster"):
-                result = self.server_mod.build_cluster_certificate_health_adapter()
-                assert isinstance(result, ClusterCertificateHealthPort)
+        with (
+            patch(
+                "hexawyn.mcp.adapters.cluster_adapters.load_kubeconfig",
+                return_value=MagicMock(),
+            ),
+            patch("hexawyn.mcp.adapters.cluster_adapters.context_name", "test-cluster"),
+        ):
+            result = self.server_mod.build_cluster_certificate_health_adapter()
+            assert isinstance(result, ClusterCertificateHealthPort)
 
     def test_build_kubernetes_topology_adapter(self) -> None:
         result = self.server_mod.build_kubernetes_topology_adapter()

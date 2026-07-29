@@ -83,6 +83,7 @@ class TestDependencyGraph:
     def test_get_dependency_graph(self) -> None:
         adapter = VanillaAdapter(cluster_name="test")
         adapter._api = MagicMock()
+        adapter._apps_api = MagicMock()
         result = adapter.get_dependency_graph("ns")
         assert isinstance(result, dict)
 
