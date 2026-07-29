@@ -163,7 +163,7 @@ cluster-status:
 	@echo ""
 	@kubectl get nodes 2>/dev/null || echo "No cluster running"
 
-cluster-load: cluster-operators
+cluster-load: cluster-operators cluster-otel
 	@echo "📦 Creating namespace and loading E2E fixtures..."
 	@k3d kubeconfig get $(CLUSTER_NAME) > /tmp/k3d-$(CLUSTER_NAME).yaml 2>/dev/null || true
 	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml create namespace hexawyn-test --dry-run=client -o yaml | kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f -
@@ -174,8 +174,11 @@ cluster-otel:
 	@echo "📦 Installing Jaeger + Prometheus + Hotrod..."
 	@k3d kubeconfig get $(CLUSTER_NAME) > /tmp/k3d-$(CLUSTER_NAME).yaml 2>/dev/null || true
 	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml create namespace observability --dry-run=client -o yaml | kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f -
-	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f tests/e2e/fixtures/jaeger.yaml 2>/dev/null || true
-	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f tests/e2e/fixtures/prometheus.yaml 2>/dev/null || true
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f tests/e2e/fixtures/otel/jaeger.yaml
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml apply -f tests/e2e/fixtures/otel/prometheus.yaml
+	@echo "⏳ Waiting for Jaeger + Prometheus to be available..."
+	kubectl --kubeconfig=/tmp/k3d-$(CLUSTER_NAME).yaml wait --for=condition=Available --timeout=120s \
+		-n observability deployment/jaeger-all-in-one deployment/prometheus
 	@echo "✅ OTEL stack ready"
 
 cluster-operators:
