@@ -1,102 +1,22 @@
-"""Unit tests for MCP tool: list_pipeline_runs helper functions."""
+"""Unit tests for MCP tool: list_pipeline_runs."""
 
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
 
-class TestListPipelineRunsHelpers:
-    def test_compute_outliers_with_few_runs(self) -> None:
-        from hexawyn.mcp.tools.list_pipeline_runs import _compute_outliers
-
-        result = _compute_outliers([])
-        assert result == []
-
-        result = _compute_outliers([{"name": "r1", "duration_seconds": 10}])
-        assert result == []
-
-    def test_compute_outliers_detects_slow_run(self) -> None:
-        from hexawyn.mcp.tools.list_pipeline_runs import _compute_outliers
-
-        runs: list[dict[str, object]] = [
-            {"name": "r1", "duration_seconds": 10},
-            {"name": "r2", "duration_seconds": 12},
-            {"name": "r3", "duration_seconds": 250},
-        ]
-        result = _compute_outliers(runs)
-        assert "r3" in result
-
-    def test_compute_outliers_no_outliers(self) -> None:
-        from hexawyn.mcp.tools.list_pipeline_runs import _compute_outliers
-
-        runs: list[dict[str, object]] = [
-            {"name": "r1", "duration_seconds": 10},
-            {"name": "r2", "duration_seconds": 12},
-            {"name": "r3", "duration_seconds": 11},
-        ]
-        result = _compute_outliers(runs)
-        assert result == []
-
-    def test_compute_outliers_skips_none_duration(self) -> None:
-        from hexawyn.mcp.tools.list_pipeline_runs import _compute_outliers
-
-        runs: list[dict[str, object]] = [
-            {"name": "r1", "duration_seconds": None},
-            {"name": "r2", "duration_seconds": 10},
-            {"name": "r3", "duration_seconds": 200},
-        ]
-        result = _compute_outliers(runs)
-        assert "r3" in result
-
-    def test_compute_duration_stats_empty(self) -> None:
-        from hexawyn.mcp.tools.list_pipeline_runs import _compute_duration_stats
-
-        result = _compute_duration_stats([])
-        assert result["mean_s"] == 0  # noqa: PLR2004
-        assert result["median_s"] == 0  # noqa: PLR2004
-
-    def test_compute_duration_stats_odd_count(self) -> None:
-        from hexawyn.mcp.tools.list_pipeline_runs import _compute_duration_stats
-
-        runs: list[dict[str, object]] = [
-            {"duration_seconds": 10},
-            {"duration_seconds": 20},
-            {"duration_seconds": 30},
-        ]
-        result = _compute_duration_stats(runs)
-        assert result["mean_s"] == 20.0  # noqa: PLR2004
-        assert result["median_s"] == 20.0  # noqa: PLR2004
-
-    def test_compute_duration_stats_even_count(self) -> None:
-        from hexawyn.mcp.tools.list_pipeline_runs import _compute_duration_stats
-
-        runs: list[dict[str, object]] = [
-            {"duration_seconds": 10},
-            {"duration_seconds": 20},
-            {"duration_seconds": 30},
-            {"duration_seconds": 40},
-        ]
-        result = _compute_duration_stats(runs)
-        assert result["mean_s"] == 25.0  # noqa: PLR2004
-        assert result["median_s"] == 25.0  # noqa: PLR2004
-
-    def test_compute_duration_stats_skips_none(self) -> None:
-        from hexawyn.mcp.tools.list_pipeline_runs import _compute_duration_stats
-
-        runs: list[dict[str, object]] = [
-            {"duration_seconds": None},
-            {"duration_seconds": 10},
-        ]
-        result = _compute_duration_stats(runs)
-        assert result["mean_s"] == 10.0  # noqa: PLR2004
-
-
 class TestListPipelineRunsTool:
     def test_list_pipeline_runs_returns_dict(self) -> None:
+        from hexawyn.application.use_case.pipelines.list_pipeline_runs.response import (
+            PipelineRunStats,
+        )
         from hexawyn.mcp.tools.list_pipeline_runs import list_pipeline_runs
 
         mock_response = MagicMock()
         mock_response.runs = []
+        mock_response.stats = PipelineRunStats()
+        mock_response.outliers = []
+        mock_response.note = None
         mock_response.error = None
         mock_uc = MagicMock()
         mock_uc.execute.return_value = mock_response
@@ -133,3 +53,83 @@ class TestListPipelineRunsTool:
         mod = importlib.import_module("hexawyn.mcp.tools.list_pipeline_runs")
         assert callable(getattr(mod, "register"))
         getattr(mod, "register")(FastMCP("test"))
+
+
+class TestListPipelineRunsExposesUseCaseStats:
+    """The use case already computes success_rate, succeeded/failed/cancelled
+    counts, and real outliers (via find_outliers) — this must reach the LLM
+    instead of being silently discarded and replaced by a locally recomputed,
+    partial mean/median-only stats dict.
+    """
+
+    def test_success_rate_and_counts_are_exposed(self) -> None:
+        from hexawyn.application.use_case.pipelines.list_pipeline_runs.response import (
+            PipelineRunStats,
+        )
+        from hexawyn.mcp.tools.list_pipeline_runs import list_pipeline_runs
+
+        mock_response = MagicMock()
+        mock_response.runs = [
+            {"name": "r1", "status": "Succeeded", "duration_seconds": 100},
+            {"name": "r2", "status": "Failed", "duration_seconds": 50},
+        ]
+        mock_response.stats = PipelineRunStats(
+            total_runs=2,
+            succeeded_runs=1,
+            failed_runs=1,
+            cancelled_runs=0,
+            success_rate=50.0,
+            average_duration_seconds=75.0,
+            fastest_run_name="r2",
+            slowest_run_name="r1",
+        )
+        mock_response.outliers = ["r1"]
+        mock_response.note = None
+        mock_response.error = None
+        mock_uc = MagicMock()
+        mock_uc.execute.return_value = mock_response
+
+        with (
+            patch("hexawyn.mcp.server.build_tekton_adapter", return_value=MagicMock()),
+            patch(
+                "hexawyn.mcp.tools.list_pipeline_runs.ListPipelineRunsUseCase",
+                return_value=mock_uc,
+            ),
+        ):
+            result = list_pipeline_runs("test-svc")
+
+        stats = result["stats"]
+        assert stats["success_rate"] == 50.0  # noqa: PLR2004
+        assert stats["succeeded_runs"] == 1
+        assert stats["failed_runs"] == 1
+        assert stats["cancelled_runs"] == 0
+        assert stats["total_runs"] == 2  # noqa: PLR2004
+        assert stats["fastest_run_name"] == "r2"
+        assert stats["slowest_run_name"] == "r1"
+        assert result["outliers"] == ["r1"]
+
+    def test_no_rated_runs_gives_zero_percent(self) -> None:
+        from hexawyn.application.use_case.pipelines.list_pipeline_runs.response import (
+            PipelineRunStats,
+        )
+        from hexawyn.mcp.tools.list_pipeline_runs import list_pipeline_runs
+
+        mock_response = MagicMock()
+        mock_response.runs = []
+        mock_response.stats = PipelineRunStats()
+        mock_response.outliers = []
+        mock_response.note = None
+        mock_response.error = None
+        mock_uc = MagicMock()
+        mock_uc.execute.return_value = mock_response
+
+        with (
+            patch("hexawyn.mcp.server.build_tekton_adapter", return_value=MagicMock()),
+            patch(
+                "hexawyn.mcp.tools.list_pipeline_runs.ListPipelineRunsUseCase",
+                return_value=mock_uc,
+            ),
+        ):
+            result = list_pipeline_runs("test-svc")
+
+        assert result["stats"]["success_rate"] == 0.0
