@@ -15,10 +15,30 @@ SessionScreen {
     padding: 0 2 0 2;
 }
 
-#conversation {
+#conversation-scroll {
     height: 1fr;
     background: #05070d;
     scrollbar-size: 0 0;
+}
+
+#logo-banner {
+    height: auto;
+    background: #05070d;
+    margin: 0;
+    padding: 1 0 0 0;
+}
+
+#conversation {
+    height: auto;
+    background: #05070d;
+}
+
+#conversation MarkdownBlockQuote {
+    background: #0b1220;
+    border: round #3B82F6;
+    margin: 1 0 1 0;
+    padding: 0 1;
+    color: #c7d0e0;
 }
 
 #status-bar {

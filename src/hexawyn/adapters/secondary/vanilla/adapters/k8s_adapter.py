@@ -95,8 +95,10 @@ class VanillaK8sAdapter(K8sPort):
 
     def _metrics_api_client(self) -> KubernetesMetricsApi:
         if self._metrics_api is None:
-            self._api_client()
-            self._metrics_api = cast(KubernetesMetricsApi, client.CustomObjectsApi())
+            core_api = cast(client.CoreV1Api, self._api_client())
+            self._metrics_api = cast(
+                KubernetesMetricsApi, client.CustomObjectsApi(api_client=core_api.api_client)
+            )
         return self._metrics_api
 
     def _context_name(self) -> str | None:

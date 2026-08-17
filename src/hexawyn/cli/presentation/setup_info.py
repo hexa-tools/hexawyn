@@ -1,9 +1,8 @@
-from textual.widgets import RichLog
-
+from hexawyn.cli.widgets.markdown_log import MarkdownLog
 from hexawyn.infrastructure.config.config_manager import get_llm_config
 
 
-def render_setup_info(log: RichLog) -> None:
+def render_setup_info(log: MarkdownLog) -> None:
     cfg = get_llm_config()
     provider = cfg.get("provider", "Not configured")
     base_url = cfg.get("base_url", "N/A")

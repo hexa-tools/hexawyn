@@ -1,5 +1,5 @@
-import logging
 import os
+import threading
 
 from hexawyn.adapters.secondary.adapter_factory import build_adapters
 from hexawyn.application.service.runtime_adapter import get_runtime
@@ -12,8 +12,6 @@ from hexawyn.infrastructure.memory.duckdb_client import (
     DB_PATH,
     get_db_size_bytes,
 )
-
-logger = logging.getLogger(__name__)
 
 _PROVIDERS = LLM_PROVIDERS
 
@@ -48,12 +46,14 @@ class HexawynApp:
         self._run_tui()
 
     def _auto_refresh_license(self) -> None:
+        """Refresh the license in the background so TUI startup is not blocked.
+
+        The local license (cached) is used immediately; the network refresh runs
+        in a daemon thread and does not delay opening the interface.
+        """
         from hexawyn.infrastructure.license.license_reader import refresh_license
 
-        if refresh_license():
-            logger.debug("License auto-refreshed successfully")
-        else:
-            logger.debug("License auto-refresh skipped (no token or API unreachable)")
+        threading.Thread(target=refresh_license, daemon=True).start()
 
     def _run_tui(self, needs_setup: bool = False) -> None:
         from hexawyn.cli.tui import HexawynTUI

@@ -1,15 +1,15 @@
 import asyncio
+import platform
+import subprocess
+import tempfile
 from dataclasses import asdict as _asdict
 from typing import Any
 
-from rich import box
-from rich.panel import Panel
-from rich.text import Text
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
-from textual.widgets import Input, RichLog, Static
+from textual.widgets import Input, Static
 
 from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_response import ChatCliResponse
 from hexawyn.cli.command_router import route_command
@@ -37,9 +37,7 @@ from hexawyn.cli.presentation.context_display import format_context_switch_lines
 from hexawyn.cli.presentation.formatting import (
     app_version,
     compact_project_directory,
-    context_line,
     missing_context_lines,
-    startup_lines,
     startup_status_from_switch,
 )
 from hexawyn.cli.presentation.license_display import (
@@ -51,6 +49,7 @@ from hexawyn.cli.presentation.setup_info import render_setup_info
 from hexawyn.cli.presentation.startup_scan import is_valid_startup_result
 from hexawyn.cli.screens.context_picker import ContextPickerScreen
 from hexawyn.cli.widgets.command_input import CommandInput
+from hexawyn.cli.widgets.markdown_log import MarkdownLog
 from hexawyn.infrastructure.config.kubernetes_context import (
     ClusterContext as KubernetesClusterContext,
 )
@@ -60,6 +59,8 @@ class SessionScreen(Screen[None]):
     CSS_PATH = "session.tcss"
     BINDINGS = [
         Binding("ctrl+b", "manage_subscription", "Manage subscription"),
+        Binding("ctrl+y", "copy_response", "Copy last response"),
+        Binding("ctrl+e", "export_response", "Export to editor"),
     ]
 
     def __init__(self, initial_command: str | None = None) -> None:
@@ -67,6 +68,7 @@ class SessionScreen(Screen[None]):
         self.initial_command = initial_command
         self._history: list[dict[str, str]] = []
         self._refresh_task: asyncio.Task[None] | None = None
+        self._last_response: str = ""
 
     def _tui_app(self) -> Any:
         from hexawyn.cli.tui import HexawynTUI
@@ -78,7 +80,9 @@ class SessionScreen(Screen[None]):
     def compose(self) -> ComposeResult:
         with Horizontal():
             with Vertical(id="main-col"):
-                yield RichLog(id="conversation", wrap=True, markup=True)
+                with VerticalScroll(id="conversation-scroll"):
+                    yield Static("", id="logo-banner", markup=True)
+                    yield MarkdownLog(id="conversation")
                 yield Static("", id="status-bar")
                 yield CommandInput(placeholder="Describe what you want to do…", id="cmd-input")
                 with Horizontal(id="footer"):
@@ -99,14 +103,11 @@ class SessionScreen(Screen[None]):
         self._refresh_footer()
 
         app = self._tui_app()
-        log = self.query_one("#conversation", RichLog)
-        log.write("\n".join(line.format(version=app_version()) for line in _LOGO_BANNER))
+        self.query_one("#logo-banner", Static).update(
+            "\n".join(line.format(version=app_version()) for line in _LOGO_BANNER)
+        )
+        log = self.query_one("#conversation", MarkdownLog)
         log.write("")
-        for startup_line in startup_lines(app.startup_status):
-            log.write(startup_line)
-        if app.startup_status is not None:
-            log.write("")
-        log.write(context_line(app.adapter))
 
         if app.run_startup_scan:
             self.run_worker(self._run_startup_scan, thread=True)  # type: ignore[arg-type]
@@ -194,7 +195,8 @@ class SessionScreen(Screen[None]):
 
         self.query_one("#footer-hints", Static).update(
             "[bold]Enter[/bold] send   [bold]↑↓[/bold] history   "
-            "[bold]Ctrl+C[/bold] cancel   [bold]Ctrl+Q[/bold] quit   "
+            "[bold]Ctrl+C[/bold] cancel   [bold]Ctrl+Y[/bold] copy   "
+            "[dim]click-drag select[/dim]   [bold]Ctrl+Q[/bold] quit   "
             f"{ctrl_b}"
         )
 
@@ -238,7 +240,7 @@ class SessionScreen(Screen[None]):
         cmd_input.action_delete_left_all()
         asyncio.create_task(self._handle_command(text))
 
-    async def _show_spinner(self, log: RichLog, stages: list[str]) -> None:
+    async def _show_spinner(self, log: MarkdownLog, stages: list[str]) -> None:
         spinner_chars = ["⬡", "⬢", "⬡", "⬢"]
         status = self.query_one("#status-bar", Static)
         try:
@@ -256,16 +258,9 @@ class SessionScreen(Screen[None]):
 
     async def _handle_command(self, text: str) -> None:  # noqa: C901, PLR0912, PLR0915
         app = self._tui_app()
-        log = self.query_one("#conversation", RichLog)
+        log = self.query_one("#conversation", MarkdownLog)
 
-        user_msg = Text(text, style="bold #c7d0e0")
-        panel = Panel(
-            user_msg,
-            border_style="#3B82F6",
-            box=box.ROUNDED,
-            padding=(0, 2),
-        )
-        log.write(panel, expand=True)
+        log.write(f"\n> **{text}**\n")
 
         if _is_setup_command(text.strip()):
             render_setup_info(log)
@@ -364,20 +359,65 @@ class SessionScreen(Screen[None]):
         render_result(log, result)
         if result.duration_ms:
             seconds = result.duration_ms / 1000
-            log.write(f"[dim #5b6472]{seconds:.1f}s[/]")
+            status.update(f"[dim #5b6472]{seconds:.1f}s[/]")
         answer_text = "\n".join(line[0] for line in result.lines if line[0].strip())
+        self._last_response = answer_text
         self._history.append({"role": "user", "content": text})
         self._history.append({"role": "assistant", "content": answer_text[:2000]})
         self._refresh_aside()
 
-    def _handle_stack_command(self, text: str, log: RichLog) -> None:
+    def _copy_to_clipboard(self, text: str) -> str:
+        system = platform.system()
+        try:
+            if system == "Darwin":
+                subprocess.run(["pbcopy"], input=text.encode(), check=True)
+                return "✓ Copied to clipboard"
+            if system == "Linux":
+                for cmd in (["wl-copy"], ["xclip", "-selection", "c"]):
+                    try:
+                        subprocess.run(cmd, input=text.encode(), check=True)
+                        return "✓ Copied to clipboard"
+                    except (FileNotFoundError, subprocess.CalledProcessError):
+                        continue
+                return "✗ Install xclip or wl-clipboard to enable copy"
+            return f"✗ Copy not supported on {system}"
+        except Exception as exc:
+            return f"✗ Copy failed: {exc}"
+
+    def action_copy_response(self) -> None:
+        if not self._last_response:
+            self.query_one("#status-bar", Static).update("[dim #8a93a6]Nothing to copy yet.[/]")  # noqa: E501
+            return
+        result = self._copy_to_clipboard(self._last_response)
+        self.query_one("#status-bar", Static).update(f"[dim #8a93a6]{result}[/]")
+
+    def action_export_response(self) -> None:
+        if not self._last_response:
+            self.query_one("#status-bar", Static).update("[dim #8a93a6]Nothing to export yet.[/]")  # noqa: E501
+            return
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".txt", delete=False, encoding="utf-8"
+            ) as f:  # noqa: E501
+                f.write(self._last_response)
+                path = f.name
+            system = platform.system()
+            if system == "Darwin":
+                subprocess.Popen(["open", path])
+            elif system == "Linux":
+                subprocess.Popen(["xdg-open", path])
+            self.query_one("#status-bar", Static).update("[dim #8a93a6]✓ Opened in editor[/]")  # noqa: E501
+        except Exception as exc:
+            self.query_one("#status-bar", Static).update(f"[dim #8a93a6]✗ Export failed: {exc}[/]")  # noqa: E501
+
+    def _handle_stack_command(self, text: str, log: MarkdownLog) -> None:
         from hexawyn.cli.presentation.stack_view import run_stack_command
 
         app = self._tui_app()
         context_name = app.cluster_name or "default"
         render_lines(log, run_stack_command(text, context_name))
 
-    async def _handle_context_command(self, text: str, log: RichLog) -> None:
+    async def _handle_context_command(self, text: str, log: MarkdownLog) -> None:
         app = self._tui_app()
         if app.context_service is None:
             render_lines(log, [("Kubernetes context switching is unavailable.", "yellow")])
@@ -395,7 +435,7 @@ class SessionScreen(Screen[None]):
             return
 
         app = self._tui_app()
-        log = self.query_one("#conversation", RichLog)
+        log = self.query_one("#conversation", MarkdownLog)
         if app.context_service is None:
             render_lines(log, [("Kubernetes context switching is unavailable.", "yellow")])
             return
@@ -410,7 +450,6 @@ class SessionScreen(Screen[None]):
         app.cluster_name = switch_result.current_context.name
         self._refresh_aside()
         render_lines(log, format_context_switch_lines(switch_result))
-        log.write(context_line(app.adapter))
 
     async def _open_context_picker(self) -> None:
         app = self._tui_app()
@@ -425,7 +464,7 @@ class SessionScreen(Screen[None]):
         app = self._tui_app()
 
         def _on_done(prefix: str | None) -> None:
-            log = self.query_one("#conversation", RichLog)
+            log = self.query_one("#conversation", MarkdownLog)
             if prefix:
                 log.write(f"[green]✓ License activated — token: [bold]{prefix}...[/][/green]")
             self._refresh_aside()
@@ -447,7 +486,7 @@ class SessionScreen(Screen[None]):
         from hexawyn.application.service.runtime_adapter import get_runtime
 
         app = self._tui_app()
-        log = self.query_one("#conversation", RichLog)
+        log = self.query_one("#conversation", MarkdownLog)
 
         try:
             runtime = get_runtime()

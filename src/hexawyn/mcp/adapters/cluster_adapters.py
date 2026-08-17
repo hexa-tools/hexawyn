@@ -25,6 +25,7 @@ from hexawyn.application.ports.driven.kubernetes_topology_port import (
 )
 from hexawyn.application.ports.driven.memory_saturation_port import MemorySaturationPort
 from hexawyn.application.ports.driven.namespace_waste_port import NamespaceWasteAnalysisPort
+from hexawyn.application.ports.driven.pod_metrics_port import PodMetricsPort
 from hexawyn.application.ports.driven.policy_port import PolicyPort
 from hexawyn.application.ports.driven.rightsizing_port import RightsizingPort
 from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
@@ -51,10 +52,18 @@ def build_k8s_adapter() -> K8sPort:
 
 
 def build_tekton_adapter() -> TektonPort:
+    from hexawyn.adapters.secondary.vanilla.adapters.tekton_history_writer import (
+        TektonHistoryWriter,
+    )
     from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.memory.pipeline_run_history_repository import (
+        PipelineRunHistoryRepository,
+    )
 
     context = context_name if context_name != "unknown" else None
-    return VanillaAdapter(cluster_name=context or "default")
+    vanilla = VanillaAdapter(cluster_name=context or "default")
+    history = PipelineRunHistoryRepository(conn=get_connection())
+    return TektonHistoryWriter(tekton_port=vanilla, history_port=history)
 
 
 def build_rightsizing_adapter() -> RightsizingPort:
@@ -247,3 +256,10 @@ def build_cluster_diff_adapter() -> ClusterDiffPort:
     )
 
     return ClusterDiffAdapter(source=EmptyClusterInventorySource())
+
+
+def build_pod_metrics_adapter() -> PodMetricsPort:
+    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+
+    context = context_name if context_name != "unknown" else None
+    return VanillaAdapter(cluster_name=context or "default")

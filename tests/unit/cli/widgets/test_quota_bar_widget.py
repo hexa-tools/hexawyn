@@ -108,7 +108,7 @@ class TestQuotaProgressBarWidget:
             ),
         ]
         widget.update_quotas(quotas)
-        rendered = widget.renderable
+        rendered = widget.content
         assert rendered is not None
 
     def test_update_quotas_with_exhausted_shows_upgrade(self) -> None:
@@ -122,5 +122,5 @@ class TestQuotaProgressBarWidget:
             ),
         ]
         widget.update_quotas(quotas)
-        rendered = widget.renderable
+        rendered = widget.content
         assert rendered is not None
