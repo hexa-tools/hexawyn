@@ -16,7 +16,7 @@ cryptography = "^43.0"
 httpx = "^0.28"
 click = "^8.1"
 langgraph = "^1.2.6"
-textual = "^0.89"
+textual = "^8.0"
 
 # Cloud providers (optional)
 boto3 = { version = "^1.35", optional = true }

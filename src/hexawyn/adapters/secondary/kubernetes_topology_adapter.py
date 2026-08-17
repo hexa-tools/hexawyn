@@ -130,14 +130,18 @@ class KubernetesTopologyAdapter(KubernetesTopologyPort):
         if self._apps_api is None:
             from kubernetes import client
 
-            self._apps_api = cast(_AppsApi, client.AppsV1Api())
+            core_api = cast(client.CoreV1Api, self._core_api_client())
+            self._apps_api = cast(_AppsApi, client.AppsV1Api(api_client=core_api.api_client))
         return self._apps_api
 
     def _networking_api_client(self) -> _NetworkingApi:
         if self._networking_api is None:
             from kubernetes import client
 
-            self._networking_api = cast(_NetworkingApi, client.NetworkingV1Api())
+            core_api = cast(client.CoreV1Api, self._core_api_client())
+            self._networking_api = cast(
+                _NetworkingApi, client.NetworkingV1Api(api_client=core_api.api_client)
+            )
         return self._networking_api
 
     def _context_name(self) -> str | None:

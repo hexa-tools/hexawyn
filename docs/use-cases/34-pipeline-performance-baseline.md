@@ -21,41 +21,39 @@ sequenceDiagram
     actor SRE
     participant MCP as MCP Tool<br/>(pipeline_performance_baseline)
     participant UC as PipelineBaselineUseCase
-    participant Svc as PipelineBaselineService
     participant Port as PipelineBaselinePort (ABC)
     participant Adapter as TektonPipelineBaselineAdapter
-    participant K8s as Kubernetes API (CRDs)
+    participant DuckDB as DuckDB (tekton_pipeline_runs<br/>tekton_task_runs)
     participant Domain as CICDPerformanceBaselineService
+
+    Note over DuckDB: History is ingested from the cluster<br/>by TektonHistoryWriter when<br/>list_pipeline_runs / list_task_runs<br/>are called (best-effort upsert)
 
     SRE->>MCP: pipeline_performance_baseline("payment-service",<br/>"ci", limit=30)
     MCP->>UC: execute(PipelineBaselineCommand)
-    UC->>Svc: compute_baseline(command)
-
-    Svc->>Port: list_pipeline_runs("ci", limit=30)
+    UC->>Port: list_pipeline_runs("ci", limit=30)
     Port->>Adapter: list_pipeline_runs("ci", limit=30)
-    Adapter->>K8s: CustomObjectsApi.list_namespaced_custom_object<br/>(tekton.dev/v1/pipelineruns?labelSelector=pipeline=payment-service)
-    K8s-->>Adapter: PipelineRunList (30 items, all with completionTime)
-    Adapter-->>Svc: [PipelineRunRecord × 30]
+    Adapter->>DuckDB: SELECT ... FROM tekton_pipeline_runs<br/>WHERE pipeline_name=? ORDER BY start_time DESC LIMIT ?
+    DuckDB-->>Adapter: PipelineRunRecord × 30 (ingested history)
 
-    Note over Svc: Filter: only succeeded runs with completionTime<br/>Exclude: still-running + failed runs
+    Note over UC: Filter: only succeeded runs with completionTime<br/>Exclude: still-running + failed runs
 
     loop For each PipelineRun
-        Svc->>Port: list_task_runs_for_pipeline("ci", pipeline_run_name)
+        UC->>Port: list_task_runs_for_pipeline("ci", pipeline_run_name)
         Port->>Adapter: list_task_runs_for_pipeline("ci", name)
-        Adapter->>K8s: CustomObjectsApi.list_namespaced_custom_object<br/>(taskruns?labelSelector=tekton.dev/pipelineRun=name)
-        K8s-->>Adapter: TaskRunList (build, test, deploy)
-        Adapter-->>Svc: [TaskRunRecord × 3]
+        Adapter->>DuckDB: SELECT ... FROM tekton_task_runs<br/>WHERE pipeline_run_name=?
+        DuckDB-->>Adapter: TaskRunRecord × 3 (build, test, deploy)
     end
 
-    Svc->>Domain: compute_baseline(pipeline_runs=[30], task_runs=[90])
+    UC->>Domain: compute_baseline(pipeline_runs=[30], task_runs=[90])
     Note over Domain: Stage extraction: group by task name pattern<br/>compute per-stage: avg, p50, p95, max durations<br/>detect outliers: >2x avg flagged<br/>compute trend: compare last 5 vs first 5 runs
 
-    Domain-->>Svc: PipelineBaselineResult(build={avg:2m15s,p95:3m40s,max:5m10s},<br/>test={avg:1m30s,p95:2m,p95:4m20s},<br/>deploy={avg:45s,p95:1m10s,max:2m},<br/>trend=stable, outliers=[run-17,run-28])
+    Domain-->>UC: PipelineBaselineResult(build={avg:2m15s,p95:3m40s,max:5m10s},<br/>test={avg:1m30s,p95:2m,p95:4m20s},<br/>deploy={avg:45s,p95:1m10s,max:2m},<br/>trend=stable, outliers=[run-17,run-28])
 
-    Svc-->>UC: PipelineBaselineResponse
-    UC-->>MCP: response
+    UC-->>MCP: PipelineBaselineResponse
     MCP-->>SRE: {pipeline:"payment-service", runs_analyzed:30, stages:{build:{...},test:{...},deploy:{...}}, trend:"stable", outliers:["run-17","run-28"]}
 ```
+
+> **Ingestion side note:** `build_tekton_adapter()` returns a `TektonHistoryWriter` wrapping the CRD-backed `VanillaTektonAdapter` and the DuckDB `PipelineRunHistoryRepository`. Every `list_pipeline_runs` / `list_task_runs` call reads the cluster **and** upserts snapshots into DuckDB — so the baseline adapter reads accumulated history even after the cluster TTL purges old runs.
 
 ---
 
@@ -198,14 +196,24 @@ sequenceDiagram
 | `test_trend_computation_stable` | `test_pipeline_performance_baseline.py` | First 5 avg 4m, last 5 avg 4.2m (within ±10%) → stable |
 | `test_p50_p95_max_computed_correctly` | `test_pipeline_performance_baseline.py` | 30 durations → p50 and p95 computed via statistics module |
 | `test_happy_path_returns_expected_json_keys` | `test_pipeline_performance_baseline.py` | MCP tool JSON structure validation |
+| `test_save_pipeline_runs_executes_upsert` | `test_pipeline_run_history_repository.py` | DuckDB write, params order |
+| `test_storage_failure_is_best_effort` | `test_pipeline_run_history_repository.py` | DuckDB down does not break caller |
+| `test_writes_pipeline_runs_with_namespace_and_pipeline` | `test_tekton_history_writer.py` | CRD read → snapshot → DuckDB write |
+| `test_history_failure_does_not_break_listing` | `test_tekton_history_writer.py` | Best-effort persistence |
+| `test_write_then_read_pipeline_runs` | `test_tekton_run_history_integration.py` | Writer → DuckDB → baseline adapter (real DB) |
+| `test_upsert_does_not_duplicate` | `test_tekton_run_history_integration.py` | Repeated ingestion no duplication |
 
 ## Related Files
 
 - `src/hexawyn/domain/models/pipeline_baseline.py` — `PipelineBaselineResult`, `StageStats`, `OutlierRecord`
 - `src/hexawyn/domain/services/pipeline_baseline/cicd_performance_baseline_service.py` — Stats computation, outlier detection, trend analysis
 - `src/hexawyn/application/ports/driven/pipeline_baseline_port.py` — `PipelineBaselineRecord`, `TaskRunStageRecord`, `PipelineBaselinePort`
+- `src/hexawyn/application/ports/driven/pipeline_run_history_port.py` — `PipelineRunHistoryPort`, `PipelineRunSnapshot`, `TaskRunSnapshot`
 - `src/hexawyn/application/ports/driving/pipeline_performance_baseline/` — Command, Response, ServicePort
 - `src/hexawyn/application/use_case/pipeline_performance_baseline/` — UseCase
 - `src/hexawyn/application/service/pipeline_performance_baseline_service.py` — Application service
-- `src/hexawyn/adapters/secondary/tekton_pipeline_baseline_adapter.py` — K8s CRD adapter
+- `src/hexawyn/adapters/secondary/tekton_pipeline_baseline_adapter.py` — DuckDB read adapter (baseline input)
+- `src/hexawyn/adapters/secondary/vanilla/adapters/tekton_history_writer.py` — CRD → DuckDB ingestion wrapper
+- `src/hexawyn/infrastructure/memory/pipeline_run_history_repository.py` — DuckDB persistence (upsert)
+- `src/hexawyn/infrastructure/memory/sql/schema.sql` — `tekton_pipeline_runs` / `tekton_task_runs` tables
 - `src/hexawyn/mcp/tools/pipeline_performance_baseline.py` — MCP entry point

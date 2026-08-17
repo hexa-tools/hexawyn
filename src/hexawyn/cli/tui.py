@@ -29,6 +29,8 @@ class ContextService(Protocol):
 
 
 class HexawynTUI(App[None]):
+    ALLOW_SELECT = True
+
     CSS = """
     Header {
         display: none;

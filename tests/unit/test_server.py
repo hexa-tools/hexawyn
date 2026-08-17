@@ -167,7 +167,10 @@ class TestMCPBuilderFunctions:
         assert isinstance(result, K8sPort)
 
     def test_build_tekton_adapter(self) -> None:
-        result = self.server_mod.build_tekton_adapter()
+        from unittest.mock import patch
+
+        with patch("hexawyn.mcp.adapters.cluster_adapters.get_connection"):
+            result = self.server_mod.build_tekton_adapter()
         assert isinstance(result, TektonPort)
 
     def test_build_rightsizing_adapter(self) -> None:
@@ -504,6 +507,12 @@ class TestMCPBuilderFunctions:
     def test_build_pod_logs_adapter(self) -> None:
         result = self.server_mod.build_pod_logs_adapter()
         assert isinstance(result, PodLogsPort)
+
+    def test_build_pod_metrics_adapter(self) -> None:
+        from hexawyn.application.ports.driven.pod_metrics_port import PodMetricsPort
+
+        result = self.server_mod.build_pod_metrics_adapter()
+        assert isinstance(result, PodMetricsPort)
 
     def test_build_log_search_adapter(self) -> None:
         result = self.server_mod.build_log_search_adapter()

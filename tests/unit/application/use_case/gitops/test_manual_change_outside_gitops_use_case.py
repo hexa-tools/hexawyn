@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock
+
+
+def _recent_timestamp(days_ago: int = 1) -> str:
+    return (datetime.now(UTC) - timedelta(days=days_ago)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _make_manual_change(**overrides: object) -> object:
@@ -10,7 +15,7 @@ def _make_manual_change(**overrides: object) -> object:
         "kind": "Deployment",
         "name": "my-app",
         "namespace": "default",
-        "timestamp": "2026-07-27T10:00:00Z",
+        "timestamp": _recent_timestamp(1),
         "actor": "kubectl-set",
         "actor_type": "human",
         "changed_fields": ["spec.replicas"],
@@ -26,8 +31,9 @@ def _make_config_resource(
     name: str = "my-config",
     namespace: str = "default",
     manager: str = "kubectl-set",
-    time: str = "2026-07-27T10:00:00Z",
+    time: str | None = None,
 ) -> dict[str, object]:
+    entry_time = time if time is not None else _recent_timestamp(1)
     return {
         "kind": kind,
         "name": name,
@@ -36,7 +42,7 @@ def _make_config_resource(
             {
                 "manager": manager,
                 "operation": "Update",
-                "time": time,
+                "time": entry_time,
                 "fields_v1_raw": {"f:data": {".": {}, "f:key": {}}},
             }
         ],
