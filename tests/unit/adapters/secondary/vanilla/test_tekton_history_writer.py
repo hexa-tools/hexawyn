@@ -130,3 +130,26 @@ class TestTektonHistoryWriter:
 
         tekton.list_pipeline_runs_in_namespace.assert_called_once_with("ci", 5)
         assert result == expected
+
+    def test_returns_empty_list_on_task_run_error(self) -> None:
+        tekton = MagicMock()
+        from hexawyn.domain.errors import ServiceNotFoundError
+
+        tekton.list_task_runs.side_effect = ServiceNotFoundError(service_name="missing")
+        history = MagicMock()
+        writer = TektonHistoryWriter(tekton_port=tekton, history_port=history)
+
+        result = writer.list_task_runs("missing", "ci")
+
+        assert result == []
+
+    def test_task_run_history_failure_does_not_break_listing(self) -> None:
+        tekton = MagicMock()
+        tekton.list_task_runs.return_value = [_task()]
+        history = MagicMock()
+        history.save_task_runs.side_effect = RuntimeError("duckdb down")
+        writer = TektonHistoryWriter(tekton_port=tekton, history_port=history)
+
+        result = writer.list_task_runs("payment-service", "ci")
+
+        assert len(result) == 1  # noqa: PLR2004

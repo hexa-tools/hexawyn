@@ -145,3 +145,62 @@ class TestVanillaPodMetricsAdapter:
 
         assert result[0]["cpu_cores"] == 0.3  # noqa: PLR2004
         assert result[0]["memory_gb"] == 0.5  # noqa: PLR2004
+
+    def test_get_pod_metrics_without_metrics_api_raises(self) -> None:
+        import pytest
+        from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+            VanillaPodMetricsAdapter,
+        )
+        from hexawyn.domain.errors import MetricsUnavailableError
+
+        adapter = VanillaPodMetricsAdapter(metrics_api=None, cluster_name="test")
+        with pytest.raises(MetricsUnavailableError):
+            adapter.get_pod_metrics()
+
+    def test_get_pod_metrics_non_list_containers_ignored(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+            VanillaPodMetricsAdapter,
+        )
+
+        metrics_api = MagicMock()
+        raw_response = {
+            "items": [
+                {
+                    "metadata": {"name": "weird-pod", "namespace": "ns"},
+                    "containers": "not-a-list",
+                },
+            ],
+        }
+        metrics_api.list_cluster_custom_object.return_value = raw_response
+
+        adapter = VanillaPodMetricsAdapter(metrics_api=metrics_api, cluster_name="test")
+        result = adapter.get_pod_metrics()
+
+        assert result[0]["cpu_cores"] == 0.0
+        assert result[0]["memory_gb"] == 0.0
+
+    def test_get_pod_metrics_non_dict_container_skipped(self) -> None:
+        from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+            VanillaPodMetricsAdapter,
+        )
+
+        metrics_api = MagicMock()
+        raw_response = {
+            "items": [
+                {
+                    "metadata": {"name": "odd-container", "namespace": "ns"},
+                    "containers": [
+                        "plain-string-container",
+                        {"usage": {"cpu": "100m", "memory": "512Mi"}},
+                    ],
+                },
+            ],
+        }
+        metrics_api.list_cluster_custom_object.return_value = raw_response
+
+        adapter = VanillaPodMetricsAdapter(metrics_api=metrics_api, cluster_name="test")
+        result = adapter.get_pod_metrics()
+
+        assert result[0]["name"] == "odd-container"
+        assert result[0]["cpu_cores"] == 0.1  # noqa: PLR2004
+        assert result[0]["memory_gb"] == 0.5  # noqa: PLR2004

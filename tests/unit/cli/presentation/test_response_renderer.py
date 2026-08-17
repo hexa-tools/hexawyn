@@ -34,3 +34,33 @@ class TestResponseRenderer:
         result = ChatCliResponse(kind="text", pods=None, lines=[("some text", "dim")], summary="")
         render_result(mock_log, result)
         assert mock_log.write.call_count >= 1
+
+    def test_render_result_debug_renders_markdown_lines(self) -> None:
+        from hexawyn.cli.presentation.response_renderer import render_result
+
+        mock_log = MagicMock()
+        result = ChatCliResponse(
+            kind="debug",
+            pods=None,
+            lines=[("answer paragraph", "white"), ("", "dim"), ("second", "green")],
+            summary="",
+        )
+        render_result(mock_log, result)
+        assert mock_log.write.call_count == 3  # noqa: PLR2004  # initial "" + two non-empty
+
+    def test_render_result_debug_with_suggestions(self) -> None:
+        from hexawyn.cli.presentation.response_renderer import render_result
+
+        mock_log = MagicMock()
+        result = ChatCliResponse(
+            kind="debug",
+            pods=None,
+            lines=[("answer", "white")],
+            summary="",
+            suggestions=["Check pod logs", "Increase memory"],
+        )
+        render_result(mock_log, result)
+
+        write_args = [str(c) for c in mock_log.write.call_args_list]
+        assert any("Suggestions" in arg for arg in write_args)
+        assert any("Check pod logs" in arg for arg in write_args)

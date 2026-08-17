@@ -97,6 +97,16 @@ class TestPipelineRunHistoryRepository:
 
         assert conn.execute.call_count == 1
 
+    def test_task_run_storage_failure_is_best_effort(self) -> None:
+        conn = MagicMock()
+        conn.execute.side_effect = RuntimeError("duckdb down")
+        repo = PipelineRunHistoryRepository(conn=conn)
+        task = _task_run()
+
+        repo.save_task_runs([task])  # type: ignore[arg-type]
+
+        assert conn.execute.call_count == 1
+
     def test_uses_external_conn(self) -> None:
         from hexawyn.infrastructure.memory.pipeline_run_history_repository import (
             SQL_DIR,

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter import VanillaK8sAdapter
@@ -182,3 +182,105 @@ class TestVanillaK8sAdapter:
         assert result["pod_count"] == 1
         assert "cpu_usage_pct" in result
         assert "memory_usage_pct" in result
+
+    def test_api_client_lazy_initialization(self) -> None:
+        with patch(
+            "hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter.load_kubeconfig",
+            return_value=MagicMock(),
+        ) as mock_load:
+            adapter = VanillaK8sAdapter(api=None, metrics_api=MagicMock(), cluster_name="test")
+            api = adapter._api_client()
+
+        mock_load.assert_called_once_with(context="test")
+        assert api is adapter._api
+
+    def test_metrics_api_client_lazy_initialization(self) -> None:
+        fake_core = MagicMock()
+        fake_core.api_client = MagicMock()
+        with (
+            patch(
+                "hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter.load_kubeconfig",
+                return_value=fake_core,
+            ) as mock_load,
+            patch(
+                "hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter.client.CustomObjectsApi"
+            ) as mock_custom,
+        ):
+            adapter = VanillaK8sAdapter(api=None, metrics_api=None, cluster_name="test")
+            metrics_api = adapter._metrics_api_client()
+
+        mock_load.assert_called_once()
+        mock_custom.assert_called_once_with(api_client=fake_core.api_client)
+        assert metrics_api is adapter._metrics_api
+
+    def test_context_name_unknown_cluster_returns_none(self) -> None:
+        adapter = VanillaK8sAdapter(
+            api=MagicMock(), metrics_api=MagicMock(), cluster_name="unknown"
+        )
+        assert adapter._context_name() is None
+
+    def test_resource_requests_sums_containers(self) -> None:
+        container = MagicMock()
+        container.resources.requests = {"cpu": "500m", "memory": "256Mi"}
+        container2 = MagicMock()
+        container2.resources.requests = {"cpu": "1", "memory": "512Mi"}
+
+        spec = MagicMock()
+        spec.containers = [container, container2]
+
+        adapter = VanillaK8sAdapter(api=MagicMock(), metrics_api=MagicMock(), cluster_name="test")
+        cpu, mem = adapter._resource_requests(spec)
+
+        assert cpu == 1500  # noqa: PLR2004
+        assert mem == 768  # noqa: PLR2004
+
+    def test_resource_requests_handles_exception(self) -> None:
+        class _BrokenSpec:
+            @property
+            def containers(self) -> list[object]:
+                raise RuntimeError("broken spec")
+
+        adapter = VanillaK8sAdapter(api=MagicMock(), metrics_api=MagicMock(), cluster_name="test")
+        cpu, mem = adapter._resource_requests(_BrokenSpec())
+
+        assert cpu == 0
+        assert mem == 0
+
+    def test_resource_requests_skips_container_without_resources(self) -> None:
+        container = MagicMock()
+        container.resources = None
+
+        spec = MagicMock()
+        spec.containers = [container]
+
+        adapter = VanillaK8sAdapter(api=MagicMock(), metrics_api=MagicMock(), cluster_name="test")
+        cpu, mem = adapter._resource_requests(spec)
+
+        assert cpu == 0
+        assert mem == 0
+
+    def test_node_metrics_usage_returns_zero_on_error(self) -> None:
+        metrics_api = MagicMock()
+        metrics_api.list_cluster_custom_object.side_effect = RuntimeError("metrics down")
+
+        adapter = VanillaK8sAdapter(api=MagicMock(), metrics_api=metrics_api, cluster_name="test")
+        cpu, memory = adapter._node_metrics_usage()
+
+        assert cpu == 0.0
+        assert memory == 0.0
+
+    def test_pod_status_waiting_reason_wins(self) -> None:
+        status = MagicMock()
+        status.container_statuses = [
+            MagicMock(
+                state=MagicMock(
+                    waiting=MagicMock(reason="CrashLoopBackOff"),
+                ),
+                restart_count=3,
+            )
+        ]
+
+        adapter = VanillaK8sAdapter(api=MagicMock(), metrics_api=MagicMock(), cluster_name="test")
+        result = adapter._pod_status(status)
+
+        assert result == "CrashLoop"
