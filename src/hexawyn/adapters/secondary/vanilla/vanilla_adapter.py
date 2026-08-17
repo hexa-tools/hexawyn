@@ -18,6 +18,9 @@ from hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter import (
 from hexawyn.adapters.secondary.vanilla.adapters.namespace_waste_adapter import (
     VanillaNamespaceWasteAdapter,
 )
+from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+    VanillaPodMetricsAdapter,
+)
 from hexawyn.adapters.secondary.vanilla.adapters.rightsizing_adapter import (
     VanillaRightsizingAdapter,
 )
@@ -56,6 +59,10 @@ from hexawyn.application.ports.driven.k8s_port import (
 from hexawyn.application.ports.driven.namespace_waste_port import (
     NamespaceRawData,
     NamespaceWasteAnalysisPort,
+)
+from hexawyn.application.ports.driven.pod_metrics_port import (
+    PodMetricSnapshot,
+    PodMetricsPort,
 )
 from hexawyn.application.ports.driven.probe_audit_port import (
     ProbeAuditPort,
@@ -98,6 +105,7 @@ class VanillaAdapter(
     ProbeAuditPort,
     CostSavingEstimationPort,
     WhatIfSimulationPort,
+    PodMetricsPort,
 ):
     """Minimal adapter for vanilla Kubernetes with no cloud provider dependencies."""
 
@@ -127,6 +135,7 @@ class VanillaAdapter(
         self._cost_saving_adapter_inst: VanillaCostSavingAdapter | None = None
         self._what_if_adapter_inst: VanillaWhatIfSimulationAdapter | None = None
         self._tekton_adapter_inst: VanillaTektonAdapter | None = None
+        self._pod_metrics_adapter_inst: VanillaPodMetricsAdapter | None = None
 
     # ── Internal adapter accessors ───────────────────────────
     def _get_k8s_adapter(self) -> VanillaK8sAdapter:
@@ -204,6 +213,14 @@ class VanillaAdapter(
             )
         return self._tekton_adapter_inst
 
+    def _get_pod_metrics_adapter(self) -> VanillaPodMetricsAdapter:
+        if self._pod_metrics_adapter_inst is None:
+            self._pod_metrics_adapter_inst = VanillaPodMetricsAdapter(
+                metrics_api=self._metrics_api,
+                cluster_name=self._cluster_name,
+            )
+        return self._pod_metrics_adapter_inst
+
     # ── K8sPort ───────────────────────────────────────────────
     def list_pods(self, namespace: str | None = None) -> list[PodInfo]:
         return self._get_k8s_adapter().list_pods(namespace)
@@ -216,6 +233,10 @@ class VanillaAdapter(
 
     def list_namespaces(self) -> list[NamespaceInfo]:
         return self._get_k8s_adapter().list_namespaces()
+
+    # ── PodMetricsPort ─────────────────────────────────────────
+    def get_pod_metrics(self, namespace: str | None = None) -> list[PodMetricSnapshot]:
+        return self._get_pod_metrics_adapter().get_pod_metrics(namespace)
 
     # ── ClusterHealthPort ─────────────────────────────────────
     def get_findings(self) -> list[Finding]:
@@ -250,26 +271,25 @@ class VanillaAdapter(
     def _apps_api_client(self) -> KubernetesAppsApi:
         if self._apps_api is not None:
             return self._apps_api
-        load_kubeconfig()
-        return cast(KubernetesAppsApi, client.AppsV1Api())
+        core_api = cast(client.CoreV1Api, self._api_client())
+        return cast(KubernetesAppsApi, client.AppsV1Api(api_client=core_api.api_client))
 
     def _api_client(self) -> KubernetesCoreApi:
         if self._api is not None:
             return self._api
-        load_kubeconfig()
-        return cast(KubernetesCoreApi, client.CoreV1Api())
+        return cast(KubernetesCoreApi, load_kubeconfig())
 
     def _metrics_api_client(self) -> KubernetesMetricsApi:
         if self._metrics_api is not None:
             return self._metrics_api
-        load_kubeconfig()
-        return cast(KubernetesMetricsApi, client.CustomObjectsApi())
+        core_api = cast(client.CoreV1Api, self._api_client())
+        return cast(KubernetesMetricsApi, client.CustomObjectsApi(api_client=core_api.api_client))
 
     def _crd_api_client(self) -> KubernetesCRDApi:
         if self._crd_api is not None:
             return self._crd_api
-        load_kubeconfig()
-        return cast(KubernetesCRDApi, client.CustomObjectsApi())
+        core_api = cast(client.CoreV1Api, self._api_client())
+        return cast(KubernetesCRDApi, client.CustomObjectsApi(api_client=core_api.api_client))
 
     # ── CostForecastPort ─────────────────────────────────────
     def get_daily_costs(self, days: int) -> list[DailyCostData]:

@@ -157,7 +157,6 @@ class TestSessionScreen:
         with (
             patch("hexawyn.cli.screens.session.startup_status_from_switch"),
             patch("hexawyn.cli.screens.session.format_context_switch_lines", return_value=[]),
-            patch("hexawyn.cli.screens.session.context_line", return_value="ctx line"),
         ):
             screen._switch_context("prod")
             mock_app.adapter_builder.assert_called_once()
@@ -255,3 +254,129 @@ class TestSessionScreen:
             asyncio.run(screen._open_context_picker())
             mock_picker.assert_called_once()
             mock_app.push_screen.assert_called_once()
+
+    def test_duration_rendered_in_status_bar_not_log(self) -> None:
+        """The response duration is a transient status, not persistent log content."""
+        import asyncio
+
+        from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_response import (
+            ChatCliResponse,
+        )
+
+        screen = self._create_screen()
+        mock_app = MagicMock()
+        mock_app.expert_mode = False
+        screen._tui_app = MagicMock(return_value=mock_app)  # type: ignore[method-assign]
+        screen._refresh_aside = MagicMock()  # type: ignore[method-assign]
+
+        mock_log = MagicMock()
+        mock_status = MagicMock()
+        screen.query_one = MagicMock(
+            side_effect=lambda _id, _cls=None: mock_log if _id == "#conversation" else mock_status
+        )  # type: ignore[method-assign]  # noqa: E501
+
+        result = ChatCliResponse(kind="debug", lines=[("answer", "white")], duration_ms=25000)
+        mock_route = MagicMock(return_value=result)
+
+        with (
+            patch("hexawyn.cli.screens.session.route_command", mock_route),
+            patch("hexawyn.cli.screens.session.render_result"),
+            patch("hexawyn.cli.screens.session.safe_findings", return_value=[]),
+        ):
+            asyncio.run(screen._handle_command("how many pods?"))
+
+        calls = [str(c) for c in mock_log.write.call_args_list]
+        assert not any("25.0s" in c for c in calls), "duration must not persist in log"
+        status_calls = [str(c) for c in mock_status.update.call_args_list]
+        assert any("25.0s" in c for c in status_calls), "duration must appear in status bar"
+
+    def test_agentic_steps_rendered_in_normal_mode(self) -> None:
+        """Agentic steps are shown during execution in normal mode too."""
+        import asyncio
+        from unittest.mock import PropertyMock
+
+        screen = self._create_screen()
+        mock_app = MagicMock()
+        mock_app.expert_mode = False
+        screen._tui_app = MagicMock(return_value=mock_app)  # type: ignore[method-assign]
+        screen._refresh_aside = MagicMock()  # type: ignore[method-assign]
+
+        mock_log = MagicMock()
+        mock_status = MagicMock()
+        screen.query_one = MagicMock(
+            side_effect=lambda _id, _cls=None: mock_log if _id == "#conversation" else mock_status
+        )  # type: ignore[method-assign]  # noqa: E501
+
+        from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_response import (
+            ChatCliResponse,
+        )
+
+        result = ChatCliResponse(kind="debug", lines=[("answer", "white")], duration_ms=0)
+
+        def fake_route(_text, _adapter, _history, on_progress=None):  # type: ignore[no-untyped-def]
+            if on_progress:
+                on_progress("plan", "Plan")
+            return result
+
+        with (
+            patch("hexawyn.cli.screens.session.route_command", side_effect=fake_route),
+            patch("hexawyn.cli.screens.session.render_result"),
+            patch("hexawyn.cli.screens.session.safe_findings", return_value=[]),
+            patch(
+                "hexawyn.cli.screens.session.SessionScreen.app",
+                new_callable=PropertyMock,
+                return_value=MagicMock(),
+            ) as mock_app_prop,
+        ):
+            mock_app_prop.return_value.call_from_thread = lambda fn, *args: fn(*args)
+            asyncio.run(screen._handle_command("how many pods?"))
+
+        status_calls = [str(c) for c in mock_status.update.call_args_list]
+        assert any("Plan" in c for c in status_calls), "agentic steps must be visible"
+
+    def test_agentic_steps_rendered_in_expert_mode(self) -> None:
+        """Expert/debug mode keeps exposing the agentic steps."""
+        import asyncio
+        from unittest.mock import PropertyMock
+
+        screen = self._create_screen()
+        mock_app = MagicMock()
+        mock_app.expert_mode = True
+        screen._tui_app = MagicMock(return_value=mock_app)  # type: ignore[method-assign]
+        screen._refresh_aside = MagicMock()  # type: ignore[method-assign]
+
+        mock_log = MagicMock()
+        mock_status = MagicMock()
+        screen.query_one = MagicMock(
+            side_effect=lambda _id, _cls=None: mock_log if _id == "#conversation" else mock_status
+        )  # type: ignore[method-assign]  # noqa: E501
+
+        from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_response import (
+            ChatCliResponse,
+        )
+
+        result = ChatCliResponse(kind="debug", lines=[("answer", "white")], duration_ms=0)
+
+        def fake_route(_text, _adapter, _history, on_progress=None):  # type: ignore[no-untyped-def]
+            if on_progress:
+                on_progress("plan", "Plan")
+                on_progress("execute", "Execute")
+            return result
+
+        with (
+            patch("hexawyn.cli.screens.session.route_command", side_effect=fake_route),
+            patch("hexawyn.cli.screens.session.render_result"),
+            patch("hexawyn.cli.screens.session.safe_findings", return_value=[]),
+            patch(
+                "hexawyn.cli.screens.session.SessionScreen.app",
+                new_callable=PropertyMock,
+                return_value=MagicMock(),
+            ) as mock_app_prop,
+        ):
+            mock_app_prop.return_value.call_from_thread = lambda fn, *args: fn(*args)
+            asyncio.run(screen._handle_command("how many pods?"))
+
+        status_calls = [str(c) for c in mock_status.update.call_args_list]
+        assert any(
+            "Plan" in c and "Execute" in c for c in status_calls
+        ), "expert mode must show steps"  # noqa: E501

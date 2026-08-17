@@ -39,6 +39,7 @@ def build_aside_lines(app: Any) -> list[str]:
         "",
         f"Cluster: [bold]{cluster_name}[/bold]",
         f"Context: [dim]{kubectl_ctx}[/dim]",
+        f"Namespace: [bold]{namespace}[/bold]",
         f"Namespaces: [bold]{namespace_count(pods, namespace)}[/bold]",
         f"Nodes: [bold]{node_count}[/bold]",
         f"Pods: [bold]{pod_count}[/bold]",

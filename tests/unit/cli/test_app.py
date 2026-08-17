@@ -61,6 +61,21 @@ class TestHexawynApp:
         ):
             app._auto_refresh_license()
 
+    def test_auto_refresh_license_runs_in_background_thread(self) -> None:
+        """The network refresh must not block TUI startup."""
+        app = HexawynApp()
+        with (
+            patch("hexawyn.cli.app.threading.Thread") as mock_thread,
+            patch(
+                "hexawyn.infrastructure.license.license_reader.refresh_license",
+                return_value=True,
+            ),
+        ):
+            app._auto_refresh_license()
+            mock_thread.assert_called_once()
+            assert mock_thread.call_args[1]["daemon"] is True
+            mock_thread.return_value.start.assert_called_once()
+
     def test_run_demo_mode(self) -> None:
         app = HexawynApp()
         with (

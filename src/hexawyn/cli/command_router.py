@@ -3,8 +3,15 @@ from collections.abc import Callable
 
 from hexawyn.application.ports.driven.k8s_port import K8sPort
 from hexawyn.application.service.runtime_adapter import get_runtime
-from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_command import ChatCliCommand
-from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_response import ChatCliResponse
+from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_command import (
+    ChatCliCommand,
+)
+from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_response import (
+    ChatCliResponse,
+)
+from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_use_case import (
+    ChatCliUseCase,
+)
 
 
 def route_command(
@@ -13,8 +20,8 @@ def route_command(
     conversation_history: list[dict[str, str]] | None = None,
     on_progress: Callable[[str, str], None] | None = None,
 ) -> ChatCliResponse:
-    service = ChatCliService(k8s_port=adapter, runtime=get_runtime())  # noqa: F821  # type: ignore
-    return service._execute(  # type: ignore
+    use_case = ChatCliUseCase(k8s_port=adapter, runtime=get_runtime())
+    return use_case._execute(
         ChatCliCommand(query=text, conversation_history=conversation_history or []),
         on_progress=on_progress,
     )

@@ -49,10 +49,14 @@ class TestClusterAdapters:
         assert isinstance(result, K8sPort)
 
     def test_build_tekton_adapter_returns_tekton_port(self) -> None:
+        from unittest.mock import patch
+
         from hexawyn.mcp.adapters.cluster_adapters import build_tekton_adapter
 
-        result = build_tekton_adapter()
+        with patch("hexawyn.mcp.adapters.cluster_adapters.get_connection") as mock_conn:
+            result = build_tekton_adapter()
         assert isinstance(result, TektonPort)
+        mock_conn.assert_called_once()
 
     def test_build_rightsizing_adapter_returns_rightsizing_port(self) -> None:
         from hexawyn.mcp.adapters.cluster_adapters import build_rightsizing_adapter

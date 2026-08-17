@@ -1365,3 +1365,23 @@ watch_pod_logs:
   - Can you tail the worker pod and alert on any database connection failures?
   - Monitor auth-service for OOM kills over the next 5 minutes.
   - Live-watch the api-gateway pod logs and notify Slack the moment something critical happens.
+get_namespace_resource_allocation:
+  tool: get_namespace_resource_allocation
+  questions:
+  - Which namespaces have the highest total CPU and memory requests? Rank them by CPU and tell me which namespace has the most pods.
+  - Show me the namespace resource allocation ranked by total CPU cores, including pod counts.
+  - How much CPU and memory has each namespace requested across all its pods?
+  - Rank all my namespaces by total resource requests — I need to know which ones consume the most.
+  - Give me a breakdown of CPU and memory requests per namespace with pod counts.
+  - What is the total resource footprint per namespace in my cluster?
+  - List all namespaces ordered by CPU requests — which one would I scale down first?
+get_resource_usage:
+  tool: get_resource_usage
+  questions:
+  - Namespace dev has 8 CPUs allocated — how much is it actually using?
+  - Show me real CPU and memory usage per pod across all namespaces from metrics-server.
+  - Is the staging namespace really over-provisioned or just configured that way? Compare requests vs actual usage.
+  - Which pods in production are using the most memory right now?
+  - Give me per-pod resource utilization percentages — I want to see the gap between requests and real consumption.
+  - How much CPU and memory is each namespace actually consuming compared to what it requested?
+  - Show me namespace-level utilization summaries with pod counts and usage percentages.

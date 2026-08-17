@@ -25,19 +25,12 @@ class HttpRuntimeAdapter(RuntimePort):
         self._adapter = adapter
 
     def _fetch_pods(self) -> list[dict[str, object]]:
-        result: list[dict[str, object]] = []
         if self._adapter is None or not hasattr(self._adapter, "list_pods"):
-            result = []
-        else:
-            try:
-                result = [dict(p) for p in self._adapter.list_pods()]
-            except Exception:
-                pass
-        with open("/tmp/hexawyn_pods.log", "a") as f:
-            f.write(
-                f"adapter={type(self._adapter).__name__ if self._adapter else 'None'} pods={len(result)}\n"  # noqa: E501
-            )
-        return result
+            return []
+        try:
+            return [dict(p) for p in self._adapter.list_pods()]
+        except Exception:
+            return []
 
     def run_investigation(
         self,
