@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
@@ -16,7 +17,7 @@ class FakeFileIntegration(McpConfigFileIntegration):
         return "servers"
 
     def _build_entry(self) -> dict[str, object]:
-        return {"command": ["python", "-m", "hexawyn.mcp.stdio"]}
+        return {"command": [sys.executable, "-m", "hexawyn.mcp.stdio"]}
 
 
 def _integration(config_path: Path) -> FakeFileIntegration:
@@ -80,7 +81,7 @@ class TestFileInstall:
         data = json.loads(config_path.read_text(encoding="utf-8"))
         servers = data["servers"]
         assert "other" in servers
-        assert servers["hexawyn"] == {"command": ["python", "-m", "hexawyn.mcp.stdio"]}
+        assert servers["hexawyn"] == {"command": [sys.executable, "-m", "hexawyn.mcp.stdio"]}
 
     def test_install_when_already_configured_is_idempotent(self, tmp_path: Path) -> None:
         config_path = tmp_path / "config.json"
@@ -230,7 +231,7 @@ class TestFileStatus:
         config_path = tmp_path / "config.json"
         _write(
             config_path,
-            {"servers": {"hexawyn": {"command": ["python", "-m", "hexawyn.mcp.stdio"]}}},
+            {"servers": {"hexawyn": {"command": [sys.executable, "-m", "hexawyn.mcp.stdio"]}}},
         )
         integration = _integration(config_path)
         with patch(
@@ -240,7 +241,7 @@ class TestFileStatus:
             status = integration.status()
 
         assert status.configured is True
-        assert status.command == "python -m hexawyn.mcp.stdio"
+        assert status.command == f"{sys.executable} -m hexawyn.mcp.stdio"
         assert status.error is None
 
     def test_status_not_configured(self, tmp_path: Path) -> None:

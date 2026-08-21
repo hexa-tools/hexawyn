@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import sys
 from unittest.mock import patch
 
 from hexawyn.cli.integrations.mcp.base import CommandResult
 from hexawyn.cli.integrations.mcp.codex import CodexIntegration
 
-LIST_CONFIGURED = "name: hexawyn\n" "command: python -m hexawyn.mcp.stdio\n" "another-server\n"
+_COMMAND = f"{sys.executable} -m hexawyn.mcp.stdio"
+
+LIST_CONFIGURED = f"name: hexawyn\ncommand: {_COMMAND}\nanother-server\n"
 LIST_EMPTY = "another-server\n"
 LIST_COMMAND = ["codex", "mcp", "list"]
 ADD_COMMAND = [
@@ -14,7 +17,7 @@ ADD_COMMAND = [
     "add",
     "hexawyn",
     "--",
-    "python",
+    sys.executable,
     "-m",
     "hexawyn.mcp.stdio",
 ]
@@ -63,7 +66,7 @@ class TestCodexIntegration:
             status = integration._read_status()
 
         assert status.configured is True
-        assert status.command == "python -m hexawyn.mcp.stdio"
+        assert status.command == _COMMAND
 
     def test_read_status_not_configured(self) -> None:
         integration = _integration([CommandResult(0, LIST_EMPTY)])

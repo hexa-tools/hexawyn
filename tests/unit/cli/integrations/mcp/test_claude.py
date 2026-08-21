@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from unittest.mock import patch
 
 from hexawyn.cli.integrations.mcp.base import CommandResult
@@ -9,12 +10,15 @@ from hexawyn.cli.integrations.mcp.claude import (
     _parse_entry,
 )
 
+_COMMAND = f"{sys.executable} -m hexawyn.mcp.stdio"
+_CONFIGURED_COMMAND = f"  Command: {sys.executable}\n"
+
 CONFIGURED_TEXT = (
     "hexawyn:\n"
     "  Scope: User config\n"
     "  Status: ✔ Connected\n"
     "  Type: stdio\n"
-    "  Command: python\n"
+    f"{_CONFIGURED_COMMAND}"
     "  Args: -m hexawyn.mcp.stdio\n"
 )
 NOT_CONFIGURED = CommandResult(
@@ -29,7 +33,7 @@ ADD_COMMAND = [
     "add",
     "hexawyn",
     "--",
-    "python",
+    sys.executable,
     "-m",
     "hexawyn.mcp.stdio",
 ]
@@ -260,7 +264,7 @@ class TestClaudeStatus:
 
         assert status.configured is True
         assert status.transport == "stdio"
-        assert status.command == "python -m hexawyn.mcp.stdio"
+        assert status.command == _COMMAND
         assert status.endpoint == ""
         assert status.error is None
 
@@ -292,7 +296,7 @@ class TestParseEntry:
     def test_parses_type_and_command(self) -> None:
         entry = _parse_entry(CONFIGURED_TEXT)
         assert entry["type"] == "stdio"
-        assert entry["command"] == "python"
+        assert entry["command"] == sys.executable
         assert entry["args"] == "-m hexawyn.mcp.stdio"
 
     def test_parses_url_entry(self) -> None:
