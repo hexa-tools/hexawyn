@@ -25,6 +25,7 @@ from hexawyn.adapters.secondary.vanilla.helpers.k8s_client import (
     KubernetesCoreApi,
     KubernetesMetricsApi,
 )
+from hexawyn.application.ports.driven.ingress_port import IngressInfo, IngressPort
 from hexawyn.application.ports.driven.k8s_port import (
     ClusterContext,
     ClusterMetrics,
@@ -32,13 +33,14 @@ from hexawyn.application.ports.driven.k8s_port import (
     NamespaceInfo,
     PodInfo,
 )
-from hexawyn.domain.errors import ClusterUnreachableError
+from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
 from hexawyn.infrastructure.config.kubeconfig_reader import load_kubeconfig
 
 _POD_CACHE_TTL_SECONDS = 5.0
+_FORBIDDEN_STATUS = 403
 
 
-class VanillaK8sAdapter(K8sPort):
+class VanillaK8sAdapter(K8sPort, IngressPort):
     def __init__(
         self,
         api: KubernetesCoreApi | None,
@@ -87,6 +89,20 @@ class VanillaK8sAdapter(K8sPort):
         except Exception as exc:
             raise ClusterUnreachableError(f"Cannot list namespaces: {exc}") from exc
         return [self._to_namespace_info(ns) for ns in items_from(ns_list)]
+
+    def list_ingresses(self, namespace: str) -> list[IngressInfo]:
+        try:
+            core_api = cast(client.CoreV1Api, self._api_client())
+            networking_api = client.NetworkingV1Api(api_client=core_api.api_client)
+            ingress_list = networking_api.list_namespaced_ingress(
+                namespace=namespace, timeout_seconds=5
+            )
+        except Exception as exc:
+            raise _translate_ingress_error(namespace, exc) from exc
+        entries: list[IngressInfo] = []
+        for ingress in items_from(ingress_list):
+            entries.extend(_to_ingress_info(ingress, namespace))
+        return entries
 
     def _api_client(self) -> KubernetesCoreApi:
         if self._api is None:
@@ -216,3 +232,68 @@ class VanillaK8sAdapter(K8sPort):
         allocatable = getattr(node_status, "allocatable", {})
         m = mapping_from(allocatable)
         return m if m is not None else {}
+
+
+def _translate_ingress_error(namespace: str, exc: Exception) -> Exception:
+    if getattr(exc, "status", None) == _FORBIDDEN_STATUS:
+        return InsufficientPermissionsError(
+            f"RBAC denied access to ingresses in namespace {namespace!r}",
+            context={"namespace": namespace},
+        )
+    return ClusterUnreachableError(f"Cannot list ingresses in namespace {namespace}: {exc}")
+
+
+def _to_ingress_info(ingress: object, namespace: str) -> list[IngressInfo]:
+    metadata = getattr(ingress, "metadata", None)
+    name = text_attr(metadata, "name", "unknown")
+    ns = text_attr(metadata, "namespace", namespace)
+    spec = getattr(ingress, "spec", None)
+    tls_enabled = bool(getattr(spec, "tls", None))
+    rules = getattr(spec, "rules", None) or []
+    entries: list[IngressInfo] = []
+    for rule in rules:
+        host = str(getattr(rule, "host", "") or "")
+        http = getattr(rule, "http", None)
+        paths = getattr(http, "paths", None) or []
+        if not paths:
+            entries.append(_ingress_entry(name, ns, host, "", tls_enabled))
+            continue
+        for path in paths:
+            backend = getattr(path, "backend", None)
+            service = getattr(backend, "service", None)
+            entries.append(
+                _ingress_entry(
+                    name,
+                    ns,
+                    host,
+                    str(getattr(service, "name", "") or ""),
+                    tls_enabled,
+                )
+            )
+    if not rules:
+        entries.append(_ingress_entry(name, ns, "", _default_backend_service(spec), tls_enabled))
+    return entries
+
+
+def _default_backend_service(spec: object) -> str:
+    default_backend = getattr(spec, "default_backend", None)
+    if default_backend is None:
+        return ""
+    service = getattr(default_backend, "service", None)
+    return str(getattr(service, "name", "") or "")
+
+
+def _ingress_entry(
+    name: str,
+    namespace: str,
+    host: str,
+    target_service: str,
+    tls_enabled: bool,
+) -> IngressInfo:
+    return IngressInfo(
+        name=name,
+        namespace=namespace,
+        host=host,
+        target_service=target_service,
+        tls_enabled=tls_enabled,
+    )

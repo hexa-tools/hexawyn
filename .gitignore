@@ -54,6 +54,10 @@ dist/
 *.whl
 *.tar.gz
  
+# Graphify knowledge graph (generated)
+graphify-out/
+**/graphify-out/
+
 AGENTS.md
 .claude/
 hexa_guard.py
@@ -62,3 +66,5 @@ logs/
 # MemPalace per-project files (issue #185)
 mempalace.yaml
 entities.json
+
+E2E_DEBUG.jsonl

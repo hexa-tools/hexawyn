@@ -7,20 +7,21 @@ class TestGetQuotaUsageMCPTool:
     def test_returns_dict_with_error_none_on_success(self) -> None:
         from hexawyn.mcp.tools.get_quota_usage import get_quota_usage
 
-        mock_plan = MagicMock()
-        mock_plan.get_limit.return_value = 100
-        mock_plan.tier_required_for.return_value = None
-        mock_meter = MagicMock()
-        mock_meter.get_usage.return_value = 50
-
+        mock_runtime = MagicMock()
+        mock_runtime.check_quota.return_value = {
+            "allowed": True,
+            "used": 50,
+            "limit": 100,
+            "remaining": 50,
+        }
         with (
             patch(
-                "hexawyn.mcp.server.build_pricing_plan_adapter",
-                return_value=mock_plan,
+                "hexawyn.application.service.runtime_adapter.get_runtime",
+                return_value=mock_runtime,
             ),
             patch(
-                "hexawyn.mcp.server.build_usage_meter_adapter",
-                return_value=mock_meter,
+                "hexawyn.adapters.secondary.runtime_quota_source._get_current_slack_quota",
+                return_value=MagicMock(count=0, limit=50),
             ),
         ):
             result = get_quota_usage()
@@ -33,7 +34,7 @@ class TestGetQuotaUsageMCPTool:
         from hexawyn.mcp.tools.get_quota_usage import get_quota_usage
 
         with patch(
-            "hexawyn.mcp.server.build_pricing_plan_adapter",
+            "hexawyn.application.service.runtime_adapter.get_runtime",
             side_effect=RuntimeError("plan service down"),
         ):
             result = get_quota_usage()

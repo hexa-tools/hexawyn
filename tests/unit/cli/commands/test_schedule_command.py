@@ -589,6 +589,49 @@ class TestScheduleStart:
             assert "enabled1" in result.output
             assert "disabled1" not in result.output
 
+    def test_start_runs_scheduler_loop(self) -> None:
+        with patch(
+            "hexawyn.infrastructure.config.schedule_source.YamlScheduleSource"
+        ) as mock_source_cls:
+            mock_source = MagicMock()
+            mock_source.load_checks.return_value = [
+                CronCheck(name="c1", schedule="0 0 * * *", use_case="certs_list", enabled=True)
+            ]
+            mock_source_cls.return_value = mock_source
+            mock_loop = MagicMock()
+            mock_loop.tick.side_effect = [
+                [
+                    CheckResult(
+                        check_name="c1",
+                        phase=CheckPhase.SUCCESS.value,
+                        started_at=datetime(2026, 8, 20, 9, 0, tzinfo=UTC),
+                        payload_digest="d",
+                    )
+                ],
+                KeyboardInterrupt(),
+            ]
+
+            with (
+                patch("hexawyn.infrastructure.memory.duckdb_client.get_connection"),
+                patch("hexawyn.domain.services.schedule.check_runner.CheckRunnerUseCase"),
+                patch(
+                    "hexawyn.domain.services.schedule.scheduler_loop.SchedulerLoop",
+                    return_value=mock_loop,
+                ),
+                patch("time.sleep"),
+            ):
+                runner = CliRunner()
+                result = runner.invoke(
+                    schedule, ["start"], env={"HEXAWYN_SCHEDULER_ENABLED": "true"}
+                )
+
+            assert result.exit_code == 0  # noqa: PLR2004
+            assert "Scheduler stopped" in result.output
+            assert "c1" in result.output
+            assert "success" in result.output
+            mock_loop.prime.assert_called_once()
+            assert mock_loop.tick.call_count >= 1
+
 
 class TestScheduleHelp:
     def test_schedule_group_help(self) -> None:

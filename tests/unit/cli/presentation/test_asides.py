@@ -20,7 +20,9 @@ from hexawyn.cli.presentation.asides import (
     safe_metrics,
     safe_pods,
     safe_suggestions,
+    schedule_summary_lines,
 )
+from hexawyn.domain.models.schedule import CronCheck
 
 
 class TestSafeFindings:
@@ -265,3 +267,65 @@ class TestKubectlContext:
         with patch("builtins.open", create=True):
             with patch("yaml.safe_load", return_value=None):
                 assert kubectl_current_context() == "?"
+
+
+class TestScheduleSummaryLines:
+    def test_returns_section_with_enabled_checks(self) -> None:
+        mock_source = MagicMock()
+        mock_source.load_checks.return_value = [
+            CronCheck(name="daily-audit", schedule="0 0 * * *", use_case="certs_list"),
+            CronCheck(name="hourly-health", schedule="0 * * * *", use_case="health_check"),
+        ]
+        with patch(
+            "hexawyn.infrastructure.config.schedule_source.YamlScheduleSource",
+            return_value=mock_source,
+        ):
+            lines = schedule_summary_lines()
+
+        assert "SCHEDULED CHECKS" in "\n".join(lines)
+        assert "daily-audit" in "\n".join(lines)
+        assert "~1440min" in "\n".join(lines)
+        assert "hourly-health" in "\n".join(lines)
+
+    def test_returns_empty_when_no_checks(self) -> None:
+        mock_source = MagicMock()
+        mock_source.load_checks.return_value = []
+        with patch(
+            "hexawyn.infrastructure.config.schedule_source.YamlScheduleSource",
+            return_value=mock_source,
+        ):
+            assert schedule_summary_lines() == []
+
+    def test_returns_empty_when_only_disabled(self) -> None:
+        mock_source = MagicMock()
+        mock_source.load_checks.return_value = [
+            CronCheck(name="off", schedule="0 0 * * *", use_case="x", enabled=False)
+        ]
+        with patch(
+            "hexawyn.infrastructure.config.schedule_source.YamlScheduleSource",
+            return_value=mock_source,
+        ):
+            assert schedule_summary_lines() == []
+
+    def test_returns_empty_on_exception(self) -> None:
+        mock_source = MagicMock()
+        mock_source.load_checks.side_effect = Exception("boom")
+        with patch(
+            "hexawyn.infrastructure.config.schedule_source.YamlScheduleSource",
+            return_value=mock_source,
+        ):
+            assert schedule_summary_lines() == []
+
+    def test_custom_schedule_shows_raw_expression(self) -> None:
+        mock_source = MagicMock()
+        mock_source.load_checks.return_value = [
+            CronCheck(name="custom", schedule="30 2 * * *", use_case="x")
+        ]
+        with patch(
+            "hexawyn.infrastructure.config.schedule_source.YamlScheduleSource",
+            return_value=mock_source,
+        ):
+            lines = schedule_summary_lines()
+
+        assert "custom" in "\n".join(lines)
+        assert "30 2 * * *" in "\n".join(lines)

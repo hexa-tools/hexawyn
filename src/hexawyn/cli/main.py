@@ -43,8 +43,13 @@ def setup() -> None:
 
 from hexawyn.cli.commands.auth_command import auth  # noqa: E402, I001
 from hexawyn.cli.commands.cache_command import cache  # noqa: E402, I001
+from hexawyn.cli.commands.claude_command import claude  # noqa: E402, I001
 from hexawyn.cli.commands.cluster_command import cluster  # noqa: E402, I001
+from hexawyn.cli.commands.codex_command import codex  # noqa: E402, I001
+from hexawyn.cli.commands.cursor_command import cursor  # noqa: E402, I001
 from hexawyn.cli.commands.db_command import db  # noqa: E402, I001
+from hexawyn.cli.commands.gemini_command import gemini  # noqa: E402, I001
+from hexawyn.cli.commands.opencode_command import opencode  # noqa: E402, I001
 from hexawyn.cli.commands.quota_command import quota  # noqa: E402, I001
 from hexawyn.cli.commands.schedule_command import schedule  # noqa: E402, I001
 from hexawyn.cli.commands.slack_command import slack  # noqa: E402, I001
@@ -56,6 +61,11 @@ app.add_command(db)
 app.add_command(cache)
 app.add_command(schedule)
 app.add_command(slack)
+app.add_command(claude)
+app.add_command(codex)
+app.add_command(opencode)
+app.add_command(cursor)
+app.add_command(gemini)
 
 
 if __name__ == "__main__":

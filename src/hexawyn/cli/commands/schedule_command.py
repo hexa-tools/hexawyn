@@ -290,7 +290,10 @@ def start(dry_run: bool) -> None:  # noqa: C901
         use_case_registry=build_registry(),
     )
 
-    last_run: dict[str, datetime] = {c.name: datetime.now(UTC) for c in checks}
+    from hexawyn.domain.services.schedule.scheduler_loop import SchedulerLoop
+
+    loop = SchedulerLoop(runner=runner)
+    loop.prime(checks)
     click.echo(
         f"Scheduler started — {len(checks)} checks, polling every 60s. Press Ctrl+C to stop."
     )
@@ -301,17 +304,13 @@ def start(dry_run: bool) -> None:  # noqa: C901
 
     try:
         while True:
+            results = loop.tick(checks)
             now = datetime.now(UTC)
-            for check in checks:
-                interval = cron_to_minutes(check.schedule)
-                if interval <= 0:
-                    continue
-                elapsed = (now - last_run[check.name]).total_seconds() / 60
-                if elapsed >= interval:
-                    result = runner.execute(check)
-                    last_run[check.name] = now
-                    icon = "🔔" if result.changed else "✅"
-                    click.echo(f"{icon} [{now.strftime('%H:%M:%S')}] {check.name}: {result.phase}")
+            for result in results:
+                icon = "🔔" if result.changed else "✅"
+                click.echo(
+                    f"{icon} [{now.strftime('%H:%M:%S')}] {result.check_name}: {result.phase}"
+                )
             time.sleep(60)
     except KeyboardInterrupt:
         click.echo("\nScheduler stopped.")

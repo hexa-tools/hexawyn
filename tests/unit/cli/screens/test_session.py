@@ -1092,10 +1092,10 @@ class TestSessionScreen:
             quotas = [_Quota(), _Quota()]
 
         with (
-            patch("hexawyn.adapters.secondary.pricing_plan_adapter.PricingPlanAdapter"),
-            patch("hexawyn.adapters.secondary.usage_meter_adapter.UsageMeterAdapter"),
-            patch("hexawyn.infrastructure.config.quota_manager._get_current_investigation_quota"),
-            patch("hexawyn.infrastructure.config.quota_manager._get_current_slack_quota"),
+            patch(
+                "hexawyn.application.service.runtime_adapter.get_runtime",
+                return_value=MagicMock(),
+            ),
             patch(
                 "hexawyn.application.use_case.cluster.get_quota_usage.get_quota_usage_use_case.GetQuotaUsageUseCase"  # noqa: E501
             ) as mock_uc,
@@ -1115,8 +1115,10 @@ class TestSessionScreen:
         screen.query_one = MagicMock(return_value=mock_quota_bar)  # type: ignore[method-assign]
 
         with (
-            patch("hexawyn.adapters.secondary.pricing_plan_adapter.PricingPlanAdapter"),
-            patch("hexawyn.adapters.secondary.usage_meter_adapter.UsageMeterAdapter"),
+            patch(
+                "hexawyn.application.service.runtime_adapter.get_runtime",
+                return_value=MagicMock(),
+            ),
             patch(
                 "hexawyn.application.use_case.cluster.get_quota_usage.get_quota_usage_use_case.GetQuotaUsageUseCase",  # noqa: E501
                 side_effect=RuntimeError("boom"),
