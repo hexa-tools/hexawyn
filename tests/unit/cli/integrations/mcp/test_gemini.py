@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
@@ -18,7 +19,7 @@ class TestGeminiIntegration:
     def test_build_entry(self) -> None:
         integration = GeminiIntegration(config_path=Path("/tmp/x.json"))
         assert integration._build_entry() == {
-            "command": "python",
+            "command": sys.executable,
             "args": ["-m", "hexawyn.mcp.stdio"],
         }
 

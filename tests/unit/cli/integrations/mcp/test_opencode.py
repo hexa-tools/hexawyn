@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
@@ -21,7 +22,7 @@ class TestOpenCodeIntegration:
         integration = OpenCodeIntegration(config_path=Path("/tmp/x.json"))
         assert integration._build_entry() == {
             "type": "local",
-            "command": ["python", "-m", "hexawyn.mcp.stdio"],
+            "command": [sys.executable, "-m", "hexawyn.mcp.stdio"],
         }
 
     def test_install_and_uninstall_via_config(self, tmp_path: Path) -> None:

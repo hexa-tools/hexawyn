@@ -12,7 +12,7 @@
 
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
-[![Benchmark](https://img.shields.io/badge/benchmark-76.2%2F100-yellow.svg)](docs/benchmark/README.md)
+[![Benchmark](https://img.shields.io/badge/benchmark-78.1%2F100-yellow.svg)](docs/benchmark/README.md)
 
 
 </p>
@@ -26,6 +26,44 @@
 </p>
 
 # hexawyn
+
+## Installation
+
+### Requirements
+
+- Python 3.12+
+- `pip` (or `pipx` on Linux)
+
+### macOS / Windows
+
+```bash
+pip install hexawyn
+```
+
+### Linux (Debian/Ubuntu and similar)
+
+Debian/Ubuntu enforce [PEP 668](https://peps.python.org/pep-0668/) — the system
+Python refuses global `pip` installs. Use `pipx` (recommended) or a dedicated
+virtual environment instead:
+
+```bash
+# Option A — pipx (recommended for CLI apps)
+pipx install hexawyn
+
+# Option B — dedicated virtual environment
+python3 -m venv ~/.hexawyn-venv
+~/.hexawyn-venv/bin/pip install hexawyn
+```
+
+> Other Linux distributions (Fedora, Arch, Alpine...) allow plain
+> `pip install hexawyn` when using the system Python, but a virtual
+> environment or `pipx` is still best practice.
+
+After installing, verify the CLI works:
+
+```bash
+hexa --help
+```
 
 ## Connect Hexawyn to your coding agent
 
@@ -47,7 +85,7 @@ Installation is idempotent, and uninstall removes only the `hexawyn` MCP server.
 
 Requirements:
 
-- The `hexa` CLI must be installed (`pip install hexawyn`).
+- The `hexa` CLI must be installed — see [Installation](#installation) above.
 - The target coding agent must be installed where applicable.
 
 The integration registers the server over stdio, so the coding agent spawns the

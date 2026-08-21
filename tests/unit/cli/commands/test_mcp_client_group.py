@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
@@ -8,6 +9,8 @@ from hexawyn.cli.integrations.mcp.base import (
     IntegrationResult,
     IntegrationStatus,
 )
+
+_COMMAND_TEXT = f"Command: {sys.executable} -m hexawyn.mcp.stdio"
 
 
 def _mock_integration(
@@ -58,7 +61,7 @@ class TestBuildMcpClientGroup:
         assert "Codex detected" in result.output
         assert "Hexawyn MCP configured" in result.output
         assert "Configuration verified" in result.output
-        assert "Command: python -m hexawyn.mcp.stdio" in result.output
+        assert _COMMAND_TEXT in result.output
 
     def test_install_already_configured(self) -> None:
         group = build_mcp_client_group(client="codex", display_name="Codex")
@@ -147,7 +150,10 @@ class TestBuildMcpClientGroup:
     def test_status_configured(self) -> None:
         group = build_mcp_client_group(client="codex", display_name="Codex")
         integration = _mock_integration(
-            status=IntegrationStatus(configured=True, command="python -m hexawyn.mcp.stdio")
+            status=IntegrationStatus(
+                configured=True,
+                command=f"{sys.executable} -m hexawyn.mcp.stdio",
+            )
         )
         with patch(
             "hexawyn.cli.commands.mcp_client_group.get_integration",

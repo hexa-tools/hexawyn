@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import sys
 from unittest.mock import patch
 
 from hexawyn.cli.integrations.mcp.base import CommandResult
 from hexawyn.cli.integrations.mcp.cli_mcp import CliIntegrationStatus, CliMcpIntegration
 
 CONFIGURED = CliIntegrationStatus(
-    configured=True, transport="stdio", command="python -m hexawyn.mcp.stdio"
+    configured=True,
+    transport="stdio",
+    command=f"{sys.executable} -m hexawyn.mcp.stdio",
 )
 NOT_CONFIGURED = CliIntegrationStatus(configured=False)
 ERROR_STATUS = CliIntegrationStatus(configured=False, error="fakebin exploded")
@@ -39,7 +42,16 @@ class FakeCliIntegration(CliMcpIntegration):
         return self._statuses.pop(0)
 
     def _add_command(self) -> list[str]:
-        return ["fakebin", "mcp", "add", "hexawyn", "--", "python", "-m", "hexawyn.mcp.stdio"]
+        return [
+            "fakebin",
+            "mcp",
+            "add",
+            "hexawyn",
+            "--",
+            sys.executable,
+            "-m",
+            "hexawyn.mcp.stdio",
+        ]
 
     def _remove_command(self) -> list[str]:
         return ["fakebin", "mcp", "remove", "hexawyn"]
@@ -94,7 +106,7 @@ class TestCliMcpInstall:
             "add",
             "hexawyn",
             "--",
-            "python",
+            sys.executable,
             "-m",
             "hexawyn.mcp.stdio",
         ]
@@ -199,7 +211,7 @@ class TestCliMcpStatus:
 
         assert status.configured is True
         assert status.transport == "stdio"
-        assert status.command == "python -m hexawyn.mcp.stdio"
+        assert status.command == f"{sys.executable} -m hexawyn.mcp.stdio"
         assert status.error is None
 
     def test_status_not_configured(self) -> None:

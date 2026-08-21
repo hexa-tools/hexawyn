@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
@@ -8,6 +9,8 @@ from hexawyn.cli.integrations.mcp.base import (
     IntegrationResult,
     IntegrationStatus,
 )
+
+_COMMAND_TEXT = f"Command: {sys.executable} -m hexawyn.mcp.stdio"
 
 
 def _mock_integration(
@@ -55,7 +58,7 @@ class TestClaudeInstallCommand:
         assert "Configuration verified" in result.output
         assert "Server: hexawyn" in result.output
         assert "Transport: stdio" in result.output
-        assert "Command: python -m hexawyn.mcp.stdio" in result.output
+        assert _COMMAND_TEXT in result.output
 
     def test_install_already_configured(self) -> None:
         runner = CliRunner()
@@ -164,7 +167,7 @@ class TestClaudeStatusCommand:
             status=IntegrationStatus(
                 configured=True,
                 transport="stdio",
-                command="python -m hexawyn.mcp.stdio",
+                command=f"{sys.executable} -m hexawyn.mcp.stdio",
             )
         )
         with patch(
@@ -177,7 +180,7 @@ class TestClaudeStatusCommand:
         assert "Status: ✓ Configured" in result.output
         assert "Server: hexawyn" in result.output
         assert "Transport: stdio" in result.output
-        assert "Command: python -m hexawyn.mcp.stdio" in result.output
+        assert _COMMAND_TEXT in result.output
 
     def test_status_not_configured(self) -> None:
         runner = CliRunner()
