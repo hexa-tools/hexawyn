@@ -37,6 +37,9 @@ jobs:
             --k3s-arg "--disable=servicelb@server:0"
           kubectl wait --for=condition=Ready nodes --all --timeout=120s
 
+      - name: Load E2E fixtures
+        run: make cluster-load
+
       - name: Run E2E tests
         run: |
           poetry run pytest tests/e2e/ \
