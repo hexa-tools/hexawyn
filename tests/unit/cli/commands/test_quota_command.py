@@ -7,7 +7,7 @@ from hexawyn.cli.commands.quota_command import (
     _render_line,
     quota,
 )
-from hexawyn.domain.models.quota import QuotaState
+from hexawyn.domain.models.quota import LicenseTier, QuotaState, SlackQuota, UsageQuota
 
 
 class TestRenderBar:
@@ -103,3 +103,134 @@ class TestQuotaCommandHelp:
         result = runner.invoke(quota, ["--help"])
         assert result.exit_code == 0  # noqa: PLR2004
         assert "quota" in result.output.lower()
+
+    def test_quota_shows_usage_from_control_plane(self) -> None:
+        from unittest.mock import MagicMock, patch
+
+        mock_runtime = MagicMock()
+        mock_runtime.check_quota.return_value = {
+            "allowed": True,
+            "used": 42,
+            "limit": 500,
+            "remaining": 458,
+        }
+
+        with (
+            patch(
+                "hexawyn.application.service.runtime_adapter.get_runtime",
+                return_value=mock_runtime,
+            ),
+            patch(
+                "hexawyn.adapters.secondary.runtime_quota_source._get_current_slack_quota",
+                return_value=MagicMock(count=0, limit=50),
+            ),
+            patch(
+                "hexawyn.infrastructure.config.license_manager.get_license_tier",
+                return_value=LicenseTier.TEAM,
+            ),
+        ):
+            runner = CliRunner()
+            result = runner.invoke(quota, [])
+
+        assert result.exit_code == 0  # noqa: PLR2004
+        assert "hexawyn Usage" in result.output
+        assert "42/500" in result.output
+
+    def test_quota_falls_back_to_local_when_cp_unavailable(self) -> None:
+        from unittest.mock import MagicMock, patch
+
+        mock_runtime = MagicMock()
+        mock_runtime.check_quota.return_value = {
+            "allowed": True,
+            "used": 0,
+            "limit": -1,
+            "remaining": -1,
+        }
+
+        with (
+            patch(
+                "hexawyn.application.service.runtime_adapter.get_runtime",
+                return_value=mock_runtime,
+            ),
+            patch(
+                "hexawyn.infrastructure.config.quota_manager._get_current_investigation_quota",
+                return_value=UsageQuota(month="2026-08", count=7, limit=200),
+            ),
+            patch(
+                "hexawyn.infrastructure.config.quota_manager._get_current_slack_quota",
+                return_value=SlackQuota(month="2026-08", count=0, limit=50),
+            ),
+            patch(
+                "hexawyn.infrastructure.config.license_manager.get_license_tier",
+                return_value=LicenseTier.STARTER,
+            ),
+        ):
+            runner = CliRunner()
+            result = runner.invoke(quota, [])
+
+        assert result.exit_code == 0  # noqa: PLR2004
+        assert "7/200" in result.output
+
+    def test_quota_shows_exhausted_warning(self) -> None:
+        from unittest.mock import MagicMock, patch
+
+        mock_runtime = MagicMock()
+        mock_runtime.check_quota.return_value = {
+            "allowed": True,
+            "used": 500,
+            "limit": 500,
+            "remaining": 0,
+        }
+
+        with (
+            patch(
+                "hexawyn.application.service.runtime_adapter.get_runtime",
+                return_value=mock_runtime,
+            ),
+            patch(
+                "hexawyn.adapters.secondary.runtime_quota_source._get_current_slack_quota",
+                return_value=MagicMock(count=0, limit=50),
+            ),
+            patch(
+                "hexawyn.infrastructure.config.license_manager.get_license_tier",
+                return_value=LicenseTier.TEAM,
+            ),
+        ):
+            runner = CliRunner()
+            result = runner.invoke(quota, [])
+
+        assert result.exit_code == 0  # noqa: PLR2004
+        assert "500/500" in result.output
+        assert "Quota exceeded" in result.output
+
+    def test_quota_shows_unlimited_skipped_and_warning(self) -> None:
+        from unittest.mock import MagicMock, patch
+
+        mock_runtime = MagicMock()
+        mock_runtime.check_quota.return_value = {
+            "allowed": True,
+            "used": 450,
+            "limit": 500,
+            "remaining": 50,
+        }
+
+        with (
+            patch(
+                "hexawyn.application.service.runtime_adapter.get_runtime",
+                return_value=mock_runtime,
+            ),
+            patch(
+                "hexawyn.adapters.secondary.runtime_quota_source._get_current_slack_quota",
+                return_value=MagicMock(count=0, limit=-1),
+            ),
+            patch(
+                "hexawyn.infrastructure.config.license_manager.get_license_tier",
+                return_value=LicenseTier.SCALE_UP,
+            ),
+        ):
+            runner = CliRunner()
+            result = runner.invoke(quota, [])
+
+        assert result.exit_code == 0  # noqa: PLR2004
+        assert "450/500" in result.output
+        assert "Running low on quota" in result.output

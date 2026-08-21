@@ -17,6 +17,11 @@ class TestAppGroup:
         command_names = [cmd.name for cmd in app.commands.values()]
         assert "start" in command_names
         assert "setup" in command_names
+        assert "claude" in command_names
+        assert "codex" in command_names
+        assert "opencode" in command_names
+        assert "cursor" in command_names
+        assert "gemini" in command_names
 
     def test_start_option_help(self) -> None:
         from hexawyn.cli.main import app

@@ -10,7 +10,7 @@ class TestPolicyListTool:
         from hexawyn.mcp.tools.policy_list import policy_list
 
         mock_response = MagicMock()
-        mock_response.policies = []
+        mock_response.policies = [{"name": "require-pod-limits", "action": "enforce"}]
         mock_response.error = None
         mock_uc = MagicMock()
         mock_uc.execute.return_value = mock_response
@@ -26,6 +26,8 @@ class TestPolicyListTool:
 
         assert isinstance(result, dict)
         assert "error" in result
+        assert result.get("error") is None
+        assert result.get("policies") == [{"name": "require-pod-limits", "action": "enforce"}]
 
     def test_policy_list_handles_error(self) -> None:
         from hexawyn.mcp.tools.policy_list import policy_list

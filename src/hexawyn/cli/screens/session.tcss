@@ -64,7 +64,7 @@ SessionScreen {
 /* ── Right column (aside) ── */
 
 #aside {
-    width: 46;
+    width: 41;
     height: 100%;
     background: #0b0f17;
     border-left: solid #2b3850;

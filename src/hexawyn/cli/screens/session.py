@@ -145,12 +145,10 @@ class SessionScreen(Screen[None]):
 
     def _refresh_quota_bar(self) -> None:
         try:
-            from hexawyn.adapters.secondary.pricing_plan_adapter import (
-                PricingPlanAdapter,
+            from hexawyn.adapters.secondary.runtime_quota_source import (
+                RuntimeQuotaSource,
             )
-            from hexawyn.adapters.secondary.usage_meter_adapter import (
-                UsageMeterAdapter,
-            )
+            from hexawyn.application.service.runtime_adapter import get_runtime
             from hexawyn.application.use_case.cluster.get_quota_usage.command import (
                 GetQuotaUsageCommand,
             )
@@ -158,23 +156,12 @@ class SessionScreen(Screen[None]):
                 GetQuotaUsageUseCase,
             )
             from hexawyn.cli.widgets.quota_bar import _quota_bar
-            from hexawyn.infrastructure.config.quota_manager import (
-                _get_current_investigation_quota,
-                _get_current_slack_quota,
+
+            quota_source = RuntimeQuotaSource(runtime=get_runtime())
+            use_case = GetQuotaUsageUseCase(
+                plan_port=quota_source,
+                usage_meter=quota_source,
             )
-
-            plan = PricingPlanAdapter()
-            meter = UsageMeterAdapter()
-
-            try:
-                inv = _get_current_investigation_quota()
-                slack = _get_current_slack_quota()
-                meter.set_usage("investigations", inv.count)
-                meter.set_usage("slack_alerts", slack.count)
-            except Exception:
-                pass
-
-            use_case = GetQuotaUsageUseCase(plan_port=plan, usage_meter=meter)
             response = use_case.execute(GetQuotaUsageCommand())
 
             lines: list[str] = ["", "[bold]Quota[/bold]", "\u2500" * 18]
@@ -209,9 +196,9 @@ class SessionScreen(Screen[None]):
         from hexawyn.infrastructure.config.config_manager import load_config
 
         config = load_config()
-        token = config.get("hexawyn_token")
-        if token:
-            webbrowser.open(f"https://hexawyn.com/account/manage?key={token}")
+        subscription_key = config.get("hexawyn_token")
+        if subscription_key:
+            webbrowser.open(f"https://hexawyn.com/account/manage?key={subscription_key}")
         else:
             webbrowser.open("https://hexawyn.com/account/manage")
         self.notify("Opening account page...", title="Subscription")

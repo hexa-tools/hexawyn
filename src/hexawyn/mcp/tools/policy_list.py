@@ -18,10 +18,16 @@ def policy_list() -> dict[str, object]:
 
     try:
         use_case = PolicyListUseCase(policy_port=build_policy_adapter())
-        _ = use_case.execute(PolicyListCommand())
-        return {"error": None}
+        response = use_case.execute(PolicyListCommand())
+        return {
+            "policies": response.policies,
+            "error": response.error,
+        }
     except Exception as exc:
-        return {"error": str(exc)}
+        return {
+            "policies": [],
+            "error": str(exc),
+        }
 
 
 def register(mcp: FastMCP) -> None:

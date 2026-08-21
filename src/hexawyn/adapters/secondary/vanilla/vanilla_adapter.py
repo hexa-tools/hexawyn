@@ -47,6 +47,7 @@ from hexawyn.application.ports.driven.cost_saving_estimation_port import (
     CostSavingEstimationPort,
     PodResourceData,
 )
+from hexawyn.application.ports.driven.ingress_port import IngressInfo, IngressPort
 from hexawyn.application.ports.driven.k8s_port import (
     ClusterContext,
     ClusterHealthPort,
@@ -106,6 +107,7 @@ class VanillaAdapter(
     CostSavingEstimationPort,
     WhatIfSimulationPort,
     PodMetricsPort,
+    IngressPort,
 ):
     """Minimal adapter for vanilla Kubernetes with no cloud provider dependencies."""
 
@@ -233,6 +235,10 @@ class VanillaAdapter(
 
     def list_namespaces(self) -> list[NamespaceInfo]:
         return self._get_k8s_adapter().list_namespaces()
+
+    # ── IngressPort ───────────────────────────────────────────
+    def list_ingresses(self, namespace: str) -> list[IngressInfo]:
+        return self._get_k8s_adapter().list_ingresses(namespace=namespace)
 
     # ── PodMetricsPort ─────────────────────────────────────────
     def get_pod_metrics(self, namespace: str | None = None) -> list[PodMetricSnapshot]:
