@@ -12,7 +12,7 @@
 
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
-[![Benchmark](https://img.shields.io/badge/benchmark-76.0%2F100-yellow.svg)](docs/benchmark/README.md)
+[![Benchmark](https://img.shields.io/badge/benchmark-74.6%2F100-yellow.svg)](docs/benchmark/README.md)
 
 
 </p>
