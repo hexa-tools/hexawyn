@@ -12,8 +12,6 @@ from __future__ import annotations
 import pytest
 from hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter import VanillaK8sAdapter
 
-_NAMESPACE = "hexawyn-test"
-
 _INGRESS_FIXTURE = """
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -42,19 +40,19 @@ class TestListIngressesE2E:
             api=None, metrics_api=None, cluster_name="k3d-hexawyn-e2e"
         )
 
-    def test_lists_ingresses_in_test_namespace(self, k8s_apply) -> None:
+    def test_lists_ingresses_in_test_namespace(self, k8s_apply, test_namespace: str) -> None:
         k8s_apply(_INGRESS_FIXTURE)
 
-        ingresses = self._adapter.list_ingresses(namespace=_NAMESPACE)
+        ingresses = self._adapter.list_ingresses(namespace=test_namespace)
 
         assert isinstance(ingresses, list)
         names = {item["name"] for item in ingresses}
         assert "hexawyn-e2e-ingress" in names
 
-    def test_each_ingress_has_required_fields(self, k8s_apply) -> None:
+    def test_each_ingress_has_required_fields(self, k8s_apply, test_namespace: str) -> None:
         k8s_apply(_INGRESS_FIXTURE)
 
-        ingresses = self._adapter.list_ingresses(namespace=_NAMESPACE)
+        ingresses = self._adapter.list_ingresses(namespace=test_namespace)
 
         for item in ingresses:
             assert "name" in item, f"Ingress missing 'name': {item}"
