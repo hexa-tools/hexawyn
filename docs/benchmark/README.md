@@ -1,10 +1,10 @@
 # 🏆 Hexawyn Benchmark
 
-**78.1/100** global mean score
+**78.2/100** global mean score
 
-`███████████░░░░░░░░░` **58%** pass rate
+`█████████████████░░░` **86%** pass rate
 
-**7** scenarios passed, **2** failed across **12** total in **3** domains.
+**6** scenarios passed, **1** failed across **7** total in **2** domains.
 
 Hexawyn is continuously benchmarked against real-world Kubernetes troubleshooting scenarios.
 Each domain tests specific capabilities — pod diagnostics, security audits, cost analysis, GitOps, observability, and more.
@@ -16,7 +16,6 @@ Each domain tests specific capabilities — pod diagnostics, security audits, co
 | | Domain | Mean score | Pass % | Scenarios |
 |---|--------|-----------:|-------:|----------:|
 | ❌ | [governance](governance.md) | 75.8/100 | 0% | 1 |
-| ❌ | [ingress](ingress.md) | 78.0/100 | 20% | 5 |
 | ❌ | [storage](storage.md) | 78.6/100 | 0% | 6 |
 
-_Last updated: 2026-08-21 21:28_
+_Last updated: 2026-08-21 22:53_

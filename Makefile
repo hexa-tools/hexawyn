@@ -204,6 +204,10 @@ cluster-operators:
 
 .PHONY: build run-mcp run-cli run-demo run-cli-demo stop
 
+version:
+	@echo "📦 hexawyn version:"
+	$(POETRY) run hexa version
+
 build:
 	@echo "🐳 Building Docker image..."
 	docker build -t $(DOCKER_IMAGE) .
