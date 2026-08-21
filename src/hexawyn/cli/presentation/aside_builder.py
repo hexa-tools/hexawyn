@@ -12,6 +12,7 @@ from hexawyn.cli.presentation.asides import (
     safe_metrics,
     safe_pods,
     safe_suggestions,
+    schedule_summary_lines,
 )
 from hexawyn.cli.presentation.findings import format_finding_warnings
 from hexawyn.cli.presentation.formatting import connection_line
@@ -74,6 +75,7 @@ def build_aside_lines(app: Any) -> list[str]:
             f"\U0001f534 Failed Pods        {failed_pod_count(pods)}",
         ]
     )
+    lines.extend(schedule_summary_lines())
     lines.extend(format_license_aside_lines())
     lines.append("")
     lines.extend(format_finding_warnings(findings))

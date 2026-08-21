@@ -50,6 +50,10 @@ class TestBuildAsideLines:
                 return_value=[],
             ),
             patch(
+                "hexawyn.cli.presentation.aside_builder.schedule_summary_lines",
+                return_value=[],
+            ),
+            patch(
                 "hexawyn.cli.presentation.aside_builder.namespace_count",
                 return_value=3,
             ),
@@ -108,6 +112,10 @@ class TestBuildAsideLines:
             ),
             patch(
                 "hexawyn.cli.presentation.aside_builder.format_suggestion_lines",
+                return_value=[],
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.schedule_summary_lines",
                 return_value=[],
             ),
             patch(
@@ -176,6 +184,10 @@ class TestBuildAsideLines:
                 return_value=[],
             ),
             patch(
+                "hexawyn.cli.presentation.aside_builder.schedule_summary_lines",
+                return_value=[],
+            ),
+            patch(
                 "hexawyn.cli.presentation.aside_builder.namespace_count",
                 return_value=3,
             ),
@@ -232,6 +244,10 @@ class TestBuildAsideLines:
             ),
             patch(
                 "hexawyn.cli.presentation.aside_builder.format_suggestion_lines",
+                return_value=[],
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.schedule_summary_lines",
                 return_value=[],
             ),
             patch(
@@ -294,6 +310,10 @@ class TestBuildAsideLines:
                 return_value=[],
             ),
             patch(
+                "hexawyn.cli.presentation.aside_builder.schedule_summary_lines",
+                return_value=[],
+            ),
+            patch(
                 "hexawyn.cli.presentation.aside_builder.namespace_count",
                 return_value=3,
             ),
@@ -350,6 +370,10 @@ class TestBuildAsideLines:
             ),
             patch(
                 "hexawyn.cli.presentation.aside_builder.format_suggestion_lines",
+                return_value=[],
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.schedule_summary_lines",
                 return_value=[],
             ),
             patch(
@@ -414,6 +438,10 @@ class TestBuildAsideLines:
                 return_value=[],
             ),
             patch(
+                "hexawyn.cli.presentation.aside_builder.schedule_summary_lines",
+                return_value=[],
+            ),
+            patch(
                 "hexawyn.cli.presentation.aside_builder.namespace_count",
                 return_value=3,
             ),
@@ -443,3 +471,74 @@ class TestBuildAsideLines:
         assert "3" in joined
         assert "Failed Pods" in joined
         assert "2" in joined
+
+    def test_scheduled_checks_displayed_in_aside(self) -> None:
+        app = self._make_app()
+
+        with (
+            patch("hexawyn.cli.presentation.aside_builder.safe_pods", return_value=[]),
+            patch("hexawyn.cli.presentation.aside_builder.safe_metrics", return_value={}),
+            patch("hexawyn.cli.presentation.aside_builder.safe_findings", return_value=[]),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.safe_suggestions",
+                return_value=[],
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.mapping_int",
+                return_value=0,
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.kubectl_current_context",
+                return_value="prod-eu",
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.connection_line",
+                return_value="",
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.format_license_aside_lines",
+                return_value=[""],
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.format_finding_warnings",
+                return_value=[],
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.format_suggestion_lines",
+                return_value=[],
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.schedule_summary_lines",
+                return_value=[
+                    "",
+                    "[bold]SCHEDULED CHECKS[/bold]",
+                    "  daily-audit  [dim]~1440min[/dim]",
+                ],
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.namespace_count",
+                return_value=3,
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.running_pod_count",
+                return_value=8,
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.pending_pod_count",
+                return_value=3,
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.failed_pod_count",
+                return_value=2,
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.safe_health_score",
+                return_value=85,
+            ),
+        ):
+            lines = build_aside_lines(app)
+
+        joined = "\n".join(lines)
+        assert "SCHEDULED CHECKS" in joined
+        assert "daily-audit" in joined
+        assert "~1440min" in joined

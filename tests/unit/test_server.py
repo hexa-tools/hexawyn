@@ -70,6 +70,7 @@ from hexawyn.application.ports.driven.image_vulnerability_scan_port import (
 )
 from hexawyn.application.ports.driven.incident_cost_port import IncidentCostPort
 from hexawyn.application.ports.driven.incident_memory_port import IncidentMemoryPort
+from hexawyn.application.ports.driven.ingress_port import IngressPort
 from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
 from hexawyn.application.ports.driven.k8s_port import K8sPort
 from hexawyn.application.ports.driven.keda_port import KedaPort
@@ -165,6 +166,10 @@ class TestMCPBuilderFunctions:
     def test_build_k8s_adapter(self) -> None:
         result = self.server_mod.build_k8s_adapter()
         assert isinstance(result, K8sPort)
+
+    def test_build_ingress_adapter(self) -> None:
+        result = self.server_mod.build_ingress_adapter()
+        assert isinstance(result, IngressPort)
 
     def test_build_tekton_adapter(self) -> None:
         from unittest.mock import patch

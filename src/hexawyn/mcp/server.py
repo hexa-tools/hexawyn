@@ -23,6 +23,7 @@ from hexawyn.mcp.adapters.cluster_adapters import (
     build_cluster_resource_metrics_adapter,
     build_fleet_health_adapter,
     build_headroom_simulation_adapter,
+    build_ingress_adapter,
     build_istio_topology_adapter,
     build_k8s_adapter,
     build_keda_adapter,
@@ -132,6 +133,7 @@ __all__ = [
     "build_image_inventory_adapter",
     "build_image_vulnerability_scan_adapter",
     "build_incident_cost_adapter",
+    "build_ingress_adapter",
     "build_istio_topology_adapter",
     "build_k8s_adapter",
     "build_keda_adapter",
@@ -249,7 +251,7 @@ if TYPE_CHECKING:
 # Initialize FastMCP server
 mcp = FastMCP(
     name="hexawyn",
-    version="0.1.0b0",
+    version="0.1.0b3",
     instructions="AI-powered Kubernetes diagnostic agent",
 )
 
@@ -505,7 +507,7 @@ def health() -> dict[str, str]:
 
     return {
         "status": "ok" if db_ok else "degraded",
-        "version": "0.1.0b0",
+        "version": "0.1.0b3",
         "duckdb": "connected" if db_ok else "unavailable",
         "api_key": "configured" if api_key_ok else "missing",
         "cluster": _cluster_status.get("status", "unknown"),

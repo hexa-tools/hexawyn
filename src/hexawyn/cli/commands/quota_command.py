@@ -77,26 +77,14 @@ def _get_tier_label() -> str:
 @click.command()
 def quota() -> None:
     """Show your monthly usage quota per resource with progress bars."""
-    from hexawyn.adapters.secondary.pricing_plan_adapter import PricingPlanAdapter
-    from hexawyn.adapters.secondary.usage_meter_adapter import UsageMeterAdapter
+    from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+    from hexawyn.application.service.runtime_adapter import get_runtime
+    from hexawyn.infrastructure.config.quota_manager import _get_current_month
 
-    plan_adapter = PricingPlanAdapter()
-    meter_adapter = UsageMeterAdapter()
-
-    from hexawyn.infrastructure.config.quota_manager import (
-        _get_current_investigation_quota,
-        _get_current_month,
-        _get_current_slack_quota,
-    )
-
-    inv_quota = _get_current_investigation_quota()
-    slack_quota = _get_current_slack_quota()
+    quota_source = RuntimeQuotaSource(runtime=get_runtime())
     month = _get_current_month()
 
-    meter_adapter.set_usage("investigations", inv_quota.count)
-    meter_adapter.set_usage("slack_alerts", slack_quota.count)
-
-    use_case = GetQuotaUsageUseCase(plan_port=plan_adapter, usage_meter=meter_adapter)
+    use_case = GetQuotaUsageUseCase(plan_port=quota_source, usage_meter=quota_source)
     response = use_case.execute(GetQuotaUsageCommand())
 
     tier_label = _get_tier_label()

@@ -129,18 +129,24 @@ class ChatCliUseCase:
             pass
 
     def _increment_quota(self) -> None:
+        from hexawyn.infrastructure.config.config_manager import (  # noqa: hexa-lazy-import
+            get_runtime_mode,
+        )
+
+        if get_runtime_mode() == "remote":
+            try:
+                self._runtime.increment_quota()
+            except Exception as exc:
+                logger.debug("increment_quota remote failed: %s", exc)
+            return
         try:
-            from hexawyn.infrastructure.config.quota_manager import (
-                increment_quota,  # hexa-lazy-import
+            from hexawyn.infrastructure.config.quota_manager import (  # noqa: hexa-lazy-import
+                increment_quota,
             )
 
             increment_quota()
         except Exception as exc:
             logger.debug("increment_quota local failed: %s", exc)
-        try:
-            self._runtime.increment_quota()
-        except Exception as exc:
-            logger.debug("increment_quota remote failed: %s", exc)
 
     def list_pods(self) -> ChatCliResponse:
         pods = self._k8s.list_pods()

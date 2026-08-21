@@ -138,3 +138,27 @@ def finding_message(finding: Any) -> str:
         message = finding.get("message")
         return message if isinstance(message, str) else ""
     return str(finding)
+
+
+def schedule_summary_lines() -> list[str]:
+    """Format the enabled scheduled checks for the aside.
+
+    Returns an empty list when there are no enabled checks (or the schedule
+    cannot be read), so callers can omit the section entirely.
+    """
+    from hexawyn.domain.services.schedule.cron_shortcut import cron_to_minutes
+    from hexawyn.infrastructure.config.schedule_source import YamlScheduleSource
+
+    try:
+        checks = [c for c in YamlScheduleSource().load_checks() if c.enabled]
+    except Exception:
+        return []
+    if not checks:
+        return []
+
+    lines = ["", "[bold]SCHEDULED CHECKS[/bold]"]
+    for check in checks:
+        interval = cron_to_minutes(check.schedule)
+        cadence = f"~{interval}min" if interval > 0 else check.schedule
+        lines.append(f"  {check.name}  [dim]{cadence}[/dim]")
+    return lines

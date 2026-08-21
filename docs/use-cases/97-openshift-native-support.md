@@ -14,6 +14,19 @@ including CRC local clusters.
 - "Are there any failed Tekton pipeline runs in the ci namespace?"
 - "What ImageStreams are available in the openshift namespace?"
 
+## Mapped MCP Tools
+
+The flows below use the adapter method names (`list_routes`, ...). Each maps to
+a real MCP tool that drives the same hexagonal chain:
+
+| Capability | MCP tool | Use case | Port method |
+|---|---|---|---|
+| Routes | `list_openshift_routes` | `ListOpenshiftRoutesUseCase` | `list_routes(namespace)` |
+| Projects | `list_openshift_projects` | `ListOpenshiftProjectsUseCase` | `list_projects()` |
+| SecurityContextConstraints | `list_openshift_sccs` | `ListOpenshiftSccsUseCase` | `list_security_context_constraints()` |
+| ImageStreams | `list_openshift_imagestreams` | `ListOpenshiftImagestreamsUseCase` | `list_image_streams(namespace)` |
+| Failed PipelineRuns | `get_openshift_failed_pipeline_runs` | Tekton pipeline use case | `tekton.dev` CRD adapter |
+
 ---
 
 ## 1. Happy Path

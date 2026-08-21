@@ -20,10 +20,40 @@ def compute_security_posture() -> dict[str, object]:
 
     try:
         use_case = ComputeSecurityPostureUseCase(port=build_optimization_roi_adapter())  # type: ignore
-        _ = use_case.execute(ComputeSecurityPostureCommand())
-        return {"error": None}
+        response = use_case.execute(ComputeSecurityPostureCommand())
+        report = response.result
+        return {
+            "overall_score_pct": report.overall_score_pct,
+            "categories": [
+                {
+                    "name": c.category,
+                    "score_pct": c.score_pct,
+                    "compliant": c.compliant,
+                    "non_compliant_count": len(c.non_compliant_workloads),
+                }
+                for c in report.categories
+            ],
+            "remediation_order": [
+                {"resource": r.workload, "namespace": r.namespace, "category": r.category}
+                for r in report.remediation_order
+            ],
+            "trend": report.trend,
+            "previous_score_pct": report.previous_score_pct,
+            "partial": report.partial,
+            "warning": report.warning,
+            "error": response.error,
+        }
     except Exception as exc:
-        return {"error": str(exc)}
+        return {
+            "overall_score_pct": None,
+            "categories": [],
+            "remediation_order": [],
+            "trend": "",
+            "previous_score_pct": None,
+            "partial": False,
+            "warning": "",
+            "error": str(exc),
+        }
 
 
 def register(mcp: FastMCP) -> None:

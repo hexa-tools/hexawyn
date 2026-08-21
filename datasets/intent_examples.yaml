@@ -852,6 +852,15 @@ list_namespaces:
   - How many namespaces do I have and what are their ages?
   - Give me all namespaces with their status and age
   - How many namespaces do we have running in production?
+list_ingresses:
+  tool: list_ingresses
+  description: List vanilla Kubernetes Ingress resources across namespaces — hosts, target services, TLS enabled, and duplicate host claims.
+  questions:
+  - List all ingress resources and their hosts
+  - Which ingresses are missing TLS?
+  - Show all ingress resources and their backend services
+  - Are there duplicate ingress hosts?
+  - Which ingresses expose services without TLS?
 list_openshift_image_streams:
   tool: list_image_streams
   questions:

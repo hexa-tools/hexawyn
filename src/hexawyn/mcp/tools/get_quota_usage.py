@@ -16,12 +16,14 @@ if TYPE_CHECKING:
 
 
 def get_quota_usage() -> dict[str, object]:
-    from hexawyn.mcp.server import build_pricing_plan_adapter, build_usage_meter_adapter
+    from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+    from hexawyn.application.service.runtime_adapter import get_runtime
 
     try:
+        quota_source = RuntimeQuotaSource(runtime=get_runtime())
         use_case = GetQuotaUsageUseCase(
-            plan_port=build_pricing_plan_adapter(),
-            usage_meter=build_usage_meter_adapter(),
+            plan_port=quota_source,
+            usage_meter=quota_source,
         )
         response = use_case.execute(GetQuotaUsageCommand())
         quotas_list = [

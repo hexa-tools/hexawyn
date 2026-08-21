@@ -17,6 +17,7 @@ from hexawyn.application.ports.driven.headroom_simulation_port import (
     HeadroomSimulationPort,
 )
 from hexawyn.application.ports.driven.hot_node_analysis_port import HotNodeAnalysisPort
+from hexawyn.application.ports.driven.ingress_port import IngressPort
 from hexawyn.application.ports.driven.istio_topology_port import IstioTopologyPort
 from hexawyn.application.ports.driven.k8s_port import K8sPort
 from hexawyn.application.ports.driven.keda_port import KedaPort
@@ -45,6 +46,13 @@ from hexawyn.mcp.providers.detector import (
 
 
 def build_k8s_adapter() -> K8sPort:
+    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+
+    context = context_name if context_name != "unknown" else None
+    return VanillaAdapter(cluster_name=context or "default")
+
+
+def build_ingress_adapter() -> IngressPort:
     from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     context = context_name if context_name != "unknown" else None
