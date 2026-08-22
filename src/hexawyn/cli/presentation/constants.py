@@ -8,12 +8,12 @@ _POD_STATUS_COLORS = {
 _LOGO_BANNER = [
     "[dim #5b6472]╔══════════════════════════════════════════════════════════════════╗[/dim #5b6472]",  # noqa: E501
     "[dim #5b6472]║[/dim #5b6472]                                                                  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
-    "[dim #5b6472]║[/dim #5b6472]   [bold]██╗  ██╗███████╗██╗  ██╗ █████╗[/bold] [bold #3B82F6] ██╗    ██╗██╗   ██╗███╗  ██╗[/bold #3B82F6]  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
-    "[dim #5b6472]║[/dim #5b6472]   [bold]██║  ██║██╔════╝╚██╗██╔╝██╔══██╗[/bold] [bold #3B82F6]██║    ██║╚██╗ ██╔╝████╗ ██║[/bold #3B82F6]  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
-    "[dim #5b6472]║[/dim #5b6472]   [bold]███████║█████╗   ╚███╔╝ ███████║[/bold] [bold #3B82F6]██║██╗ ██║ ╚████╔╝ ██╔██╗██║[/bold #3B82F6]  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
-    "[dim #5b6472]║[/dim #5b6472]   [bold]██╔══██║██╔══╝   ██╔██╗ ██╔══██║[/bold] [bold #3B82F6]██║███╗██║  ╚██╔╝  ██║╚████║[/bold #3B82F6]  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
-    "[dim #5b6472]║[/dim #5b6472]   [bold]██║  ██║███████╗██╔╝ ██╗██║  ██║[/bold] [bold #3B82F6]╚███╔███╔╝   ██║   ██║ ╚███║[/bold #3B82F6]  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
-    "[dim #5b6472]║[/dim #5b6472]   [bold]╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝[/bold] [bold #3B82F6] ╚══╝╚══╝    ╚═╝   ╚═╝  ╚══╝[/bold #3B82F6]  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
+    "[dim #5b6472]║[/dim #5b6472]   [bold white]██╗  ██╗███████╗██╗  ██╗ █████╗[/bold white] [bold #3B82F6] ██╗    ██╗██╗   ██╗███╗  ██╗[/bold #3B82F6]  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
+    "[dim #5b6472]║[/dim #5b6472]   [bold white]██║  ██║██╔════╝╚██╗██╔╝██╔══██╗[/bold white] [bold #3B82F6]██║    ██║╚██╗ ██╔╝████╗ ██║[/bold #3B82F6]  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
+    "[dim #5b6472]║[/dim #5b6472]   [bold white]███████║█████╗   ╚███╔╝ ███████║[/bold white] [bold #3B82F6]██║██╗ ██║ ╚████╔╝ ██╔██╗██║[/bold #3B82F6]  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
+    "[dim #5b6472]║[/dim #5b6472]   [bold white]██╔══██║██╔══╝   ██╔██╗ ██╔══██║[/bold white] [bold #3B82F6]██║███╗██║  ╚██╔╝  ██║╚████║[/bold #3B82F6]  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
+    "[dim #5b6472]║[/dim #5b6472]   [bold white]██║  ██║███████╗██╔╝ ██╗██║  ██║[/bold white] [bold #3B82F6]╚███╔███╔╝   ██║   ██║ ╚███║[/bold #3B82F6]  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
+    "[dim #5b6472]║[/dim #5b6472]   [bold white]╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝[/bold white] [bold #3B82F6] ╚══╝╚══╝    ╚═╝   ╚═╝  ╚══╝[/bold #3B82F6]  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
     "[dim #5b6472]║[/dim #5b6472]                                                                  [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
     "[dim #5b6472]║[/dim #5b6472]                   [bold #c7d0e0]AI Kubernetes Assistant[/bold #c7d0e0]                        [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
     "[dim #5b6472]║[/dim #5b6472]                         [dim]v{version}[/dim]                                 [dim #5b6472]║[/dim #5b6472]",  # noqa: E501
