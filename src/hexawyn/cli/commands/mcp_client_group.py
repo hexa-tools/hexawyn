@@ -13,6 +13,7 @@ import click
 from hexawyn.cli.integrations.mcp.base import MCP_SERVER_NAME, MCP_TRANSPORT
 from hexawyn.cli.integrations.mcp.command import mcp_stdio_command
 from hexawyn.cli.integrations.mcp.registry import get_integration
+from hexawyn.cli.presentation.feedback import fail, ok, spinner, success
 
 
 def build_mcp_client_group(client: str, display_name: str) -> click.Group:
@@ -32,22 +33,28 @@ def _install_command(client: str, display_name: str) -> click.Command:
     def install() -> None:
         integration = get_integration(client)
         if not integration.is_available():
-            _fail(f"{display_name} not detected. Install {display_name} first.")
+            fail(f"{display_name} not detected. Install {display_name} first.")
             raise SystemExit(1)
-        click.echo(f"✓ {display_name} detected")
-        result = integration.install()
+        ok(f"{display_name} detected")
+        with spinner(f"Registering Hexawyn MCP server with {display_name}"):
+            result = integration.install()
         if not result.success:
-            _fail(result.message)
+            fail(result.message)
             raise SystemExit(1)
         if result.already_configured:
-            click.echo("✓ Hexawyn MCP already configured")
+            ok("Hexawyn MCP already configured")
         else:
-            click.echo("✓ Hexawyn MCP configured")
-        click.echo("✓ Configuration verified")
+            ok("Hexawyn MCP configured")
+        with spinner("Verifying configuration"):
+            pass
+        ok("Configuration verified")
+        success(f"{display_name} is ready to use Hexawyn")
         click.echo("")
-        click.echo(f"Server: {MCP_SERVER_NAME}")
-        click.echo(f"Transport: {MCP_TRANSPORT}")
-        click.echo(f"Command: {' '.join(mcp_stdio_command())}")
+        click.echo(f"  Server: {MCP_SERVER_NAME}")
+        click.echo(f"  Transport: {MCP_TRANSPORT}")
+        click.echo(f"  Command: {' '.join(mcp_stdio_command())}")
+        click.echo("")
+        click.echo("  Restart your coding agent to load the tools.")
 
     return install
 
@@ -57,16 +64,18 @@ def _uninstall_command(client: str, display_name: str) -> click.Command:
     def uninstall() -> None:
         integration = get_integration(client)
         if not integration.is_available():
-            _fail(f"{display_name} not detected. Nothing to uninstall.")
+            fail(f"{display_name} not detected. Nothing to uninstall.")
             raise SystemExit(1)
-        result = integration.uninstall()
+        with spinner(f"Removing Hexawyn MCP server from {display_name}"):
+            result = integration.uninstall()
         if not result.success:
-            _fail(result.message)
+            fail(result.message)
             raise SystemExit(1)
         if result.message == "not configured":
-            click.echo(f"✓ Hexawyn MCP is not configured for {display_name} — nothing to remove.")
+            ok(f"Hexawyn MCP is not configured for {display_name} — nothing to remove.")
         else:
-            click.echo(f"✓ Hexawyn MCP removed from {display_name}.")
+            ok(f"Hexawyn MCP removed from {display_name}.")
+            success(f"{display_name} cleaned up")
 
     return uninstall
 
@@ -82,24 +91,20 @@ def _status_command(client: str, display_name: str) -> click.Command:
             return
         current = integration.status()
         if current.error:
-            _fail(current.error)
+            fail(current.error)
             raise SystemExit(1)
         if current.configured:
             click.echo("Status: ✓ Configured")
-            click.echo(f"Server: {MCP_SERVER_NAME}")
-            click.echo(f"Transport: {current.transport}")
+            click.echo(f"  Server: {MCP_SERVER_NAME}")
+            click.echo(f"  Transport: {current.transport}")
             if current.command:
-                click.echo(f"Command: {current.command}")
+                click.echo(f"  Command: {current.command}")
             if current.endpoint:
-                click.echo(f"Endpoint: {current.endpoint}")
+                click.echo(f"  Endpoint: {current.endpoint}")
             return
         _print_not_configured(client)
 
     return status
-
-
-def _fail(message: str) -> None:
-    click.echo(f"❌ {message}", err=True)
 
 
 def _print_not_configured(client: str) -> None:

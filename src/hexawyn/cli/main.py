@@ -4,9 +4,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-@click.group()
+@click.group(invoke_without_command=True)
 def app() -> None:
     """hexawyn — AI-powered Kubernetes diagnostic agent."""
+    if not click.get_current_context().invoked_subcommand:
+        from hexawyn.cli.presentation.feedback import header
+
+        header()
+        click.echo(app.get_help(click.get_current_context()))
 
 
 @app.command()

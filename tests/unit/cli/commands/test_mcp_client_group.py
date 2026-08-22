@@ -178,6 +178,26 @@ class TestBuildMcpClientGroup:
         assert "Status: ✗ Not configured" in result.output
         assert "hexa codex install" in result.output
 
+    def test_status_configured_with_endpoint(self) -> None:
+        group = build_mcp_client_group(client="codex", display_name="Codex")
+        integration = _mock_integration(
+            status=IntegrationStatus(
+                configured=True,
+                transport="http",
+                endpoint="http://localhost:8000/mcp",
+                command=f"{sys.executable} -m hexawyn.mcp.stdio",
+            )
+        )
+        with patch(
+            "hexawyn.cli.commands.mcp_client_group.get_integration",
+            return_value=integration,
+        ):
+            result = CliRunner().invoke(group, ["status"])
+
+        assert result.exit_code == 0
+        assert "Status: ✓ Configured" in result.output
+        assert "Endpoint: http://localhost:8000/mcp" in result.output
+
     def test_status_error(self) -> None:
         group = build_mcp_client_group(client="codex", display_name="Codex")
         integration = _mock_integration(

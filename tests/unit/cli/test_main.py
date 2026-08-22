@@ -11,6 +11,16 @@ class TestAppGroup:
         result = runner.invoke(app, ["--help"])
         assert result.exit_code == 0
 
+    def test_bare_invoke_shows_logo_header(self) -> None:
+        from hexawyn.cli.main import app
+
+        runner = CliRunner()
+        result = runner.invoke(app, [])
+
+        assert result.exit_code == 0
+        assert "█" in result.output
+        assert "v0.1.0b6" in result.output
+
     def test_subcommands_registered(self) -> None:
         from hexawyn.cli.main import app
 
