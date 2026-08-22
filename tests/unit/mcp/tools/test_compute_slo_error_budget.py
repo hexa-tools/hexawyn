@@ -17,11 +17,20 @@ class TestComputeSloErrorBudgetTool:
 
         from hexawyn.mcp.tools.compute_slo_error_budget import compute_slo_error_budget
 
-        with patch("hexawyn.mcp.server.build_error_budget_adapter", return_value=MagicMock()):
+        mock_uc = MagicMock()
+        mock_uc.execute.return_value = MagicMock()
+
+        with (
+            patch(
+                "hexawyn.mcp.tools.compute_slo_error_budget.ComputeSLOErrorBudgetUseCase",
+                return_value=mock_uc,
+            ),
+            patch("hexawyn.mcp.server.build_error_budget_adapter", return_value=MagicMock()),
+        ):
             result = compute_slo_error_budget()
 
         assert isinstance(result, dict)
-        assert "error" in result
+        assert result.get("error") is None
 
     def test_compute_slo_error_budget_handles_error(self) -> None:
         sys.modules[

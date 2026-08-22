@@ -19,14 +19,23 @@ class TestSloBreachPredictionTool:
         self._mock_imports()
         from hexawyn.mcp.tools.slo_breach_prediction import slo_breach_prediction
 
-        with patch(
-            "hexawyn.mcp.server.build_slo_breach_prediction_adapter",
-            return_value=MagicMock(),
+        mock_uc = MagicMock()
+        mock_uc.execute.return_value = MagicMock()
+
+        with (
+            patch(
+                "hexawyn.mcp.tools.slo_breach_prediction.SLOBreachPredictionUseCase",
+                return_value=mock_uc,
+            ),
+            patch(
+                "hexawyn.mcp.server.build_slo_breach_prediction_adapter",
+                return_value=MagicMock(),
+            ),
         ):
             result = slo_breach_prediction()
 
         assert isinstance(result, dict)
-        assert "error" in result
+        assert result.get("error") is None
 
     def test_slo_breach_prediction_handles_error(self) -> None:
         self._mock_imports()

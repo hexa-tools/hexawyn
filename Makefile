@@ -202,11 +202,17 @@ cluster-operators:
 #  Docker
 # ─────────────────────────────────────
 
-.PHONY: build run-mcp run-cli run-demo run-cli-demo stop
+.PHONY: build run-mcp run-cli run-demo run-cli-demo stop mcp-inspector
 
 version:
 	@echo "📦 hexawyn version:"
 	$(POETRY) run hexa version
+
+mcp-inspector:  ## Open MCP Inspector UI to browse/test the hexawyn MCP tools
+	@echo "🔍 Launching MCP Inspector (http://localhost:6274)..."
+	@echo "   Browse the registered MCP tools and test them live."
+	@echo "   Ctrl+C to stop."
+	@npx -y @modelcontextprotocol/inspector -- poetry run python -m hexawyn.mcp.stdio
 
 build:
 	@echo "🐳 Building Docker image..."

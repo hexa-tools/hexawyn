@@ -9,7 +9,7 @@ from hexawyn.application.use_case.keda.keda_scaledobject_triggers.command import
     KedaScaledobjectTriggersCommand,
 )
 from hexawyn.application.use_case.keda.keda_scaledobject_triggers.keda_scaledobject_triggers_use_case import (  # noqa: E501  # type: ignore  # type: ignore
-    KedaScaledObjectTriggersUseCase,
+    KedaScaledobjectTriggersUseCase,
 )
 
 if TYPE_CHECKING:
@@ -22,8 +22,8 @@ def keda_scaledobject_triggers(
     from hexawyn.mcp.server import build_keda_adapter
 
     try:
-        use_case = KedaScaledObjectTriggersUseCase(keda_port=build_keda_adapter())
-        _ = use_case.execute(KedaScaledobjectTriggersCommand())  # type: ignore
+        use_case = KedaScaledobjectTriggersUseCase(port=build_keda_adapter())
+        _ = use_case.execute(KedaScaledobjectTriggersCommand(name=name, namespace=namespace))
         return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}

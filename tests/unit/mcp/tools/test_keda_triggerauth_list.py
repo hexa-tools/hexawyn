@@ -25,7 +25,7 @@ class TestKedaTriggerAuthListTool:
 
         with (
             patch(
-                "hexawyn.mcp.tools.keda_triggerauth_list.KedaTriggerAuthListUseCase",
+                "hexawyn.mcp.tools.keda_triggerauth_list.KedaTriggerauthListUseCase",
                 return_value=mock_uc,
             ),
             patch("hexawyn.mcp.server.build_keda_adapter", return_value=MagicMock()),

@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from hexawyn.application.use_case.observability.etcd_logs.command import (
-    EtcdLogsCommand,
+    ETCDLogsCommand,
 )
 from hexawyn.application.use_case.observability.etcd_logs.etcd_logs_use_case import ETCDLogsUseCase
 
@@ -20,7 +20,7 @@ def etcd_logs(time_window_minutes: int = 60) -> dict[str, object]:
     try:
         a = build_etcd_logs_adapter()
         r = ETCDLogsUseCase(port=a).execute(
-            EtcdLogsCommand(time_window_minutes=time_window_minutes)
+            ETCDLogsCommand(time_window_minutes=time_window_minutes)
         )
         return {
             "etcd_accessible": r.etcd_accessible,

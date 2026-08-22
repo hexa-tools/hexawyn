@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from hexawyn.application.use_case.keda.keda_scaledjobs_list.command import KedaScaledjobsListCommand
-from hexawyn.application.use_case.keda.keda_scaledjobs_list.keda_scaledjobs_list_use_case import (  # type: ignore
-    KedaScaledJobsListUseCase,
+from hexawyn.application.use_case.keda.keda_scaledjobs_list.keda_scaledjobs_list_use_case import (
+    KedaScaledjobsListUseCase,
 )
 
 if TYPE_CHECKING:
@@ -18,7 +18,7 @@ def keda_scaledjobs_list(namespace: str | None = None) -> dict[str, object]:
 
     try:
         adapter = build_keda_adapter()
-        use_case = KedaScaledJobsListUseCase(keda_port=adapter)
+        use_case = KedaScaledjobsListUseCase(port=adapter)
         response = use_case.execute(KedaScaledjobsListCommand(namespace=namespace))
         return {"scaled_jobs": response.scaled_jobs, "error": response.error}
     except Exception as exc:
