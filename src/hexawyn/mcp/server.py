@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import TYPE_CHECKING
 
+import yaml
 from fastmcp import FastMCP
 
 from hexawyn.domain.errors import ClusterUnreachableError
@@ -248,6 +250,8 @@ if TYPE_CHECKING:
         WeeklyReliabilityReportPort,
     )
 
+_INTENTS_PATH = Path(__file__).parent.parent.parent.parent / "datasets" / "intent_examples.yaml"
+
 # Initialize FastMCP server
 mcp = FastMCP(
     name="hexawyn",
@@ -468,6 +472,40 @@ def build_consolidation_adapter() -> ConsolidationPort:
     return DuckDBConsolidationRepository(conn=get_connection())
 
 
+def build_tool_descriptions() -> dict[str, str]:
+    """Load tool descriptions from datasets/intent_examples.yaml.
+
+    Control-plane is the source of truth for tool descriptions; hexawyn keeps a
+    synchronized local copy. Each use case maps its MCP `tool` name to a
+    `description` used by coding agents to decide when to call it. When several
+    use cases target the same tool, the use case whose key matches the tool
+    name wins (canonical identity over aliases).
+    """
+    try:
+        data = yaml.safe_load(_INTENTS_PATH.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    if not isinstance(data, dict):
+        return {}
+
+    descriptions: dict[str, str] = {}
+    exact_matches: dict[str, str] = {}
+    for use_case, entry in data.items():
+        if not isinstance(entry, dict):
+            continue
+        tool = entry.get("tool")
+        description = entry.get("description")
+        if not isinstance(tool, str) or not isinstance(description, str) or not description:
+            continue
+        if use_case == tool:
+            exact_matches[tool] = description
+        else:
+            descriptions.setdefault(tool, description)
+
+    descriptions.update(exact_matches)
+    return descriptions
+
+
 def register_tools(server: FastMCP) -> None:
     """Auto-discover and register all MCP tools from mcp/tools/ modules."""
     import importlib
@@ -485,6 +523,21 @@ def register_tools(server: FastMCP) -> None:
                 register_fn(server)
         except Exception:
             pass
+
+    descriptions = build_tool_descriptions()
+    if descriptions:
+        import asyncio
+
+        coro = server.list_tools()
+        try:
+            tools = asyncio.run(coro)
+        except RuntimeError:
+            coro.close()
+            return
+        for tool in tools:
+            description = descriptions.get(tool.name)
+            if description:
+                tool.description = description
 
 
 @mcp.tool()

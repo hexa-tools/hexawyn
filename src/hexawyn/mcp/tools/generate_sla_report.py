@@ -6,10 +6,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from hexawyn.application.use_case.workloads.generate_sla_report.command import (  # type: ignore
-    GenerateSlaReportCommand,
+    GenerateSLAReportCommand,
 )
 from hexawyn.application.use_case.workloads.generate_sla_report.generate_sla_report_use_case import (  # noqa: E501  # type: ignore  # type: ignore
-    GenerateSlaReportUseCase,
+    GenerateSLAReportUseCase,
 )
 
 if TYPE_CHECKING:
@@ -20,9 +20,8 @@ def generate_sla_report(quarter: str = "test") -> dict[str, object]:  # type: ig
     from hexawyn.mcp.server import build_sla_report_adapter
 
     try:
-        service = GenerateSlaReportUseCase(sla_port=build_sla_report_adapter())
-        use_case = GenerateSlaReportUseCase(service=service)
-        _ = use_case.execute(GenerateSlaReportCommand())
+        use_case = GenerateSLAReportUseCase(sla_port=build_sla_report_adapter())
+        _ = use_case.execute(GenerateSLAReportCommand(quarter=quarter))
         return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}

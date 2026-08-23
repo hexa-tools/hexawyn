@@ -9,7 +9,7 @@ from hexawyn.application.use_case.keda.keda_scaledobject_status.command import (
     KedaScaledobjectStatusCommand,
 )
 from hexawyn.application.use_case.keda.keda_scaledobject_status.keda_scaledobject_status_use_case import (  # noqa: E501  # type: ignore  # type: ignore
-    KedaScaledObjectStatusUseCase,
+    KedaScaledobjectStatusUseCase,
 )
 
 if TYPE_CHECKING:
@@ -22,8 +22,8 @@ def keda_scaledobject_status(
     from hexawyn.mcp.server import build_keda_adapter
 
     try:
-        use_case = KedaScaledObjectStatusUseCase(keda_port=build_keda_adapter())
-        _ = use_case.execute(KedaScaledobjectStatusCommand())  # type: ignore
+        use_case = KedaScaledobjectStatusUseCase(port=build_keda_adapter())
+        _ = use_case.execute(KedaScaledobjectStatusCommand(name=name, namespace=namespace))
         return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}

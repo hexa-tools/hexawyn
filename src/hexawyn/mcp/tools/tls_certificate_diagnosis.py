@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.cert_manager.tls_certificate_diagnosis.command import (  # type: ignore
-    TlsCertificateDiagnosisCommand,
+from hexawyn.application.use_case.cert_manager.tls_certificate_diagnosis.command import (
+    TLSCertificateDiagnosisCommand,
 )
 from hexawyn.application.use_case.cert_manager.tls_certificate_diagnosis.tls_certificate_diagnosis_use_case import (  # noqa: E501
     TLSCertificateDiagnosisUseCase,
@@ -20,7 +20,9 @@ def tls_certificate_diagnosis(ingress_name: str, namespace: str) -> dict[str, ob
 
     try:
         use_case = TLSCertificateDiagnosisUseCase(port=build_k8s_adapter())  # type: ignore
-        _ = use_case.execute(TlsCertificateDiagnosisCommand())
+        _ = use_case.execute(
+            TLSCertificateDiagnosisCommand(ingress_name=ingress_name, namespace=namespace)
+        )
         return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}

@@ -9,7 +9,7 @@ from hexawyn.application.use_case.pipelines.pipeline_for_service.command import 
     PipelineForServiceCommand,
 )
 from hexawyn.application.use_case.pipelines.pipeline_for_service.pipeline_for_service_use_case import (  # noqa: E501  # type: ignore  # type: ignore
-    PipelineForServiceUseCase,
+    PipelineForUseCaseUseCase,
 )
 
 if TYPE_CHECKING:
@@ -20,8 +20,8 @@ def pipeline_for_service(service_name: str) -> dict[str, object]:
     from hexawyn.mcp.server import build_pipeline_for_service_adapter
 
     try:
-        use_case = PipelineForServiceUseCase(port=build_pipeline_for_service_adapter())
-        _ = use_case.execute(PipelineForServiceCommand())  # type: ignore
+        use_case = PipelineForUseCaseUseCase(port=build_pipeline_for_service_adapter())
+        _ = use_case.execute(PipelineForServiceCommand(service_name=service_name))
         return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}

@@ -9,7 +9,7 @@ from hexawyn.application.use_case.observability.service_dependency_graph.command
     ServiceDependencyGraphCommand,
 )
 from hexawyn.application.use_case.observability.service_dependency_graph.service_dependency_graph_use_case import (  # noqa: E501  # type: ignore  # type: ignore
-    ServiceDependencyGraphUseCase,
+    UseCaseDependencyGraphUseCase,
 )
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ def service_dependency_graph() -> dict[str, object]:
     from hexawyn.mcp.server import build_service_dependency_graph_adapter
 
     try:
-        use_case = ServiceDependencyGraphUseCase(port=build_service_dependency_graph_adapter())
+        use_case = UseCaseDependencyGraphUseCase(port=build_service_dependency_graph_adapter())
         _ = use_case.execute(ServiceDependencyGraphCommand())
         return {"error": None}
     except Exception as exc:

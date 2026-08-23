@@ -1,19 +1,14 @@
-# Intent examples — centralized use case questions for PlannerAgent (BM25 + few-shot)
-#
-# Rules:
-#   - Minimum 5 question variants per use case, covering different phrasing styles
-#   - tool: must match the exact MCP tool name registered in mcp/tools/
-#   - Key must be the real use case name (snake_case) — never a ticket number
-
 adaptive_namespace_investigation:
   tool: adaptive_namespace_investigation
   questions:
-  - 'The production namespace is having issues — adaptively investigate it: start with a health summary, then automatically
-    drill into the most critical failing resources.'
-  - Something's wrong in checkout — figure out what, without me telling you which pod to look at.
+  - "The production namespace is having issues \u2014 adaptively investigate it: start with a health summary,\
+    \ then automatically drill into the most critical failing resources."
+  - "Something's wrong in checkout \u2014 figure out what, without me telling you which pod to look at."
   - 'Give me a triage pass on staging: overview, top offenders, and what I should do about it.'
-  - Investigate payment with depth=1 — just tell me the single worst thing.
+  - "Investigate payment with depth=1 \u2014 just tell me the single worst thing."
   - Why is auth degraded, and is it OOM, a bad deploy, or something else?
+  description: Automatically investigate a namespace, start with a health summary then drill into the
+    most critical failing pods, deployments and events without being told where to look
 admin_endpoint_audit:
   tool: admin_endpoint_audit
   questions:
@@ -22,15 +17,19 @@ admin_endpoint_audit:
   - Who is repeatedly hitting /admin endpoints with 403 errors?
   - What is the 403 rate on /admin in the last 30 minutes?
   - Flag any IPs that have more than 5 failed admin calls in the last hour
+  description: Audit access to admin endpoints for unauthorized activity, 403 failures, and suspicious
+    IPs repeatedly hitting admin routes
 advanced_namespace_event_analytics:
   tool: advanced_namespace_event_analytics
   questions:
-  - Give me an advanced analytics report of all events in the data-pipeline namespace over the past 6 hours — categorize by
-    severity and highlight correlated incidents.
+  - "Give me an advanced analytics report of all events in the data-pipeline namespace over the past 6\
+    \ hours \u2014 categorize by severity and highlight correlated incidents."
   - Were there any event storms in the checkout namespace today?
   - What are the top recurring event reasons in production over the last 6 hours?
   - Show me the event volume timeline for staging and flag any spikes.
   - Are there correlated incidents across multiple pods in data-pipeline right now?
+  description: Deep analytics of Kubernetes events in a namespace over several hours, categorized by severity,
+    with event storm detection and correlated incidents across pods
 analysis_runs_list:
   tool: analysis_runs_list
   questions:
@@ -39,6 +38,8 @@ analysis_runs_list:
   - List all AnalysisRuns associated with the checkout rollout
   - Has the automated analysis passed for the production canary?
   - Show me all failed AnalysisRuns with their error messages
+  description: List Argo Rollouts AnalysisRuns and their metric results, showing which automated canary
+    analyses passed or failed
 analyze_critical_namespace_events:
   tool: analyze_critical_namespace_events
   questions:
@@ -47,15 +48,19 @@ analyze_critical_namespace_events:
   - Is there a recurring OOMKilling incident in staging, and what's the recommended fix?
   - Correlate the critical events in checkout namespace into incidents and suggest runbooks.
   - Give me the detailed critical-event analysis for payment-namespace with root cause grouping.
+  description: Identify critical Kubernetes events in a namespace, group them into incidents with root
+    cause, and suggest matching runbooks for OOMKilling and recurring failures
 analyze_failed_pipeline:
   tool: analyze_failed_pipeline
   questions:
-  - The pipeline deploy-payment-v3 failed — what is the root cause? Which task failed, what were the error logs, and was it
-    a flaky test or a real regression?
-  - Why did the checkout-service pipeline fail — is this a flaky test or a real bug?
+  - "The pipeline deploy-payment-v3 failed \u2014 what is the root cause? Which task failed, what were\
+    \ the error logs, and was it a flaky test or a real regression?"
+  - "Why did the checkout-service pipeline fail \u2014 is this a flaky test or a real bug?"
   - Give me a root cause analysis for the failed order-api pipeline with a remediation recommendation.
   - Is the payment-gateway pipeline failure infrastructure-related or a code regression?
   - What's the confidence and impact score for the latest deploy-payment-v3 failure?
+  description: Root cause analysis of a failed CI/CD pipeline from its logs, distinguishing a flaky test
+    from a real code regression or infrastructure issue, with a remediation recommendation
 analyze_incident_cost:
   tool: analyze_incident_cost
   questions:
@@ -68,22 +73,27 @@ analyze_incident_cost:
   - How much did yesterday's outage cost us?
   - What was the financial impact of the payment service downtime?
   - How much revenue did we lose during the service interruption?
+  description: Estimate the financial and business cost of an incident or outage in euros or dollars,
+    including lost revenue during downtime
 analyze_pod_logs:
   tool: analyze_pod_logs
   questions:
-  - Analyze the logs of pod api-gateway-7f9b in the last 30 minutes — are there recurring error patterns or connection timeouts?
+  - "Analyze the logs of pod api-gateway-7f9b in the last 30 minutes \u2014 are there recurring error\
+    \ patterns or connection timeouts?"
   - Are there any connection refused errors in the payment-service pod logs?
-  - Why does checkout-api keep throwing errors — check its logs for the last hour
+  - "Why does checkout-api keep throwing errors \u2014 check its logs for the last hour"
   - How many errors and warnings has the auth-service pod logged recently?
   - Can you spot any recurring failure patterns in the worker pod's logs?
-  - Give me a hybrid analysis of the checkout pod logs — combine structured pattern detection with a plain-English summary
-    for the last hour.
-  - Reduce and summarize the payment-service logs — I don't want to read 3000 raw lines.
+  - "Give me a hybrid analysis of the checkout pod logs \u2014 combine structured pattern detection with\
+    \ a plain-English summary for the last hour."
+  - "Reduce and summarize the payment-service logs \u2014 I don't want to read 3000 raw lines."
   - Give me both the raw pattern counts and a natural-language summary for the checkout pod.
-  - Give me a smart summary of the last 2000 log lines from the order-service pod — keep only unique meaningful events and
-    reduce noise.
+  - "Give me a smart summary of the last 2000 log lines from the order-service pod \u2014 keep only unique\
+    \ meaningful events and reduce noise."
   - Deduplicate the checkout pod logs and show me what actually happened, not 1000 repeated health checks.
   - Strip out the health-check noise from payment-service logs and show me the real events.
+  description: Retrieve and analyze a pod's container logs for recurring error patterns, connection timeouts
+    and failures, with deduplication, noise reduction and a plain-English summary
 audit_openshift_sccs:
   tool: audit_rbac_permissions
   questions:
@@ -92,6 +102,9 @@ audit_openshift_sccs:
   - Are there any SecurityContextConstraints allowing run-as-any user?
   - Audit my OpenShift SCCs for privilege escalation risks.
   - List all security context constraints and flag the dangerous ones.
+  description: "OpenShift-only. Audit OpenShift SecurityContextConstraints (SCC) for privilege escalation\
+    \ risks, flagging SCCs that allow privileged containers or run-as-any user. Does NOT apply to vanilla\
+    \ Kubernetes, k3s, EKS, GKE, or AKS \u2014 SCCs are an OpenShift concept."
 audit_rbac_permissions:
   tool: audit_rbac_permissions
   questions:
@@ -101,6 +114,8 @@ audit_rbac_permissions:
   - Which service accounts have permissions they've never actually used?
   - How much blast radius would we cut by tightening our over-privileged accounts?
   - Are there any service accounts with no bindings at all?
+  description: Audit RBAC roles, service accounts and bindings for cluster-admin, wildcard verbs, overly
+    broad or unused permissions, and dead accounts with no bindings
 audit_secret_rotation:
   tool: audit_secret_rotation
   questions:
@@ -110,15 +125,19 @@ audit_secret_rotation:
   - Are any of our TLS certificates overdue for rotation?
   - Give me a prioritized checklist of secrets to rotate first
   - Which namespaces are exempt from our secret rotation policy?
+  description: Check Kubernetes Secrets for age and flag those not rotated in 90 days, identify stale
+    unused secrets safe to delete, and rank rotation urgency
 audit_tls_compliance:
   tool: audit_tls_compliance
   questions:
   - Which services are running without TLS or with expired certificates right now?
   - Are there any services with certificates expiring in the next 30 days?
-  - Show me all production services with no TLS configured — high risk security exposure.
+  - "Show me all production services with no TLS configured \u2014 high risk security exposure."
   - Which self-signed certificates are in use across the cluster?
   - Give me a TLS compliance audit report ranked by severity.
   - Are any services running behind a proxy that handles TLS termination instead?
+  description: Audit TLS configuration across services for missing TLS, expired or soon-to-expire certificates,
+    self-signed certs, and security exposure ranked by severity
 canary_comparison:
   tool: canary_comparison
   questions:
@@ -127,6 +146,8 @@ canary_comparison:
   - Compare p99 latency between canary v2.4 and stable v2.3 for the payments service
   - Should I promote or rollback the current canary of the auth service?
   - What is the error rate delta between the canary and stable deployments?
+  description: Compare canary deployment latency and error rate against the stable baseline using real-time
+    OTel metrics to decide whether to promote or rollback
 certs_challenges_list:
   tool: certs_challenges_list
   questions:
@@ -135,6 +156,8 @@ certs_challenges_list:
   - Which domains have errored HTTP-01 challenges?
   - List all ACME challenges in the production namespace
   - Why is my DNS challenge stuck in pending?
+  description: List cert-manager ACME challenges (DNS-01, HTTP-01) that are pending, failed or errored,
+    and explain why a challenge is stuck
 certs_detect:
   tool: certs_detect
   questions:
@@ -143,6 +166,8 @@ certs_detect:
   - Detect Cert-Manager and show me the certificate counts
   - Are there any failed certificates in the cluster?
   - What is the Cert-Manager version and namespace?
+  description: Detect whether cert-manager is installed, its version and namespace, and count certificates
+    that are expiring soon or failed
 certs_get:
   tool: certs_get
   questions:
@@ -151,6 +176,8 @@ certs_get:
   - Is the staging certificate auto-renewing?
   - What is the issuer type for the frontend certificate?
   - Get the full status of the auth-service certificate
+  description: Retrieve full details of a specific TLS certificate including expiry date, issuer type,
+    and auto-renewal status
 certs_issuer_get:
   tool: certs_issuer_get
   questions:
@@ -159,6 +186,8 @@ certs_issuer_get:
   - What ACME server is my issuer pointing to?
   - Why is the Vault issuer not ready?
   - Get the detail of the self-signed issuer
+  description: Get details of a specific cert-manager Issuer or ClusterIssuer, its ACME server, readiness
+    and why it may not be ready
 certs_issuers_list:
   tool: certs_issuers_list
   questions:
@@ -167,6 +196,8 @@ certs_issuers_list:
   - Show me all issuers and their readiness status
   - Are there any self-signed or Vault issuers in my cluster?
   - Which ClusterIssuers are available cluster-wide?
+  description: List all cert-manager Issuers and ClusterIssuers, their type (Let's Encrypt, Vault, self-signed)
+    and readiness status
 certs_list:
   tool: certs_list
   questions:
@@ -175,6 +206,8 @@ certs_list:
   - Show me which certificates will expire in the next 30 days
   - Are all my Let's Encrypt certificates valid?
   - Which certificates are currently not ready or failed?
+  description: List all TLS certificates managed by cert-manager with expiration dates, validity and which
+    ones are not ready or failed
 certs_requests_list:
   tool: certs_requests_list
   questions:
@@ -183,6 +216,8 @@ certs_requests_list:
   - List all CertificateRequests in the production namespace
   - What is the status of the latest cert request for staging?
   - Are any certificate requests failing repeatedly?
+  description: List cert-manager CertificateRequests, showing pending signing requests and those failing
+    repeatedly
 certs_status_explain:
   tool: certs_status_explain
   questions:
@@ -191,25 +226,33 @@ certs_status_explain:
   - What is causing the certificate to not be ready?
   - Why is my Let's Encrypt certificate stuck in issuing?
   - What should I do to fix the renewal failure?
+  description: Explain why a cert-manager certificate failed to renew, is stuck in issuing, or is not
+    ready, and how to fix it
 check_cluster_certificate_health:
   tool: check_cluster_certificate_health
   questions:
   - Which TLS certificates in the cluster are expiring soon?
   - Are any certificates going to expire in the next 7 days?
   - Show me all expired certificates across all namespaces
-  - Which TLS secrets are not referenced by any ingress — orphaned certs?
+  - "Which TLS secrets are not referenced by any ingress \u2014 orphaned certs?"
   - Is cert-manager managing the renewal of my production certificates?
+  description: Check cluster-wide TLS certificate health, find certificates expiring within days, expired
+    certs across namespaces, and orphaned TLS secrets not referenced by any ingress
 check_cluster_operator_health:
   tool: check_cluster_operator_health
   questions:
   - Are all OpenShift cluster operators healthy right now?
   - Which cluster operators are Degraded or Progressing, and what is the root cause?
   - Has the etcd cluster operator been degraded long enough to be a chronic problem?
-  - Give me a summary of ClusterOperator health — how many are healthy versus degraded?
-  - Why is my OpenShift upgrade stuck — which operators are still progressing?
+  - "Give me a summary of ClusterOperator health \u2014 how many are healthy versus degraded?"
+  - "Why is my OpenShift upgrade stuck \u2014 which operators are still progressing?"
   - Show me every degraded cluster operator with its condition message.
   - Which cluster operators are Degraded or Progressing?
   - Has the etcd cluster operator been degraded long enough to be chronic?
+  description: "OPENSHIFT OPERATOR HEALTH: check all ClusterOperators \u2014 Available, Progressing, Degraded\
+    \ status. Answers: \\\"are cluster operators healthy\\\", \\\"which operators are degraded\\\", \\\
+    \"operator health check\\\". This is OPENSHIFT-SPECIFIC \u2014 only works on OpenShift clusters. Do\
+    \ NOT use for: generic pod health (use list_pods), machine config pools (use check_machine_config_pool_status).\n"
 check_disruption_risks:
   tool: check_disruption_risks
   questions:
@@ -220,60 +263,95 @@ check_disruption_risks:
   - Are there any service disruption risks this week?
   - Are there upcoming memory saturation or SLO breach risks?
   - Which services are at risk in the next 7 days?
+  description: Predict upcoming service disruption risks in the next 7 days, including memory saturation
+    and SLO breach risks, so an intervention can be planned before an outage
 check_machine_config_pool_status:
   tool: check_machine_config_pool_status
   questions:
   - What is the current status of all MachineConfigPools in the cluster?
   - Are any nodes stuck in an update or degraded MachineConfigPool state?
   - Which MachineConfigPool is degraded, and what is the reason it failed to apply?
-  - Has the worker pool been updating for too long — is the rollout stuck?
-  - Give me a summary of MachineConfigPool health — how many pools are healthy versus degraded?
+  - "Has the worker pool been updating for too long \u2014 is the rollout stuck?"
+  - "Give me a summary of MachineConfigPool health \u2014 how many pools are healthy versus degraded?"
   - Show me the current and desired MachineConfig for each pool.
   - What is the status of all MachineConfigPools in the cluster?
   - Are any nodes stuck in an update or degraded state?
   - Which MachineConfigPool is degraded, and what is the reason?
+  description: "MACHINE CONFIG POOL STATUS: check OpenShift MachineConfigPools \u2014 ready, updated,\
+    \ degraded machine counts. Answers: \\\"are machine config pools ready\\\", \\\"MCP status\\\", \\\
+    \"any degraded nodes from config changes\\\". Do NOT use for: cluster operator health (use check_cluster_operator_health),\
+    \ general node health (use hot_node_analysis).\n"
 check_resource_constraints:
   tool: check_resource_constraints
   questions:
-  - Are any pods in production close to hitting their CPU or memory limits? Which ones are throttled or at risk of OOMKill?
+  - Are any pods in production close to hitting their CPU or memory limits? Which ones are throttled or
+    at risk of OOMKill?
   - Show me all containers where CPU usage exceeds 80% of the limit
   - Which pods are at risk of being OOMKilled in the staging namespace?
   - Are there any pods running without resource limits configured?
   - Give me a resource pressure report for all containers in production, sorted by risk
+  description: "RESOURCE LIMIT HEALTH CHECK: check which pods are near CPU/memory limits, throttled, or\
+    \ at OOMKill risk. Finds containers without resource limits configured. This is a SAFETY check \u2014\
+    \ \"are my pods going to crash\". Answers: \"pods near OOMKill\", \"throttled containers\", \"missing\
+    \ resource limits\". Do NOT use for: capacity forecasting (use cluster_capacity_ceiling_forecast),\
+    \ simulating new workloads (use cluster_headroom_simulation), cost savings (use estimate_rightsizing_savings).\n"
 cluster_capacity_ceiling_forecast:
   tool: cluster_capacity_ceiling_forecast
   questions:
-  - At the current resource consumption growth rate, when will the cluster run out of node capacity — in days or weeks?
+  - "At the current resource consumption growth rate, when will the cluster run out of node capacity \u2014\
+    \ in days or weeks?"
   - Is the cluster CPU or memory going to run out first?
   - How many days until we need to add worker nodes?
   - Is our cluster capacity trending up, down, or flat over the last two weeks?
   - Did adding that node last week actually change our growth trend?
+  description: "CAPACITY RUNWAY FORECAST: predict WHEN the cluster will run out of node capacity at current\
+    \ growth rate. Shows if CPU or memory runs out first, how many days until new nodes are needed, and\
+    \ growth trend. Answers: \"when will we need more nodes\", \"CPU or memory bottleneck\", \"days until\
+    \ capacity exhausted\". This is a LONG-TERM TREND tool \u2014 NOT for simulating specific workloads.\
+    \ Do NOT use for: checking if specific workloads fit (use cluster_headroom_simulation), current pod\
+    \ resource issues (use check_resource_constraints).\n"
 cluster_headroom_simulation:
   tool: cluster_headroom_simulation
   questions:
-  - If I deploy 3 new microservices next sprint, each requiring 500m CPU and 512Mi memory, will the cluster handle the load
-    without adding new nodes?
+  - If I deploy 3 new microservices next sprint, each requiring 500m CPU and 512Mi memory, will the cluster
+    handle the load without adding new nodes?
   - Do we have enough headroom to add another 2 replicas of the payment service?
   - Would these proposed workloads fit, or do we need to scale the node pool first?
   - Is memory or CPU going to be the bottleneck if we ship these three services?
   - Can this pod's resource request even fit on any of our current nodes?
+  description: "WORKLOAD FIT SIMULATION: simulate whether SPECIFIC proposed workloads or extra replicas\
+    \ fit on current nodes. Shows if CPU or memory is the bottleneck, whether node pool must be scaled\
+    \ first. Answers: \"can I deploy 3 new services\", \"will adding 2 replicas fit\", \"do I need more\
+    \ nodes first\". This is for SPECIFIC \"what-if\" scenarios with concrete numbers \u2014 NOT general\
+    \ capacity trends. Do NOT use for: long-term capacity trends (use cluster_capacity_ceiling_forecast),\
+    \ pod-level resource limits (use check_resource_constraints), consolidation of existing workloads\
+    \ (use run_consolidation).\n"
 compare_cluster_health:
   tool: compare_cluster_health
   questions:
   - Compare the health of cluster prod-eu vs prod-us.
-  - Which cluster has more failing pods — EU or US?
+  - "Which cluster has more failing pods \u2014 EU or US?"
   - Is prod-eu in worse shape than prod-us during this incident?
   - What are the health deltas between our two production regions?
   - Which cluster should I investigate first during this multi-region outage?
+  description: Compare the health of two clusters side by side, showing failing pod deltas between regions
+    and which cluster to investigate first during a multi-region outage
 compare_service_cost:
   tool: compare_service_cost
   questions:
   - What is the total infrastructure cost of the payment-service this month vs last month?
-  - How has the cost of auth-service changed month-over-month — is it increasing or decreasing?
+  - "How has the cost of auth-service changed month-over-month \u2014 is it increasing or decreasing?"
   - Show me the cost breakdown by pod for payment-service this month.
   - Which services have the highest cost increase compared to last month?
   - What is the CPU and memory cost trend for our production services?
   - Did the checkout-service cost decrease after our optimization efforts last sprint?
+  description: 'PER-SERVICE MONTH-OVER-MONTH COMPARISON: compare a specific service''s cost this month
+    vs last month. Breaks down CPU and memory cost per pod, ranks services by cost increase. Answers:
+    "how much did service X cost this month vs last month", "which service had the biggest cost increase".
+    REQUIRES a specific service name. Do NOT use for: cluster-wide spend forecast (use forecast_cost),
+    team-level breakdown (use compute_team_cost), finding over-provisioned namespaces (use detect_over_provisioned_namespaces).
+
+    '
 compute_budget_intelligence:
   tool: compute_budget_intelligence
   questions:
@@ -284,6 +362,11 @@ compute_budget_intelligence:
   - Are we going to exceed our monthly cloud budget?
   - What's the state of our cloud budget this month?
   - Am I on track to overspend on infrastructure?
+  description: "BUDGET HEALTH CHECK (YES/NO): assess if the monthly cloud budget is on track or at risk\
+    \ of being exceeded. This is a binary health assessment \u2014 \"are we over budget\" \u2014 NOT a\
+    \ cost projection. Answers: \"are we going to exceed our budget\", \"should I be worried about cloud\
+    \ cost\". Do NOT use for: actual spend amounts (use forecast_cost), 6-month projection (use project_budget),\
+    \ per-team breakdown (use compute_team_cost).\n"
 compute_monthly_incident_report:
   tool: compute_monthly_incident_report
   questions:
@@ -293,6 +376,8 @@ compute_monthly_incident_report:
   - Are incidents increasing or decreasing compared to the previous month?
   - What is the total downtime per severity level for July 2026?
   - Give me the monthly operational health summary for the board report.
+  description: Compute a monthly incident report with total downtime in minutes, P1/P2/P3 breakdown month
+    over month, and the services most impacted by downtime
 compute_mttr_trend:
   tool: compute_mttr_trend
   questions:
@@ -301,7 +386,10 @@ compute_mttr_trend:
   - Show me the P1 and P2 MTTR for the last 3 months with benchmark comparison.
   - Which were the 3 slowest incidents to resolve and what were their root causes?
   - Are we meeting the industry standard of P1 < 30min and P2 < 2h MTTR?
-  - How effective have our on-call process improvements been — measure MTTR trend.
+  - "How effective have our on-call process improvements been \u2014 measure MTTR trend."
+  description: "Compute Mean Time To Recovery (MTTR) trend for incident resolution speed \u2014 how fast\
+    \ the team recovers from outages. NOT for pipeline build/deploy performance. P1 and P2 MTTR against\
+    \ industry benchmarks, and the slowest incidents"
 compute_optimization_roi:
   tool: compute_optimization_roi
   questions:
@@ -311,6 +399,13 @@ compute_optimization_roi:
   - Did our cost reduction hurt latency or reliability?
   - Show me the business value of our right-sizing sprint for the board.
   - Prove the savings from our last cost-optimization sprint with before and after numbers.
+  description: 'OPTIMIZATION SPRINT ROI: compute the return-on-investment of a completed optimization
+    or right-sizing sprint. Shows monthly/yearly savings, biggest cost impacts, and whether reliability
+    was affected. Answers: "what was the ROI of our optimization sprint", "how much did we save from right-sizing".
+    Use AFTER a cost-saving initiative is complete, not before. Do NOT use for: estimating potential future
+    savings (use estimate_rightsizing_savings), detecting current waste (use detect_over_provisioned_namespaces).
+
+    '
 compute_prediction_roi:
   tool: compute_prediction_roi
   questions:
@@ -322,6 +417,13 @@ compute_prediction_roi:
   - How much did we save from predictions this month?
   - What is the ROI of our automatic alerts?
   - How many potential incidents were detected and prevented?
+  description: 'ALERTING ROI: compute return-on-investment of automatic predictions and alerts. Shows
+    how much was saved this month from prevented incidents, how many incidents were caught. Answers: "how
+    much did predictions save us", "how many incidents were prevented automatically". This is about PROACTIVE
+    ALERTING value, not cost optimization. Do NOT use for: general cost savings (use estimate_rightsizing_savings),
+    optimization sprint ROI (use compute_optimization_roi).
+
+    '
 compute_security_posture:
   tool: compute_security_posture
   questions:
@@ -334,16 +436,20 @@ compute_security_posture:
   - What is our overall security compliance score?
   - Show me the security posture breakdown by category.
   - Which non-compliant workloads should we fix first?
+  description: Compute an overall security compliance score with a breakdown by category (TLS, RBAC, Pod
+    Security, image scanning, secret rotation) and which non-compliant workloads to fix first
 compute_slo_error_budget:
   tool: compute_slo_error_budget
   questions:
-  - What is the current error budget burn rate for the payment-service SLO — are we on track to exhaust the error budget before
-    end of month?
+  - "What is the current error budget burn rate for the payment-service SLO \u2014 are we on track to\
+    \ exhaust the error budget before end of month?"
   - How much error budget remains for auth-service with an SLO of 99.9%?
   - Is the checkout-service at risk of breaching its 30-day SLO based on the current error rate?
   - Show me the burn rate and time-to-exhaustion for all production services this week.
   - Has any service already exhausted its error budget this month?
   - Compare this month's error budget consumption against last month for degraded services.
+  description: Compute the SLO error budget burn rate and time to exhaustion for a service, how much budget
+    remains against a 99.9% target, and which services already exhausted their budget
 compute_team_cost:
   tool: compute_team_cost
   questions:
@@ -353,42 +459,58 @@ compute_team_cost:
   - Which team has the highest CPU and memory cost in production?
   - Are there any unattributed costs from namespaces without a team label?
   - Rank all teams by total cloud spend and highlight teams that scaled up significantly.
+  description: 'TEAM-LEVEL COST BREAKDOWN: break down infrastructure cost by team, rank teams by cloud
+    spend. Flags unattributed costs from namespaces without a team label. Answers: "which team costs the
+    most", "cost per team this month", "any unlabeled namespaces". Use for organizational cost allocation,
+    not for finding waste. Do NOT use for: per-service comparison (use compare_service_cost), monthly
+    spend forecast (use forecast_cost), finding waste (use detect_over_provisioned_namespaces).
+
+    '
 configuration_drift_detection:
   tool: configuration_drift_detection
   questions:
-  - Has any resource configuration drifted from its Helm or Kustomize desired state — which live resources differ from what
-    is declared in Git?
+  - "Has any resource configuration drifted from its Helm or Kustomize desired state \u2014 which live\
+    \ resources differ from what is declared in Git?"
   - Did someone manually patch the payment-service deployment after it was deployed by Helm?
   - Is the checkout-config ConfigMap still in sync with what's in the chart?
   - Are there any resources left over from a Helm release that no longer exists?
   - Which drifted resources are actually critical, not just cosmetic?
+  description: Detect live resources that drifted from their Helm or Kustomize desired state in Git, manual
+    patches applied after deploy, and orphaned resources from deleted releases
 conservative_namespace_overview:
   tool: conservative_namespace_overview
   questions:
-  - Give me a conservative overview of the staging namespace — total pods, services, deployments, and any obvious health issues,
-    without flooding the context with raw data.
+  - "Give me a conservative overview of the staging namespace \u2014 total pods, services, deployments,\
+    \ and any obvious health issues, without flooding the context with raw data."
   - Is the payment namespace healthy right now?
   - What's broken in production, in one line?
   - Give me a quick health check on checkout, capped to 500 tokens.
   - Does staging exist, and if so, is anything degraded?
+  description: Give a compact token-capped overview of a namespace with pod, service and deployment counts
+    and obvious health issues, without flooding context with raw data
 container_image_drift_detection:
   tool: detect_container_image_drift
   questions:
-  - Show me all deployments running a container image that differs from what is declared in the Git repository — which ones
-    are out of sync?
+  - "Show me all deployments running a container image that differs from what is declared in the Git repository\
+    \ \u2014 which ones are out of sync?"
   - Is payment-service running the Helm-declared image, or has someone deployed a hotfix directly?
   - Are any of our mutable image tags actually pointing to different bytes than what we deployed?
   - Which containers are out of sync because of a tag change versus a digest change?
-  - Ignore anything still pinned to latest — what's genuinely drifted?
+  - "Ignore anything still pinned to latest \u2014 what's genuinely drifted?"
+  description: Detect deployments running a container image different from what Git declares, hotfixes
+    deployed directly, and mutable tags pointing to different bytes than deployed
 container_image_vulnerability_scanning:
   tool: scan_container_vulnerabilities
   questions:
-  - Which containers are using deprecated or known-vulnerable base images — which CVEs affect our current running workloads?
+  - "Which containers are using deprecated or known-vulnerable base images \u2014 which CVEs affect our\
+    \ current running workloads?"
   - Does payment:v1.2 have any Critical CVEs, and is there a fix version available?
   - Are we running any images with an end-of-life base image like ubuntu:18.04 or python:3.8-slim?
   - Which Critical CVEs in production should we patch first?
   - How many of our running images are actually affected by known vulnerabilities?
   - Are any of our images running on a mutable latest tag we can't pin a scan to?
+  description: Scan container images for known vulnerabilities, including EOL base images, critical CVEs
+    and missing patch levels, and flag production workloads.
 cost_profiling:
   tool: cost_profiling
   questions:
@@ -397,6 +519,8 @@ cost_profiling:
   - Identify optimisation candidates based on CPU cost profiling
   - Which endpoints have high frequency combined with high CPU cost?
   - Rank my HTTP endpoints by total CPU consumption over the last hour
+  description: Profile CPU cost per HTTP endpoint, rank the most CPU-intensive endpoints, and identify
+    optimization candidates combining high frequency and high CPU cost
 custom_tool_describe:
   tool: custom_tool_describe
   questions:
@@ -404,6 +528,8 @@ custom_tool_describe:
   - What parameters does the finops-zombie-check tool expect?
   - Show me the input schema for the custom tool security-scanner
   - What is the output format of the custom compliance audit tool?
+  - Show me the JSON schema of the custom tool describe-api
+  description: Describe a registered custom tool's contract, expected input parameters and output format
 custom_tool_run:
   tool: custom_tool_run
   questions:
@@ -412,6 +538,8 @@ custom_tool_run:
   - Launch my custom tool network-policy-auditor on all namespaces
   - Run the external security-scanner tool for the staging environment
   - Execute custom/helm-drift-detector on namespace default
+  description: Run a registered custom or third-party analyzer tool against a namespace or the whole cluster
+    with given parameters
 custom_tools_list:
   tool: custom_tools_list
   questions:
@@ -419,6 +547,9 @@ custom_tools_list:
   - List all third-party analyzers connected to hexawyn
   - Which external checks are currently active?
   - Show me all registered custom tools with their transport
+  - Which custom analyzers can I call right now?
+  description: List all registered custom and third-party analyzer tools connected to hexawyn, their transport
+    and whether they are active
 deployment_latency:
   tool: deployment_latency
   questions:
@@ -427,6 +558,8 @@ deployment_latency:
   - Compare service latency before and after the deployment 3 hours ago
   - Is there a p99 regression after the rollout?
   - Should we rollback based on the latency delta after deployment?
+  description: Compare service latency before and after a deployment to detect a performance regression,
+    p99 regression after a rollout, and whether to roll back
 detect_container_image_drift:
   tool: detect_container_image_drift
   questions:
@@ -434,7 +567,9 @@ detect_container_image_drift:
   - Is payment-service running the Helm-declared image, or a hotfix deployed directly?
   - Are any of our mutable image tags actually pointing to different bytes?
   - Which containers are out of sync because of a tag change versus a digest change?
-  - Ignore anything still pinned to latest — what's genuinely drifted?
+  - "Ignore anything still pinned to latest \u2014 what's genuinely drifted?"
+  description: Detect deployments whose running container image differs from Git, direct hotfixes, and
+    mutable tags drifting by tag or digest
 detect_cross_cluster_incident:
   tool: detect_cross_cluster_incident
   questions:
@@ -443,25 +578,31 @@ detect_cross_cluster_incident:
   - Are all our clusters having the same ImagePullBackOff error?
   - Did the incident cascade from US to EU?
   - Check if the same failure is happening across all production clusters.
+  description: Detect whether the same failure (like ImagePullBackOff) is affecting multiple clusters
+    at once, if it is a global problem or isolated, and whether it cascaded between regions
 detect_kustomize_patch_conflicts:
   tool: detect_kustomize_patch_conflicts
   questions:
-  - Which Kustomize overlays override the same field across multiple patches — are there any conflicting or redundant patches
-    that could cause unexpected behavior?
+  - "Which Kustomize overlays override the same field across multiple patches \u2014 are there any conflicting\
+    \ or redundant patches that could cause unexpected behavior?"
   - Are any of my Kustomize patches setting the same field to different values in the production overlay?
   - Show me redundant patches in my Kustomize overlays that set values already defined in the base.
   - Are there any patch conflicts in overlays/staging that could cause an unexpected deployment configuration?
-  - Which patches are targeting resources that don't exist in my base — flag orphan patches.
+  - "Which patches are targeting resources that don't exist in my base \u2014 flag orphan patches."
   - List all conflicting fields in the production overlay with the winning value and source patch.
+  description: Detect Kustomize overlays that override the same field with conflicting or redundant patches,
+    patches duplicating base values, and orphan patches targeting missing resources
 detect_log_anomalies:
   tool: detect_log_anomalies
   questions:
-  - Detect anomalies in the logs of the inventory-service pod over the last 4 hours — are there unusual spikes, silent errors,
-    or statistical outliers?
+  - "Detect anomalies in the logs of the inventory-service pod over the last 4 hours \u2014 are there\
+    \ unusual spikes, silent errors, or statistical outliers?"
   - Is there anything statistically abnormal in the checkout-service logs today?
   - Show me any silent failures in payment-service logs that don't have an ERROR keyword but look wrong.
   - Are there any log volume spikes in the order-service pod I should worry about?
   - Find outlier log lines in worker-pod's last 2 hours using anomaly detection.
+  description: "Detect statistical anomalies in a pod's logs \u2014 unusual spikes, log volume outliers,\
+    \ and silent failures that have no ERROR keyword but look wrong"
 detect_manual_changes_outside_gitops:
   tool: detect_manual_changes_outside_gitops
   questions:
@@ -470,15 +611,20 @@ detect_manual_changes_outside_gitops:
   - Are all of our recent ConfigMap changes coming from ArgoCD?
   - Which changes in the last 3 days were made by a real person versus a CI pipeline?
   - Is our audit logging even configured?
+  description: Detect ConfigMaps or Secrets modified manually outside GitOps, who changed them and when,
+    and which changes bypassed ArgoCD versus came from a CI pipeline
 detect_missing_probes:
   tool: detect_missing_probes
   questions:
-  - Which services have no liveness or readiness probes configured — which workloads are flying blind with no health check?
+  - "Which services have no liveness or readiness probes configured \u2014 which workloads are flying\
+    \ blind with no health check?"
   - Are there any production deployments missing health probes entirely?
   - List all deployments without readiness probes in the production namespace.
   - How many critical workloads have no probes at all, and what probe types should I add?
   - Show me pods with misconfigured probe ports that don't match their exposed ports.
   - Are our StatefulSets and DaemonSets safe without probes, or should they be flagged?
+  description: Find deployments and workloads with no liveness or readiness probes configured, missing
+    health checks, and probe ports that don't match exposed ports
 detect_network_segmentation_gaps:
   tool: detect_network_segmentation_gaps
   questions:
@@ -488,35 +634,46 @@ detect_network_segmentation_gaps:
   - Which namespaces have ingress restrictions but no egress restrictions?
   - Give me a prioritized list of namespaces that need a default-deny NetworkPolicy
   - Does Calico or Istio already provide segmentation?
+  description: Detect namespaces with no NetworkPolicies and open east-west pod traffic, namespaces missing
+    egress restrictions, and which need a default-deny policy
 detect_outdated_helm_releases:
   tool: detect_outdated_helm_releases
   questions:
-  - Which Helm releases are out of date compared to the latest available chart version — what are the changelogs and breaking
-    changes I need to be aware of?
+  - "Which Helm releases are out of date compared to the latest available chart version \u2014 what are\
+    \ the changelogs and breaking changes I need to be aware of?"
   - Show me all Helm charts that need a version upgrade with their changelogs.
   - Are there any major version updates pending that could break our services?
   - List outdated Helm releases grouped by namespace with their version delta type.
   - What breaking changes should I be aware of before upgrading cert-manager to the latest version?
   - Which releases haven't been upgraded in several audit cycles and are chronically outdated?
+  description: Detect Helm releases behind the latest chart version, their changelogs and breaking changes,
+    major version updates that could break services, and chronically outdated releases
 detect_over_provisioned_namespaces:
   tool: detect_over_provisioned_namespaces
   questions:
   - Which namespaces are wasting the most CPU and memory?
   - Where can we reduce resource costs in the cluster?
   - Show me the top 5 over-provisioned namespaces over the last 7 days
-  - The dev namespace has 8 CPUs allocated — how much is it actually using?
+  - "The dev namespace has 8 CPUs allocated \u2014 how much is it actually using?"
   - What's our total estimated waste in cores and GB across all namespaces?
   - Which teams are over-requesting resources compared to their actual usage?
   - Find all namespaces where resource requests are more than double actual usage
+  description: "WASTE DETECTION: find namespaces with resource requests far above actual usage. Ranks\
+    \ most over-provisioned namespaces, estimates total waste in CPU cores and GB. This is the DIAGNOSTIC\
+    \ step \u2014 it identifies WHERE waste exists, not how much you'd save. Use FIRST, before estimate_rightsizing_savings\
+    \ or estimate_cost_saving. Do NOT use for: savings estimates (use estimate_rightsizing_savings), per-service\
+    \ cost (use compare_service_cost), monthly forecast (use forecast_cost).\n"
 detect_pod_anomalies:
   tool: detect_pod_anomalies
   questions:
-  - Detect anomalies across all pods in production — which ones show unusual CPU spikes, memory patterns, or error rate deviations
-    vs baseline?
+  - "Detect anomalies across all pods in production \u2014 which ones show unusual CPU spikes, memory\
+    \ patterns, or error rate deviations vs baseline?"
   - Is payment-api using more CPU than usual right now?
   - Any pods in production drifting toward a memory leak over the last few hours?
   - Give me a ranked list of anomalous pods in the checkout namespace, worst first.
   - Which pods don't have enough history yet to even compare against a baseline?
+  description: "Detect pods with anomalous behavior versus baseline \u2014 unusual CPU spikes, memory\
+    \ leak trends, error rate deviations \u2014 and rank the most anomalous pods"
 detect_privileged_pods:
   tool: detect_privileged_pods
   questions:
@@ -525,16 +682,20 @@ detect_privileged_pods:
   - Which pods are missing a runAsNonRoot setting?
   - Do any of our containers add dangerous capabilities like SYS_ADMIN?
   - Which namespaces enforce the restricted Pod Security Standard?
-  - Ignore node-exporter and kube-proxy — what real violations do we have?
+  - "Ignore node-exporter and kube-proxy \u2014 what real violations do we have?"
+  description: Scan for pods running as root or with a privileged security context, missing runAsNonRoot,
+    dangerous capabilities like SYS_ADMIN, and Pod Security Standard violations
 detect_recurring_incidents:
   tool: detect_recurring_incidents
   questions:
-  - Which services have the most recurring incidents — where should we invest next sprint?
+  - "Which services have the most recurring incidents \u2014 where should we invest next sprint?"
   - Show me the top 10 services by incident frequency over the last 30 days.
-  - Which services have the same root cause happening repeatedly — flag recurring patterns.
+  - "Which services have the same root cause happening repeatedly \u2014 flag recurring patterns."
   - Where should we prioritize tech debt investment based on incident recurrence?
   - Are there any services with the same incident type repeated more than 3 times?
   - Give me incident frequency rankings with root cause analysis for sprint planning.
+  description: Detect services with recurring incidents and repeated root causes, rank services by incident
+    frequency, and guide tech debt investment for sprint planning
 detect_unintended_external_exposure:
   tool: detect_unintended_external_exposure
   questions:
@@ -544,16 +705,21 @@ detect_unintended_external_exposure:
   - Do we have any pending LoadBalancer services that will soon be public?
   - Which internal services are currently reachable from outside the cluster?
   - Show me every externally exposed service and tell me if it's intentional or not
+  description: Detect services exposed externally via LoadBalancer or NodePort that shouldn't be, databases
+    accidentally reachable from the internet, and services outside the approved allowlist
 detect_zombies:
   tool: detect_zombies
   questions:
-  - Which pods have been running with 0 traffic for the last 24 hours — are there zombie deployments we can safely remove?
+  - "Which pods have been running with 0 traffic for the last 24 hours \u2014 are there zombie deployments\
+    \ we can safely remove?"
   - Can you list all pods that received no network traffic in the last day?
   - Are there any zombie workloads wasting compute resources in my cluster?
   - How much money would I save by removing idle pods from production?
-  - Show me pods with zero RPS — flag the ones safe to decommission
+  - "Show me pods with zero RPS \u2014 flag the ones safe to decommission"
   - Find all deployments with no traffic in the last 24 hours
   - Which services haven't received a single request today?
+  description: Find idle zombie pods and deployments with zero traffic or RPS over the last 24 hours,
+    safe to decommission, and estimate savings from removing them
 diff_cluster_resources:
   tool: diff_cluster_resources
   questions:
@@ -562,6 +728,8 @@ diff_cluster_resources:
   - Are there any version mismatches between staging and production?
   - What is my promotion checklist for the next deployment?
   - What's the diff between my staging and production clusters?
+  description: Diff resources between staging and production clusters, find what exists in one but not
+    the other, version mismatches, and build a promotion checklist before release
 diff_helm_values:
   tool: diff_helm_values
   questions:
@@ -574,6 +742,8 @@ diff_helm_values:
   - Show me all values that differ between staging and production Helm releases.
   - What configuration differences could explain behavior gaps between environments?
   - Are staging and production in sync for the checkout release?
+  description: Diff effective Helm values between staging and production for a release, flag risky differences,
+    and explain configuration gaps causing environments to behave differently
 error_attribution:
   tool: error_attribution
   questions:
@@ -582,42 +752,64 @@ error_attribution:
   - Rank downstream services by error count on the api-gateway
   - Is there a Pareto culprit for the production gateway errors?
   - Attribute gateway 5xx errors to originating services
+  description: Attribute API gateway 5xx errors to the downstream services causing them, rank downstream
+    services by error count, and find the Pareto culprit
 estimate_rightsizing_savings:
   tool: estimate_rightsizing_savings
   questions:
   - Which of my workloads are over-provisioned and what would I save by rightsizing them?
   - How much money am I wasting on CPU and memory for my Kubernetes deployments?
   - Show me the top 5 rightsizing recommendations ranked by monthly savings
-  - My ml-worker pod uses very little CPU — what should I request instead?
+  - "My ml-worker pod uses very little CPU \u2014 what should I request instead?"
   - Are any of my deployments under-provisioned and at risk of OOM kill?
   - Give me rightsizing recommendations for all workloads in the production namespace
+  description: 'RIGHTSIZING SAVINGS ESTIMATE: calculate monthly and annual dollar savings from rightsizing
+    over-provisioned workloads. Recommends new CPU/memory requests ranked by savings potential, flags
+    under-provisioned pods at OOM risk. Answers: "how much money would I save by rightsizing", "which
+    workloads to resize first", "help me cut infrastructure costs". Do NOT use for: detecting waste locations
+    (use detect_over_provisioned_namespaces), monthly spend forecast (use forecast_cost), checking budget
+    status (use compute_budget_intelligence).
+
+    '
 etcd_logs:
   tool: etcd_logs
   questions:
-  - Show me the etcd logs from the last hour — are there any leader election issues?
+  - "Show me the etcd logs from the last hour \u2014 are there any leader election issues?"
   - Are there compaction errors in the etcd logs?
-  - Is the etcd cluster stable — check for leader changes in the last hour
+  - "Is the etcd cluster stable \u2014 check for leader changes in the last hour"
   - Retrieve etcd error logs from the last 30 minutes
   - Has there been any etcd leader election instability recently?
+  description: Retrieve etcd logs to check for leader election issues, leader changes, compaction errors,
+    and cluster instability
 forecast_cost:
   tool: forecast_cost
   questions:
   - How much will I spend this month on my Kubernetes cluster?
   - Is my cloud spend accelerating compared to last week?
   - Which are the 3 most expensive namespaces this month?
-  - My monthly budget is $2,000 — will I exceed it?
+  - "My monthly budget is $2,000 \u2014 will I exceed it?"
   - What is the cost trend for my cluster compared to last month?
   - Project my end-of-month Kubernetes spend based on the last 7 days
   - Which namespace is driving the most cost growth this month?
+  description: "CURRENT MONTH SPEND FORECAST: the PRIMARY cost tool. Projects end-of-month Kubernetes\
+    \ spend from current usage, shows if spend is accelerating, ranks top 3 most expensive namespaces,\
+    \ checks if budget will be exceeded. Answers: \"how much will I spend this month\", \"is my spend\
+    \ accelerating\", \"top 3 expensive namespaces\", \"will I exceed my $2000 budget\". Use this tool\
+    \ FIRST for any cost question \u2014 it's the most comprehensive. Do NOT use for: finding which namespaces\
+    \ are over-provisioned (use detect_over_provisioned_namespaces), rightsizing savings estimates (use\
+    \ estimate_rightsizing_savings), team cost breakdown (use compute_team_cost), per-service comparison\
+    \ (use compare_service_cost).\n"
 generate_incident_triage_report:
   tool: generate_incident_triage_report
   questions:
-  - Generate a full automated triage and RCA report for the incident on the payment namespace in the last 2 hours — include
-    timeline, impact, root cause, and remediation steps.
+  - "Generate a full automated triage and RCA report for the incident on the payment namespace in the\
+    \ last 2 hours \u2014 include timeline, impact, root cause, and remediation steps."
   - What caused the outage in checkout-service over the last hour, and how long did it take to recover?
   - Give me a post-mortem-ready report for the payment namespace I can paste into Confluence.
-  - Is this a single root cause or multiple concurrent failures — and which is most likely?
+  - "Is this a single root cause or multiple concurrent failures \u2014 and which is most likely?"
   - Did the payment-namespace incident spread to any other namespaces?
+  description: Generate a full automated triage and RCA report for a namespace incident with timeline,
+    impact, root cause and remediation, whether it is single or multi-cause, and if it spread
 generate_sla_report:
   tool: generate_sla_report
   questions:
@@ -627,32 +819,31 @@ generate_sla_report:
   - Is our reliability improving or degrading compared to last quarter?
   - Give me a stakeholder-ready SLA summary with breaches and impacted users.
   - Show me quarterly SLA compliance so I can report reliability to the board.
+  description: Generate an executive quarterly SLA report with uptime per service versus SLA target, which
+    services breached and for how long, and impacted users for the board
 generate_weekly_reliability_report:
   tool: generate_weekly_reliability_report
   questions:
-  - Generate a weekly reliability report for all production services — include uptime, error rate, p99 latency, SLO compliance,
-    and top 3 incidents.
+  - "Generate a weekly reliability report for all production services \u2014 include uptime, error rate,\
+    \ p99 latency, SLO compliance, and top 3 incidents."
   - How did our services perform this week against their SLOs?
   - Show me a health report with SLO pass/fail for all production services.
   - What were the top 3 incidents last week ranked by impact?
   - Give me the weekly reliability summary for stakeholder review.
   - Which services failed their SLO this week and what was the root cause?
+  description: Generate a weekly reliability report for production services with uptime, error rate, p99
+    latency, SLO pass/fail and the top incidents ranked by impact
 get_namespace_events:
   tool: get_namespace_events
   questions:
-  - Show me all Warning and Error events in the production namespace from the last 15 minutes — which pods are involved?
+  - "Show me all Warning and Error events in the production namespace from the last 15 minutes \u2014\
+    \ which pods are involved?"
   - What's going wrong in the checkout namespace right now?
   - Are there any recurring BackOff or OOMKilled events in payment-namespace?
   - List the critical events for the staging namespace in the last quarter hour.
   - Which objects in production are throwing repeated warnings I should look at first?
-get_openshift_failed_pipeline_runs:
-  tool: get_tekton_pipeline_runs_status
-  questions:
-  - Are there any failed Tekton pipeline runs in the ci namespace?
-  - Show me the OpenShift Pipelines runs that failed recently.
-  - Which PipelineRuns are failing in my OpenShift build namespace?
-  - List all failed Tekton pipeline runs so I can debug the CI breakage.
-  - Did any pipeline runs fail in the tekton namespace today?
+  description: Get recent Warning and Error events in a namespace, which pods are involved, recurring
+    BackOff or OOMKilled events, and what to look at first
 get_pipeline_run_status:
   tool: get_pipeline_run_status
   questions:
@@ -661,6 +852,8 @@ get_pipeline_run_status:
   - Which pipeline run took the longest to complete today?
   - Show me the most recent failed build and why it failed
   - Are there any stuck or pending pipeline runs in ci?
+  description: Get the current status of Tekton PipelineRuns in a namespace, how many builds succeeded
+    or failed in 24 hours, the longest run, and any stuck or pending runs
 gitops_app_get:
   tool: gitops_app_get
   questions:
@@ -669,6 +862,8 @@ gitops_app_get:
   - What is the last commit deployed for the auth-service Application?
   - Show me the details of the frontend application in Argo CD
   - Why is my Kustomization failing to reconcile?
+  description: Get the full status of a GitOps Application, HelmRelease or Kustomization, why it is not
+    synced with Git, and its last deployed commit
 gitops_app_status:
   tool: gitops_app_status
   questions:
@@ -677,6 +872,8 @@ gitops_app_status:
   - Show me the reconciliation status of the prod-deploy Application
   - When was the last time the staging Kustomization synced?
   - Give me the health and sync status of the auth-api HelmRelease
+  description: Get the sync and health status of a GitOps application and its last reconciliation time,
+    whether it is healthy according to Flux or Argo CD
 gitops_app_sync:
   tool: gitops_app_sync
   questions:
@@ -685,6 +882,8 @@ gitops_app_sync:
   - When was the last sync of the production HelmRelease?
   - Is the payments-api in sync with the latest Git commit?
   - Show me the deployed revision for the checkout-service
+  description: Get the deployed revision or latest commit a GitOps app synced to and whether it is in
+    sync with the latest Git commit
 gitops_apps_list:
   tool: gitops_apps_list
   questions:
@@ -693,6 +892,8 @@ gitops_apps_list:
   - Show me the status of all my Argo CD applications
   - Are there any GitOps applications currently in error?
   - Which Argo CD applications are currently degraded or missing?
+  description: List all GitOps applications, HelmReleases and Kustomizations, which are out-of-sync, degraded,
+    missing or in error across Flux and Argo CD
 gitops_detect:
   tool: gitops_detect
   questions:
@@ -701,6 +902,8 @@ gitops_detect:
   - Is Flux CD or Argo CD running in my cluster?
   - Detect which GitOps engine is installed and show me the version
   - How many applications are managed by GitOps right now?
+  description: Detect which GitOps engine is installed (Flux CD or Argo CD), its version, and how many
+    applications are managed by GitOps
 gitops_source_get:
   tool: gitops_source_get
   questions:
@@ -709,6 +912,8 @@ gitops_source_get:
   - What is the URL and last-updated time of the helm-charts HelmRepository?
   - Is the main GitRepository authenticated and ready?
   - What's the error message on the staging HelmRepository?
+  description: Get the connection status of a GitOps GitRepository or HelmRepository source, why it can't
+    reach GitHub, its URL, auth and error message
 gitops_sources_list:
   tool: gitops_sources_list
   questions:
@@ -717,35 +922,49 @@ gitops_sources_list:
   - Which Helm repositories are currently unreachable?
   - Show me all sources in the flux-system namespace and their ready status
   - Are all my GitRepositories healthy and connected?
+  description: "List all GitOps sources \u2014 GitRepositories and HelmRepositories used by Flux \u2014\
+    \ with their ready status and any unreachable repositories"
 global_health_check:
   tool: global_health_check
   questions:
-  - Give me a global health check of the cluster fleet — what is the overall status right now?
+  - "Give me a global health check of the cluster fleet \u2014 what is the overall status right now?"
   - Which cluster is the least healthy in my fleet?
   - Are all my Kubernetes clusters reachable and healthy?
   - What are the critical issues across all my clusters right now?
   - Is the overall fleet health improving or degrading compared to last week?
-  - Show me a breakdown by category — nodes, pods, CPU, certificates — for every cluster in the fleet
-  - Give me an executive summary of the entire fleet — one health score per cluster
+  - "Show me a breakdown by category \u2014 nodes, pods, CPU, certificates \u2014 for every cluster in\
+    \ the fleet"
+  - "Give me an executive summary of the entire fleet \u2014 one health score per cluster"
+  description: Run a fleet-wide health check across all clusters, one health score per cluster, the least
+    healthy cluster, critical issues, and a breakdown by nodes, pods, CPU and certificates
 health:
   tool: health
   questions:
   - Is the hexawyn API healthy?
   - Check if hexawyn is up and running
-  - Health check — is the control plane responding?
+  - "Health check \u2014 is the control plane responding?"
   - Are all hexawyn services operational?
   - Run a health check on the cluster
   - Is the DuckDB connection working?
   - Check API key validity and cluster connectivity
+  description: "Fleet-wide cluster health check \u2014 verifies overall Kubernetes cluster health, pod\
+    \ status across all namespaces, node conditions, and resource pressure. Use for \"is my cluster healthy\"\
+    \ queries."
 hot_node_analysis:
   tool: hot_node_analysis
   questions:
-  - Which nodes are consistently above 80% CPU or memory utilization — are they candidates for vertical scaling or workload
-    redistribution?
+  - "Which nodes are consistently above 80% CPU or memory utilization \u2014 are they candidates for vertical\
+    \ scaling or workload redistribution?"
   - Is worker-eu-3 actually hot, or was that just a brief spike?
   - If a node is overloaded, which pods should we move first?
   - Do we have enough headroom elsewhere to redistribute load off our busiest node?
   - Are our hot nodes only busy during business hours, or is it constant?
+  description: "OVERLOADED NODE DETECTION: find nodes consistently above 80% CPU or memory. Identify if\
+    \ it's a genuine persistent hotspot vs brief spike, which pods to move first, whether it's only busy\
+    \ business hours. Answers: \"which nodes are overloaded\", \"is it a real hotspot or spike\", \"which\
+    \ pods to move\". This is about NODE-LEVEL hot spots \u2014 NOT cluster-wide capacity. Do NOT use\
+    \ for: cluster capacity forecasting (use cluster_capacity_ceiling_forecast), workload fitting (use\
+    \ cluster_headroom_simulation).\n"
 keda_detect:
   tool: keda_detect
   questions:
@@ -754,6 +973,8 @@ keda_detect:
   - Detect KEDA and show me the managed namespaces
   - Are there any ScaledObjects in error right now?
   - How many ScaledJobs and ScaledObjects are configured via KEDA?
+  description: Detect whether KEDA is installed and its version, how many ScaledObjects and ScaledJobs
+    it manages across namespaces
 keda_scaledjob_get:
   tool: keda_scaledjob_get
   questions:
@@ -762,6 +983,8 @@ keda_scaledjob_get:
   - What is the cooldown and max replica count for the image-processor ScaledJob?
   - When was the last time the cleanup-job ScaledJob executed?
   - Why is the report-generator ScaledJob in error?
+  description: Get details of a specific KEDA ScaledJob, its triggers, cooldown, max replicas, success
+    versus failure counts, and last execution time
 keda_scaledjobs_list:
   tool: keda_scaledjobs_list
   questions:
@@ -770,6 +993,8 @@ keda_scaledjobs_list:
   - Are there any ScaledJobs currently in error?
   - List all ScaledJobs with their execution counters and last run time
   - Which ScaledJobs are paused vs active?
+  description: List KEDA ScaledJobs with execution counters and last run time, which ran successfully
+    last night, which are in error, and which are paused versus active
 keda_scaledobject_get:
   tool: keda_scaledobject_get
   questions:
@@ -778,6 +1003,8 @@ keda_scaledobject_get:
   - What triggers are configured on the order-processor ScaledObject?
   - Show me the cooldown and fallback config for the checkout ScaledObject
   - What workload does the api-worker ScaledObject control?
+  description: Get a KEDA ScaledObject's full detail, its triggers, cooldown and fallback config, which
+    workload it controls, and why it isn't scaling despite a full queue
 keda_scaledobject_status:
   tool: keda_scaledobject_status
   questions:
@@ -786,6 +1013,8 @@ keda_scaledobject_status:
   - What are the current vs target replicas for the checkout ScaledObject?
   - When was the last time the notification-worker scaled?
   - Show me the real-time HPA status for the production ScaledObject
+  description: Get the real-time status of the HPA managed by KEDA for a ScaledObject, current versus
+    target replicas, whether it is scaling or in cooldown, and its last scale time
 keda_scaledobject_triggers:
   tool: keda_scaledobject_triggers
   questions:
@@ -794,6 +1023,8 @@ keda_scaledobject_triggers:
   - List all Kafka triggers with their auth status on the production ScaledObject
   - Which Prometheus queries are used by KEDA triggers in my cluster?
   - Show me the cron schedule for all KEDA cron triggers
+  description: Inspect a KEDA ScaledObject's triggers and their authentication status, Kafka and Prometheus
+    triggers, cron schedules, and any triggers with broken auth
 keda_scaledobjects_list:
   tool: keda_scaledobjects_list
   questions:
@@ -802,22 +1033,32 @@ keda_scaledobjects_list:
   - Show me which workloads are configured for KEDA autoscaling
   - How many ScaledObjects manage our production vs staging clusters?
   - List all KEDA ScaledObjects in the payments namespace
+  description: List KEDA ScaledObjects across the cluster with their triggers and HPA status, which workloads
+    use KEDA autoscaling, and per-namespace counts
 keda_trigger_auth_get:
-  tool: keda_trigger_auth_get
+  tool: keda_triggerauth_get
   questions:
-  - How is the Kafka trigger authenticated — via secret or pod identity?
+  - "How is the Kafka trigger authenticated \u2014 via secret or pod identity?"
   - Get the details of the kafka-auth TriggerAuthentication
   - What secrets does the prometheus-trigger-auth reference?
   - Is the production TriggerAuthentication using the right cloud provider identity?
   - Show me the auth configuration for the RabbitMQ trigger
+  description: "Get details of a KEDA TriggerAuthentication \u2014 whether a trigger authenticates via\
+    \ secret or pod identity, referenced secrets, and cloud provider identity used (AWS IRSA / Azure Workload\
+    \ Identity / GCP). Only select when the query explicitly mentions a cloud provider or IRSA; for generic\
+    \ KEDA auth queries, prefer keda_triggerauth_get."
 keda_trigger_auth_list:
-  tool: keda_trigger_auth_list
+  tool: keda_triggerauth_list
   questions:
   - List all KEDA TriggerAuthentications in my cluster
   - Which ClusterTriggerAuthentications are configured and for what providers?
   - Are there any TriggerAuthentications referencing missing secrets?
   - Show me all KEDA auth configs using AWS IRSA vs Azure Workload Identity
   - Which namespaces have TriggerAuthentications for KEDA?
+  description: List KEDA TriggerAuthentications and ClusterTriggerAuthentications, their cloud providers,
+    AWS IRSA versus Azure Workload Identity versus GCP, and any referencing missing secrets. Only select
+    when the query explicitly mentions AWS, Azure, GCP, IRSA, or Workload Identity; for generic KEDA auth
+    listing, prefer keda_triggerauth_list.
 keda_triggerauth_get:
   tool: keda_triggerauth_get
   questions:
@@ -826,6 +1067,10 @@ keda_triggerauth_get:
   - Is the production TriggerAuthentication ready?
   - Show me which secrets the keda-auth references (without values)
   - What pod identity provider does the cluster trigger auth use?
+  description: "Get the detail of a KEDA TriggerAuthentication \u2014 its authentication type, referenced\
+    \ secrets without values, pod identity provider, and readiness. This is the agnostic KEDA auth tool;\
+    \ prefer it for generic queries unless the query explicitly mentions AWS, Azure, GCP, IRSA, or Workload\
+    \ Identity."
 keda_triggerauth_list:
   tool: keda_triggerauth_list
   questions:
@@ -834,6 +1079,10 @@ keda_triggerauth_list:
   - Are there any TriggerAuth objects using pod identity?
   - Which secrets are referenced by KEDA trigger auths?
   - List all KEDA auth configurations with their status
+  description: "List all KEDA TriggerAuthentications and ClusterTriggerAuthentications \u2014 those using\
+    \ pod identity, referenced secrets, and their status. This is the agnostic KEDA auth listing tool;\
+    \ prefer it for generic queries unless the query explicitly mentions AWS, Azure, GCP, IRSA, or Workload\
+    \ Identity."
 latency_diagnostic:
   tool: latency_diagnostic
   questions:
@@ -842,6 +1091,8 @@ latency_diagnostic:
   - Which internal call is causing slow responses on the auth-service?
   - Show me the span breakdown for slow traces on the order service
   - What is the bottleneck span causing high latency on the payment API?
+  description: Diagnose the root cause of high service latency, find the bottleneck span and slow internal
+    call causing slow responses above 500ms, from trace span breakdown
 list_namespaces:
   tool: list_namespaces
   questions:
@@ -852,49 +1103,51 @@ list_namespaces:
   - How many namespaces do I have and what are their ages?
   - Give me all namespaces with their status and age
   - How many namespaces do we have running in production?
+  description: List and count all Kubernetes namespaces in the cluster with their status, age and resource
+    metadata
 list_ingresses:
   tool: list_ingresses
-  description: List vanilla Kubernetes Ingress resources across namespaces — hosts, target services, TLS enabled, and duplicate host claims.
+  description: List Kubernetes Ingress resources across namespaces, including hosts, backend services,
+    TLS configuration, and potential duplicate-host routing conflicts
   questions:
   - List all ingress resources and their hosts
   - Which ingresses are missing TLS?
   - Show all ingress resources and their backend services
   - Are there duplicate ingress hosts?
   - Which ingresses expose services without TLS?
-list_openshift_image_streams:
-  tool: list_image_streams
-  questions:
-  - What ImageStreams are available in the openshift namespace?
-  - Show me all ImageStreams and how many tags each one has.
-  - Which ImageStreams exist in my build namespace on OpenShift?
-  - List the container ImageStreams in the shared registry project.
-  - How many image tags are tracked in the frontend ImageStream?
 list_openshift_projects:
-  tool: list_namespaces
+  tool: list_openshift_projects
+  description: OpenShift-only. List OpenShift projects (namespaces) with their status and display name,
+    the full project inventory of the OCP cluster. For non-OpenShift clusters, use list_namespaces directly.
   questions:
   - List all OpenShift projects and their current status.
-  - What projects exist in my OpenShift cluster and how are they doing?
-  - Show me every project on this OCP cluster with its display name.
-  - How many projects do we have running in production OpenShift?
-  - Give me the full project inventory for this OpenShift cluster.
+  - What projects exist on this OCP cluster and how are they doing?
+  - Show me every project with its display name on the OpenShift cluster.
+  - Which OpenShift projects are in the cluster right now?
+  - Give me the full project inventory of the OpenShift cluster.
 list_openshift_routes:
-  tool: list_ingresses
+  tool: list_openshift_routes
+  description: OpenShift-only. List OpenShift Routes and ingresses exposed in a namespace, their target
+    services, hostnames, and whether TLS termination is enabled. For non-OpenShift clusters, use list_ingresses
+    directly.
   questions:
   - Which routes are exposed in the payments namespace, and are they TLS-enabled?
-  - Show me all OpenShift routes for the web namespace with their target services.
-  - Are there any routes serving traffic without TLS termination?
-  - List the externally exposed routes in my OpenShift project.
-  - What hostnames are exposed via routes in the frontend namespace?
+  - List all OpenShift routes targeting the checkout service.
+  - Show me the hostnames and TLS status of routes in production.
+  - Are there any OpenShift routes without TLS termination in staging?
+  - List the routes and their backend services in the default namespace.
 list_pipeline_runs:
   tool: list_pipeline_runs
   questions:
-  - Show me the last 10 pipeline runs for the payment-service — what is the success rate?
+  - "Show me the last 10 pipeline runs for the payment-service \u2014 what is the success rate?"
   - How often does the checkout pipeline fail?
   - What's the average build time for the auth-service?
   - Are there any abnormally slow runs in the payment pipeline recently?
   - What is the failure rate of the deploy-api pipeline over the last week?
   - How reliable is the deploy pipeline for the recommendation-engine service?
   - Give me the pipeline run history for the data-ingestion service
+  description: List recent pipeline runs for a service with success rate, average build time, failure
+    rate over the last week, and abnormally slow runs
 list_pipeline_runs_in_namespace:
   tool: list_pipeline_runs_in_namespace
   questions:
@@ -904,6 +1157,8 @@ list_pipeline_runs_in_namespace:
   - Which pipelines have been running for more than an hour?
   - Give me an overview of all pipeline activity in the staging namespace
   - Are there any pipelines that are stuck in the tekton namespace right now?
+  description: List all PipelineRuns in a namespace, their current status, stuck or failing pipelines,
+    and runs active for more than an hour
 list_pods:
   tool: list_pods
   questions:
@@ -913,35 +1168,44 @@ list_pods:
   - Show me the pod health status for the ci namespace
   - What is the current state of all pods in my cluster?
   - Are there any pods that are not running in my cluster?
-  - List all pods sorted by health — show me the failing ones first
+  - "List all pods sorted by health \u2014 show me the failing ones first"
+  description: List and count pods in a namespace or across the cluster with status, restarts and resource
+    requests, find unhealthy pods, CrashLoopBackOff and pods not running
 list_task_runs:
   tool: list_task_runs
   questions:
-  - List all TaskRuns for the build-deploy pipeline — which step is failing?
+  - "List all TaskRuns for the build-deploy pipeline \u2014 which step is failing?"
   - What's the status of each step in the payment-service pipeline?
   - Which task step broke the checkout pipeline?
   - Show me the TaskRuns for the ci/deploy-api pipeline
   - Which steps of my pipeline are currently running or failed?
   - Which Tekton task failed in the last build?
   - What was the error in the last TaskRun for the auth pipeline?
+  description: List Tekton TaskRuns for a pipeline, which step is running or failed, which task broke
+    the pipeline, and the error from the last TaskRun
 live_dependency_mapping:
   tool: live_topology_mapper
   questions:
-  - Generate a live dependency map of all services currently running in the cluster — show me which services call which, and
-    highlight single points of failure.
+  - "Generate a live dependency map of all services currently running in the cluster \u2014 show me which\
+    \ services call which, and highlight single points of failure."
   - Which services would take down the most other services if they went down right now?
   - Can you draw me a call graph of the production namespace and flag anything risky?
-  - How much would it cost us in downtime if auth-service failed — how many services depend on it?
+  - "How much would it cost us in downtime if auth-service failed \u2014 how many services depend on it?"
   - List all single points of failure in the checkout namespace based on current service topology.
   - Are there any circular dependencies between our microservices?
+  description: Generate a live service dependency map and call graph from current cluster traffic, highlight
+    single points of failure and circular dependencies, and downtime blast radius
 manual_change_outside_gitops_detection:
   tool: detect_manual_changes_outside_gitops
   questions:
-  - Which ConfigMaps or Secrets were manually modified outside of GitOps in the last 7 days — who changed them and when?
+  - "Which ConfigMaps or Secrets were manually modified outside of GitOps in the last 7 days \u2014 who\
+    \ changed them and when?"
   - Did anyone edit the payment-service Secret directly instead of going through Git?
   - Are all of our recent ConfigMap changes coming from ArgoCD, or is someone bypassing GitOps?
   - Which changes in the last 3 days were made by a real person versus a CI pipeline?
   - Is our audit logging even configured, or are we flying blind on manual changes?
+  description: Detect ConfigMaps and Secrets changed manually outside GitOps, who changed them and when,
+    changes bypassing ArgoCD, and whether audit logging is configured
 memory_saturation:
   tool: memory_saturation
   questions:
@@ -950,6 +1214,11 @@ memory_saturation:
   - Why is the checkout pod consuming so much memory?
   - Show me pods with growing memory trends and their projected saturation time
   - Are any pods about to hit their memory limit in production?
+  description: "MEMORY OOM PREDICTION: predict which pods will saturate memory and hit OOM in next 30\
+    \ minutes. Shows growing memory trends and which pods are at immediate risk. Answers: \"which pods\
+    \ will OOM soon\". This is for IMMINENT MEMORY FAILURE prediction \u2014 NOT general resource checks.\
+    \ Do NOT use for: general resource limits (use check_resource_constraints), CPU-specific node issues\
+    \ (use hot_node_analysis). and projected saturation time\n"
 metric_correlation:
   tool: metric_correlation
   questions:
@@ -958,16 +1227,20 @@ metric_correlation:
   - Correlate the latency spike on auth-service with the gateway error spike
   - Is there a causal relationship between checkout errors and Redis latency?
   - Overlay 5xx rate and p99 latency for the last 30 minutes
+  description: "Correlate metric spikes to find causal links \u2014 whether 5xx errors on the gateway\
+    \ correlate with latency on another service, or errors are caused by database or Redis slowness"
 network_segmentation_gap_detection:
   tool: detect_network_segmentation_gaps
   questions:
-  - Are there pods that can communicate with each other without any network policy restriction — which namespaces are fully
-    open to east-west traffic?
+  - "Are there pods that can communicate with each other without any network policy restriction \u2014\
+    \ which namespaces are fully open to east-west traffic?"
   - Which of our namespaces have zero NetworkPolicies at all?
   - Is the dev namespace still fully open, or did someone add a default-deny policy?
   - Which namespaces have ingress restrictions but no egress restrictions?
   - Give me a prioritized list of namespaces that need a default-deny NetworkPolicy.
   - Does Calico or Istio already provide segmentation we're not seeing in vanilla NetworkPolicies?
+  description: Detect namespaces with no NetworkPolicies and fully open east-west pod traffic, missing
+    egress restrictions, and a prioritized list needing a default-deny policy
 p99_latency:
   tool: p99_latency
   questions:
@@ -976,6 +1249,8 @@ p99_latency:
   - Compute p50, p95, and p99 latency for the search endpoint
   - What is the tail latency of the payments service in the last hour?
   - Show me the SLO compliance status for the /v1/orders endpoint
+  description: Compute p50, p95 and p99 tail latency for an endpoint over a time window and check SLO
+    compliance against a latency target like 500ms
 pipeline_for_service:
   tool: pipeline_for_service
   questions:
@@ -984,15 +1259,20 @@ pipeline_for_service:
   - What pipeline builds the auth-service and what is its trigger?
   - Are there multiple pipelines for the order service?
   - Show me the last run status of the deployment pipeline for checkout
+  description: Find the pipeline that builds and deploys a given service, its repository, branch and trigger,
+    whether multiple pipelines exist, and its last run status
 pipeline_performance_baseline:
   tool: pipeline_performance_baseline
   questions:
-  - Establish a CI/CD performance baseline for the payment-service pipeline — what is the average build time, test time, and
-    deploy time over the last 30 runs?
+  - "Establish a CI/CD performance baseline for the payment-service pipeline \u2014 what is the average\
+    \ build time, test time, and deploy time over the last 30 runs?"
   - Has the checkout pipeline been getting slower over the last week? Show me the trend.
-  - Which pipeline runs are outliers — taking more than double the average build time?
+  - "Which pipeline runs are outliers \u2014 taking more than double the average build time?"
   - Give me the p50 and p95 durations for each stage of the deploy-api pipeline
   - Is the CI pipeline performance improving, stable, or degrading compared to last month?
+  description: "Pipeline speed trend analysis \u2014 detect if a CI/CD pipeline is getting slower over\
+    \ time. Establish performance baseline with average build, test and deploy times over recent runs,\
+    \ p50 and p95 stage durations, and outlier detection"
 pipeline_run_logs:
   tool: pipeline_run_logs
   questions:
@@ -1000,7 +1280,9 @@ pipeline_run_logs:
   - At which step did the pipeline break and why?
   - Get the error logs for the last failed Tekton pipeline run
   - Show me all step logs for PipelineRun deploy-v3
-  - What caused the checkout pipeline to fail — show me the error output
+  - "What caused the checkout pipeline to fail \u2014 show me the error output"
+  description: Get the full step logs of a failed Tekton PipelineRun, at which step it broke and the error
+    output that caused the failure
 plan_spike_provisioning:
   tool: plan_spike_provisioning
   questions:
@@ -1010,16 +1292,25 @@ plan_spike_provisioning:
   - What is our current CPU and memory headroom ahead of peak season?
   - Can our autoscaler handle the Black Friday spike, or do we need manual provisioning?
   - Provision infrastructure proactively for peak traffic and give me a deadline.
+  description: "SPIKE PRE-PROVISIONING: plan proactive node provisioning before traffic spikes (Black\
+    \ Friday, launch). Shows whether current capacity handles anticipated load, how many nodes to add,\
+    \ and when to provision. Answers: \"how to prepare for Black Friday\", \"nodes needed for launch day\"\
+    . This is for KNOWN UPCOMING EVENTS \u2014 NOT general capacity trends. Do NOT use for: daily capacity\
+    \ trends (use cluster_capacity_ceiling_forecast), checking current constraints (use check_resource_constraints).\
+    \ survives a 3x spike, current headroom, and a deadline\n"
 pod_security_standards_audit:
   tool: detect_privileged_pods
   questions:
-  - Are there pods running as root or with privileged security context that shouldn't be — which workloads violate the Pod
-    Security Standards?
+  - "Are there pods running as root or with privileged security context that shouldn't be \u2014 which\
+    \ workloads violate the Pod Security Standards?"
   - 'Is any container in production running privileged: true?'
   - Which pods are missing a runAsNonRoot setting and would default to running as root?
   - Do any of our containers add dangerous capabilities like SYS_ADMIN or NET_ADMIN?
-  - Which namespaces enforce the restricted Pod Security Standard, and are any pods there actually violating it?
-  - Ignore node-exporter and kube-proxy — what real Pod Security violations do we have?
+  - Which namespaces enforce the restricted Pod Security Standard, and are any pods there actually violating
+    it?
+  - "Ignore node-exporter and kube-proxy \u2014 what real Pod Security violations do we have?"
+  description: Audit pods against Pod Security Standards, flagging privileged pods, host-network usage
+    and dangerous capabilities.
 policy_audit:
   tool: policy_audit
   questions:
@@ -1028,6 +1319,8 @@ policy_audit:
   - Is the production namespace compliant with all policies?
   - Give me a security compliance report for the entire cluster
   - How many resources are non-compliant per namespace?
+  description: Run a policy compliance audit across all namespaces, which have the most violations, per-namespace
+    non-compliant resource counts, and a cluster-wide compliance report
 policy_detect:
   tool: policy_detect
   questions:
@@ -1036,14 +1329,18 @@ policy_detect:
   - Are there any policy violations in my cluster right now?
   - How many enforce vs audit policies do I have?
   - Detect the policy engine and show me the violation counts
+  description: Detect the policy engine installed (Kyverno or OPA Gatekeeper), current policy violations,
+    and how many enforce versus audit policies exist
 policy_explain_denial:
   tool: policy_explain_denial
   questions:
   - Why was my deployment denied by Kyverno?
   - Explain why my pod was rejected by the policy engine
   - What do I need to change to pass the security policy?
-  - My nginx deployment was blocked — what rule did it violate?
+  - "My nginx deployment was blocked \u2014 what rule did it violate?"
   - Give me the fix suggestion for the denied resource in production
+  description: Explain why a deployment or pod was denied by Kyverno or the policy engine, which rule
+    it violated, and what to change to pass
 policy_get:
   tool: policy_get
   questions:
@@ -1052,6 +1349,8 @@ policy_get:
   - Is the restrict-image-registries Gatekeeper constraint ready?
   - What is the description and action of this policy?
   - Get the full configuration of the production security policy
+  description: Get the full configuration of a specific Kyverno ClusterPolicy or Gatekeeper constraint,
+    its rules, action and readiness
 policy_list:
   tool: policy_list
   questions:
@@ -1060,6 +1359,8 @@ policy_list:
   - Show me all ClusterPolicies with their violation counts
   - What policies are blocking deployments using root containers?
   - List all Gatekeeper constraints and their readiness status
+  description: List all Kyverno policies and Gatekeeper constraints, which are in enforce versus audit
+    mode, their violation counts and readiness
 policy_violations_list:
   tool: policy_violations_list
   questions:
@@ -1068,6 +1369,8 @@ policy_violations_list:
   - Show me all violations with HIGH severity
   - Which deployments are violating the no-root policy?
   - List all policy violations in the default namespace
+  description: List policy violations and non-compliant resources in a namespace, filter by HIGH severity,
+    and find deployments violating specific policies like no-root
 project_budget:
   tool: project_budget
   questions:
@@ -1077,26 +1380,38 @@ project_budget:
   - Is our infrastructure cost trending up or down, and by how much per month?
   - Give me a 6-month budget forecast broken down by compute, storage and network.
   - Forecast our cloud bill so I can plan the budget and avoid surprises.
+  description: '6-MONTH LONG-TERM PROJECTION: project infrastructure cost 6 months ahead with best and
+    worst case scenarios. Shows when budget threshold will be exceeded, broken down by compute/storage/network.
+    Answers: "what will we spend in Q3", "at current growth when do we hit the budget cap". This is for
+    LONG-TERM PLANNING (quarters/years), not this month''s tracking. Do NOT use for: this month''s spend
+    (use forecast_cost), immediate budget check (use compute_budget_intelligence), finding waste (use
+    detect_over_provisioned_namespaces).
+
+    '
 prometheus_query:
   tool: prometheus_query
   questions:
-  - What is the current CPU usage rate for all pods in the payment namespace over the last 5 minutes? Query Prometheus for
-    container_cpu_usage_seconds_total.
+  - What is the current CPU usage rate for all pods in the payment namespace over the last 5 minutes?
+    Query Prometheus for container_cpu_usage_seconds_total.
   - Run `up` against Prometheus and tell me which targets are down.
   - Give me the memory usage series for the checkout-service pod over the last hour.
   - Is Prometheus even reachable right now?
   - What's `rate(http_requests_total{status=~"5.."}[5m])` currently showing for the auth-service?
+  description: Run a raw PromQL query against Prometheus for CPU, memory or request rate metrics, check
+    which targets are down, and whether Prometheus is reachable
 query_kubearchive:
   tool: query_kubearchive
   questions:
-  - Query KubeArchive for the historical state of all pods in the payment namespace from last Tuesday — what was the pod count
-    and which ones were restarting?
+  - "Query KubeArchive for the historical state of all pods in the payment namespace from last Tuesday\
+    \ \u2014 what was the pod count and which ones were restarting?"
   - What was the state of pods in production at 2026-06-09T10:00:00Z and which ones were crashing?
   - How many pods were running in staging last Monday and how does that compare to today?
-  - Compare the pods in the payment namespace now vs last week — what was added and what was removed?
+  - "Compare the pods in the payment namespace now vs last week \u2014 what was added and what was removed?"
   - Show me which deployments existed in the ci namespace on June 1st
   - Were there any pods in CrashLoopBackOff in the production namespace last Tuesday?
   - Give me a historical snapshot of all pods in the payment namespace and highlight the failing ones
+  description: Query KubeArchive for the historical state of pods and deployments at a past date or time,
+    compare then versus now, and find pods that were crashing last week
 redundant_calls:
   tool: redundant_calls
   questions:
@@ -1105,6 +1420,8 @@ redundant_calls:
   - Detect duplicate DB queries in the checkout flow
   - Show me wasted calls in the payments trace
   - Are there N+1 patterns or circular calls in the last trace?
+  description: Detect redundant, duplicate or wasted calls in a request trace, N+1 query patterns, and
+    circular calls in the service flow
 report_critical_vulnerabilities:
   tool: report_critical_vulnerabilities
   questions:
@@ -1114,6 +1431,8 @@ report_critical_vulnerabilities:
   - Do we have unresolved critical vulnerabilities on our platform?
   - How many critical CVEs are still open, and on which services?
   - What is the oldest unresolved critical vulnerability?
+  description: Report unresolved critical CVEs and vulnerabilities across the platform, how many are still
+    open and on which services, and the oldest unresolved one
 report_night_interventions:
   tool: report_night_interventions
   questions:
@@ -1124,6 +1443,8 @@ report_night_interventions:
   - Is the SRE team less called at night?
   - How many night interventions do we have this month vs last quarter?
   - Is our on-call nighttime load improving?
+  description: Report after-hours and nighttime on-call interventions, how many this month versus last
+    quarter, whether the SRE night load is improving, and average interventions per night
 report_platform_reliability:
   tool: report_platform_reliability
   questions:
@@ -1135,6 +1456,8 @@ report_platform_reliability:
   - How reliable was our platform this month in plain business terms?
   - What's our platform uptime this month versus last month?
   - How many incidents did we have this month, and what severity?
+  description: Report platform reliability and uptime this month in plain business terms, incident count
+    and severity, resolution time trend, and the financial impact of downtime
 report_stale_credentials:
   tool: report_stale_credentials
   questions:
@@ -1144,6 +1467,8 @@ report_stale_credentials:
   - Are there access credentials that haven't been rotated in 90 days?
   - How many credentials are overdue for rotation, and which are critical?
   - Which secrets should we rotate this week for compliance?
+  description: Report access credentials and secrets not rotated in 90 days, how many are overdue and
+    which are critical, and which to rotate this week for compliance
 report_unauthorized_access:
   tool: report_unauthorized_access
   questions:
@@ -1153,6 +1478,8 @@ report_unauthorized_access:
   - Have there been recent unauthorized access attempts?
   - What is the alert level on blocked access attempts?
   - Where are the blocked access attempts coming from?
+  description: Report recent unauthorized or blocked access attempts, the current alert level, and where
+    the blocked attempts are coming from
 resource_yaml:
   tool: resource_yaml
   questions:
@@ -1161,16 +1488,24 @@ resource_yaml:
   - Show me the ConfigMap definition for the payments service
   - Get the current spec of the checkout-service StatefulSet
   - What is the ingress definition for the frontend app?
+  description: "RESOURCE YAML EXPORT: get the full YAML definition of a Kubernetes resource \u2014 Deployment,\
+    \ StatefulSet, ConfigMap, Ingress. Answers: \"show me the YAML for deployment X\", \"get the config\
+    \ of StatefulSet Y\". This is for INSPECTING/EXPORTING resource definitions \u2014 NOT for analysis\
+    \ or simulation. Do NOT use for: what-if simulations (use run_what_if_simulation), headroom checks\
+    \ (use cluster_headroom_simulation). its resource limits and image version\n"
 rightsizing_cost_estimation:
   tool: estimate_cost_saving
   questions:
-  - What is my estimated cloud cost saving if I right-size all over-provisioned pods to match their actual usage?
+  - What is my estimated cloud cost saving if I right-size all over-provisioned pods to match their actual
+    usage?
   - Which pods waste the most CPU and memory, and how much could I save per month?
   - Give me the top 10 cost-saving opportunities by right-sizing with $0.05/core/hour pricing
   - How much money am I wasting in the production namespace from over-provisioned pods?
   - How much would I save monthly if I right-sized all pods to p95 actual usage with a 20% buffer?
   - Are there any over-provisioned pods I can safely shrink to reduce my cloud bill?
   - Estimate how much we'd save by reducing CPU and memory requests to match real usage cluster-wide
+  description: Estimate monthly cloud cost savings from right-sizing over-provisioned pods to actual usage,
+    the top savings opportunities, and pods safe to shrink
 rollout_get:
   tool: rollout_get
   questions:
@@ -1179,6 +1514,8 @@ rollout_get:
   - What is the current canary weight for the checkout rollout?
   - Show me the AnalysisRun linked to the production rollout
   - What is the current image being rolled out for the frontend service?
+  description: Get the full status of an Argo Rollout with step detail, why a canary is blocked, current
+    canary weight, linked AnalysisRun, and the image being rolled out
 rollout_status:
   tool: rollout_status
   questions:
@@ -1187,6 +1524,8 @@ rollout_status:
   - Why is the auth-service rollout paused?
   - Should I promote or abort the current rollout of the api-gateway?
   - Show me the real-time status of the production deployment rollout
+  description: Get the real-time status of an Argo Rollout, which step and canary weight it is on, why
+    it is paused, and whether to promote or abort
 rollouts_detect:
   tool: rollouts_detect
   questions:
@@ -1195,6 +1534,8 @@ rollouts_detect:
   - Detect Argo Rollouts and show me the version and rollout counts
   - Are there any degraded or paused rollouts right now?
   - What is the rollout status across all namespaces?
+  description: Detect whether Argo Rollouts is installed and its version, how many rollouts are in progress,
+    and any degraded or paused rollouts across namespaces
 rollouts_list:
   tool: rollouts_list
   questions:
@@ -1203,15 +1544,23 @@ rollouts_list:
   - Show me all canary rollouts in the production namespace
   - Which rollouts are currently paused or degraded?
   - List all blue-green rollouts with their stable and canary images
+  description: List all Argo Rollouts with their phase, canary and blue-green rollouts, stable and canary
+    images, and which are paused or degraded
 run_what_if_simulation:
   tool: run_what_if_simulation
   questions:
-  - What would happen to the cluster if I scale down the auth-service to 1 replica? Simulate the impact on latency, error
-    rate, and dependent services.
+  - What would happen to the cluster if I scale down the auth-service to 1 replica? Simulate the impact
+    on latency, error rate, and dependent services.
   - If I double the replicas of payment-service, which downstream services will be affected?
-  - Simulate scaling the checkout-service from 3 to 1 — is it safe during peak traffic?
-  - Show me the blast radius if I remove the caching layer — which services depend on redis?
+  - "Simulate scaling the checkout-service from 3 to 1 \u2014 is it safe during peak traffic?"
+  - "Show me the blast radius if I remove the caching layer \u2014 which services depend on redis?"
   - What's the risk level of reducing api-gateway to 2 replicas given current CPU usage?
+  description: "WHAT-IF IMPACT ANALYSIS: simulate the IMPACT of changes \u2014 scaling down a service,\
+    \ removing a node, changing replicas. Shows effect on latency, error rate, dependent services, and\
+    \ remaining headroom. Answers: \"what if I scale down auth-service to 1 replica\", \"impact of removing\
+    \ a component\". This is about RISK ASSESSMENT of changes \u2014 NOT about fitting new workloads.\
+    \ Do NOT use for: checking if new workloads fit (use cluster_headroom_simulation), consolidation plans\
+    \ (use run_consolidation), capacity trends (use cluster_capacity_ceiling_forecast).\n"
 scan_container_vulnerabilities:
   tool: scan_container_vulnerabilities
   questions:
@@ -1221,32 +1570,42 @@ scan_container_vulnerabilities:
   - Which Critical CVEs in production should we patch first?
   - How many of our running images are actually affected by known vulnerabilities?
   - Are any of our images running on a mutable latest tag?
+  description: Scan container images for known CVEs and vulnerable or end-of-life base images, which Critical
+    CVEs to patch first, and how many running images are affected
 search_resources_by_labels:
   tool: search_resources_by_labels
   questions:
-  - Find all pods labeled app=payment and env=production across all namespaces — what is their current status?
+  - "Find all pods labeled app=payment and env=production across all namespaces \u2014 what is their current\
+    \ status?"
   - Which services and pods match app=checkout in the production namespace?
   - Is anything labeled app.kubernetes.io/name=payment unhealthy right now?
   - Show me every resource with version=1.2.3 across the cluster.
   - Are there any configmaps or deployments labeled team=platform anywhere?
+  description: "Find Kubernetes resources matching label selectors across namespaces \u2014 pods, services,\
+    \ configmaps, deployments by app, env, version or team label \u2014 and their status"
 secret_rotation_audit:
   tool: audit_secret_rotation
   questions:
-  - Show me all Kubernetes Secrets that haven't been rotated in more than 90 days — which services are using them and what
-    is the rotation risk?
+  - "Show me all Kubernetes Secrets that haven't been rotated in more than 90 days \u2014 which services\
+    \ are using them and what is the rotation risk?"
   - Is our production db-password secret overdue for rotation, and which deployments depend on it?
   - Which stale secrets are safe to delete because nothing actually references them anymore?
   - Are any of our TLS certificates overdue for rotation, or are they managed by cert-manager?
   - Give me a prioritized checklist of secrets to rotate first, ranked by urgency.
   - Which namespaces are exempt from our secret rotation policy?
+  description: Audit Kubernetes Secrets for rotation, those older than 90 days and which services depend
+    on them, stale unused secrets safe to delete, and a prioritized rotation checklist
 semantic_log_search:
   tool: semantic_log_search
   questions:
-  - Search across all pod logs for the pattern 'connection refused to postgres' in the last hour — which services are affected?
+  - "Search across all pod logs for the pattern 'connection refused to postgres' in the last hour \u2014\
+    \ which services are affected?"
   - Grep every pod in the checkout namespace for 'OOMKilled' in the last 15 minutes.
   - Is any service logging 'context deadline exceeded' right now?
   - Find pods matching the regex `timeout.*retry` across all namespaces.
   - Which pods and services show connection errors to redis in the last 6 hours?
+  description: Search across all pod logs for a text pattern or regex like 'connection refused to postgres',
+    'OOMKilled' or 'context deadline exceeded', and find which services are affected
 sensitive_data_audit:
   tool: sensitive_data_audit
   questions:
@@ -1255,16 +1614,20 @@ sensitive_data_audit:
   - Flag any external IPs accessing the /admin/pii endpoints
   - Show me all requests to sensitive URLs from non-internal services
   - Audit access to /user/*/ssn with allowlist filtering
+  description: Audit access to sensitive PII endpoints like /user/*/ssn, who accessed them, and flag external
+    or non-internal IPs reaching sensitive URLs
 service_account_rbac_audit:
   tool: audit_rbac_permissions
   questions:
-  - Which service accounts have cluster-admin or overly broad permissions they don't actually need — what is the minimal required
-    RBAC for each?
+  - "Which service accounts have cluster-admin or overly broad permissions they don't actually need \u2014\
+    \ what is the minimal required RBAC for each?"
   - Is any service account in production bound to cluster-admin that shouldn't be?
   - Show me every service account with wildcard verbs or access to all resources.
   - Which service accounts have permissions they've never actually used, based on the audit log?
   - How much blast radius would we cut by tightening our over-privileged service accounts?
-  - Are there any service accounts with no bindings at all — just dead weight in the cluster?
+  - "Are there any service accounts with no bindings at all \u2014 just dead weight in the cluster?"
+  description: Audit service account RBAC for cluster-admin or wildcard permissions they don't need, the
+    minimal required RBAC, never-used permissions, and accounts with no bindings
 service_dependency_graph:
   tool: service_dependency_graph
   questions:
@@ -1273,6 +1636,8 @@ service_dependency_graph:
   - What is the call graph between my microservices?
   - Which service calls which based on actual trace data?
   - Build a dependency map from spans showing caller-callee relationships
+  description: Build a service dependency and call graph from OTel trace spans, showing which service
+    calls which and caller-callee relationships derived from actual traffic
 slo_breach_prediction:
   tool: slo_breach_prediction
   questions:
@@ -1281,6 +1646,8 @@ slo_breach_prediction:
   - Predict which services need attention before they breach their SLO
   - Is the auth-service trending toward an SLO violation?
   - Show me services with degrading p99 latency and projected breach times
+  description: Predict which services will breach their latency SLO in the next hour from degrading p99
+    trends, with projected breach times, before it happens
 slowest_traces:
   tool: slowest_traces
   questions:
@@ -1289,23 +1656,29 @@ slowest_traces:
   - Rank the top 5 traces by duration for pod auth-service-abc
   - Find the worst-performing traces for the checkout pod this hour
   - List the longest running spans for pod frontend-deploy
+  description: Rank the slowest traces and longest-running spans for a specific pod over a time window
+    to find the worst-performing requests
 span_bottleneck_analysis:
   tool: span_bottleneck_analysis
   questions:
   - Is the bottleneck in the database or in the Redis cache?
-  - Which is slower based on OTel traces — DB queries or Redis commands?
+  - "Which is slower based on OTel traces \u2014 DB queries or Redis commands?"
   - Is my database the bottleneck in our request flow?
   - Analyze DB vs Redis latency from recent traces and tell me which dominates
   - What is the slowest DB query and Redis command in the last 30 minutes?
+  description: Analyze trace spans to find whether the database or the Redis cache is the bottleneck,
+    compare DB versus Redis latency, and the slowest query and command
 summarize_namespace_events:
   tool: summarize_namespace_events
   questions:
-  - Give me a quick summary of what's happening in the staging namespace — total events, severity breakdown, top affected
-    pods.
+  - "Give me a quick summary of what's happening in the staging namespace \u2014 total events, severity\
+    \ breakdown, top affected pods."
   - What's the high-level event overview for production right now?
   - How many events are in checkout namespace and which severities dominate?
   - Give me the event landscape summary for staging before I drill into details.
   - Which pods are affected the most by events in the payment namespace?
+  description: "Give a high-level summary of Kubernetes events in a namespace \u2014 total event count,\
+    \ severity breakdown, and the top affected pods \u2014 before drilling into details"
 tls_certificate_diagnosis:
   tool: tls_certificate_diagnosis
   questions:
@@ -1314,6 +1687,8 @@ tls_certificate_diagnosis:
   - Check the TLS certificate validity and SANs for the production ingress
   - Why is the checkout ingress returning SSL handshake errors?
   - Diagnose the certificate on ingress auth-service
+  description: "Diagnose the TLS certificate on an ingress \u2014 whether it is expired, misconfigured,\
+    \ using a deprecated cipher, its validity and SANs \u2014 and why it returns SSL handshake errors"
 trace_k8s_events:
   tool: trace_k8s_events
   questions:
@@ -1322,6 +1697,8 @@ trace_k8s_events:
   - Correlate k8s events with the slowest span in this trace
   - Did infrastructure events cause the performance degradation in this trace?
   - List all OOMKilled, restart, and eviction events in the trace time window
+  description: "Correlate Kubernetes system events \u2014 OOMKilled, restart, eviction \u2014 with a slow\
+    \ trace's time window to see if infrastructure events caused the performance degradation"
 trace_log_correlation:
   tool: trace_log_correlation
   questions:
@@ -1329,34 +1706,33 @@ trace_log_correlation:
   - Find the error logs for the most recent failed checkout request
   - Correlate the failed trace abc-def-123 with the application error logs
   - Show me the application errors that happened during the failed payments trace
-  - What went wrong in the last failed POST /order request — show logs and spans
+  - "What went wrong in the last failed POST /order request \u2014 show logs and spans"
+  description: Correlate a failed trace with the application error logs that happened during it, find
+    the error logs for the most recent failed request, and what went wrong
 trace_pipeline_run_dag:
   tool: trace_pipeline_run_dag
   questions:
-  - Trace the full execution path of PipelineRun deploy-checkout-v5 — show me the complete DAG of TaskRuns with their start
-    times, durations, and dependencies.
-  - What is the critical path for the payment-service pipeline — which tasks are the bottleneck?
+  - "Trace the full execution path of PipelineRun deploy-checkout-v5 \u2014 show me the complete DAG of\
+    \ TaskRuns with their start times, durations, and dependencies."
+  - "What is the critical path for the payment-service pipeline \u2014 which tasks are the bottleneck?"
   - Show me the execution DAG for pipeline-run-42, highlight any failed or skipped tasks
   - Which TaskRuns ran in parallel vs sequentially in the latest CI pipeline?
   - Give me a visual dependency graph of the deploy-staging PipelineRun with timestamps
+  description: Trace the full execution DAG of a PipelineRun with TaskRun start times, durations and dependencies,
+    the critical path, bottleneck tasks, and parallel versus sequential steps
 unintended_external_exposure_detection:
   tool: detect_unintended_external_exposure
   questions:
-  - Which services are exposed externally via LoadBalancer or NodePort but shouldn't be — are there any unintended public-facing
-    endpoints?
+  - "Which services are exposed externally via LoadBalancer or NodePort but shouldn't be \u2014 are there\
+    \ any unintended public-facing endpoints?"
   - Are any of our databases accidentally exposed to the internet through a LoadBalancer service?
   - List all LoadBalancer and NodePort services that are not in the approved allowlist.
   - Do we have any pending LoadBalancer services that will soon be publicly accessible?
-  - Which internal services — database, cache, metrics — are currently reachable from outside the cluster?
+  - "Which internal services \u2014 database, cache, metrics \u2014 are currently reachable from outside\
+    \ the cluster?"
   - Show me every externally exposed service and tell me if it's intentional or not.
-usage_ledger_report:
-  tool: usage_ledger_report
-  questions:
-  - How many investigations did I run this month?
-  - Which tools consume the most SLM time?
-  - What's my average investigation duration this week?
-  - How many tokens did the SLM consume last month across all investigations?
-  - Show me my monthly usage report for July 2026
+  description: Detect unintended public-facing endpoints, services exposed via LoadBalancer or NodePort
+    that shouldn't be, databases reachable from the internet, and pending public services
 version_regression:
   tool: version_regression
   questions:
@@ -1365,32 +1741,132 @@ version_regression:
   - Compare p99 and error rate between the latest two versions of auth-service
   - Is the new release of the payment API slower than the previous?
   - Detect if the latest canary version deteriorated from the stable baseline
+  description: Detect whether a new service version introduced a regression, compare p99 latency and error
+    rate between the latest two versions, and if the canary deteriorated from stable
 watch_pod_logs:
   tool: watch_pod_logs
   questions:
-  - Stream and analyze in real-time the logs from the payment-service pod — alert me as soon as an OOM or DB connection error
-    appears.
+  - "Stream and analyze in real-time the logs from the payment-service pod \u2014 alert me as soon as\
+    \ an OOM or DB connection error appears."
   - Watch the checkout pod's logs live and let me know immediately if it panics or runs out of memory.
   - Can you tail the worker pod and alert on any database connection failures?
   - Monitor auth-service for OOM kills over the next 5 minutes.
   - Live-watch the api-gateway pod logs and notify Slack the moment something critical happens.
+  description: Stream and watch a pod's logs live in real time, alerting the moment an OOM, panic or database
+    connection error appears, and notify Slack on critical events
 get_namespace_resource_allocation:
   tool: get_namespace_resource_allocation
   questions:
-  - Which namespaces have the highest total CPU and memory requests? Rank them by CPU and tell me which namespace has the most pods.
+  - Which namespaces have the highest total CPU and memory requests? Rank them by CPU and tell me which
+    namespace has the most pods.
   - Show me the namespace resource allocation ranked by total CPU cores, including pod counts.
   - How much CPU and memory has each namespace requested across all its pods?
-  - Rank all my namespaces by total resource requests — I need to know which ones consume the most.
+  - "Rank all my namespaces by total resource requests \u2014 I need to know which ones consume the most."
   - Give me a breakdown of CPU and memory requests per namespace with pod counts.
   - What is the total resource footprint per namespace in my cluster?
-  - List all namespaces ordered by CPU requests — which one would I scale down first?
+  - "List all namespaces ordered by CPU requests \u2014 which one would I scale down first?"
+  description: "REQUESTS RANKING: rank namespaces cluster-wide by their configured CPU/memory requests\
+    \ and pod count. Answers \"which namespaces have the highest requests\" / \"which namespace has the\
+    \ most pods\" \u2014 distinct from get_resource_usage (live usage for ONE named namespace, not a ranking)\
+    \ and detect_over_provisioned_namespaces (waste percentage, not raw requests or pod count). Use when\
+    \ the question asks to rank or compare namespaces by requested CPU/memory or pod count, without naming\
+    \ one specific namespace to check usage for.\n"
 get_resource_usage:
   tool: get_resource_usage
   questions:
-  - Namespace dev has 8 CPUs allocated — how much is it actually using?
+  - "Namespace dev has 8 CPUs allocated \u2014 how much is it actually using?"
   - Show me real CPU and memory usage per pod across all namespaces from metrics-server.
-  - Is the staging namespace really over-provisioned or just configured that way? Compare requests vs actual usage.
+  - Is the staging namespace really over-provisioned or just configured that way? Compare requests vs
+    actual usage.
   - Which pods in production are using the most memory right now?
-  - Give me per-pod resource utilization percentages — I want to see the gap between requests and real consumption.
+  - "Give me per-pod resource utilization percentages \u2014 I want to see the gap between requests and\
+    \ real consumption."
   - How much CPU and memory is each namespace actually consuming compared to what it requested?
   - Show me namespace-level utilization summaries with pod counts and usage percentages.
+  description: "ACTUAL USAGE: report real, live CPU/memory consumption for a named namespace, compared\
+    \ against its configured requests. Answers \"how much is X actually using\" for ONE named namespace\
+    \ \u2014 distinct from detect_over_provisioned_namespaces (which ranks namespaces by waste percentage\
+    \ cluster-wide, not a single namespace's live usage) and resource_yaml (which shows static config,\
+    \ not usage). Use when the question names a specific namespace and asks about its current/actual usage.\n"
+estimate_cost_saving:
+  tool: estimate_cost_saving
+  description: "MISSING RESOURCE REQUEST AUDIT: detect pods and namespaces with NO resource requests configured.\
+    \ Identify over-provisioned workloads by comparing requests to actual usage, estimate savings from\
+    \ setting proper requests. Answers: \"which pods have no CPU/memory requests\", \"find namespaces\
+    \ with unconfigured pods\". This is about MISSING CONFIGURATION \u2014 pods without any requests at\
+    \ all. Do NOT use for: general rightsizing savings (use estimate_rightsizing_savings), namespace waste\
+    \ analysis (use detect_over_provisioned_namespaces).\n"
+  questions:
+  - Which pods have no resource requests configured and where are they running?
+  - Find namespaces with pods missing CPU or memory requests
+  - Which namespaces would benefit most from setting proper resource requests?
+  - Check for pods without resource limits that could cause noisy-neighbor issues
+  - Show me namespaces with the most unconfigured pods
+run_consolidation:
+  tool: run_consolidation
+  description: "WORKLOAD CONSOLIDATION PLAN: identify services that can be merged onto fewer nodes to\
+    \ reduce infrastructure cost. Finds idle nodes, pods that can be colocated, CPU/memory savings from\
+    \ consolidation. Answers: \"which services can run on the same node\", \"consolidate workloads to\
+    \ save costs\", \"how many nodes can we remove\", \"can I merge these 3 services onto 2 nodes\". This\
+    \ is about MOVING EXISTING workloads to fewer nodes \u2014 NOT simulating new workloads. Do NOT use\
+    \ for: simulating new workloads (use cluster_headroom_simulation), what-if impact of changes (use\
+    \ run_what_if_simulation), general rightsizing savings (use estimate_rightsizing_savings).\n"
+  questions:
+  - Which services can be consolidated onto fewer nodes to reduce infrastructure cost?
+  - How many idle nodes do we have and what can we consolidate?
+  - Can I merge the notification service, report generator and webhook handler onto existing nodes?
+  - Which pods can be colocated without performance impact?
+  - Show me a consolidation plan ranked by cost savings.
+  - How much CPU and memory would we save by consolidating staging and dev workloads?
+snapshots_list:
+  tool: snapshots_list
+  description: List all VolumeSnapshots in the cluster, with their ready status and the source PVC each
+    one protects
+  questions:
+  - Show me all VolumeSnapshots in the cluster
+  - List all volume snapshots and their source PVCs
+  - What VolumeSnapshots are ready and which are not?
+  - Show me every VolumeSnapshot in the production namespace
+  - Are there any failed or pending VolumeSnapshots?
+snapshot_get:
+  tool: snapshot_get
+  description: Get the full detail of a VolumeSnapshot, its ready status, snapshot class, and the source
+    PVC it protects
+  questions:
+  - Show me the details of the payment-db-snapshot
+  - What is the status of the inventory-db-snapshot VolumeSnapshot?
+  - Get the full detail of the payment-db-snapshot VolumeSnapshot
+  - Is the payment-db-snapshot ready?
+  - Show me the source PVC of the inventory-db-snapshot
+list_openshift_sccs:
+  tool: list_openshift_sccs
+  description: OpenShift-only. List SecurityContextConstraints (SCC) in the cluster, showing which ones
+    allow privileged containers, host namespaces or run-as-any user. SCCs are an OpenShift concept and
+    do not apply to vanilla Kubernetes.
+  questions:
+  - List all SecurityContextConstraints on this OpenShift cluster.
+  - Which SCCs allow privileged containers or host namespaces?
+  - Show me the most permissive SCCs and what they allow.
+  - Is there an SCC granting run-as-any user on the cluster?
+  - Audit the SCCs for privilege escalation risks.
+list_openshift_imagestreams:
+  tool: list_openshift_imagestreams
+  description: OpenShift-only. List ImageStreams in a namespace or the whole cluster, showing image tags
+    and their tracked build sources. ImageStreams are an OpenShift concept and do not apply to vanilla
+    Kubernetes.
+  questions:
+  - List the ImageStreams in the checkout namespace.
+  - Show me all ImageStreams on the OpenShift cluster.
+  - How many image tags are tracked in the frontend ImageStream?
+  - List ImageStreams and their build sources in production.
+  - Which image streams exist in the default namespace?
+get_quota_usage:
+  tool: get_quota_usage
+  description: "Generate a usage ledger for billing \u2014 how many investigations were run this month,\
+    \ which tools consume the most SLM time, average investigation duration, and token consumption."
+  questions:
+  - How many investigations did I run this month?
+  - Which tools consume the most SLM time?
+  - What is my average investigation duration this month?
+  - Show me my token consumption and quota usage.
+  - Generate a usage ledger report for billing.

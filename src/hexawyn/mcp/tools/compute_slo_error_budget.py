@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from hexawyn.application.use_case.workloads.compute_slo_error_budget.command import (  # type: ignore
-    ComputeSloErrorBudgetCommand,
+    ComputeSLOErrorBudgetCommand,
 )
 from hexawyn.application.use_case.workloads.compute_slo_error_budget.compute_slo_error_budget_use_case import (  # noqa: E501
     ComputeSLOErrorBudgetUseCase,
@@ -20,8 +20,8 @@ def compute_slo_error_budget(service_name: str = "test-service_name") -> dict[st
     from hexawyn.mcp.server import build_error_budget_adapter
 
     try:
-        use_case = ComputeSLOErrorBudgetUseCase(port=build_error_budget_adapter())  # type: ignore
-        _ = use_case.execute(ComputeSloErrorBudgetCommand())  # type: ignore
+        use_case = ComputeSLOErrorBudgetUseCase(error_budget_port=build_error_budget_adapter())
+        _ = use_case.execute(ComputeSLOErrorBudgetCommand())  # type: ignore
         return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}

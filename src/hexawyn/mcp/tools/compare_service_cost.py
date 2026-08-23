@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 from hexawyn.application.use_case.finops.compare_service_cost.command import (
     CompareServiceCostCommand,
 )
-from hexawyn.application.use_case.finops.compare_service_cost.compare_service_cost_use_case import (  # type: ignore
-    CompareServiceCostUseCase,
+from hexawyn.application.use_case.finops.compare_service_cost.compare_service_cost_use_case import (
+    CompareUseCaseCostUseCase,
 )
 
 if TYPE_CHECKING:
@@ -23,8 +23,14 @@ def compare_service_cost(
     from hexawyn.mcp.server import build_service_cost_adapter
 
     try:
-        use_case = CompareServiceCostUseCase(port=build_service_cost_adapter())
-        _ = use_case.execute(CompareServiceCostCommand())  # type: ignore
+        use_case = CompareUseCaseCostUseCase(cost_port=build_service_cost_adapter())
+        _ = use_case.execute(
+            CompareServiceCostCommand(
+                service_name=service_name,
+                cpu_price_per_core_hour=cpu_price_per_core_hour,
+                memory_price_per_gb_hour=memory_price_per_gb_hour,
+            )
+        )
         return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}

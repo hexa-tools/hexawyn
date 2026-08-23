@@ -1,4 +1,3 @@
-# mypy: ignore-errors
 """MCP tool: audit_tls_compliance — scan services for TLS issues."""
 
 from __future__ import annotations
@@ -6,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from hexawyn.application.use_case.security.audit_tls_compliance.audit_tls_compliance_use_case import (  # noqa: E501  # type: ignore  # type: ignore
-    AuditTlsComplianceUseCase,
+    AuditTLSComplianceUseCase,
 )
 from hexawyn.application.use_case.security.audit_tls_compliance.command import (
     AuditTlsComplianceCommand,
@@ -20,8 +19,7 @@ def audit_tls_compliance() -> dict[str, object]:
     from hexawyn.mcp.server import build_tls_compliance_adapter
 
     try:
-        service = AuditTLSComplianceUseCase(tls_port=build_tls_compliance_adapter())  # noqa: F821  # type: ignore  # type: ignore
-        use_case = AuditTlsComplianceUseCase(service=service)
+        use_case = AuditTLSComplianceUseCase(tls_port=build_tls_compliance_adapter())
         r = use_case.execute(AuditTlsComplianceCommand())
         return {
             "all_compliant": r.result.all_compliant,
