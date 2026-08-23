@@ -6,22 +6,24 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from hexawyn.application.use_case.workloads.slo_breach_prediction.command import (  # type: ignore
-    SloBreachPredictionCommand,
+    SLOBreachPredictionCommand,
 )
 from hexawyn.application.use_case.workloads.slo_breach_prediction.slo_breach_prediction_use_case import (  # noqa: E501  # type: ignore  # type: ignore
-    SloBreachPredictionUseCase,
+    SLOBreachPredictionUseCase,
 )
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def slo_breach_prediction(slo_name: str = "") -> dict[str, object]:
+def slo_breach_prediction(prediction_window_minutes: str = "") -> dict[str, object]:
     from hexawyn.mcp.server import build_slo_breach_prediction_adapter
 
     try:
-        use_case = SloBreachPredictionUseCase(port=build_slo_breach_prediction_adapter())
-        _ = use_case.execute(SloBreachPredictionCommand(slo_name=slo_name))
+        use_case = SLOBreachPredictionUseCase(port=build_slo_breach_prediction_adapter())
+        _ = use_case.execute(
+            SLOBreachPredictionCommand(prediction_window_minutes=prediction_window_minutes)
+        )
         return {"error": None}
     except Exception as exc:
         return {"error": str(exc)}

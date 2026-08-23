@@ -21,11 +21,20 @@ class TestKedaScaledObjectStatusTool:
             keda_scaledobject_status,
         )
 
-        with patch("hexawyn.mcp.server.build_keda_adapter", return_value=MagicMock()):
+        mock_uc = MagicMock()
+        mock_uc.execute.return_value = MagicMock()
+
+        with (
+            patch(
+                "hexawyn.mcp.tools.keda_scaledobject_status.KedaScaledobjectStatusUseCase",
+                return_value=mock_uc,
+            ),
+            patch("hexawyn.mcp.server.build_keda_adapter", return_value=MagicMock()),
+        ):
             result = keda_scaledobject_status()
 
         assert isinstance(result, dict)
-        assert "error" in result
+        assert result.get("error") is None
 
     def test_keda_scaledobject_status_handles_error(self) -> None:
         self._mock_imports()

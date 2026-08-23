@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from hexawyn.application.use_case.workloads.compute_mttr_trend.command import (  # type: ignore
-    ComputeMttrTrendCommand,
+from hexawyn.application.use_case.workloads.compute_mttr_trend.command import (
+    ComputeMTTRTrendCommand,
 )
-from hexawyn.application.use_case.workloads.compute_mttr_trend.compute_mttr_trend_use_case import (  # type: ignore
-    ComputeMttrTrendUseCase,
+from hexawyn.application.use_case.workloads.compute_mttr_trend.compute_mttr_trend_use_case import (
+    ComputeMTTRTrendUseCase,
 )
 
 if TYPE_CHECKING:
@@ -29,8 +29,8 @@ def compute_mttr_trend(months: list[str] | None = None) -> dict[str, object]:
 
     try:
         adapter = build_mttr_trend_adapter()
-        use_case = ComputeMttrTrendUseCase(port=adapter)
-        response = use_case.execute(ComputeMttrTrendCommand(months=months or []))
+        use_case = ComputeMTTRTrendUseCase(mttr_port=adapter)
+        response = use_case.execute(ComputeMTTRTrendCommand(months=months or []))
         r = response.result
         return {
             "trend": r.trend,
@@ -39,8 +39,8 @@ def compute_mttr_trend(months: list[str] | None = None) -> dict[str, object]:
                 m: {
                     sev: {
                         "mttr_minutes": s.mttr_minutes,
-                        "incident_count": s.incident_count,
-                        "meets_benchmark": s.meets_benchmark,
+                        "count": s.count,
+                        "downtime_total": s.downtime_total,
                     }
                     for sev, s in data.items()
                 }
@@ -51,8 +51,7 @@ def compute_mttr_trend(months: list[str] | None = None) -> dict[str, object]:
                     "incident_id": i.incident_id,
                     "service_name": i.service_name,
                     "severity": i.severity,
-                    "resolution_minutes": i.resolution_minutes,
-                    "root_cause": i.root_cause,
+                    "downtime_minutes": i.downtime_minutes,
                 }
                 for i in r.slowest_incidents
             ],

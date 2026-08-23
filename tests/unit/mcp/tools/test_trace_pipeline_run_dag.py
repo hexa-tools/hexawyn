@@ -19,14 +19,23 @@ class TestTracePipelineRunDagTool:
         self._mock_imports()
         from hexawyn.mcp.tools.trace_pipeline_run_dag import trace_pipeline_run_dag
 
-        with patch(
-            "hexawyn.mcp.server.build_pipeline_run_logs_adapter",
-            return_value=MagicMock(),
+        mock_uc = MagicMock()
+        mock_uc.execute.return_value = MagicMock()
+
+        with (
+            patch(
+                "hexawyn.mcp.tools.trace_pipeline_run_dag.TracePipelineRunDagUseCase",
+                return_value=mock_uc,
+            ),
+            patch(
+                "hexawyn.mcp.server.build_pipeline_run_logs_adapter",
+                return_value=MagicMock(),
+            ),
         ):
-            result = trace_pipeline_run_dag()
+            result = trace_pipeline_run_dag("deploy-api-42", "default")
 
         assert isinstance(result, dict)
-        assert "error" in result
+        assert result.get("error") is None
 
     def test_trace_pipeline_run_dag_handles_error(self) -> None:
         self._mock_imports()
@@ -36,7 +45,7 @@ class TestTracePipelineRunDagTool:
             "hexawyn.mcp.server.build_pipeline_run_logs_adapter",
             side_effect=RuntimeError("test error"),
         ):
-            result = trace_pipeline_run_dag()
+            result = trace_pipeline_run_dag("deploy-api-42", "default")
 
         assert isinstance(result, dict)
         assert result.get("error") == "test error"

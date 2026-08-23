@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 from hexawyn.application.use_case.keda.keda_triggerauth_list.command import (
     KedaTriggerauthListCommand,
 )
-from hexawyn.application.use_case.keda.keda_triggerauth_list.keda_triggerauth_list_use_case import (  # type: ignore
-    KedaTriggerAuthListUseCase,
+from hexawyn.application.use_case.keda.keda_triggerauth_list.keda_triggerauth_list_use_case import (
+    KedaTriggerauthListUseCase,
 )
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ def keda_triggerauth_list(namespace: str | None = None) -> dict[str, object]:
 
     try:
         adapter = build_keda_adapter()
-        use_case = KedaTriggerAuthListUseCase(keda_port=adapter)
+        use_case = KedaTriggerauthListUseCase(port=adapter)
         response = use_case.execute(KedaTriggerauthListCommand(namespace=namespace))
         return {"trigger_auths": response.trigger_auths, "error": response.error}
     except Exception as exc:
