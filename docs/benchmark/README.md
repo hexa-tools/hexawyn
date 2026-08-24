@@ -1,6 +1,6 @@
 # 🏆 Hexawyn Benchmark
 
-**79.7/100** global mean score
+**80.7/100** global mean score
 
 `█████████████████░░░` **88%** pass rate
 
@@ -15,9 +15,9 @@ Each domain tests specific capabilities — pod diagnostics, security audits, co
 
 | | Domain | Mean score | Pass % | Scenarios |
 |---|--------|-----------:|-------:|----------:|
-| ❌ | [cluster](cluster.md) | 77.0/100 | 12% | 8 |
+| ⚠️ | [cluster](cluster.md) | 80.2/100 | 62% | 8 |
 | ❌ | [governance](governance.md) | 81.9/100 | 0% | 6 |
 | ⚠️ | [ingress](ingress.md) | 81.0/100 | 60% | 5 |
 | ❌ | [storage](storage.md) | 79.9/100 | 17% | 6 |
 
-_Last updated: 2026-08-24 04:59_
+_Last updated: 2026-08-24 21:31_
