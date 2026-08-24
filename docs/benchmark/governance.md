@@ -1,24 +1,39 @@
-# governance — 75.8/100
+# governance — 81.9/100
 
-**1** scenarios (5 questions) · scenario pass rate 100% (1/1) · question pass rate 60% (3/5) · 2026-08-21 01:29
+**6** scenarios (30 questions) · scenario pass rate 83% (5/6) · question pass rate 70% (21/30) · 2026-08-24 03:27
 
-Questions : **3 PASS** / **2 FAIL** (sur 5) · Average performance: 75.8/100
+Questions: **21 PASS** / **9 FAIL** (of 30) · Average performance: 81.9/100
 
-> **Légende /100** : Overall (0-100) = Deterministic (0-100) × 80% + Quality (0-20) × 20%. Les 6 critères déterministes (tool_selection, safety, actionability, intent_coverage, data_presence, hallucination_guard) sont notés sur 16 chacun. **PASS** si Overall ≥ 75/100. L'outcome interne reste un diagnostic (PASS / PASS_ABSTENTION / PASS_LIMITED / FAIL_INVALID / FAIL_NOT_DELIVERED / UNDETERMINED).
+> **Legend /100**: Overall (0-100) = Deterministic (0-100) × 80% + Quality (0-20) × 20%. The 6 deterministic criteria (tool_selection, safety, actionability, intent_coverage, data_presence, hallucination_guard) are each scored /16. **PASS** if Overall ≥ 75/100. Internal outcome remains a diagnostic (PASS / PASS_ABSTENTION / PASS_LIMITED / FAIL_INVALID / FAIL_NOT_DELIVERED / UNDETERMINED).
 
-> Scenario pass rate = scénarios PASSED (règle majoritaire sur les questions) ; question pass rate = questions ≥75/100.
+> Scenario pass rate = scenarios PASSED (majority rule on questions); question pass rate = questions ≥75/100.
+
+## By category
+
+| Category | Status | Scenarios pass | Questions ≥75 | Questions total |
+|----------|--------|---------------:|---------------:|----------------:|
+| audit | ⚠️ | 1 | 5 | 10 |
+| compliance | ✅ | 2 | 8 | 10 |
+| policy | ✅ | 2 | 8 | 10 |
+
+## ❌ Failed scenarios
+
+- ❌ **governance/audit/001-cis-benchmark-audit**
+  - Q1 — FAIL (61/100) [outcome: FAIL_NOT_DELIVERED]
+  - Q2 — PASS (87/100) [outcome: UNDETERMINED]
+  - Q3 — FAIL (68/100) [outcome: UNDETERMINED]
+  - Q4 — FAIL (73/100) [outcome: FAIL_INVALID]
+  - Q5 — FAIL (73/100) [outcome: UNDETERMINED]
 
 ## 📉 Questions below threshold
 
-- **governance/audit/002-change-management-audit** Q3 — FAIL (74/100) [outcome: UNDETERMINED]
-- **governance/audit/002-change-management-audit** Q5 — FAIL (74/100) [outcome: FAIL_INVALID]
-
-#### Scoring breakdown
-
-*Note — points per question : Overall = Deterministic × 80% + Quality × 20% ; Deterministic out of 100, Quality out of 20, each criterion out of 16.*
-
-| Question | Overall | Deterministic | Quality | tool_selection | safety | actionability | intent_coverage | data_presence | hallucination_guard |
-|----------|--------:|--------------:|--------:|--------------:|-------:|--------------:|---------------:|-------------:|--------------------:|
-| Q1 | 74 | 79 | 11 | 10 | 16 | 16 | 9 | 12 | 16 |
-| Q2 | 74 | 67 | 20 | 10 | 16 | 16 | 9 | 16 | 0 |
-
+- ❌ **governance/audit/002-change-management-audit**
+  - Q3 — FAIL (70/100) [outcome: FAIL_INVALID]
+- ❌ **governance/compliance/001-full-compliance-audit**
+  - Q1 — FAIL (72/100) [outcome: PASS_LIMITED]
+- ❌ **governance/compliance/002-pci-dss-checklist**
+  - Q1 — FAIL (73/100) [outcome: PASS_LIMITED]
+- ❌ **governance/policy/001-policy-enforcement-gap**
+  - Q1 — FAIL (74/100) [outcome: FAIL_NOT_DELIVERED]
+- ❌ **governance/policy/002-policy-as-code-review**
+  - Q5 — FAIL (67/100) [outcome: FAIL_INVALID]

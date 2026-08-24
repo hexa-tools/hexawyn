@@ -798,8 +798,123 @@ class TestSessionScreen:
                     assert screen.query("#aside-body")
                     assert screen.query("#status-bar")
                     assert screen.query("#footer-hints")
+                    assert screen.query("#agentic-steps")
 
         asyncio.run(run())
+
+    def test_agentic_steps_rendered_below_question_and_cleared(self) -> None:
+        """Agentic steps render into the transient widget below the question.
+
+        They appear under the question (conversation scroll) during execution
+        and are cleared (disappear) once the response is ready.
+        """
+        import asyncio
+        from unittest.mock import PropertyMock
+
+        screen = self._create_screen()
+        mock_app = MagicMock()
+        mock_app.expert_mode = False
+        screen._tui_app = MagicMock(return_value=mock_app)  # type: ignore[method-assign]
+        screen._refresh_aside = MagicMock()  # type: ignore[method-assign]
+
+        mock_log = MagicMock()
+        mock_status = MagicMock()
+        mock_steps = MagicMock()
+        screen.query_one = MagicMock(  # type: ignore[method-assign]
+            side_effect=lambda _id, _cls=None: {
+                "#conversation": mock_log,
+                "#agentic-steps": mock_steps,
+                "#status-bar": mock_status,
+            }[_id]
+        )
+
+        from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_response import (
+            ChatCliResponse,
+        )
+
+        result = ChatCliResponse(kind="debug", lines=[("answer", "white")], duration_ms=0)
+
+        def fake_route(_text, _adapter, _history, on_progress=None):  # type: ignore[no-untyped-def]
+            if on_progress:
+                on_progress("plan", "Plan")
+                on_progress("execute", "Execute")
+            return result
+
+        with (
+            patch("hexawyn.cli.screens.session.route_command", side_effect=fake_route),
+            patch("hexawyn.cli.screens.session.render_result"),
+            patch("hexawyn.cli.screens.session.safe_findings", return_value=[]),
+            patch(
+                "hexawyn.cli.screens.session.SessionScreen.app",
+                new_callable=PropertyMock,
+                return_value=MagicMock(),
+            ) as mock_app_prop,
+        ):
+            mock_app_prop.return_value.call_from_thread = lambda fn, *args: fn(*args)
+            asyncio.run(screen._handle_command("how many pods?"))
+
+        steps_calls = [str(c) for c in mock_steps.update.call_args_list]
+        assert any(
+            "Plan" in c and "Execute" in c for c in steps_calls
+        ), "agentic steps must render below the question"
+        assert mock_steps.update.call_args_list[-1].args == (
+            "",
+        ), "steps widget must be cleared (disappear) when done"
+
+    def test_agentic_steps_not_cleared_before_response_renders(self) -> None:
+        """The transient steps widget stays visible until the response renders.
+
+        Clearing happens after route_command completes, never before — so the
+        user sees the agentic steps for the whole execution duration.
+        """
+        import asyncio
+        from unittest.mock import PropertyMock
+
+        screen = self._create_screen()
+        mock_app = MagicMock()
+        mock_app.expert_mode = False
+        screen._tui_app = MagicMock(return_value=mock_app)  # type: ignore[method-assign]
+        screen._refresh_aside = MagicMock()  # type: ignore[method-assign]
+
+        mock_log = MagicMock()
+        mock_status = MagicMock()
+        mock_steps = MagicMock()
+        screen.query_one = MagicMock(  # type: ignore[method-assign]
+            side_effect=lambda _id, _cls=None: {
+                "#conversation": mock_log,
+                "#agentic-steps": mock_steps,
+                "#status-bar": mock_status,
+            }[_id]
+        )
+
+        from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_response import (
+            ChatCliResponse,
+        )
+
+        result = ChatCliResponse(kind="debug", lines=[("answer", "white")], duration_ms=0)
+
+        def fake_route(_text, _adapter, _history, on_progress=None):  # type: ignore[no-untyped-def]
+            on_progress("plan", "Plan")
+            return result
+
+        with (
+            patch("hexawyn.cli.screens.session.route_command", side_effect=fake_route),
+            patch("hexawyn.cli.screens.session.render_result"),
+            patch("hexawyn.cli.screens.session.safe_findings", return_value=[]),
+            patch(
+                "hexawyn.cli.screens.session.SessionScreen.app",
+                new_callable=PropertyMock,
+                return_value=MagicMock(),
+            ) as mock_app_prop,
+        ):
+            mock_app_prop.return_value.call_from_thread = lambda fn, *args: fn(*args)
+            asyncio.run(screen._handle_command("how many pods?"))
+
+        steps_calls = [str(c) for c in mock_steps.update.call_args_list]
+        assert any("Plan" in c for c in steps_calls)
+        assert any(
+            "Thinking" not in c for c in steps_calls
+        ), "steps must replace the default 'Thinking' placeholder once progress arrives"
 
     def test_tui_app_returns_real_hexawyn_app(self) -> None:
         from unittest.mock import PropertyMock
