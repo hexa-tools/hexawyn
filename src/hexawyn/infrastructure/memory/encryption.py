@@ -1,6 +1,8 @@
 import atexit
+import logging
 import os
 import secrets
+from datetime import UTC, datetime
 from pathlib import Path
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -8,6 +10,9 @@ from cryptography.hazmat.primitives.hashes import SHA256
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 from hexawyn.domain.errors import EncryptionError
+from hexawyn.infrastructure.config.machine_id import get_machine_id
+
+logger = logging.getLogger(__name__)
 
 HEXAWYN_DIR = Path.home() / ".hexawyn"
 ENCRYPTED_DB_PATH = HEXAWYN_DIR / "memory.duckdb.enc"
@@ -47,7 +52,13 @@ def _get_or_create_salt() -> bytes:
     return salt
 
 
-def derive_key(kubeconfig_content: bytes) -> bytes:
+def derive_key() -> bytes:
+    """Derive the AES-256-GCM key from the installation's machine identity.
+
+    The key is bound to the machine (via ``get_machine_id``) and a stored
+    random salt. It does NOT depend on the kubeconfig, so switching contexts,
+    clusters, or ``$KUBECONFIG`` never invalidates the encryption key.
+    """
     salt = _get_or_create_salt()
     kdf = PBKDF2HMAC(
         algorithm=SHA256(),
@@ -55,7 +66,7 @@ def derive_key(kubeconfig_content: bytes) -> bytes:
         salt=salt,
         iterations=600_000,
     )
-    return kdf.derive(kubeconfig_content)
+    return kdf.derive(get_machine_id().encode("utf-8"))
 
 
 def is_encryption_disabled() -> bool:
@@ -112,6 +123,27 @@ def _encrypt_db_on_exit(key: bytes) -> None:
         DB_PATH.unlink(missing_ok=True)
 
 
+def _quarantine_orphaned_enc() -> None:
+    """Rename an undecryptable .enc aside instead of deleting it.
+
+    The quarantine suffix preserves the file for auditing should the key
+    ever be recovered, while letting a fresh database be created.
+    """
+    if not ENCRYPTED_DB_PATH.exists():
+        return
+    ts = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
+    orphan_path = ENCRYPTED_DB_PATH.with_name(f"{ENCRYPTED_DB_PATH.name}.orphan-{ts}")
+    try:
+        ENCRYPTED_DB_PATH.rename(orphan_path)
+        logger.warning(
+            "Detected an orphaned encrypted database (key mismatch). Quarantined "
+            "it to %s and will start with a fresh database.",
+            orphan_path,
+        )
+    except OSError:
+        logger.warning("Could not quarantine orphaned encrypted database at %s", ENCRYPTED_DB_PATH)
+
+
 def prepare_db(key: bytes) -> None:
     global _db_prepared, _atexit_registered
     if _db_prepared:
@@ -120,7 +152,10 @@ def prepare_db(key: bytes) -> None:
     HEXAWYN_DIR.mkdir(parents=True, exist_ok=True)
 
     if ENCRYPTED_DB_PATH.exists():
-        _decrypt_file(key, ENCRYPTED_DB_PATH, DB_PATH)
+        try:
+            _decrypt_file(key, ENCRYPTED_DB_PATH, DB_PATH)
+        except EncryptionError:
+            _quarantine_orphaned_enc()
 
     if not _atexit_registered:
         atexit.register(_encrypt_db_on_exit, key)
