@@ -37,22 +37,27 @@ clusters:
 
 
 class TestDeriveKey:
-    """Key derivation from kubeconfig content."""
+    """Key derivation is bound to the installation/machine, not the kubeconfig."""
 
-    def test_same_kubeconfig_produces_same_key(self, tmp_path: Path):
+    def test_same_machine_produces_same_key(self, tmp_path: Path):
         from hexawyn.infrastructure.memory.encryption import _reset_salt, derive_key
 
         _reset_salt()
         salt_file = tmp_path / ".keysalt"
-        salt = secrets.token_bytes(32)
-        salt_file.write_bytes(salt)
+        salt_file.write_bytes(secrets.token_bytes(32))
 
-        with patch("hexawyn.infrastructure.memory.encryption.KEY_SALT_PATH", salt_file):
-            key1 = derive_key(KUBECONFIG_SAMPLE)
-            key2 = derive_key(KUBECONFIG_SAMPLE)
+        with (
+            patch("hexawyn.infrastructure.memory.encryption.KEY_SALT_PATH", salt_file),
+            patch(
+                "hexawyn.infrastructure.memory.encryption.get_machine_id",
+                return_value="machine-abcdef123456",
+            ),
+        ):
+            key1 = derive_key()
+            key2 = derive_key()
             assert key1 == key2
 
-    def test_different_kubeconfig_produces_different_key(self, tmp_path: Path):
+    def test_different_machine_produces_different_key(self, tmp_path: Path):
         from hexawyn.infrastructure.memory.encryption import _reset_salt, derive_key
 
         _reset_salt()
@@ -60,9 +65,43 @@ class TestDeriveKey:
         salt_file.write_bytes(secrets.token_bytes(32))
 
         with patch("hexawyn.infrastructure.memory.encryption.KEY_SALT_PATH", salt_file):
-            key1 = derive_key(KUBECONFIG_SAMPLE)
-            key2 = derive_key(KUBECONFIG_OTHER)
+            with patch(
+                "hexawyn.infrastructure.memory.encryption.get_machine_id",
+                return_value="machine-one",
+            ):
+                key1 = derive_key()
+            with patch(
+                "hexawyn.infrastructure.memory.encryption.get_machine_id",
+                return_value="machine-two",
+            ):
+                key2 = derive_key()
             assert key1 != key2
+
+    def test_key_is_stable_across_kubeconfig_change(self, tmp_path: Path):
+        """The key must NOT depend on kubeconfig content (the root-cause bug)."""
+        from hexawyn.infrastructure.memory.encryption import _reset_salt, derive_key
+
+        _reset_salt()
+        salt_file = tmp_path / ".keysalt"
+        salt_file.write_bytes(secrets.token_bytes(32))
+
+        with patch("hexawyn.infrastructure.memory.encryption.KEY_SALT_PATH", salt_file):
+            with patch(
+                "hexawyn.infrastructure.memory.encryption.get_machine_id",
+                return_value="machine-abc",
+            ):
+                key_before = derive_key()
+
+            # Simulate a kubeconfig change (context switch / cluster add).
+            # The derived key must remain identical even though KUBECONFIG flips.
+            with patch.dict("os.environ", {"KUBECONFIG": "/tmp/other-kubeconfig"}):
+                with patch(
+                    "hexawyn.infrastructure.memory.encryption.get_machine_id",
+                    return_value="machine-abc",
+                ):
+                    key_after = derive_key()
+
+        assert key_before == key_after
 
     def test_key_is_32_bytes(self, tmp_path: Path):
         from hexawyn.infrastructure.memory.encryption import _reset_salt, derive_key
@@ -71,8 +110,14 @@ class TestDeriveKey:
         salt_file = tmp_path / ".keysalt"
         salt_file.write_bytes(secrets.token_bytes(32))
 
-        with patch("hexawyn.infrastructure.memory.encryption.KEY_SALT_PATH", salt_file):
-            key = derive_key(KUBECONFIG_SAMPLE)
+        with (
+            patch("hexawyn.infrastructure.memory.encryption.KEY_SALT_PATH", salt_file),
+            patch(
+                "hexawyn.infrastructure.memory.encryption.get_machine_id",
+                return_value="machine-abcdef123456",
+            ),
+        ):
+            key = derive_key()
             assert len(key) == 32  # noqa: PLR2004
 
 
@@ -226,6 +271,64 @@ class TestPrepareDb:
                     assert not plain_path.exists()
                     assert not enc_path.exists()
 
+    def test_prepare_db_quarantines_orphaned_encrypted_db(self, tmp_path: Path):
+        """An undecryptable .enc (orphaned by a key change) is quarantined,
+        never raising — the DB is rebuilt fresh instead of breaking the caller."""
+        from hexawyn.infrastructure.memory.encryption import (
+            _reset_prepare_db_state,
+            prepare_db,
+        )
+
+        key = secrets.token_bytes(32)
+        plain_path = tmp_path / "memory.duckdb"
+        enc_path = tmp_path / "memory.duckdb.enc"
+
+        # Write an .enc encrypted with a DIFFERENT key → orphaned from `key`.
+        from hexawyn.infrastructure.memory.encryption import _encrypt_data
+
+        different_key = secrets.token_bytes(32)
+        enc_path.write_bytes(_encrypt_data(different_key, b"stale-db-content"))
+
+        with patch("hexawyn.infrastructure.memory.encryption.ENCRYPTED_DB_PATH", enc_path):
+            with patch("hexawyn.infrastructure.memory.encryption.DB_PATH", plain_path):
+                with patch("hexawyn.infrastructure.memory.encryption.HEXAWYN_DIR", tmp_path):
+                    with patch(
+                        "hexawyn.infrastructure.memory.encryption.logger.warning"
+                    ) as mock_warn:
+                        _reset_prepare_db_state()
+                        prepare_db(key)
+
+        orphaned = [p for p in tmp_path.iterdir() if p.name.startswith("memory.duckdb.enc.orphan-")]
+        assert orphaned, "orphaned .enc must be renamed to memory.duckdb.enc.orphan-<ts>"
+        assert not enc_path.exists(), "original .enc must no longer exist"
+        mock_warn.assert_called_once()
+        warning_message = mock_warn.call_args.args[0]
+        assert "orphan" in warning_message.lower()
+
+    def test_quarantine_noop_when_enc_missing(self, tmp_path: Path) -> None:
+        from hexawyn.infrastructure.memory.encryption import _quarantine_orphaned_enc
+
+        enc_path = tmp_path / "missing.duckdb.enc"
+
+        with patch("hexawyn.infrastructure.memory.encryption.ENCRYPTED_DB_PATH", enc_path):
+            _quarantine_orphaned_enc()
+
+        assert not enc_path.exists()
+
+    def test_quarantine_invalid_rename_falls_back_to_warning(self, tmp_path: Path) -> None:
+        from hexawyn.infrastructure.memory.encryption import _quarantine_orphaned_enc
+
+        enc_path = tmp_path / "memory.duckdb.enc"
+        enc_path.write_bytes(b"orphaned")
+
+        with patch("hexawyn.infrastructure.memory.encryption.ENCRYPTED_DB_PATH", enc_path):
+            with patch("pathlib.Path.rename", side_effect=OSError("permission denied")):
+                with patch("hexawyn.infrastructure.memory.encryption.logger.warning") as mock_warn:
+                    _quarantine_orphaned_enc()
+
+        assert mock_warn.call_count == 1
+        assert enc_path.exists(), "unrenamed file must be left in place on OSError"
+
 
 class TestEncryptionDisabled:
     """Encryption can be disabled via env var."""
@@ -366,129 +469,10 @@ class TestResetState:
                     assert enc_mod._db_prepared is True
 
 
-class TestKubeconfigKeyDerivation:
-    """Integration: derives key from stable kubeconfig parts."""
-
-    def test_extract_stable_parts_from_kubeconfig(self, tmp_path: Path):
-        from hexawyn.infrastructure.config.kubeconfig_reader import (
-            get_kubeconfig_stable_content,
-        )
-
-        kubeconfig_file = tmp_path / "config"
-        kubeconfig_file.write_text(
-            """apiVersion: v1
-clusters:
-- cluster:
-    certificate-authority-data: ZmFrZS1jYS1jZXJ0
-    server: https://prod-eu.example.com:6443
-  name: prod-eu
-"""
-        )
-
-        with patch.dict("os.environ", {"KUBECONFIG": str(kubeconfig_file)}):
-            content = get_kubeconfig_stable_content()
-
-        assert content is not None
-        assert b"prod-eu.example.com" in content
-        assert b"ZmFrZS1jYS1jZXJ0" in content
-
-    def test_extract_stable_parts_multiple_clusters(self, tmp_path: Path):
-        from hexawyn.infrastructure.config.kubeconfig_reader import (
-            get_kubeconfig_stable_content,
-        )
-
-        kubeconfig_file = tmp_path / "config"
-        kubeconfig_file.write_text(
-            """apiVersion: v1
-clusters:
-- cluster:
-    certificate-authority-data: Y2EtMQ==
-    server: https://cluster1.example.com:6443
-  name: cluster1
-- cluster:
-    certificate-authority-data: Y2EtMg==
-    server: https://cluster2.example.com:6443
-  name: cluster2
-"""
-        )
-
-        with patch.dict("os.environ", {"KUBECONFIG": str(kubeconfig_file)}):
-            content = get_kubeconfig_stable_content()
-
-        assert content is not None
-        assert b"cluster1.example.com" in content
-        assert b"Y2EtMQ==" in content
-        assert b"cluster2.example.com" in content
-        assert b"Y2EtMg==" in content
-
-    def test_extract_stable_parts_no_kubeconfig_returns_none(self):
-        from hexawyn.infrastructure.config.kubeconfig_reader import (
-            get_kubeconfig_stable_content,
-        )
-
-        with patch.dict("os.environ", {}, clear=True):
-            with patch("os.path.exists", return_value=False):
-                content = get_kubeconfig_stable_content()
-                assert content is None
-
-    def test_non_dict_config_returns_raw_bytes(self, tmp_path: Path) -> None:
-        from hexawyn.infrastructure.config.kubeconfig_reader import (
-            get_kubeconfig_stable_content,
-        )
-
-        kubeconfig_file = tmp_path / "config"
-        kubeconfig_file.write_text("- just a list\n- not a dict\n")
-
-        with patch.dict("os.environ", {"KUBECONFIG": str(kubeconfig_file)}):
-            content = get_kubeconfig_stable_content()
-
-        assert content is not None
-        assert b"just a list" in content
-
-    def test_clusters_not_a_list_returns_raw_bytes(self, tmp_path: Path) -> None:
-        from hexawyn.infrastructure.config.kubeconfig_reader import (
-            get_kubeconfig_stable_content,
-        )
-
-        kubeconfig_file = tmp_path / "config"
-        kubeconfig_file.write_text("apiVersion: v1\nclusters: not_a_list\n")
-
-        with patch.dict("os.environ", {"KUBECONFIG": str(kubeconfig_file)}):
-            content = get_kubeconfig_stable_content()
-
-        assert content is not None
-
-    def test_empty_stable_parts_returns_raw_bytes(self, tmp_path: Path) -> None:
-        from hexawyn.infrastructure.config.kubeconfig_reader import (
-            get_kubeconfig_stable_content,
-        )
-
-        kubeconfig_file = tmp_path / "config"
-        kubeconfig_file.write_text("apiVersion: v1\nclusters:\n- name: empty\n  cluster: {}\n")
-
-        with patch.dict("os.environ", {"KUBECONFIG": str(kubeconfig_file)}):
-            content = get_kubeconfig_stable_content()
-
-        assert content is not None
-
-    def test_yaml_parse_error_returns_none(self, tmp_path: Path) -> None:
-        from hexawyn.infrastructure.config.kubeconfig_reader import (
-            get_kubeconfig_stable_content,
-        )
-
-        kubeconfig_file = tmp_path / "config"
-        kubeconfig_file.write_text(": invalid: yaml: : :\n")
-
-        with patch.dict("os.environ", {"KUBECONFIG": str(kubeconfig_file)}):
-            content = get_kubeconfig_stable_content()
-
-        assert content is None
-
-
 class TestEndToEndEncryptDecrypt:
-    """Full end-to-end: derive key from kubeconfig → encrypt → decrypt."""
+    """Full end-to-end: derive machine-bound key → encrypt → decrypt."""
 
-    def test_e2e_encrypt_decrypt_with_kubeconfig_content(self, tmp_path: Path):
+    def test_e2e_encrypt_decrypt_with_machine_key(self, tmp_path: Path):
         from hexawyn.infrastructure.memory.encryption import (
             _decrypt_data,
             _encrypt_data,
@@ -500,10 +484,14 @@ class TestEndToEndEncryptDecrypt:
         salt_file = tmp_path / ".keysalt"
         salt_file.write_bytes(secrets.token_bytes(32))
 
-        kubeconfig_content = b"fake-kubeconfig-content-for-cluster-xyz"
-
-        with patch("hexawyn.infrastructure.memory.encryption.KEY_SALT_PATH", salt_file):
-            key = derive_key(kubeconfig_content)
+        with (
+            patch("hexawyn.infrastructure.memory.encryption.KEY_SALT_PATH", salt_file),
+            patch(
+                "hexawyn.infrastructure.memory.encryption.get_machine_id",
+                return_value="machine-e2e-test",
+            ),
+        ):
+            key = derive_key()
 
         original = b"donnees sensibles de la base DuckDB"
         encrypted = _encrypt_data(key, original)

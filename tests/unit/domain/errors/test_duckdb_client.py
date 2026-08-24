@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock, patch
+
 import duckdb
 import pytest
 from hexawyn.domain.errors import DuckDBUnavailableError
@@ -67,6 +69,63 @@ class TestGetConnection:
         conn.execute("LOAD vss;")
         assert conn is not None
         conn.close()
+
+    def test_get_connection_uses_machine_bound_key(self, monkeypatch):
+        """get_connection() decrypts with a machine-bound key, never kubeconfig."""
+        import hexawyn.infrastructure.memory.duckdb_client as client_mod
+
+        fake_conn = MagicMock()
+        patched_connect = MagicMock(return_value=fake_conn)
+
+        with patch("hexawyn.infrastructure.memory.duckdb_client.derive_key") as mock_derive:
+            with patch("hexawyn.infrastructure.memory.duckdb_client.prepare_db") as mock_prepare:
+                with patch(
+                    "hexawyn.infrastructure.memory.duckdb_client.duckdb.connect", patched_connect
+                ):
+                    mock_derive.return_value = b"x" * 32
+                    conn = client_mod.get_connection()
+
+        mock_derive.assert_called_once_with()
+        mock_prepare.assert_called_once_with(b"x" * 32)
+        patched_connect.assert_called_once()
+        assert conn is fake_conn
+
+    def test_get_connection_skips_encryption_when_disabled(self, monkeypatch):
+        import hexawyn.infrastructure.memory.duckdb_client as client_mod
+
+        fake_conn = MagicMock()
+
+        with (
+            patch(
+                "hexawyn.infrastructure.memory.duckdb_client.is_encryption_disabled",
+                return_value=True,
+            ),
+            patch(
+                "hexawyn.infrastructure.memory.duckdb_client.duckdb.connect",
+                return_value=fake_conn,
+            ),
+            patch("hexawyn.infrastructure.memory.duckdb_client.derive_key") as mock_derive,
+        ):
+            client_mod.get_connection()
+
+        mock_derive.assert_not_called()
+
+    def test_get_connection_passes_through_encryption_error(self, monkeypatch):
+        import hexawyn.infrastructure.memory.duckdb_client as client_mod
+        from hexawyn.domain.errors import EncryptionError
+
+        with (
+            patch(
+                "hexawyn.infrastructure.memory.duckdb_client.is_encryption_disabled",
+                return_value=False,
+            ),
+            patch(
+                "hexawyn.infrastructure.memory.duckdb_client.derive_key",
+                side_effect=EncryptionError("boom"),
+            ),
+        ):
+            with pytest.raises(EncryptionError):
+                client_mod.get_connection()
 
     def test_raises_duckdb_unavailable_on_failure(self, tmp_path):
         bad_path = tmp_path / "readonly" / "db.duckdb"

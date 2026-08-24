@@ -6,7 +6,6 @@ import duckdb
 
 from hexawyn.domain.errors import DuckDBUnavailableError, EncryptionError
 from hexawyn.domain.models.quota import FREE_HISTORY_DAYS, UNLIMITED
-from hexawyn.infrastructure.config.kubeconfig_reader import get_kubeconfig_stable_content
 from hexawyn.infrastructure.memory.encryption import (
     derive_key,
     is_encryption_disabled,
@@ -48,13 +47,15 @@ def get_connection() -> duckdb.DuckDBPyConnection:
     Called once at startup by the MCP server and CLI.
 
     Database encryption is enabled by default. The AES-256-GCM encryption key
-    is derived from the kubeconfig's stable parts (CA certificates + server URLs)
-    using PBKDF2-HMAC-SHA256 with 600k iterations.
+    is derived from the installation's machine identity (via get_machine_id)
+    using PBKDF2-HMAC-SHA256 with 600k iterations. It is stable across
+    kubeconfig / context / cluster changes.
 
     The DB file at ~/.hexawyn/memory.duckdb.enc is encrypted at rest.
     During the application lifetime, the decrypted memory.duckdb is used.
     On clean shutdown (atexit), the file is re-encrypted and the plaintext
-    copy is deleted.
+    copy is deleted. An undecryptable .enc (e.g. from a previous key scheme)
+    is quarantined and a fresh database is created instead of failing.
 
     Set HEXAWYN_DISABLE_ENCRYPTION=true to skip encryption (demo/testing only).
 
@@ -66,10 +67,8 @@ def get_connection() -> duckdb.DuckDBPyConnection:
         HEXAWYN_DIR.mkdir(parents=True, exist_ok=True)
 
         if not is_encryption_disabled():
-            kubeconfig_content = get_kubeconfig_stable_content()
-            if kubeconfig_content is not None:
-                key = derive_key(kubeconfig_content)
-                prepare_db(key)
+            key = derive_key()
+            prepare_db(key)
 
         conn = duckdb.connect(str(DB_PATH))
 
