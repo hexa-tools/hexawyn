@@ -33,6 +33,13 @@ SessionScreen {
     background: #05070d;
 }
 
+#agentic-steps {
+    height: auto;
+    background: #05070d;
+    color: #8a93a6;
+    padding: 0 0 0 2;
+}
+
 #conversation MarkdownBlockQuote {
     background: #0b1220;
     border: round #3B82F6;
