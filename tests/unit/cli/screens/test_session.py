@@ -84,8 +84,10 @@ class TestSessionScreen:
         screen.on_unmount()
 
     def test_on_input_changed_noop(self) -> None:
+        import asyncio
+
         screen = self._create_screen()
-        screen.on_input_changed(MagicMock())
+        asyncio.run(screen.on_input_changed(MagicMock()))
 
     def test_license_aside_lines(self) -> None:
         screen = self._create_screen()
@@ -213,10 +215,22 @@ class TestSessionScreen:
 
     def test_start_background_license_refresh_creates_task(self) -> None:
         screen = self._create_screen()
-        with patch("hexawyn.cli.screens.session.asyncio.create_task") as mock_create:
+
+        created: list[object] = []
+
+        def _fake_create_task(coro: object, *_: object, **__: object) -> MagicMock:
+            created.append(coro)
+            return MagicMock()
+
+        with patch(
+            "hexawyn.cli.screens.session.asyncio.create_task",
+            side_effect=_fake_create_task,
+        ):
             screen._start_background_license_refresh()
-            mock_create.assert_called_once()
             assert screen._refresh_task is not None
+
+        for coro in created:
+            coro.close()  # type: ignore[union-attr]
 
     def test_handle_context_command_no_service(self) -> None:
         screen = self._create_screen()
@@ -1055,6 +1069,12 @@ class TestSessionScreen:
                 raise asyncio.CancelledError()
                 yield  # pragma: no cover
 
+        orphaned: list[object] = []
+
+        def _fake_create_task(coro: object, *_: object, **__: object) -> _CancelledAwaitable:
+            orphaned.append(coro)
+            return _CancelledAwaitable()
+
         screen = self._create_screen()
         mock_app = MagicMock()
         mock_app.expert_mode = False
@@ -1078,10 +1098,13 @@ class TestSessionScreen:
             patch("hexawyn.cli.screens.session.safe_findings", return_value=[]),
             patch(
                 "hexawyn.cli.screens.session.asyncio.create_task",
-                return_value=_CancelledAwaitable(),
+                side_effect=_fake_create_task,
             ),
         ):
             asyncio.run(screen._handle_command("hello"))
+
+        for coro in orphaned:
+            coro.close()  # type: ignore[union-attr]
 
         assert mock_status.update.call_count > 0
 

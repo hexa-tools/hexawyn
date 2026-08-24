@@ -174,24 +174,15 @@ class TestAsides:
     def test_issue_reason_crashloop(self) -> None:
         assert issue_reason("CrashLoopBackOff detected") == "CrashLoopBackOff"
 
-    def test_kubectl_current_context_from_env(self) -> None:
-        with tempfile_patch() as tmp:
-            kubeconfig = tmp / "config"
-            kubeconfig.write_text("current-context: prod-eu\ncontexts: []\n")
-            with patch.dict("os.environ", {"KUBECONFIG": str(kubeconfig)}):
-                assert kubectl_current_context() == "prod-eu"
+    def test_kubectl_current_context_from_env(self, tmp_path: Path) -> None:
+        kubeconfig = tmp_path / "config"
+        kubeconfig.write_text("current-context: prod-eu\ncontexts: []\n")
+        with patch.dict("os.environ", {"KUBECONFIG": str(kubeconfig)}):
+            assert kubectl_current_context() == "prod-eu"
 
     def test_kubectl_current_context_returns_question_on_error(self) -> None:
         with patch.dict("os.environ", {"KUBECONFIG": "/nonexistent/path"}):
             assert kubectl_current_context() == "?"
-
-
-def tempfile_patch() -> object:
-    import tempfile as _tempfile
-    from pathlib import Path as _Path
-
-    tmp = _Path(_tempfile.mkdtemp())
-    return tmp
 
 
 class TestFindings:
