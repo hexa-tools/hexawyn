@@ -83,6 +83,7 @@ class SessionScreen(Screen[None]):
                 with VerticalScroll(id="conversation-scroll"):
                     yield Static("", id="logo-banner", markup=True)
                     yield MarkdownLog(id="conversation")
+                    yield Static("", id="agentic-steps", markup=True)
                 yield Static("", id="status-bar")
                 yield CommandInput(placeholder="Describe what you want to do…", id="cmd-input")
                 with Horizontal(id="footer"):
@@ -276,7 +277,12 @@ class SessionScreen(Screen[None]):
             return
 
         status = self.query_one("#status-bar", Static)
+        steps_widget = self.query_one("#agentic-steps", Static)
         seen_steps: list[str] = []
+
+        def _steps_markup(char: str) -> str:
+            line = " · ".join(seen_steps) if seen_steps else "Thinking"
+            return f"[bold #3B82F6]  {char}[/] [dim #8a93a6]{line}...[/]"
 
         def _on_progress(_node_name: str, label: str) -> None:
             if label not in seen_steps:
@@ -284,6 +290,10 @@ class SessionScreen(Screen[None]):
             line = " · ".join(seen_steps)
             self.app.call_from_thread(
                 status.update, f"[bold #3B82F6]  ⬡[/] [dim #8a93a6]{line}...[/]"
+            )
+            self.app.call_from_thread(
+                steps_widget.update,
+                f"[dim #8a93a6]{_steps_markup('⬡')}[/]",
             )
 
         async def _continuous_spinner() -> None:
@@ -293,6 +303,7 @@ class SessionScreen(Screen[None]):
                 while True:
                     line = " · ".join(seen_steps) if seen_steps else "Thinking"
                     status.update(f"[bold #3B82F6]  {chars[i % 4]}[/] [dim #8a93a6]{line}...[/]")
+                    steps_widget.update(f"[dim #8a93a6]{_steps_markup(chars[i % 4])}[/]")
                     i += 1
                     await asyncio.sleep(0.3)
             except asyncio.CancelledError:
@@ -333,6 +344,8 @@ class SessionScreen(Screen[None]):
             await spinner_task
         except asyncio.CancelledError:
             pass
+
+        steps_widget.update("")
 
         if seen_steps:
             status.update(f"[bold #22c55e]  ✓[/] [dim #5b6472]{' · '.join(seen_steps)}[/]")
