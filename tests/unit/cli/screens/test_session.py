@@ -772,6 +772,193 @@ class TestSessionScreen:
             asyncio.run(run())
             mock_create.assert_called_once()
 
+    def test_show_aside_skeleton_populates_structure(self) -> None:
+        """The aside structure renders immediately (labels), values fill later."""
+        from unittest.mock import PropertyMock
+
+        screen = self._create_screen()
+        screen._tui_app = MagicMock(return_value=MagicMock())  # type: ignore[method-assign]
+        mock_body = MagicMock()
+        screen.query_one = MagicMock(return_value=mock_body)  # type: ignore[method-assign]
+
+        with (
+            patch("hexawyn.cli.presentation.aside_builder.build_aside_skeleton") as mock_skeleton,
+            patch(
+                "hexawyn.cli.screens.session.SessionScreen.app",
+                new_callable=PropertyMock,
+                return_value=MagicMock(),
+            ),
+        ):
+            mock_skeleton.return_value = ["[bold]HEXAWYN[/bold]", "Cluster: [bold]p[/bold]"]
+            screen._show_aside_skeleton()
+
+        mock_skeleton.assert_called_once()
+        mock_body.update.assert_called_once_with("\n".join(mock_skeleton.return_value))
+
+    def test_show_aside_skeleton_swallows_error(self) -> None:
+        """A skeleton build failure must not crash the mount."""
+        from unittest.mock import PropertyMock
+
+        screen = self._create_screen()
+        screen._tui_app = MagicMock(return_value=MagicMock())  # type: ignore[method-assign]
+        with (
+            patch(
+                "hexawyn.cli.presentation.aside_builder.build_aside_skeleton",
+                side_effect=RuntimeError("boom"),
+            ),
+            patch(
+                "hexawyn.cli.screens.session.SessionScreen.app",
+                new_callable=PropertyMock,
+                return_value=MagicMock(),
+            ),
+        ):
+            screen._show_aside_skeleton()  # must not raise
+
+    def test_refresh_aside_falls_back_to_sync_when_worker_unavailable(self) -> None:
+        """If run_worker is unavailable, _refresh_aside rebuilds synchronously."""
+        screen = self._create_screen()
+        screen._aside_lines = MagicMock(return_value=["a", "b"])  # type: ignore[method-assign]
+        screen._refresh_quota_bar = MagicMock()  # type: ignore[method-assign]
+        screen._refresh_footer = MagicMock()  # type: ignore[method-assign]
+        mock_body = MagicMock()
+        screen.query_one = MagicMock(return_value=mock_body)  # type: ignore[method-assign]
+        from unittest.mock import PropertyMock
+
+        mock_app = MagicMock()
+        with patch(
+            "hexawyn.cli.screens.session.SessionScreen.app",
+            new_callable=PropertyMock,
+            return_value=mock_app,
+        ):
+            with patch.object(SessionScreen, "run_worker", side_effect=RuntimeError("no worker")):
+                screen._refresh_aside()
+
+        mock_body.update.assert_called_once_with("\n".join(["a", "b"]))
+
+    def test_rebuild_aside_sync_swallows_error(self) -> None:
+        screen = self._create_screen()
+        screen._aside_lines = MagicMock(side_effect=RuntimeError("boom"))  # type: ignore[method-assign]
+
+        screen._rebuild_aside_sync()  # must not raise
+
+    def test_on_mount_primes_aside_in_background(self) -> None:
+        """on_mount must not block the first render on build_aside_lines.
+
+        The aside is filled by a background worker so startup stays instant.
+        """
+        import asyncio
+
+        from hexawyn.cli.screens.session import SessionScreen
+        from textual.app import App, ComposeResult
+
+        class _SessionApp(App[None]):
+            def compose(self) -> ComposeResult:
+                yield SessionScreen()
+
+        mock_app_attrs = {
+            "cluster_name": "prod",
+            "run_startup_scan": False,
+            "expert_mode": False,
+            "adapter": MagicMock(),
+            "context_service": None,
+            "startup_status": None,
+            "adapter_builder": MagicMock(),
+            "run_worker": MagicMock(),
+            "call_from_thread": lambda fn, *args: fn(*args),
+        }
+        mock_tui = MagicMock()
+        for k, v in mock_app_attrs.items():
+            setattr(mock_tui, k, v)
+
+        async def run() -> None:
+            with (
+                patch.object(SessionScreen, "_tui_app", return_value=mock_tui),
+                patch.object(SessionScreen, "_refresh_footer"),
+                patch.object(SessionScreen, "_start_background_license_refresh"),
+                patch.object(SessionScreen, "_prime_aside", return_value=None) as mock_prime,
+            ):
+                app = _SessionApp()
+                async with app.run_test() as _pilot:
+                    screen = app.screen
+                    assert screen.query("#aside-body")
+                    mock_prime.assert_called_once()
+
+        asyncio.run(run())
+
+    def test_prime_aside_swallows_aside_error(self) -> None:
+        """A failure building aside lines must not crash the worker."""
+        from unittest.mock import PropertyMock
+
+        screen = self._create_screen()
+        screen._aside_lines = MagicMock(side_effect=RuntimeError("boom"))  # type: ignore[method-assign]
+        mock_app = MagicMock()
+        mock_app.call_from_thread = lambda fn, *args: fn(*args)
+        with patch(
+            "hexawyn.cli.screens.session.SessionScreen.app",
+            new_callable=PropertyMock,
+            return_value=mock_app,
+        ):
+            screen._prime_aside()  # must not raise
+
+    def test_prime_aside_applies_lines(self) -> None:
+        """The aside body is populated with the built lines via call_from_thread."""
+        from unittest.mock import PropertyMock
+
+        screen = self._create_screen()
+        screen._aside_lines = MagicMock(return_value=["line1", "line2"])  # type: ignore[method-assign]
+        screen._refresh_quota_bar = MagicMock()  # type: ignore[method-assign]
+        screen._refresh_footer = MagicMock()  # type: ignore[method-assign]
+
+        mock_body = MagicMock()
+        screen.query_one = MagicMock(return_value=mock_body)  # type: ignore[method-assign]
+        mock_app = MagicMock()
+        mock_app.call_from_thread = lambda fn, *args: fn(*args)
+        with patch(
+            "hexawyn.cli.screens.session.SessionScreen.app",
+            new_callable=PropertyMock,
+            return_value=mock_app,
+        ):
+            screen._prime_aside()
+
+        mock_body.update.assert_called_once_with("\n".join(["line1", "line2"]))
+        screen._refresh_quota_bar.assert_called_once()
+
+    def test_prime_aside_apply_swallows_update_error(self) -> None:
+        """An exception applying layout after the screen was replaced is safe."""
+        from unittest.mock import PropertyMock
+
+        screen = self._create_screen()
+        screen._aside_lines = MagicMock(return_value=["x"])  # type: ignore[method-assign]
+        screen.query_one = MagicMock(side_effect=RuntimeError("screen replaced"))  # type: ignore[method-assign]
+        mock_app = MagicMock()
+        mock_app.call_from_thread = lambda fn, *args: fn(*args)
+        with patch(
+            "hexawyn.cli.screens.session.SessionScreen.app",
+            new_callable=PropertyMock,
+            return_value=mock_app,
+        ):
+            screen._prime_aside()  # must not raise
+
+    def test_mark_boot_ready_hides_loader(self) -> None:
+        """Once the aside is primed, the boot loader is hidden."""
+        screen = self._create_screen()
+        mock_loader = MagicMock()
+        screen.query_one = MagicMock(return_value=mock_loader)  # type: ignore[method-assign]
+
+        screen._mark_boot_ready()
+
+        assert screen._boot_ready is True
+        mock_loader.visible = False
+        mock_loader.display = False
+
+    def test_mark_boot_ready_swallows_missing_loader(self) -> None:
+        screen = self._create_screen()
+        screen.query_one = MagicMock(side_effect=Exception("no loader"))  # type: ignore[method-assign]
+
+        screen._mark_boot_ready()
+
+        assert screen._boot_ready is True
+
     def test_compose_and_mount_build_ui(self) -> None:
         import asyncio
 
@@ -813,6 +1000,7 @@ class TestSessionScreen:
                     assert screen.query("#status-bar")
                     assert screen.query("#footer-hints")
                     assert screen.query("#agentic-steps")
+                    assert screen.query("#boot-loader")
 
         asyncio.run(run())
 

@@ -8,6 +8,8 @@ from typing import cast
 import yaml
 from kubernetes import client, config
 
+_CONNECT_TIMEOUT_SECONDS = 2
+
 
 @dataclass(frozen=True)
 class ClusterContext:
@@ -276,7 +278,9 @@ class FileKubernetesDiscoveryService(DiscoveryService):
                 client_configuration=cfg,
             )
             api_client = client.ApiClient(configuration=cfg)
-            client.VersionApi(api_client=api_client).get_code(_request_timeout=5)
+            client.VersionApi(api_client=api_client).get_code(
+                _request_timeout=_CONNECT_TIMEOUT_SECONDS
+            )
             return True, None
         except Exception as exc:
             return False, str(exc)

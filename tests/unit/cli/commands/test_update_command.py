@@ -13,7 +13,7 @@ class TestVersionCommand:
         result = CliRunner().invoke(version)
 
         assert result.exit_code == 0
-        assert "hexawyn 0.1.0b9" in result.output
+        assert "hexawyn 0.1.0b10" in result.output
 
 
 class TestUpdateCommand:

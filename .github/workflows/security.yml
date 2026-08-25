@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t hexawyn:scan .
+      - run: DOCKER_BUILDKIT=1 docker build -t hexawyn:scan .
       - uses: aquasecurity/trivy-action@master
         with:
           image-ref: hexawyn:scan
