@@ -58,7 +58,7 @@ from hexawyn.cli.commands.opencode_command import opencode  # noqa: E402, I001
 from hexawyn.cli.commands.quota_command import quota  # noqa: E402, I001
 from hexawyn.cli.commands.schedule_command import schedule  # noqa: E402, I001
 from hexawyn.cli.commands.slack_command import slack  # noqa: E402, I001
-from hexawyn.cli.commands.update_command import update, version  # noqa: E402, I001
+from hexawyn.cli.commands.update_command import update, update_check, version  # noqa: E402, I001
 from hexawyn.cli.commands.uninstall_command import uninstall  # noqa: E402, I001
 
 app.add_command(auth)
@@ -74,6 +74,7 @@ app.add_command(opencode)
 app.add_command(cursor)
 app.add_command(gemini)
 app.add_command(update)
+app.add_command(update_check)
 app.add_command(version)
 app.add_command(uninstall)
 
