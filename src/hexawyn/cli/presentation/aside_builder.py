@@ -15,9 +15,46 @@ from hexawyn.cli.presentation.asides import (
     schedule_summary_lines,
 )
 from hexawyn.cli.presentation.findings import format_finding_warnings
-from hexawyn.cli.presentation.formatting import connection_line
 from hexawyn.cli.presentation.license_display import format_license_aside_lines
 from hexawyn.cli.presentation.suggestions import format_suggestion_lines
+
+
+def build_aside_skeleton(app: Any) -> list[str]:
+    """Render the aside structure immediately, without slow cluster reads.
+
+    Used at startup so the right column is never blank while the heavy
+    cluster polling (pods, metrics, findings, suggestions) runs in the
+    background. Those values are filled in later by build_aside_lines.
+    """
+    ctx = app.adapter.get_cluster_context()
+    cluster_name = str(ctx.get("name", "unknown"))
+    namespace = str(ctx.get("namespace", "default"))
+    kubectl_ctx = kubectl_current_context()
+
+    lines = [
+        f"Cluster: [bold]{cluster_name}[/bold]",
+        f"Context: [dim]{kubectl_ctx}[/dim]",
+        f"Namespace: [bold]{namespace}[/bold]",
+        "Namespaces: [dim]…[/dim]",
+        "Nodes: [dim]…[/dim]",
+        "Pods: [dim]…[/dim]",
+        "",
+        "Health Score: [dim]…[/dim]",
+        "",
+        "\U0001f7e2 Running Pods      [dim]…[/dim]",
+        "\U0001f7e1 Pending Pods       [dim]…[/dim]",
+        "\U0001f534 Failed Pods        [dim]…[/dim]",
+    ]
+    lines.extend(schedule_summary_lines())
+    lines.extend(format_license_aside_lines())
+    lines.append("")
+    lines.append("[dim]─────────────────────────────[/dim]")
+    lines.append("")
+    lines.append("[bold]Suggestions[/bold]")
+    lines.append("")
+    lines.append("[dim]Analyzing cluster…[/dim]")
+
+    return lines
 
 
 def build_aside_lines(app: Any) -> list[str]:
@@ -34,10 +71,6 @@ def build_aside_lines(app: Any) -> list[str]:
     kubectl_ctx = kubectl_current_context()
 
     lines = [
-        "[bold]HEXAWYN[/bold]",
-        "",
-        connection_line(app.startup_status),
-        "",
         f"Cluster: [bold]{cluster_name}[/bold]",
         f"Context: [dim]{kubectl_ctx}[/dim]",
         f"Namespace: [bold]{namespace}[/bold]",

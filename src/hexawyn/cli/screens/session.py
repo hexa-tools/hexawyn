@@ -9,7 +9,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
-from textual.widgets import Input, Static
+from textual.widgets import Input, LoadingIndicator, Static
 
 from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_response import ChatCliResponse
 from hexawyn.cli.command_router import route_command
@@ -69,6 +69,7 @@ class SessionScreen(Screen[None]):
         self._history: list[dict[str, str]] = []
         self._refresh_task: asyncio.Task[None] | None = None
         self._last_response: str = ""
+        self._boot_ready: bool = False
 
     def _tui_app(self) -> Any:
         from hexawyn.cli.tui import HexawynTUI
@@ -82,6 +83,7 @@ class SessionScreen(Screen[None]):
             with Vertical(id="main-col"):
                 with VerticalScroll(id="conversation-scroll"):
                     yield Static("", id="logo-banner", markup=True)
+                    yield LoadingIndicator(id="boot-loader")
                     yield MarkdownLog(id="conversation")
                     yield Static("", id="agentic-steps", markup=True)
                 yield Static("", id="status-bar")
@@ -100,7 +102,9 @@ class SessionScreen(Screen[None]):
 
     async def on_mount(self) -> None:
         self.query_one("#cmd-input", CommandInput).focus()
-        self._refresh_aside()
+        self._show_aside_skeleton()
+        self.run_worker(self._prime_aside, thread=True)
+        self.run_worker(self._auto_hide_loader, thread=True)
         self._refresh_footer()
 
         app = self._tui_app()
@@ -117,6 +121,74 @@ class SessionScreen(Screen[None]):
             await self._handle_command(self.initial_command)
 
         self._start_background_license_refresh()
+
+    def _auto_hide_loader(self) -> None:
+        """Guarantee the boot loader disappears even if priming never completes.
+
+        Safety net: hides the loading indicator after a grace period so the
+        UI never remains stuck on a spinner when the cluster is unreachable.
+        """
+        import time as _time
+
+        deadline = _time.monotonic() + 5.0
+        while _time.monotonic() < deadline:
+            if self._boot_ready:
+                return
+            _time.sleep(0.25)
+
+        def _hide() -> None:
+            self._mark_boot_ready()
+
+        self.app.call_from_thread(_hide)
+
+    def _show_aside_skeleton(self) -> None:
+        """Populate the aside structure immediately without slow cluster reads.
+
+        The right column renders its labels right away (the cluster polling,
+        which can take a couple of seconds, happens in the _prime_aside worker
+        that overwrites these placeholders).
+        """
+        from hexawyn.cli.presentation.aside_builder import build_aside_skeleton
+
+        try:
+            skeleton = build_aside_skeleton(self._tui_app())
+            self.query_one("#aside-body", Static).update("\n".join(skeleton))
+        except Exception:
+            pass
+
+    def _prime_aside(self) -> None:
+        """Build the aside lines off the render thread so startup is instant.
+
+        The heavy cluster reads (build_aside_lines) run on a worker; the result
+        is applied back on the Textual event loop via call_from_thread. If the
+        screen was replaced meanwhile, the update is skipped.
+        """
+        try:
+            lines = self._aside_lines()
+
+            def _apply() -> None:
+                try:
+                    body = self.query_one("#aside-body", Static)
+                    body.update("\n".join(lines))
+                    self._refresh_quota_bar()
+                    self._refresh_footer()
+                    self._mark_boot_ready()
+                except Exception:
+                    pass
+
+            self.app.call_from_thread(_apply)
+        except Exception:
+            pass
+
+    def _mark_boot_ready(self) -> None:
+        """Hide the boot loader once the aside has been primed."""
+        self._boot_ready = True
+        try:
+            loader = self.query_one("#boot-loader", LoadingIndicator)
+            loader.visible = False
+            loader.display = False
+        except Exception:
+            pass
 
     def _start_background_license_refresh(self) -> None:
         async def _periodic_refresh() -> None:
@@ -137,9 +209,24 @@ class SessionScreen(Screen[None]):
         self._refresh_task = asyncio.create_task(_periodic_refresh())
 
     def _refresh_aside(self) -> None:
-        self.query_one("#aside-body", Static).update("\n".join(self._aside_lines()))
-        self._refresh_quota_bar()
-        self._refresh_footer()
+        """Refresh the aside off the render thread so the UI never freezes.
+
+        The heavy cluster reads (build_aside_lines) run on a worker; the result
+        is applied back via call_from_thread by _prime_aside. Falls back to a
+        synchronous rebuild when run_worker is unavailable (e.g. unit tests).
+        """
+        try:
+            self.run_worker(self._prime_aside, thread=True)
+        except Exception:
+            self._rebuild_aside_sync()
+
+    def _rebuild_aside_sync(self) -> None:
+        try:
+            self.query_one("#aside-body", Static).update("\n".join(self._aside_lines()))
+            self._refresh_quota_bar()
+            self._refresh_footer()
+        except Exception:
+            pass
 
     def _aside_lines(self) -> list[str]:
         return build_aside_lines(self._tui_app())

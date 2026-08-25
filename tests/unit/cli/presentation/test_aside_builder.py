@@ -2,7 +2,80 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from hexawyn.cli.presentation.aside_builder import build_aside_lines
+from hexawyn.cli.presentation.aside_builder import build_aside_lines, build_aside_skeleton
+
+
+class TestBuildAsideSkeleton:
+    """The skeleton shows the aside structure instantly, without slow reads."""
+
+    def _make_app(self) -> MagicMock:
+        app = MagicMock()
+        app.startup_status = "connected"
+        app.adapter.get_cluster_context.return_value = {
+            "name": "prod-eu",
+            "namespace": "default",
+        }
+        return app
+
+    def test_skeleton_renders_structure_without_slow_calls(self) -> None:
+        app = self._make_app()
+
+        with (
+            patch(
+                "hexawyn.cli.presentation.aside_builder.kubectl_current_context",
+                return_value="prod-eu",
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.format_license_aside_lines",
+                return_value=[""],
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.schedule_summary_lines",
+                return_value=[],
+            ),
+        ):
+            lines = build_aside_skeleton(app)
+
+        joined = "\n".join(lines)
+        assert "Cluster" in joined
+        assert "Cluster" in joined
+        assert "prod-eu" in joined
+        assert "Namespace" in joined
+        assert "Health Score" in joined
+        assert "Running Pods" in joined
+        assert "Pending Pods" in joined
+        assert "Failed Pods" in joined
+        assert "Suggestions" in joined
+
+    def test_skeleton_does_not_call_slow_cluster_helpers(self) -> None:
+        app = self._make_app()
+
+        with (
+            patch("hexawyn.cli.presentation.aside_builder.safe_pods") as safe_pods,
+            patch("hexawyn.cli.presentation.aside_builder.safe_metrics") as safe_metrics,
+            patch("hexawyn.cli.presentation.aside_builder.safe_findings") as safe_findings,
+            patch("hexawyn.cli.presentation.aside_builder.safe_suggestions") as safe_suggestions,
+            patch("hexawyn.cli.presentation.aside_builder.safe_health_score") as safe_health_score,
+            patch(
+                "hexawyn.cli.presentation.aside_builder.kubectl_current_context",
+                return_value="prod-eu",
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.format_license_aside_lines",
+                return_value=[""],
+            ),
+            patch(
+                "hexawyn.cli.presentation.aside_builder.schedule_summary_lines",
+                return_value=[],
+            ),
+        ):
+            build_aside_skeleton(app)
+
+        safe_pods.assert_not_called()
+        safe_metrics.assert_not_called()
+        safe_findings.assert_not_called()
+        safe_suggestions.assert_not_called()
+        safe_health_score.assert_not_called()
 
 
 class TestBuildAsideLines:
@@ -32,10 +105,6 @@ class TestBuildAsideLines:
             patch(
                 "hexawyn.cli.presentation.aside_builder.kubectl_current_context",
                 return_value="prod-eu",
-            ),
-            patch(
-                "hexawyn.cli.presentation.aside_builder.connection_line",
-                return_value="",
             ),
             patch(
                 "hexawyn.cli.presentation.aside_builder.format_license_aside_lines",
@@ -77,7 +146,7 @@ class TestBuildAsideLines:
             lines = build_aside_lines(app)
 
         joined = "\n".join(lines)
-        assert "HEXAWYN" in joined
+        assert "Cluster" in joined
 
     def test_cluster_info_displayed(self) -> None:
         app = self._make_app()
@@ -97,10 +166,6 @@ class TestBuildAsideLines:
             patch(
                 "hexawyn.cli.presentation.aside_builder.kubectl_current_context",
                 return_value="prod-eu",
-            ),
-            patch(
-                "hexawyn.cli.presentation.aside_builder.connection_line",
-                return_value="",
             ),
             patch(
                 "hexawyn.cli.presentation.aside_builder.format_license_aside_lines",
@@ -168,10 +233,6 @@ class TestBuildAsideLines:
                 return_value="prod-eu",
             ),
             patch(
-                "hexawyn.cli.presentation.aside_builder.connection_line",
-                return_value="",
-            ),
-            patch(
                 "hexawyn.cli.presentation.aside_builder.format_license_aside_lines",
                 return_value=[""],
             ),
@@ -229,10 +290,6 @@ class TestBuildAsideLines:
             patch(
                 "hexawyn.cli.presentation.aside_builder.kubectl_current_context",
                 return_value="prod-eu",
-            ),
-            patch(
-                "hexawyn.cli.presentation.aside_builder.connection_line",
-                return_value="",
             ),
             patch(
                 "hexawyn.cli.presentation.aside_builder.format_license_aside_lines",
@@ -294,10 +351,6 @@ class TestBuildAsideLines:
                 return_value="prod-eu",
             ),
             patch(
-                "hexawyn.cli.presentation.aside_builder.connection_line",
-                return_value="",
-            ),
-            patch(
                 "hexawyn.cli.presentation.aside_builder.format_license_aside_lines",
                 return_value=[""],
             ),
@@ -355,10 +408,6 @@ class TestBuildAsideLines:
             patch(
                 "hexawyn.cli.presentation.aside_builder.kubectl_current_context",
                 return_value="prod-eu",
-            ),
-            patch(
-                "hexawyn.cli.presentation.aside_builder.connection_line",
-                return_value="",
             ),
             patch(
                 "hexawyn.cli.presentation.aside_builder.format_license_aside_lines",
@@ -420,10 +469,6 @@ class TestBuildAsideLines:
             patch(
                 "hexawyn.cli.presentation.aside_builder.kubectl_current_context",
                 return_value="prod-eu",
-            ),
-            patch(
-                "hexawyn.cli.presentation.aside_builder.connection_line",
-                return_value="",
             ),
             patch(
                 "hexawyn.cli.presentation.aside_builder.format_license_aside_lines",
@@ -490,10 +535,6 @@ class TestBuildAsideLines:
             patch(
                 "hexawyn.cli.presentation.aside_builder.kubectl_current_context",
                 return_value="prod-eu",
-            ),
-            patch(
-                "hexawyn.cli.presentation.aside_builder.connection_line",
-                return_value="",
             ),
             patch(
                 "hexawyn.cli.presentation.aside_builder.format_license_aside_lines",

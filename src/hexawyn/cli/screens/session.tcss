@@ -40,6 +40,14 @@ SessionScreen {
     padding: 0 0 0 2;
 }
 
+#boot-loader {
+    height: 1;
+    width: 16;
+    color: #3B82F6;
+    margin: 0 0 1 0;
+    background: #05070d;
+}
+
 #conversation MarkdownBlockQuote {
     background: #0b1220;
     border: round #3B82F6;

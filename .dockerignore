@@ -19,3 +19,7 @@ tests/
 README.md
 CHANGELOG.md
 CONTRIBUTING.md
+graphify-out/
+logs/
+.deepeval/
+evals/

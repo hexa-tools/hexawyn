@@ -202,11 +202,15 @@ cluster-operators:
 #  Docker
 # ─────────────────────────────────────
 
-.PHONY: build run-mcp run-cli run-demo run-cli-demo stop mcp-inspector
+.PHONY: build run-mcp run-cli run-demo run-cli-demo stop mcp-inspector uninstall
 
 version:
 	@echo "📦 hexawyn version:"
 	$(POETRY) run hexa version
+
+uninstall:  ## Uninstall hexawyn from the current environment
+	@echo "🗑️  Uninstalling hexawyn..."
+	$(POETRY) run hexa uninstall
 
 mcp-inspector:  ## Open MCP Inspector UI to browse/test the hexawyn MCP tools
 	@echo "🔍 Launching MCP Inspector (http://localhost:6274)..."
@@ -215,8 +219,8 @@ mcp-inspector:  ## Open MCP Inspector UI to browse/test the hexawyn MCP tools
 	@npx -y @modelcontextprotocol/inspector -- poetry run python -m hexawyn.mcp.stdio
 
 build:
-	@echo "🐳 Building Docker image..."
-	docker build -t $(DOCKER_IMAGE) .
+	@echo "🐳 Building Docker image (BuildKit enabled for pip cache)..."
+	DOCKER_BUILDKIT=1 docker build --progress=plain -t $(DOCKER_IMAGE) .
 	@echo "✅ Image built: $(DOCKER_IMAGE)"
 
 run-mcp:
@@ -389,6 +393,10 @@ help:
 	@echo "  make run-demo-gcp          → Start CLI in GCP GKE demo"
 	@echo "  make run-demo-openshift    → Start CLI in OpenShift demo"
 	@echo "  make run-demo-datadog      → Start CLI in Datadog demo"
+	@echo ""
+	@echo "📦 PACKAGE"
+	@echo "  make version               → Show installed hexawyn version"
+	@echo "  make uninstall             → Uninstall hexawyn from current environment"
 	@echo ""
 	@echo "💬 SLACK"
 	@echo "  make slack-listen           → Start Slack Socket Mode listener (local, no VPS)"
