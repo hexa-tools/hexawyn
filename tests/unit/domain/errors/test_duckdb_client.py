@@ -7,6 +7,16 @@ from hexawyn.infrastructure.memory.duckdb_client import (
     search_similar,
 )
 
+
+@pytest.fixture(autouse=True)
+def _reset_connection_state() -> None:
+    from hexawyn.infrastructure.memory.duckdb_client import reset_connection_state
+
+    reset_connection_state()
+    yield
+    reset_connection_state()
+
+
 INCIDENTS_DDL = """
     CREATE TABLE incidents (
         id UUID,
@@ -89,6 +99,27 @@ class TestGetConnection:
         mock_prepare.assert_called_once_with(b"x" * 32)
         patched_connect.assert_called_once()
         assert conn is fake_conn
+
+    def test_get_connection_is_a_singleton(self, monkeypatch):
+        """Repeated calls share one connection, so no lock conflict can occur."""
+        import hexawyn.infrastructure.memory.duckdb_client as client_mod
+
+        fake_conn = MagicMock()
+        patched_connect = MagicMock(return_value=fake_conn)
+
+        with patch(
+            "hexawyn.infrastructure.memory.duckdb_client.is_encryption_disabled",
+            return_value=True,
+        ):
+            with patch(
+                "hexawyn.infrastructure.memory.duckdb_client.duckdb.connect", patched_connect
+            ):
+                first = client_mod.get_connection()
+                second = client_mod.get_connection()
+
+        assert first is fake_conn
+        assert second is fake_conn
+        patched_connect.assert_called_once()
 
     def test_get_connection_skips_encryption_when_disabled(self, monkeypatch):
         import hexawyn.infrastructure.memory.duckdb_client as client_mod

@@ -109,6 +109,24 @@ class TestHexawynTUI:
             assert result is not None
             assert "healthy" in result.lower()
 
+    def test_fallback_suggestion_other_pods_returns_narrative(self) -> None:
+        """Pods that are neither Running nor Failed (Succeeded/Terminating) must
+        still yield a useful suggestion instead of returning None."""
+        tui = self._create_tui(adapter=MagicMock(), cluster_name="prod")
+        pods = [
+            {"name": "nginx", "status": "Running", "namespace": "default"},
+            {"name": "succeeded-job", "status": "Succeeded", "namespace": "default"},
+            {"name": "terminating-pod", "status": "Terminating", "namespace": "default"},
+        ]
+        with (
+            patch("hexawyn.cli.tui.safe_pods", return_value=pods),
+            patch("hexawyn.cli.tui.running_pod_count", return_value=1),
+            patch("hexawyn.cli.tui.pending_pod_count", return_value=0),
+            patch("hexawyn.cli.tui.failed_pod_count", return_value=0),
+        ):
+            result = tui._fallback_suggestion()
+            assert result is not None
+
     def test_fallback_suggestion_exception_returns_none(self) -> None:
         tui = self._create_tui(adapter=MagicMock(), cluster_name="prod")
         with patch("hexawyn.cli.tui.safe_pods", side_effect=RuntimeError("boom")):

@@ -150,6 +150,36 @@ class TestKubernetesContextDiscovery:
         assert status.connection_error is not None
         assert "connection refused" in status.connection_error
 
+    def test_validate_connection_uses_short_timeout(self, tmp_path: Path) -> None:
+        """The connection probe uses a short timeout so boot is not blocked."""
+        from hexawyn.infrastructure.config import kubernetes_context as ctx_mod
+
+        env_config = tmp_path / "prod.yaml"
+        hexawyn_config = tmp_path / "hexawyn-config.yaml"
+        _write_kubeconfig(env_config, "prod", ["prod"])
+        service = FileKubernetesDiscoveryService(
+            home_path=tmp_path / "home",
+            hexawyn_config=HexawynContextConfig(hexawyn_config),
+        )
+
+        with (
+            patch.dict("os.environ", {"KUBECONFIG": str(env_config)}),
+            patch("kubernetes.config.load_kube_config"),
+            patch("kubernetes.client.VersionApi") as version_api,
+        ):
+            version_api.return_value.get_code.return_value = MagicMock()
+            connected, _ = service._validate_connection("prod")
+
+        assert connected is True
+        version_api.return_value.get_code.assert_called_once_with(
+            _request_timeout=ctx_mod._CONNECT_TIMEOUT_SECONDS
+        )
+
+    def test_connect_timeout_is_short(self) -> None:
+        from hexawyn.infrastructure.config import kubernetes_context as ctx_mod
+
+        assert ctx_mod._CONNECT_TIMEOUT_SECONDS <= 2  # noqa: PLR2004
+
     def test_switch_context_saves_preferred_context_and_revalidates(self, tmp_path: Path) -> None:
         env_config = tmp_path / "prod.yaml"
         hexawyn_config = tmp_path / "hexawyn-config.yaml"

@@ -1,4 +1,5 @@
 import datetime
+import threading
 from pathlib import Path
 from typing import TypedDict
 
@@ -40,6 +41,18 @@ class SimilarInvestigationDict(TypedDict):
 HEXAWYN_DIR = Path.home() / ".hexawyn"
 DB_PATH = HEXAWYN_DIR / "memory.duckdb"
 
+_conn_lock = threading.RLock()
+_singleton_conn: duckdb.DuckDBPyConnection | None = None
+_singleton_init_done = False
+
+
+def reset_connection_state() -> None:
+    """Drop the cached connection so a fresh one is created (test isolation)."""
+    global _singleton_conn, _singleton_init_done
+    with _conn_lock:
+        _singleton_conn = None
+        _singleton_init_done = False
+
 
 def get_connection() -> duckdb.DuckDBPyConnection:
     """
@@ -59,37 +72,46 @@ def get_connection() -> duckdb.DuckDBPyConnection:
 
     Set HEXAWYN_DISABLE_ENCRYPTION=true to skip encryption (demo/testing only).
 
+    A single connection is shared across callers (thread-safe) so concurrent
+    startup work never opens multiple writers on the same DuckDB file, which
+    would raise a lock conflict.
+
     Raises:
         EncryptionError: if the wrong kubeconfig is used (key mismatch).
         DuckDBUnavailableError: if DuckDB fails to initialize.
     """
-    try:
-        HEXAWYN_DIR.mkdir(parents=True, exist_ok=True)
+    global _singleton_conn, _singleton_init_done
+    with _conn_lock:
+        if _singleton_conn is not None:
+            return _singleton_conn
+        try:
+            HEXAWYN_DIR.mkdir(parents=True, exist_ok=True)
 
-        if not is_encryption_disabled():
-            key = derive_key()
-            prepare_db(key)
+            if not is_encryption_disabled():
+                key = derive_key()
+                prepare_db(key)
 
-        conn = duckdb.connect(str(DB_PATH))
+            conn = duckdb.connect(str(DB_PATH))
 
-        conn.execute("INSTALL vss;")
-        conn.execute("LOAD vss;")
+            conn.execute("INSTALL vss;")
+            conn.execute("LOAD vss;")
 
-        conn.execute(_load_sql("schema.sql"))
+            conn.execute(_load_sql("schema.sql"))
 
-        conn.execute("SET hnsw_enable_experimental_persistence = true;")
+            conn.execute("SET hnsw_enable_experimental_persistence = true;")
 
-        conn.execute(_load_sql("indexes.sql"))
+            conn.execute(_load_sql("indexes.sql"))
 
-        return conn
-
-    except EncryptionError:
-        raise
-    except Exception as e:
-        raise DuckDBUnavailableError(
-            f"Failed to initialize DuckDB at {DB_PATH}: {e}",
-            context={"path": str(DB_PATH), "error": str(e)},
-        ) from e
+            _singleton_conn = conn
+            _singleton_init_done = True
+            return conn
+        except EncryptionError:
+            raise
+        except Exception as e:
+            raise DuckDBUnavailableError(
+                f"Failed to initialize DuckDB at {DB_PATH}: {e}",
+                context={"path": str(DB_PATH), "error": str(e)},
+            ) from e
 
 
 _UNLIMITED_HISTORY_DAYS = 36500  # 100 years — effectively no date filter

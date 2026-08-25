@@ -19,7 +19,7 @@ class TestAppGroup:
 
         assert result.exit_code == 0
         assert "█" in result.output
-        assert "v0.1.0b9" in result.output
+        assert "v0.1.0b10" in result.output
 
     def test_subcommands_registered(self) -> None:
         from hexawyn.cli.main import app
@@ -32,6 +32,7 @@ class TestAppGroup:
         assert "opencode" in command_names
         assert "cursor" in command_names
         assert "gemini" in command_names
+        assert "uninstall" in command_names
 
     def test_start_option_help(self) -> None:
         from hexawyn.cli.main import app

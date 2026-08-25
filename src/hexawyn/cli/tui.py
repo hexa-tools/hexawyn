@@ -131,6 +131,9 @@ class HexawynTUI(App[None]):
                 return f"{pending} pod(s) pending — check resource quotas or node capacity"
             if running == total:
                 return f"All {total} pods healthy — no issues detected"
+            other = total - running - pending - failed
+            if other > 0:
+                return f"{running}/{total} pods running — {other} finished or in transition"
             return None
         except Exception:
             return None
