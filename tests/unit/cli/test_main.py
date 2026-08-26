@@ -19,7 +19,7 @@ class TestAppGroup:
 
         assert result.exit_code == 0
         assert "█" in result.output
-        assert "v0.1.0b12" in result.output
+        assert "v0.1.0b13" in result.output
 
     def test_subcommands_registered(self) -> None:
         from hexawyn.cli.main import app
