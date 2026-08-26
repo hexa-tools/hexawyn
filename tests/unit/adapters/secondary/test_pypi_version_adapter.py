@@ -28,7 +28,7 @@ class TestPyPIVersionAdapter:
         """Without env or config, the adapter queries pypi.org."""
         response = MagicMock()
         response.status_code = 200
-        response.json.return_value = {"info": {"version": "0.1.0b12"}}
+        response.json.return_value = {"info": {"version": "0.1.0b13"}}
 
         with patch.dict("os.environ", {}, clear=True):
             with patch(
@@ -45,7 +45,7 @@ class TestPyPIVersionAdapter:
         """HEXAWYN_PYPI_INDEX_URL redirects the query (e.g. TestPyPI for dev)."""
         response = MagicMock()
         response.status_code = 200
-        response.json.return_value = {"info": {"version": "0.1.0b12"}}
+        response.json.return_value = {"info": {"version": "0.1.0b13"}}
 
         with patch.dict("os.environ", {"HEXAWYN_PYPI_INDEX_URL": "https://test.pypi.org"}):
             with patch(
@@ -61,7 +61,7 @@ class TestPyPIVersionAdapter:
     def test_env_index_trailing_slash_stripped(self) -> None:
         response = MagicMock()
         response.status_code = 200
-        response.json.return_value = {"info": {"version": "0.1.0b12"}}
+        response.json.return_value = {"info": {"version": "0.1.0b13"}}
 
         with patch.dict("os.environ", {"HEXAWYN_PYPI_INDEX_URL": "https://test.pypi.org/"}):
             with patch(
@@ -78,7 +78,7 @@ class TestPyPIVersionAdapter:
         """A previously persisted pypi_index_url in config is honoured."""
         response = MagicMock()
         response.status_code = 200
-        response.json.return_value = {"info": {"version": "0.1.0b12"}}
+        response.json.return_value = {"info": {"version": "0.1.0b13"}}
 
         with patch.dict("os.environ", {}, clear=True):
             with patch(
@@ -94,7 +94,7 @@ class TestPyPIVersionAdapter:
     def test_env_overrides_persisted_config(self) -> None:
         response = MagicMock()
         response.status_code = 200
-        response.json.return_value = {"info": {"version": "0.1.0b12"}}
+        response.json.return_value = {"info": {"version": "0.1.0b13"}}
 
         with patch.dict("os.environ", {"HEXAWYN_PYPI_INDEX_URL": "https://pypi.org"}):
             with patch(
@@ -113,7 +113,7 @@ class TestPyPIVersionAdapter:
         response_404.status_code = 404
         response_ok = MagicMock()
         response_ok.status_code = 200
-        response_ok.json.return_value = {"info": {"version": "0.1.0b12"}}
+        response_ok.json.return_value = {"info": {"version": "0.1.0b13"}}
 
         with patch.dict("os.environ", {}, clear=True):
             with patch(
@@ -129,7 +129,7 @@ class TestPyPIVersionAdapter:
                     ) as mock_get:
                         result = PyPIVersionAdapter().fetch_latest_version()
 
-        assert result == "0.1.0b12"
+        assert result == "0.1.0b13"
         assert mock_get.call_count == 2  # noqa: PLR2004
         # First call to prod, then to TestPyPI
         assert mock_get.call_args_list[0].args[0] == "https://pypi.org/pypi/hexawyn/json"
@@ -141,7 +141,7 @@ class TestPyPIVersionAdapter:
         """Prod answering 200 means no TestPyPI fallback and no config write."""
         response_ok = MagicMock()
         response_ok.status_code = 200
-        response_ok.json.return_value = {"info": {"version": "0.1.0b12"}}
+        response_ok.json.return_value = {"info": {"version": "0.1.0b13"}}
 
         with patch.dict("os.environ", {}, clear=True):
             with patch(
@@ -154,7 +154,7 @@ class TestPyPIVersionAdapter:
                     with patch("httpx.get", return_value=response_ok) as mock_get:
                         result = PyPIVersionAdapter().fetch_latest_version()
 
-        assert result == "0.1.0b12"
+        assert result == "0.1.0b13"
         assert mock_get.call_count == 1
         mock_save.assert_not_called()
 
@@ -217,7 +217,7 @@ class TestPyPIVersionAdapter:
         """A prod connect error falls back to TestPyPI (best-effort discovery)."""
         response_ok = MagicMock()
         response_ok.status_code = 200
-        response_ok.json.return_value = {"info": {"version": "0.1.0b12"}}
+        response_ok.json.return_value = {"info": {"version": "0.1.0b13"}}
 
         with patch.dict("os.environ", {}, clear=True):
             with patch(
@@ -233,7 +233,7 @@ class TestPyPIVersionAdapter:
                     ):
                         result = PyPIVersionAdapter().fetch_latest_version()
 
-        assert result == "0.1.0b12"
+        assert result == "0.1.0b13"
         mock_save.assert_called_once()
 
     def test_fetch_version_non_dict_info_returns_none(self) -> None:
