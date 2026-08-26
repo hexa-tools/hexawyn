@@ -13,6 +13,7 @@ from hexawyn.domain.models.pipeline_failure_analysis import (
 from hexawyn.domain.models.pipeline_run_logs import StepLog
 from hexawyn.domain.models.scoring import RcaScoringConfig
 from hexawyn.domain.services.failure_analysis.scorer import RcaScorer
+from hexawyn.domain.services.failure_analysis.timeline import build_pipeline_timeline
 
 _cfg = PipelineFailureAnalysisConstants()
 _FAILED_STATUSES = frozenset({"Failed", "Timeout"})
@@ -140,14 +141,20 @@ def _analyze_failure(
     else:
         failure_type, matched_known_pattern = _classify_by_message(root_cause)
 
-    timeline_available = len(history) > 1
+    timeline = build_pipeline_timeline(
+        step_logs=_step_logs_for(latest, step_logs_by_name),
+        task_runs=history,
+        termination_reasons=[],
+        events=None,
+    )
+    timeline_available = len(timeline.entries) > 1
     confidence = RcaScorer(_SCORING_CONFIG).calculate_confidence(
         logs_analyzed=bool(root_cause),
         root_cause_found=matched_known_pattern,
         timeline_available=timeline_available,
     )
     impact = RcaScorer(_SCORING_CONFIG).calculate_impact(
-        affected_tasks=1, related_incidents=0, timeline_events=0
+        affected_tasks=1, related_incidents=0, timeline_events=len(timeline.entries)
     )
 
     return FailureAnalysis(
@@ -158,6 +165,13 @@ def _analyze_failure(
         impact_score=impact.value,
         remediation=_REMEDIATION[failure_type],
     )
+
+
+def _step_logs_for(task: TaskRunInfo, step_logs_by_name: dict[str, StepLog]) -> list[StepLog]:
+    failing_step = task.get("failing_step")
+    if failing_step and failing_step in step_logs_by_name:
+        return [step_logs_by_name[failing_step]]
+    return []
 
 
 def _resolve_error_message(task: TaskRunInfo, step_logs_by_name: dict[str, StepLog]) -> str:

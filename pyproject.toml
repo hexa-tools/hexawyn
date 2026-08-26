@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hexawyn"
-version = "0.1.0b12"
+version = "0.1.0b13"
 description = "AI-powered Kubernetes assistant — MCP server for cluster investigation & reliability"
 authors = ["hexawyn team"]
 readme = "README.md"

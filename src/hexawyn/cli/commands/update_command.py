@@ -106,7 +106,16 @@ def update() -> None:
 
 
 def _build_install_command(installer: str, index_args: list[str]) -> list[str]:
-    """Assemble the pip/pipx command to install the latest hexawyn."""
+    """Assemble the pip/pipx command to install the latest hexawyn.
+
+    ``pip`` accepts index flags directly; ``pipx`` does not, so they are
+    forwarded through ``--pip-args`` (which pipx passes through to pip).
+    """
     if installer == "pipx":
-        return ["pipx", "install", "--force", *index_args, "hexawyn"]
+        command = ["pipx", "install", "--force"]
+        if index_args:
+            command.append("--pip-args")
+            command.append(" ".join(index_args))
+        command.append("hexawyn")
+        return command
     return ["pip", "install", "--upgrade", "--force-reinstall", *index_args, "hexawyn"]
