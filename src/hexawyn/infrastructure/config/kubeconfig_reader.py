@@ -7,6 +7,17 @@ from hexawyn.domain.errors import ClusterUnreachableError
 DEFAULT_KUBECONFIG = os.path.expanduser("~/.kube/config")
 
 
+def _kube_config_path() -> str:
+    """Merged kubeconfig path(s), excluding 0-byte files.
+
+    The Kubernetes python client treats an empty file as invalid and aborts the
+    whole KUBECONFIG merge, so any empty file is dropped here.
+    """
+    raw = os.environ.get("KUBECONFIG", DEFAULT_KUBECONFIG)
+    valid = [p for p in raw.split(os.pathsep) if os.path.isfile(p) and os.path.getsize(p) > 0]
+    return os.pathsep.join(valid)
+
+
 def load_kubeconfig(context: str | None = None) -> client.CoreV1Api:
     """
     Load kubeconfig and return a CoreV1Api client.
@@ -27,12 +38,9 @@ def load_kubeconfig(context: str | None = None) -> client.CoreV1Api:
         ClusterUnreachableError: if no kubeconfig found and not running in-cluster.
     """
     kubeconfig_path = os.environ.get("KUBECONFIG", DEFAULT_KUBECONFIG)
+    merged_path = _kube_config_path()
 
-    valid_paths = [
-        p for p in kubeconfig_path.split(os.pathsep) if os.path.isfile(p) and os.path.getsize(p) > 0
-    ]
-    if valid_paths:
-        merged_path = os.pathsep.join(valid_paths)
+    if merged_path:
         try:
             cfg = client.Configuration()
             config.load_kube_config(
@@ -79,7 +87,7 @@ def list_available_contexts() -> list[dict[str, str]]:
         List of dicts with keys: name, cluster, namespace.
     """
     try:
-        contexts, _ = config.list_kube_config_contexts()
+        contexts, _ = config.list_kube_config_contexts(config_file=_kube_config_path())
         return [
             {
                 "name": ctx["name"],
@@ -101,7 +109,7 @@ def get_active_context() -> dict[str, object] | None:
         Dict with keys: name, cluster, namespace. Or None.
     """
     try:
-        _, active = config.list_kube_config_contexts()
+        _, active = config.list_kube_config_contexts(config_file=_kube_config_path())
         return active if isinstance(active, dict) else None
     except Exception:
         return None

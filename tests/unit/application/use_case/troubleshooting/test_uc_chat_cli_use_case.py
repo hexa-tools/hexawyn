@@ -43,6 +43,41 @@ class TestChatCliUseCase:
 
         assert isinstance(result, ChatCliResponse)
 
+    def test_execute_forwards_on_progress(self) -> None:
+        """execute() exposes on_progress publicly (no private _execute call)."""
+        k8s = MagicMock()
+        k8s.get_cluster_context.return_value = {
+            "name": "test",
+            "cluster": "test-cluster",
+            "provider": "vanilla",
+            "namespace": "default",
+        }
+        runtime = MagicMock()
+        runtime.run_investigation.return_value = {
+            "status": "ok",
+            "answer": "test response",
+            "suggestions": [],
+            "usage": {},
+            "embedding": [],
+            "cause": "",
+            "solution": "",
+            "error": None,
+            "predicted_intents": [],
+        }
+        use_case = ChatCliUseCase(k8s_port=k8s, runtime=runtime)
+        captured: list[tuple[str, str]] = []
+
+        def on_progress(node: str, label: str) -> None:
+            captured.append((node, label))
+
+        result = use_case.execute(ChatCliCommand(query="test query"), on_progress=on_progress)
+
+        assert isinstance(result, ChatCliResponse)
+        runtime.run_investigation.assert_called()
+        assert (
+            captured or runtime.run_investigation.call_args.kwargs.get("on_progress") is on_progress
+        )
+
     def test_list_pods_returns_response(self) -> None:
         k8s = MagicMock()
         k8s.list_pods.return_value = []

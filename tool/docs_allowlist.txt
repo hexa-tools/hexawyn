@@ -1,0 +1,96 @@
+# tool/docs_allowlist.txt — manifeste des symboles planifiés (anti-dérive)
+#
+# Ici seuls les identifiants LÉGITIMEMENT non-définis dans le code hexawyn.
+# Ce sont des termes externes (stdlib, HTTP, ressources Kubernetes) que les
+# docs référencent en prose et qui ne sont PAS des symboles de src/hexawyn.
+#
+# Règle : on n'ajoute ici QUE ce qui est vraiment externe au projet. Toute
+# dérive conceptuelle (doc qui nomme `LogPort` alors que le code nomme
+# `LogsPort`) doit être corrigée dans la doc, pas masquée ici.
+#
+# Un symbole par ligne. '#' = commentaire.
+
+# ── Erreurs Python / HTTP (stdlib, requests, httpx) ────────────────
+HTTPError
+HTTPStatusError
+RuntimeError
+ConnectionError
+ConnectError
+TypeError
+ValueError
+KeyError
+TimeoutError
+OSError
+ImportError
+FileNotFoundError
+AssertionError
+PermissionError
+JSONDecodeError
+
+# ── Ressources / concepts Kubernetes référencés par couche ─────────
+NodePort
+ServicePort
+VirtualService
+IstioVirtualService
+GitRepository
+HelmRepository
+
+# ── Erreurs SDK / cloud (aws, boto3, google, kubernetes) ───────────
+BotoCoreError
+ClientError
+ClientAuthenticationError
+NoCredentialsError
+DefaultCredentialsError
+GoogleAPICallError
+HttpResponseError
+EndpointConnectionError
+NotImplementedError
+PodNotFoundError
+TrivyNotFoundError
+
+# ── Vocabulaire de couche hexagonale documenté (pas de symbole exact) ─
+# La doc décrit la chaîne `UseCase -> XxxService -> XxxPort -> XxxAdapter`.
+# Ces noms sont le vocabulaire documentel des couches, pas des classes au
+# nom identique dans le code. Chacun correspond à un port/adapter réel.
+AWSAdapter
+AzureAdapter
+GCPAdapter
+K8sAdapter
+KAAdapter
+HelmAdapter
+FluxAdapter
+IstioAdapter
+ArgoCDAdapter
+KyvernoAdapter
+RuntimeAdapter
+SchedulerAdapter
+HelmImageAdapter
+OTelCorrelationAdapter
+OTelLatencyAdapter
+PrometheusCapacityForecastAdapter
+PrometheusNodeAnalysisAdapter
+AlertPort
+HelmPort
+IstioPort
+KAPort
+RbacSecurityAuditPort
+BM25ToolRanker
+UseCaseRegistry
+ConfigManager
+ClusterManagerClient
+ChatCliService
+ChatCLIService
+ChatSlackService
+LLMService
+CriticalService
+ClusterCertificateHealthService
+CICDPerformanceBaselineService
+EastWestNetworkSegmentationService
+FleetHealthScoreService
+PodSecurityStandardsAuditService
+SecretRotationAuditService
+ServiceAccountRBACAuditService
+UnintendedExternalExposureService
+TestClusterCertificateHealthService
+TestKubernetesTektonAdapter
+TestPipelineRunStatusService

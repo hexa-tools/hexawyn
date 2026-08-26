@@ -11,26 +11,12 @@ from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import Input, LoadingIndicator, Static
 
+from hexawyn.application.service.chat_router import route_command
+from hexawyn.application.service.startup_scan_service import is_valid_startup_result
 from hexawyn.application.use_case.troubleshooting.chat_cli.chat_cli_response import ChatCliResponse
-from hexawyn.cli.command_router import route_command
 from hexawyn.cli.presentation.aside_builder import build_aside_lines
 from hexawyn.cli.presentation.asides import (
     safe_findings,
-)
-from hexawyn.cli.presentation.command_router import (
-    extract_requested_context,
-)
-from hexawyn.cli.presentation.command_router import (
-    is_context_command as _is_context_command,
-)
-from hexawyn.cli.presentation.command_router import (
-    is_setup_command as _is_setup_command,
-)
-from hexawyn.cli.presentation.command_router import (
-    is_stack_command as _is_stack_command,
-)
-from hexawyn.cli.presentation.command_router import (
-    is_token_command as _is_token_command,
 )
 from hexawyn.cli.presentation.constants import _LOGO_BANNER
 from hexawyn.cli.presentation.context_display import format_context_switch_lines
@@ -46,7 +32,21 @@ from hexawyn.cli.presentation.license_display import (
 )
 from hexawyn.cli.presentation.response_renderer import render_lines, render_result
 from hexawyn.cli.presentation.setup_info import render_setup_info
-from hexawyn.cli.presentation.startup_scan import is_valid_startup_result
+from hexawyn.cli.presentation.slash_commands import (
+    extract_requested_context,
+)
+from hexawyn.cli.presentation.slash_commands import (
+    is_context_command as _is_context_command,
+)
+from hexawyn.cli.presentation.slash_commands import (
+    is_setup_command as _is_setup_command,
+)
+from hexawyn.cli.presentation.slash_commands import (
+    is_stack_command as _is_stack_command,
+)
+from hexawyn.cli.presentation.slash_commands import (
+    is_token_command as _is_token_command,
+)
 from hexawyn.cli.screens.context_picker import ContextPickerScreen
 from hexawyn.cli.widgets.command_input import CommandInput
 from hexawyn.cli.widgets.markdown_log import MarkdownLog

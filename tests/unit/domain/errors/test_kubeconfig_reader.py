@@ -273,6 +273,55 @@ class TestGetActiveContext:
             assert ctx is None
 
 
+class TestEmptyFileTolerance:
+    """An empty kubeconfig file in the KUBECONFIG list must not break discovery.
+
+    The Kubernetes python client treats a 0-byte file as an invalid config and
+    aborts the whole merge, so hexawyn filters out empty files before listing
+    contexts. The CLI/MCP must still see the remaining valid contexts.
+    """
+
+    def test_list_contexts_filters_empty_files(self, tmp_path: Path) -> None:
+        good = tmp_path / "good.yaml"
+        good.write_text(_MINIMAL_KUBECONFIG)
+        empty = tmp_path / "empty.yaml"
+        empty.write_text("")
+
+        mock_contexts = [
+            {"name": "prod-eu", "context": {"cluster": "cluster-eu", "namespace": "default"}}
+        ]
+        with patch.dict("os.environ", {"KUBECONFIG": f"{good}{os.pathsep}{empty}"}):
+            with patch(
+                "kubernetes.config.list_kube_config_contexts",
+                return_value=(mock_contexts, mock_contexts[0]),
+            ) as mock_list:
+                contexts = list_available_contexts()
+
+        assert contexts[0]["name"] == "prod-eu"
+        merged = mock_list.call_args[1]["config_file"]
+        assert good.name in merged
+        assert empty.name not in merged
+
+    def test_get_active_context_filters_empty_files(self, tmp_path: Path) -> None:
+        good = tmp_path / "good.yaml"
+        good.write_text(_MINIMAL_KUBECONFIG)
+        empty = tmp_path / "empty.yaml"
+        empty.write_text("")
+
+        mock_active = {"name": "prod-eu", "context": {"cluster": "cluster-eu"}}
+        with patch.dict("os.environ", {"KUBECONFIG": f"{good}{os.pathsep}{empty}"}):
+            with patch(
+                "kubernetes.config.list_kube_config_contexts",
+                return_value=([], mock_active),
+            ) as mock_list:
+                ctx = get_active_context()
+
+        assert ctx["name"] == "prod-eu"
+        merged = mock_list.call_args[1]["config_file"]
+        assert good.name in merged
+        assert empty.name not in merged
+
+
 class TestConfigIsolation:
     """These tests catch the global-config-pollution bug.
 

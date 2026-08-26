@@ -252,6 +252,9 @@ if TYPE_CHECKING:
 
 _INTENTS_PATH = Path(__file__).parent.parent.parent.parent / "datasets" / "intent_examples.yaml"
 
+# Max sample user-queries appended to each tool description.
+EXAMPLES_LIMIT: int = 5
+
 # Initialize FastMCP server
 mcp = FastMCP(
     name="hexawyn",
@@ -506,6 +509,56 @@ def build_tool_descriptions() -> dict[str, str]:
     return descriptions
 
 
+def append_examples_to_description(
+    description: str, questions: list[str], limit: int = EXAMPLES_LIMIT
+) -> str:
+    """Append up to ``limit`` sample user queries to a tool description.
+
+    MCP has no standard ``examples`` field, so the queries are embedded in the
+    description — the only text visible to a connecting coding agent via
+    ``tools/list``.
+    """
+    if not questions:
+        return description
+    block = "\n".join(f"- {question}" for question in questions[:limit])
+    return f"{description}\n\nExamples:\n{block}"
+
+
+def _questions_for_tool(tool: str, data: dict[str, object]) -> list[str]:
+    """Sample user queries for a tool, aggregated across its use-case aliases."""
+    questions: list[str] = []
+    for entry in data.values():
+        if not isinstance(entry, dict) or entry.get("tool") != tool:
+            continue
+        raw = entry.get("questions")
+        if isinstance(raw, list):
+            questions.extend(q for q in raw if isinstance(q, str))
+    return questions
+
+
+def build_enriched_tool_descriptions() -> dict[str, str]:
+    """Tool descriptions padded with up to ``EXAMPLES_LIMIT`` sample queries.
+
+    Coding agents that read the MCP tool list see the description plus a few
+    representative user queries, which helps them pick the correct tool. The
+    underlying ``intent_examples.yaml`` and the control-plane contract are left
+    unchanged.
+    """
+    try:
+        data = yaml.safe_load(_INTENTS_PATH.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    if not isinstance(data, dict):
+        return {}
+
+    enriched: dict[str, str] = {}
+    for tool, description in build_tool_descriptions().items():
+        enriched[tool] = append_examples_to_description(
+            description, _questions_for_tool(tool, data)
+        )
+    return enriched
+
+
 def register_tools(server: FastMCP) -> None:
     """Auto-discover and register all MCP tools from mcp/tools/ modules."""
     import importlib
@@ -524,7 +577,7 @@ def register_tools(server: FastMCP) -> None:
         except Exception:
             pass
 
-    descriptions = build_tool_descriptions()
+    descriptions = build_enriched_tool_descriptions()
     if descriptions:
         import asyncio
 

@@ -12,6 +12,7 @@ from hexawyn.cli.integrations.mcp.base import MCPClientIntegration
 from hexawyn.cli.integrations.mcp.claude import ClaudeCodeIntegration
 from hexawyn.cli.integrations.mcp.codex import CodexIntegration
 from hexawyn.cli.integrations.mcp.cursor import CursorIntegration
+from hexawyn.cli.integrations.mcp.deepseek import DeepSeekHarnessIntegration
 from hexawyn.cli.integrations.mcp.gemini import GeminiIntegration
 from hexawyn.cli.integrations.mcp.opencode import OpenCodeIntegration
 
@@ -21,6 +22,7 @@ _CLIENT_REGISTRY: dict[str, Callable[..., MCPClientIntegration]] = {
     "opencode": OpenCodeIntegration,
     "cursor": CursorIntegration,
     "gemini": GeminiIntegration,
+    "deepseek": DeepSeekHarnessIntegration,
 }
 
 
