@@ -42,10 +42,7 @@ class ChatCliUseCase:
         self._usage_ledger = usage_ledger
         self._retrieval_gate = retrieval_gate
 
-    def execute(self, command: ChatCliCommand) -> ChatCliResponse:
-        return self._execute(command, on_progress=None)
-
-    def _execute(
+    def execute(
         self,
         command: ChatCliCommand,
         on_progress: Callable[[str, str], None] | None = None,

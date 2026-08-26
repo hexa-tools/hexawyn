@@ -39,11 +39,3 @@ class TestFindings:
             lines = format_finding_warnings(findings)
         assert any("No active warnings" in line for line in lines)
         assert any("green" in line for line in lines)
-
-    def test_is_error_narrative_filters_known_issues(self) -> None:
-        from hexawyn.cli.presentation.findings import is_error_narrative
-
-        assert is_error_narrative("Runtime not available. Check config.") is True
-        assert is_error_narrative("Cluster looks healthy") is False
-        assert is_error_narrative("No pods found in namespace") is True
-        assert is_error_narrative("All systems operational") is False

@@ -7,7 +7,11 @@ from pathlib import Path
 from unittest.mock import patch
 
 import yaml
-from hexawyn.mcp.server import build_tool_descriptions
+from hexawyn.mcp.server import (
+    EXAMPLES_LIMIT,
+    build_enriched_tool_descriptions,
+    build_tool_descriptions,
+)
 
 
 class TestToolDescriptionInjection:
@@ -80,3 +84,81 @@ class TestToolDescriptionInjection:
             register_tools(server)
 
         assert callable(getattr(server, "list_tools"))
+
+
+class TestEnrichedToolDescriptions:
+    def test_build_enriched_adds_examples(self) -> None:
+        questions = [
+            "Analyze the logs of checkout.",
+            "Any errors in checkout logs?",
+            "Why is api-gateway failing?",
+        ]
+        data = {
+            "analyze_pod_logs": {
+                "tool": "analyze_pod_logs",
+                "description": "Analyze pod logs for errors.",
+                "questions": questions,
+            }
+        }
+        with patch("hexawyn.mcp.server.yaml.safe_load", return_value=data):
+            enriched = build_enriched_tool_descriptions()
+
+        desc = enriched["analyze_pod_logs"]
+        assert "Analyze pod logs for errors." in desc
+        assert "Examples:" in desc
+        assert "- Analyze the logs of checkout." in desc
+        assert "- Any errors in checkout logs?" in desc
+        assert "- Why is api-gateway failing?" in desc
+        assert desc.count("- ") == len(questions)
+
+    def test_build_enriched_caps_at_limit(self) -> None:
+        many = [f"Question number {i}" for i in range(12)]
+        data = {
+            "cap_tool": {"tool": "cap_tool", "description": "A capped tool.", "questions": many}
+        }
+        with patch("hexawyn.mcp.server.yaml.safe_load", return_value=data):
+            enriched = build_enriched_tool_descriptions()
+
+        desc = enriched["cap_tool"]
+        assert desc.count("- Question") == EXAMPLES_LIMIT
+        assert f"- Question number {EXAMPLES_LIMIT - 1}" in desc
+        assert f"- Question number {EXAMPLES_LIMIT}" not in desc
+
+    def test_build_enriched_keeps_description_without_questions(self) -> None:
+        data = {"bare": {"tool": "bare", "description": "No examples here."}}
+        with patch("hexawyn.mcp.server.yaml.safe_load", return_value=data):
+            enriched = build_enriched_tool_descriptions()
+
+        assert enriched["bare"] == "No examples here."
+
+    def test_build_enriched_returns_empty_when_no_data(self) -> None:
+        with patch("hexawyn.mcp.server.yaml.safe_load", return_value={}):
+            assert build_enriched_tool_descriptions() == {}
+
+    def test_register_tools_sets_enriched_description(self) -> None:
+        from fastmcp import FastMCP
+        from hexawyn.mcp.server import register_tools
+
+        def analyze_pod_logs() -> dict[str, str]:
+            """Analyze pod logs for errors."""
+            return {}
+
+        data = {
+            "analyze_pod_logs": {
+                "tool": "analyze_pod_logs",
+                "description": "Analyze pod logs for errors.",
+                "questions": ["Analyze the logs of checkout.", "Why is api-gateway failing?"],
+            }
+        }
+
+        server = FastMCP("test")
+        server.tool()(analyze_pod_logs)
+
+        with patch("hexawyn.mcp.server.yaml.safe_load", return_value=data):
+            with patch("importlib.import_module", side_effect=ImportError("skip discovery")):
+                register_tools(server)
+
+        tool = next(t for t in asyncio.run(server.list_tools()) if t.name == "analyze_pod_logs")
+        assert "Examples:" in tool.description
+        assert "- Analyze the logs of checkout." in tool.description
+        assert "- Why is api-gateway failing?" in tool.description

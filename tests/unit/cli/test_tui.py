@@ -165,7 +165,10 @@ class TestHexawynTUI:
                 return_value=mock_runtime,
             ),
             patch("hexawyn.cli.tui.safe_pods", return_value=[]),
-            patch("hexawyn.cli.presentation.findings.is_error_narrative", return_value=False),
+            patch(
+                "hexawyn.application.service.startup_scan_service.is_error_narrative",
+                return_value=False,
+            ),
         ):
             tui._generate_ai_suggestion()
             assert tui.ai_suggestion == "Cluster looks good"
@@ -248,7 +251,10 @@ class TestHexawynTUI:
                 return_value=mock_runtime,
             ),
             patch("hexawyn.cli.tui.safe_pods", return_value=[]),
-            patch("hexawyn.cli.presentation.findings.is_error_narrative", return_value=True),
+            patch(
+                "hexawyn.application.service.startup_scan_service.is_error_narrative",
+                return_value=True,
+            ),
             patch.object(tui, "_fallback_suggestion", return_value="fallback"),
         ):
             tui._generate_ai_suggestion()

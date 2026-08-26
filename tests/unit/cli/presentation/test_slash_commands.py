@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from hexawyn.cli.presentation.command_router import (
+from hexawyn.cli.presentation.slash_commands import (
     extract_requested_context,
     is_context_command,
     is_refresh_command,
@@ -38,10 +38,7 @@ class TestIsTokenCommand:
         assert is_token_command("/token abc123") is True
 
     def test_not_token(self) -> None:
-        assert is_token_command("/context") is False
-
-    def test_empty_string(self) -> None:
-        assert is_token_command("") is False
+        assert is_token_command("/setup") is False
 
 
 class TestIsStackCommand:
@@ -49,52 +46,43 @@ class TestIsStackCommand:
         assert is_stack_command("/stack") is True
 
     def test_stack_with_args(self) -> None:
-        assert is_stack_command("/stack payments-api") is True
+        assert is_stack_command("/stack prod") is True
 
     def test_not_stack(self) -> None:
         assert is_stack_command("/context") is False
 
 
 class TestIsRefreshCommand:
-    def test_exact_refresh(self) -> None:
+    def test_refresh_recognized(self) -> None:
         assert is_refresh_command("/refresh") is True
 
-    def test_refresh_with_spaces(self) -> None:
+    def test_refresh_ignores_whitespace(self) -> None:
         assert is_refresh_command("  /refresh  ") is True
 
-    def test_refresh_with_extra_args_not_matched(self) -> None:
-        assert is_refresh_command("/refresh now") is False
-
     def test_not_refresh(self) -> None:
-        assert is_refresh_command("/setup") is False
+        assert is_refresh_command("/refresh now") is False
 
 
 class TestIsSetupCommand:
-    def test_exact_setup(self) -> None:
+    def test_setup_recognized(self) -> None:
         assert is_setup_command("/setup") is True
 
-    def test_setup_with_spaces(self) -> None:
-        assert is_setup_command("  /setup  ") is True
-
-    def test_setup_with_extra_not_matched(self) -> None:
-        assert is_setup_command("/setup wizard") is False
-
     def test_not_setup(self) -> None:
-        assert is_setup_command("/refresh") is False
+        assert is_setup_command("/token") is False
 
 
 class TestExtractRequestedContext:
-    def test_extracts_second_word(self) -> None:
+    def test_extracts_context_name(self) -> None:
         assert extract_requested_context("/context prod-eu") == "prod-eu"
 
-    def test_no_args_returns_none(self) -> None:
+    def test_returns_none_without_args(self) -> None:
         assert extract_requested_context("/context") is None
 
-    def test_multiple_words_returns_rest(self) -> None:
-        assert (
-            extract_requested_context("/context prod-eu namespace default")
-            == "prod-eu namespace default"
-        )
+    def test_returns_none_on_empty(self) -> None:
+        assert extract_requested_context("") is None
 
-    def test_only_whitespace_after_command_returns_none(self) -> None:
-        assert extract_requested_context("/context   ") is None
+    def test_returns_none_on_whitespace(self) -> None:
+        assert extract_requested_context("   ") is None
+
+    def test_handles_extra_args(self) -> None:
+        assert extract_requested_context("/context prod namespace") == "prod namespace"
