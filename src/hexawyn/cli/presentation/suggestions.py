@@ -1,6 +1,6 @@
 from typing import Any
 
-from hexawyn.cli.presentation.findings import is_error_narrative
+from hexawyn.application.service.startup_scan_service import is_error_narrative
 
 
 def format_suggestion_lines(  # noqa: C901

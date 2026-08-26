@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from hexawyn.cli.command_router import route_command
+from hexawyn.application.service.chat_router import route_command
 
 
 class TestRouteCommand:

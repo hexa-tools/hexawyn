@@ -4,18 +4,18 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from hexawyn.cli.presentation.command_router import (
+from hexawyn.cli.presentation.context_display import format_context_switch_lines
+from hexawyn.cli.presentation.license_display import (
+    format_license_aside_lines,
+    format_license_footer_hint,
+)
+from hexawyn.cli.presentation.slash_commands import (
     extract_requested_context,
     is_context_command,
     is_refresh_command,
     is_setup_command,
     is_stack_command,
     is_token_command,
-)
-from hexawyn.cli.presentation.context_display import format_context_switch_lines
-from hexawyn.cli.presentation.license_display import (
-    format_license_aside_lines,
-    format_license_footer_hint,
 )
 from hexawyn.cli.presentation.suggestions import format_suggestion_lines
 from hexawyn.infrastructure.config.kubernetes_context import (

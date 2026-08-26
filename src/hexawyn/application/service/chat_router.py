@@ -1,4 +1,7 @@
-# mypy: ignore-errors
+"""Chat routing — bridge between the CLI chat input and the chat use case."""
+
+from __future__ import annotations
+
 from collections.abc import Callable
 
 from hexawyn.application.ports.driven.k8s_port import K8sPort
@@ -21,7 +24,7 @@ def route_command(
     on_progress: Callable[[str, str], None] | None = None,
 ) -> ChatCliResponse:
     use_case = ChatCliUseCase(k8s_port=adapter, runtime=get_runtime())
-    return use_case._execute(
+    return use_case.execute(
         ChatCliCommand(query=text, conversation_history=conversation_history or []),
         on_progress=on_progress,
     )

@@ -15,8 +15,8 @@ jobs:
           python-version: '3.12'
       - run: pip install poetry
       - run: poetry install --with dev
-      - run: poetry run ruff check src/ tests/
-      - run: poetry run ruff format --check src/ tests/
+      - run: poetry run ruff check src/ tests/ tool/
+      - run: poetry run ruff format --check src/ tests/ tool/
       - run: poetry run mypy src/hexawyn/
   test:
     name: Unit Tests
@@ -59,6 +59,16 @@ jobs:
             --strict-markers \
             --tb=short \
             --durations=10
+  docs-anti-drift:
+    name: Docs Anti-Drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Docs must not drift from code
+        run: python tool/check_docs.py --all --fail-warnings
   docker:
     name: Docker Build
     runs-on: ubuntu-latest

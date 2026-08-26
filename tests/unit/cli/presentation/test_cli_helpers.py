@@ -6,6 +6,7 @@ from importlib.metadata import PackageNotFoundError
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+from hexawyn.application.service.startup_scan_service import is_error_narrative
 from hexawyn.cli.presentation.asides import (
     crashloop_finding_count,
     failed_pod_count,
@@ -26,7 +27,6 @@ from hexawyn.cli.presentation.asides import (
 )
 from hexawyn.cli.presentation.findings import (
     format_finding_warnings,
-    is_error_narrative,
 )
 from hexawyn.cli.presentation.formatting import (
     app_version,

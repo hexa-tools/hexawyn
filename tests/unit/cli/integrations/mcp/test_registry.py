@@ -5,6 +5,7 @@ from hexawyn.cli.integrations.mcp.base import MCPClientIntegration
 from hexawyn.cli.integrations.mcp.claude import ClaudeCodeIntegration
 from hexawyn.cli.integrations.mcp.codex import CodexIntegration
 from hexawyn.cli.integrations.mcp.cursor import CursorIntegration
+from hexawyn.cli.integrations.mcp.deepseek import DeepSeekHarnessIntegration
 from hexawyn.cli.integrations.mcp.gemini import GeminiIntegration
 from hexawyn.cli.integrations.mcp.opencode import OpenCodeIntegration
 from hexawyn.cli.integrations.mcp.registry import get_integration, list_clients
@@ -12,7 +13,14 @@ from hexawyn.cli.integrations.mcp.registry import get_integration, list_clients
 
 class TestRegistry:
     def test_clients_are_registered(self) -> None:
-        assert set(list_clients()) == {"claude", "codex", "opencode", "cursor", "gemini"}
+        assert set(list_clients()) == {
+            "claude",
+            "codex",
+            "opencode",
+            "cursor",
+            "gemini",
+            "deepseek",
+        }
 
     def test_get_claude_returns_claude_integration(self) -> None:
         integration = get_integration("claude")
@@ -33,6 +41,10 @@ class TestRegistry:
     def test_get_gemini_returns_gemini_integration(self) -> None:
         integration = get_integration("gemini")
         assert isinstance(integration, GeminiIntegration)
+
+    def test_get_deepseek_returns_deepseek_integration(self) -> None:
+        integration = get_integration("deepseek")
+        assert isinstance(integration, DeepSeekHarnessIntegration)
 
     def test_get_unknown_client_raises_key_error(self) -> None:
         with pytest.raises(KeyError):

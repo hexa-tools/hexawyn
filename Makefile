@@ -43,23 +43,34 @@ deps-export:
 
 lint:
 	@echo "🔍 Linting Python with ruff..."
-	$(RUFF) check src/ tests/
+	$(RUFF) check src/ tests/ tool/
 	@echo "✅ Lint passed"
 
 format:
 	@echo "🎨 Formatting Python with ruff..."
-	$(RUFF) format src/ tests/
+	$(RUFF) format src/ tests/ tool/
 	@echo "✅ Formatting done"
 
 format-check:
 	@echo "📐 Checking Python formatting with ruff..."
-	$(RUFF) format --check src/ tests/
+	$(RUFF) format --check src/ tests/ tool/
 	@echo "✅ Format check passed"
 
 type-check:
 	@echo "🔎 Running mypy strict type check..."
 	$(MYPY) src/hexawyn/
 	@echo "✅ Type check passed"
+
+# ─────────────────────────────────────
+#  Documentation anti-drift
+# ─────────────────────────────────────
+
+.PHONY: docs-check
+
+docs-check:
+	@echo "📚 Checking docs do not drift from code..."
+	$(PYTHON) tool/check_docs.py --all --fail-warnings
+	@echo "✅ Docs are in sync with code"
 
 check:
 	@echo "🔍 Running all quality checks..."
@@ -382,6 +393,9 @@ help:
 	@echo "  make run-mcp               → Start MCP server (real cluster)"
 	@echo "  make run-demo-docker       → Start MCP server in Docker demo"
 	@echo "  make stop                  → Stop all Docker services"
+	@echo ""
+	@echo "🔌 MCP"
+	@echo "  make mcp-inspector         → Open MCP Inspector UI to browse/test tools (localhost:6274)"
 	@echo ""
 	@echo "🎭 DEMO"
 	@echo "  make run-demo              → Start MCP server in demo mode (compose)"

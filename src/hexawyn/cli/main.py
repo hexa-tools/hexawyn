@@ -53,6 +53,7 @@ from hexawyn.cli.commands.cluster_command import cluster  # noqa: E402, I001
 from hexawyn.cli.commands.codex_command import codex  # noqa: E402, I001
 from hexawyn.cli.commands.cursor_command import cursor  # noqa: E402, I001
 from hexawyn.cli.commands.db_command import db  # noqa: E402, I001
+from hexawyn.cli.commands.deepseek_command import deepseek  # noqa: E402, I001
 from hexawyn.cli.commands.gemini_command import gemini  # noqa: E402, I001
 from hexawyn.cli.commands.opencode_command import opencode  # noqa: E402, I001
 from hexawyn.cli.commands.quota_command import quota  # noqa: E402, I001
@@ -73,6 +74,7 @@ app.add_command(codex)
 app.add_command(opencode)
 app.add_command(cursor)
 app.add_command(gemini)
+app.add_command(deepseek)
 app.add_command(update)
 app.add_command(update_check)
 app.add_command(version)

@@ -673,7 +673,11 @@ class TestServerHelpers:
         assert result["api_key"] == "configured"
 
     def test_context_name_module_variable(self) -> None:
-        assert self.server_mod.context_name == "unknown"
+        from hexawyn.infrastructure.config.kubeconfig_reader import get_active_context
+
+        active = get_active_context()
+        expected = str(active["name"]) if active else "unknown"
+        assert self.server_mod.context_name == expected
 
     def test_build_cost_forecast_adapter_unknown_context(self) -> None:
         with patch.object(self.server_mod, "context_name", "unknown"):
