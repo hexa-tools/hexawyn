@@ -258,7 +258,7 @@ EXAMPLES_LIMIT: int = 5
 # Initialize FastMCP server
 mcp = FastMCP(
     name="hexawyn",
-    version="0.1.0b11",
+    version="0.1.0b12",
     instructions="AI-powered Kubernetes diagnostic agent",
 )
 
@@ -613,7 +613,7 @@ def health() -> dict[str, str]:
 
     return {
         "status": "ok" if db_ok else "degraded",
-        "version": "0.1.0b11",
+        "version": "0.1.0b12",
         "duckdb": "connected" if db_ok else "unavailable",
         "api_key": "configured" if api_key_ok else "missing",
         "cluster": _cluster_status.get("status", "unknown"),

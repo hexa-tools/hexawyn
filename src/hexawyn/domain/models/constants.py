@@ -7,7 +7,7 @@ consolidated into typed module-level constants and dataclasses.
 from dataclasses import dataclass
 
 # ── Version & URLs ──────────────────────────────────────────────
-VERSION: str = "0.1.0b11"
+VERSION: str = "0.1.0b12"
 PRICING_URL: str = "https://hexawyn.com/pricing"
 TELEMETRY_URL: str = "https://api.hexawyn.com/v1/telemetry"
 
