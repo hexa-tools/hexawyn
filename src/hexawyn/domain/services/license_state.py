@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from math import ceil
 
 from hexawyn.domain.models.license import LicenseClaims
 
@@ -19,17 +20,18 @@ def compute_license_state(claims: LicenseClaims) -> LicenseState:
 
     expiry_dt = datetime.fromtimestamp(exp_timestamp, tz=UTC)
     now = datetime.now(UTC)
-    days_remaining = (expiry_dt - now).days
+    seconds_remaining = (expiry_dt - now).total_seconds()
     expiry_date = expiry_dt.strftime("%d %b %Y")
+    days_remaining = max(0, ceil(seconds_remaining / 86400))
 
-    if days_remaining <= 0:
+    if seconds_remaining <= 0:
         return LicenseState(
             state="expired",
             plan=claims.plan,
-            days_remaining=days_remaining,
+            days_remaining=0,
             expiry_date=expiry_date,
         )
-    if days_remaining <= 7:  # noqa: PLR2004
+    if seconds_remaining <= 7 * 86400:  # noqa: PLR2004
         return LicenseState(
             state="warning",
             plan=claims.plan,

@@ -27,3 +27,13 @@ class TestComputeLicenseState:
         claims.plan = "team"
         result = compute_license_state(claims)
         assert result.state == "active"
+
+    def test_not_expired_when_under_a_day_remains(self) -> None:
+        import time
+
+        claims = MagicMock()
+        claims.exp = int(time.time()) + 21 * 3600  # ~21h in the future
+        claims.plan = "team"
+        result = compute_license_state(claims)
+        assert result.state != "expired"
+        assert result.days_remaining >= 1
