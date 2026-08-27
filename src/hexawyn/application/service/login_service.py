@@ -43,6 +43,7 @@ class LoginService:
                 self._emit("✗ Authentication service unavailable")
                 return LoginOutcome.UNAVAILABLE
             self._emit("✗ Existing Hexawyn Cloud token is invalid")
+            return LoginOutcome.INVALID_TOKEN
 
         token = self._prompt_token()
         if token is None:
