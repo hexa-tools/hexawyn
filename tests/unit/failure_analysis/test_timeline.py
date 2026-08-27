@@ -133,3 +133,29 @@ class TestBuildPipelineTimeline:
 
         assert result.entries[0].message == "the real error"
         assert result.entries[0].step_name == "test"
+
+    def test_step_log_severity_for_other_statuses(self) -> None:
+        logs = [
+            StepLog("running", StepStatus.RUNNING, [], False),
+            StepLog("skipped", StepStatus.SKIPPED, [], False),
+            StepLog("succeeded", StepStatus.SUCCEEDED, [], False),
+        ]
+
+        result = build_pipeline_timeline(logs, [], [], None)
+
+        by_step = {entry.step_name: entry.severity for entry in result.entries}
+        assert by_step["running"] == "warning"
+        assert by_step["skipped"] == "warning"
+        assert by_step["succeeded"] == "info"
+
+    def test_event_severity_for_error_and_normal_types(self) -> None:
+        events = [
+            _event("pod-a", "OOMKilled", "Error", "2024-01-10T15:00:00Z"),
+            _event("pod-b", "Started", "Normal", "2024-01-10T14:00:00Z"),
+        ]
+
+        result = build_pipeline_timeline([], [], [], events)
+
+        by_object = {entry.step_name: entry.severity for entry in result.entries}
+        assert by_object["pod-a"] == "error"
+        assert by_object["pod-b"] == "info"
