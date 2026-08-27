@@ -15,16 +15,27 @@ if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
-def global_health_check(
-    max_clusters: int = 10, timeout_seconds: float = 8.0, previous_fleet_score: float | None = None
+def global_health_check(  # noqa: PLR0913
+    max_clusters: int = 0,
+    page: int = 1,
+    page_size: int = 0,
+    max_workers: int = 5,
+    timeout_seconds: float = 8.0,
+    previous_fleet_score: float | None = None,
 ) -> dict[str, object]:
     """Return a global health overview for all clusters in the kubeconfig.
 
-    Analyzes every cluster in parallel. Unreachable clusters are marked as
-    such and excluded from the aggregate fleet score.
+    Scans the kubeconfig contexts in parallel (up to ``max_workers``).
+    Unreachable clusters are marked as such and excluded from the aggregate
+    fleet score. ``max_clusters`` (0 = unlimited) and ``page``/``page_size``
+    (0 = no pagination) let you scan hundreds of contexts in batches so each
+    call stays within ``timeout_seconds``.
 
     Args:
-        max_clusters: Maximum number of kubeconfig contexts to check (default: 10).
+        max_clusters: Max kubeconfig contexts to check. 0 = all (default).
+        page: Page number (1-based) when ``page_size > 0``.
+        page_size: Contexts per page. 0 = no pagination (default).
+        max_workers: Parallel workers for the fleet scan.
         timeout_seconds: Per-fleet timeout in seconds (default: 8.0).
         previous_fleet_score: Previous fleet score for trend computation (optional).
     """
@@ -36,6 +47,9 @@ def global_health_check(
         response = use_case.execute(
             GlobalHealthCheckCommand(
                 max_clusters=max_clusters,
+                page=page,
+                page_size=page_size,
+                max_workers=max_workers,
                 timeout_seconds=timeout_seconds,
                 previous_fleet_score=previous_fleet_score,
             )
@@ -69,6 +83,10 @@ def global_health_check(
             "reachable_count": report.reachable_count,
             "unreachable_count": report.unreachable_count,
             "fleet_score_trend": response.fleet_score_trend,
+            "total_contexts": response.total_contexts,
+            "page": response.page,
+            "page_size": response.page_size,
+            "has_more": response.has_more,
             "checked_at": report.checked_at.isoformat(),
             "error": None,
         }
@@ -80,6 +98,10 @@ def global_health_check(
             "reachable_count": 0,
             "unreachable_count": 0,
             "fleet_score_trend": None,
+            "total_contexts": 0,
+            "page": page,
+            "page_size": page_size,
+            "has_more": False,
             "checked_at": None,
             "error": str(exc),
         }

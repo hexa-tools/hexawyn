@@ -102,6 +102,26 @@ class TestVanillaK8sAdapter:
         with pytest.raises(ClusterUnreachableError):
             adapter.list_namespaces()
 
+    def test_list_namespaces_surfaces_kubeconfig_load_failure(self) -> None:
+        """Edge case: no injected api, and the lazy kubeconfig load fails.
+
+        The MCP tool must surface the wrapped ``Cannot list namespaces`` error
+        rather than crash, so a cluster without a reachable kubeconfig degrades
+        gracefully instead of taking the tool down.
+        """
+        with patch(
+            "hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter.load_kubeconfig",
+            side_effect=ClusterUnreachableError("Unable to load kubeconfig."),
+        ):
+            adapter = VanillaK8sAdapter(
+                api=None, metrics_api=MagicMock(), cluster_name="hetzner-preprod"
+            )
+            with pytest.raises(ClusterUnreachableError) as exc:
+                adapter.list_namespaces()
+
+        assert "Cannot list namespaces" in str(exc.value)
+        assert "Unable to load kubeconfig" in str(exc.value)
+
     def test_get_cluster_context_returns_metadata(self) -> None:
         api = MagicMock()
         adapter = VanillaK8sAdapter(api=api, metrics_api=MagicMock(), cluster_name="my-cluster")

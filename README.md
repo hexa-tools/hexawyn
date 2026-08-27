@@ -2,13 +2,13 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2.svg?logo=discord&logoColor=white)](https://discord.gg/HH3WsrnNw)
-[![Tests](https://img.shields.io/badge/tests-8500%2B_passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-8617_passed-brightgreen.svg)]()
 [![codecov](https://codecov.io/gh/hexa-tools/hexawyn/branch/main/graph/badge.svg?token=E6PJX17GA8)](https://codecov.io/gh/hexa-tools/hexawyn)
 [![CI](https://github.com/hexa-tools/hexawyn/actions/workflows/ci.yml/badge.svg)](https://github.com/hexa-tools/hexawyn/actions/workflows/ci.yml)
 [![Security](https://github.com/hexa-tools/hexawyn/actions/workflows/security.yml/badge.svg)](https://github.com/hexa-tools/hexawyn/actions/workflows/security.yml)
 [![Docker Hub](https://img.shields.io/docker/pulls/hexatools/hexawyn.svg)](https://hub.docker.com/r/hexatools/hexawyn)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
-[![Benchmark](https://img.shields.io/badge/benchmark-80.9%2F100-yellow.svg)](docs/benchmark/README.md)
+[![Benchmark](https://img.shields.io/badge/benchmark-80.5%2F100-yellow.svg)](docs/benchmark/README.md)
 
 </p>
 
@@ -135,10 +135,21 @@ Requirements: the `hexa` CLI installed (see above) and the target coding agent
 installed. The integration registers the server over stdio — no separate
 process to manage.
 
-**Explore the tools in a browser** (`make mcp-inspector`, or `npx
-@modelcontextprotocol/inspector -- poetry run python -m hexawyn.mcp.stdio`):
-each tool shows its description plus example queries (→ **Tools** tab,
-http://localhost:6274).
+### Cluster context
+
+Hexawyn connects to the **active Kubernetes context** of your local
+kubeconfig — it follows `kubectl config current-context`. Switch clusters with
+kubectl and hexawyn (CLI and MCP) picks it up on the next call:
+
+```bash
+kubectl config get-contexts          # list available contexts
+kubectl config current-context       # show the active one hexawyn will use
+kubectl config use-context kind-hexawyn   # switch context
+```
+
+When several kubeconfig files are on `KUBECONFIG`, hexawyn merges them,
+skips empty ones, and — if `KUBECONFIG` is not set — discovers a config under
+`$HOME/.kube` on its own.
 
 > The coding agents are **optional** MCP clients. Hexawyn does not require any
 > of them.
