@@ -94,10 +94,26 @@ def load_kubeconfig(context: str | None = None) -> client.CoreV1Api:
                 client_configuration=cfg,
             )
         except Exception as exc:
-            raise ClusterUnreachableError(
-                "Unable to load kubeconfig.",
-                context={"kubeconfig_path": merged_path, "error": str(exc)},
-            ) from exc
+            if context is None:
+                raise ClusterUnreachableError(
+                    "Unable to load kubeconfig.",
+                    context={"kubeconfig_path": merged_path, "error": str(exc)},
+                ) from exc
+            # Edge case: the explicit context fails to resolve (kubernetes
+            # raises at set_active_context). Retry with the config's own
+            # current context so the call still succeeds.
+            cfg = client.Configuration()
+            try:
+                config.load_kube_config(
+                    config_file=merged_path,
+                    context=None,
+                    client_configuration=cfg,
+                )
+            except Exception as retry_exc:
+                raise ClusterUnreachableError(
+                    "Unable to load kubeconfig.",
+                    context={"kubeconfig_path": merged_path, "error": str(retry_exc)},
+                ) from retry_exc
         active = get_active_context()
         if active:
             context_data = active.get("context", {})

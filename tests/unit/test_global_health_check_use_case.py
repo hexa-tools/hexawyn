@@ -8,6 +8,7 @@ from hexawyn.application.use_case.cluster.global_health_check.command import (
 from hexawyn.application.use_case.cluster.global_health_check.global_health_check_use_case import (
     GlobalHealthCheckUseCase,
     _compute_fleet_trend,
+    paginate_clusters,
 )
 from hexawyn.application.use_case.cluster.global_health_check.response import (
     GlobalHealthCheckResponse,
@@ -426,6 +427,64 @@ class TestGlobalHealthCheckUseCase:
             )
 
         assert isinstance(result, GlobalHealthCheckResponse)
+
+    def test_execute_max_clusters_zero_scans_all(self) -> None:
+        port = MagicMock()
+        port.list_contexts.return_value = ["ctx-a", "ctx-b"]
+        port.get_cluster_raw_metrics.side_effect = [
+            _make_raw_metrics("ctx-a"),
+            _make_raw_metrics("ctx-b"),
+        ]
+
+        use_case = GlobalHealthCheckUseCase(port=port)
+        result = use_case.execute(GlobalHealthCheckCommand(max_clusters=0))
+
+        assert len(result.report.cluster_reports) == 2  # noqa: PLR2004
+        assert result.total_contexts == 2  # noqa: PLR2004
+        assert result.has_more is False
+
+    def test_execute_pagination_returns_only_page_contexts(self) -> None:
+        port = MagicMock()
+        port.list_contexts.return_value = [f"ctx-{i}" for i in range(6)]
+        port.get_cluster_raw_metrics.return_value = _make_raw_metrics()
+
+        use_case = GlobalHealthCheckUseCase(port=port)
+        result = use_case.execute(GlobalHealthCheckCommand(max_clusters=0, page=2, page_size=2))
+
+        checked = [c[0][0] for c in port.get_cluster_raw_metrics.call_args_list]
+        assert checked == ["ctx-2", "ctx-3"]
+        assert result.total_contexts == 6  # noqa: PLR2004
+        assert result.page == 2  # noqa: PLR2004
+        assert result.page_size == 2  # noqa: PLR2004
+        assert result.has_more is True
+
+
+class TestPaginateClusters:
+    def test_all_when_unlimited_and_no_page(self) -> None:
+        items, total = paginate_clusters(
+            [f"c{i}" for i in range(300)], page=1, page_size=0, max_clusters=0
+        )
+        assert len(items) == 300  # noqa: PLR2004
+        assert total == 300  # noqa: PLR2004
+
+    def test_capped_by_max_clusters(self) -> None:
+        items, total = paginate_clusters(
+            [f"c{i}" for i in range(300)], page=1, page_size=0, max_clusters=10
+        )
+        assert len(items) == 10  # noqa: PLR2004
+        assert total == 10  # noqa: PLR2004
+
+    def test_page_slice(self) -> None:
+        items, total = paginate_clusters(
+            [f"c{i}" for i in range(12)], page=2, page_size=5, max_clusters=0
+        )
+        assert items == [f"c{i}" for i in range(5, 10)]
+        assert total == 12  # noqa: PLR2004
+
+    def test_empty(self) -> None:
+        items, total = paginate_clusters([], page=1, page_size=0, max_clusters=0)
+        assert items == []
+        assert total == 0
 
 
 class TestComputeFleetTrend:

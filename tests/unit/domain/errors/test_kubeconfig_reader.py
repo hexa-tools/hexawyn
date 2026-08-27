@@ -101,6 +101,27 @@ class TestLoadKubeconfig:
 
         assert "Unable to load kubeconfig" in str(error.value)
 
+    def test_retries_with_default_context_when_explicit_context_fails(self, tmp_path: Path) -> None:
+        """Edge case: an explicit ``context`` fails to resolve (the kubernetes
+        client raises at ``set_active_context``), so the load falls back to the
+        config's own current context instead of failing the whole call.
+        """
+        kubeconfig_file = tmp_path / "kubeconfig"
+        kubeconfig_file.write_text(_MINIMAL_KUBECONFIG)
+
+        with patch.dict("os.environ", {"KUBECONFIG": str(kubeconfig_file)}):
+            with patch("kubernetes.config.load_kube_config") as mock_load:
+                mock_load.side_effect = [Exception("invalid context"), None]
+                with patch(
+                    "kubernetes.config.list_kube_config_contexts",
+                    return_value=([], {"name": "test", "context": {"cluster": "test"}}),
+                ):
+                    load_kubeconfig(context="hetzner-preprod")
+
+        contexts = [call.kwargs.get("context") for call in mock_load.call_args_list]
+        assert contexts[0] == "hetzner-preprod"
+        assert contexts[1] is None
+
 
 _KUBECONFIG_WITH_TWO_CLUSTERS = """\
 apiVersion: v1
