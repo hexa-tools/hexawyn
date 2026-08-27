@@ -32,6 +32,12 @@ class ClaudeCodeIntegration(CliMcpIntegration):
                 configured=False, error=f"{self.display_name} not found on PATH"
             )
         result = self._runner.run([self.binary, "mcp", "get", MCP_SERVER_NAME])
+        # `claude mcp get` exits 0 even when the server is missing, so the
+        # "not found" marker must be honoured before trusting the exit code —
+        # otherwise install() reports a false "already configured".
+        combined = f"{result.stdout}\n{result.stderr}"
+        if _NOT_CONFIGURED_MARKER in combined:
+            return CliIntegrationStatus(configured=False)
         if result.returncode == 0:
             entry = _parse_entry(result.stdout)
             transport = str(entry.get("type", MCP_TRANSPORT)) or MCP_TRANSPORT
@@ -41,9 +47,6 @@ class ClaudeCodeIntegration(CliMcpIntegration):
                 endpoint=str(entry.get("url", "") or ""),
                 command=_command_string(entry),
             )
-        combined = f"{result.stdout}\n{result.stderr}"
-        if _NOT_CONFIGURED_MARKER in combined:
-            return CliIntegrationStatus(configured=False)
         return CliIntegrationStatus(configured=False, error=_error_text(result))
 
     def _add_command(self) -> list[str]:

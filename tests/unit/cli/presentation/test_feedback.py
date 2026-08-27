@@ -35,4 +35,4 @@ class TestHeader:
 
         out = capsys.readouterr().out
         assert "█" in out
-        assert "v0.1.0b16" in out
+        assert "v0.1.0b17" in out
