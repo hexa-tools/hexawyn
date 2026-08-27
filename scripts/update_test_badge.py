@@ -15,7 +15,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
 README = ROOT / "README.md"
-BADGE_PATTERN = re.compile(r"https://img\.shields\.io/badge/tests-\d+_passed-brightgreen\.svg")
+# Matches both `tests-123_passed` and the URL-encoded `tests-8500%2B_passed`
+# (`%2B` == `+`) forms previously hardcoded in README.md.
+BADGE_PATTERN = re.compile(
+    r"https://img\.shields\.io/badge/tests-\d+(?:%2B)?_passed-brightgreen\.svg"
+)
+
+
+def render_badge_url(count: int) -> str:
+    """Shields.io URL for the test-count badge."""
+    return f"https://img.shields.io/badge/tests-{count}_passed-brightgreen.svg"
 
 
 def count_tests() -> int:
@@ -35,7 +44,7 @@ def count_tests() -> int:
 
 def update_badge(count: int) -> bool:
     content = README.read_text()
-    new_url = f"https://img.shields.io/badge/tests-{count}_passed-brightgreen.svg"
+    new_url = render_badge_url(count)
     new_content, n = BADGE_PATTERN.subn(new_url, content)
     if n == 0:
         print("⚠️  Badge pattern not found in README.md — skipping update")

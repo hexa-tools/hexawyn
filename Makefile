@@ -213,7 +213,7 @@ cluster-operators:
 #  Docker
 # ─────────────────────────────────────
 
-.PHONY: build run-mcp run-cli run-demo run-cli-demo stop mcp-inspector uninstall
+.PHONY: build run-mcp run-cli run-demo run-cli-demo stop mcp-inspector claude-install claude-status claude-uninstall uninstall
 
 version:
 	@echo "📦 hexawyn version:"
@@ -228,6 +228,19 @@ mcp-inspector:  ## Open MCP Inspector UI to browse/test the hexawyn MCP tools
 	@echo "   Browse the registered MCP tools and test them live."
 	@echo "   Ctrl+C to stop."
 	@npx -y @modelcontextprotocol/inspector -- poetry run python -m hexawyn.mcp.stdio
+
+# ── Coding-agent MCP integrations ─────────────────────────────
+
+claude-install:  ## Connect Claude Code to the local hexawyn MCP server
+	@echo "🛠️  Connecting Claude Code to the local hexawyn MCP server (repo venv)..."
+	@$(POETRY) run hexa claude install
+	@echo "   → Restart Claude Code to load the tools."
+
+claude-status:  ## Show the Claude Code hexawyn MCP config
+	@$(POETRY) run hexa claude status
+
+claude-uninstall:  ## Remove hexawyn from Claude Code's MCP config
+	@$(POETRY) run hexa claude uninstall
 
 build:
 	@echo "🐳 Building Docker image (BuildKit enabled for pip cache)..."
@@ -396,6 +409,9 @@ help:
 	@echo ""
 	@echo "🔌 MCP"
 	@echo "  make mcp-inspector         → Open MCP Inspector UI to browse/test tools (localhost:6274)"
+	@echo "  make claude-install        → Connect Claude Code to the local hexawyn MCP server"
+	@echo "  make claude-status         → Show the Claude Code hexawyn MCP config"
+	@echo "  make claude-uninstall      → Remove hexawyn from Claude Code's MCP config"
 	@echo ""
 	@echo "🎭 DEMO"
 	@echo "  make run-demo              → Start MCP server in demo mode (compose)"

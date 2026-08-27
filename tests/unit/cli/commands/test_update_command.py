@@ -13,7 +13,7 @@ class TestVersionCommand:
         result = CliRunner().invoke(version)
 
         assert result.exit_code == 0
-        assert "hexawyn 0.1.0b14" in result.output
+        assert "hexawyn 0.1.0b16" in result.output
 
 
 class TestResolveInstallIndex:
@@ -47,8 +47,8 @@ class TestUpdateCheckCommand:
             patch("hexawyn.cli.commands.update_command.PyPIVersionAdapter"),
         ):
             mock_check.return_value.status = "up_to_date"
-            mock_check.return_value.current_version = "0.1.0b14"
-            mock_check.return_value.latest_version = "0.1.0b14"
+            mock_check.return_value.current_version = "0.1.0b16"
+            mock_check.return_value.latest_version = "0.1.0b16"
 
             result = CliRunner().invoke(update_check)
 
@@ -83,12 +83,12 @@ class TestUpdateCheckCommand:
         ):
             mock_check.return_value.status = "update_available"
             mock_check.return_value.current_version = "0.1.0b9"
-            mock_check.return_value.latest_version = "0.1.0b14"
+            mock_check.return_value.latest_version = "0.1.0b16"
 
             result = CliRunner().invoke(update_check)
 
         assert result.exit_code == 0
-        assert "0.1.0b14" in result.output
+        assert "0.1.0b16" in result.output
         assert "pipx install" in result.output
 
 
@@ -109,13 +109,13 @@ class TestUpdateCommand:
         ):
             mock_check.return_value.status = "update_available"
             mock_check.return_value.current_version = "0.1.0b9"
-            mock_check.return_value.latest_version = "0.1.0b14"
+            mock_check.return_value.latest_version = "0.1.0b16"
             mock_run.return_value.returncode = 0
 
             result = CliRunner().invoke(update, input="y\n")
 
         assert result.exit_code == 0
-        assert "0.1.0b14" in result.output
+        assert "0.1.0b16" in result.output
         assert "Update available" in result.output
 
     def test_up_to_date_shows_message(self) -> None:
@@ -124,8 +124,8 @@ class TestUpdateCommand:
             patch("hexawyn.cli.commands.update_command.PyPIVersionAdapter"),
         ):
             mock_check.return_value.status = "up_to_date"
-            mock_check.return_value.current_version = "0.1.0b14"
-            mock_check.return_value.latest_version = "0.1.0b14"
+            mock_check.return_value.current_version = "0.1.0b16"
+            mock_check.return_value.latest_version = "0.1.0b16"
 
             result = CliRunner().invoke(update)
 
@@ -169,7 +169,7 @@ class TestUpdateCommand:
         ):
             mock_check.return_value.status = "update_available"
             mock_check.return_value.current_version = "0.1.0b9"
-            mock_check.return_value.latest_version = "0.1.0b14"
+            mock_check.return_value.latest_version = "0.1.0b16"
             mock_run.return_value.returncode = 0
 
             result = CliRunner().invoke(update, input="y\n")
@@ -198,7 +198,7 @@ class TestUpdateCommand:
         ):
             mock_check.return_value.status = "update_available"
             mock_check.return_value.current_version = "0.1.0b9"
-            mock_check.return_value.latest_version = "0.1.0b14"
+            mock_check.return_value.latest_version = "0.1.0b16"
             mock_run.return_value.returncode = 0
 
             result = CliRunner().invoke(update, input="n\n")
@@ -224,7 +224,7 @@ class TestUpdateCommand:
         ):
             mock_check.return_value.status = "update_available"
             mock_check.return_value.current_version = "0.1.0b9"
-            mock_check.return_value.latest_version = "0.1.0b14"
+            mock_check.return_value.latest_version = "0.1.0b16"
             mock_run.return_value.returncode = 0
 
             result = CliRunner().invoke(update_check)
@@ -249,7 +249,7 @@ class TestUpdateCommand:
         ):
             mock_check.return_value.status = "update_available"
             mock_check.return_value.current_version = "0.1.0b9"
-            mock_check.return_value.latest_version = "0.1.0b14"
+            mock_check.return_value.latest_version = "0.1.0b16"
             mock_run.return_value.returncode = 1
 
             result = CliRunner().invoke(update, input="y\n")
@@ -273,7 +273,7 @@ class TestUpdateCommand:
         ):
             mock_check.return_value.status = "update_available"
             mock_check.return_value.current_version = "0.1.0b9"
-            mock_check.return_value.latest_version = "0.1.0b14"
+            mock_check.return_value.latest_version = "0.1.0b16"
             mock_run.return_value.returncode = 0
 
             result = CliRunner().invoke(update, input="y\n")
@@ -299,7 +299,7 @@ class TestUpdateCommand:
         ):
             mock_check.return_value.status = "update_available"
             mock_check.return_value.current_version = "0.1.0b9"
-            mock_check.return_value.latest_version = "0.1.0b14"
+            mock_check.return_value.latest_version = "0.1.0b16"
 
             result = CliRunner().invoke(update, input="y\n")
 
