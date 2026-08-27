@@ -8,7 +8,7 @@ import pytest
 
 class TestVersionAndUrls:
     def test_version_is_string(self) -> None:
-        assert c.VERSION == "0.1.0b16"
+        assert c.VERSION == "0.1.0b17"
 
     def test_pricing_url(self) -> None:
         assert c.PRICING_URL.startswith("https://")
