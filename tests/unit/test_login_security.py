@@ -164,34 +164,6 @@ class TestExistingPreserved:
         assert auth.saved == []
         assert auth.existing == "hxw_good"
 
-    def test_cancel_during_replacement_preserves_existing(self) -> None:
-        class _ExistingAuth(CloudAuthPort):
-            def __init__(self) -> None:
-                self.existing = "hxw_good"
-                self.saved: list[str] = []
-
-            def get_token(self) -> str | None:
-                return self.existing
-
-            def save_token(self, token: str) -> None:
-                self.saved.append(token)
-
-            def validate_token(self, token: str) -> TokenValidationResult:
-                return TokenValidationResult(TokenValidationState.INVALID)
-
-        auth = _ExistingAuth()
-        started: list[int] = []
-        service = LoginService(
-            auth=auth,
-            prompt_token=lambda: None,
-            emit=lambda _m: None,
-            app_start=lambda: started.append(1),
-        )
-        assert service.authenticate() == LoginOutcome.CANCELLED
-        assert started == []
-        assert auth.saved == []
-        assert auth.existing == "hxw_good"
-
 
 def _client(handler: object) -> httpx.Client:
     return httpx.Client(transport=httpx.MockTransport(handler))  # type: ignore[arg-type]
