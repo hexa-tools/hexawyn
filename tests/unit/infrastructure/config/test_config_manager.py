@@ -211,3 +211,46 @@ class TestConfigManagerEdgeCases:
                 from hexawyn.infrastructure.config.config_manager import get_runtime_mode
 
                 assert get_runtime_mode() == "embedded"
+
+
+class TestGetCloudUrl:
+    def test_defaults_to_production(self, tmp_path):
+        with patch(
+            "hexawyn.infrastructure.config.config_manager.CONFIG_PATH",
+            tmp_path / "nonexistent.yaml",
+        ):
+            with patch.dict(os.environ, {}, clear=True):
+                from hexawyn.infrastructure.config.config_manager import get_cloud_url
+
+                assert get_cloud_url() == "https://api.hexawyn.com"
+
+    def test_prefers_env_var(self, tmp_path):
+        with patch(
+            "hexawyn.infrastructure.config.config_manager.CONFIG_PATH",
+            tmp_path / "nonexistent.yaml",
+        ):
+            with patch.dict(
+                os.environ, {"HEXAWYN_CLOUD_URL": "http://localhost:9000/"}, clear=True
+            ):
+                from hexawyn.infrastructure.config.config_manager import get_cloud_url
+
+                assert get_cloud_url() == "http://localhost:9000"
+
+    def test_falls_back_to_config(self, tmp_path):
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("cloud_url: http://staging.hexawyn.test\n")
+        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_file):
+            with patch.dict(os.environ, {}, clear=True):
+                from hexawyn.infrastructure.config.config_manager import get_cloud_url
+
+                assert get_cloud_url() == "http://staging.hexawyn.test"
+
+    def test_strips_multiple_trailing_slashes(self, tmp_path):
+        with patch(
+            "hexawyn.infrastructure.config.config_manager.CONFIG_PATH",
+            tmp_path / "nonexistent.yaml",
+        ):
+            with patch.dict(os.environ, {"HEXAWYN_CLOUD_URL": "http://cloud.test//"}, clear=True):
+                from hexawyn.infrastructure.config.config_manager import get_cloud_url
+
+                assert get_cloud_url() == "http://cloud.test"

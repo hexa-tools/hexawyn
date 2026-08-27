@@ -51,6 +51,8 @@ from hexawyn.cli.commands.cache_command import cache  # noqa: E402, I001
 from hexawyn.cli.commands.claude_command import claude  # noqa: E402, I001
 from hexawyn.cli.commands.cluster_command import cluster  # noqa: E402, I001
 from hexawyn.cli.commands.codex_command import codex  # noqa: E402, I001
+from hexawyn.cli.commands.config_command import config  # noqa: E402, I001
+from hexawyn.cli.commands.login_command import login  # noqa: E402, I001
 from hexawyn.cli.commands.cursor_command import cursor  # noqa: E402, I001
 from hexawyn.cli.commands.db_command import db  # noqa: E402, I001
 from hexawyn.cli.commands.deepseek_command import deepseek  # noqa: E402, I001
@@ -63,6 +65,8 @@ from hexawyn.cli.commands.update_command import update, update_check, version  #
 from hexawyn.cli.commands.uninstall_command import uninstall  # noqa: E402, I001
 
 app.add_command(auth)
+app.add_command(login)
+app.add_command(config)
 app.add_command(quota)
 app.add_command(cluster)
 app.add_command(db)
