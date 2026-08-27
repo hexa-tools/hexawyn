@@ -5,6 +5,8 @@ from unittest.mock import ANY, MagicMock, patch
 import pytest
 from hexawyn.domain.errors import ClusterUnreachableError
 from hexawyn.infrastructure.config.kubeconfig_reader import (
+    _home_kube_dirs,
+    _kube_config_path,
     get_active_context,
     list_available_contexts,
     load_kubeconfig,
@@ -320,6 +322,44 @@ class TestEmptyFileTolerance:
         merged = mock_list.call_args[1]["config_file"]
         assert good.name in merged
         assert empty.name not in merged
+
+
+class TestKubeDiscoveryFallback:
+    """When KUBECONFIG is unset and nothing usable is found, hexawyn discovers a
+    kubeconfig autonomously under the user's home (multi-OS). Without this, a
+    cluster configured only via ``~/.kube/<name>.yaml`` is invisible to a spawned
+    MCP server that does not inherit KUBECONFIG.
+    """
+
+    def test_discovers_kubeconfig_under_home_when_env_unset(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.delenv("KUBECONFIG", raising=False)
+        kube_dir = tmp_path / ".kube"
+        kube_dir.mkdir()
+        (kube_dir / "config").write_text("")
+        real = kube_dir / "hetzner-preprod.yaml"
+        real.write_text(_MINIMAL_KUBECONFIG)
+
+        path = _kube_config_path()
+
+        assert path == str(real)
+
+    def test_returns_empty_when_no_config_anywhere(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.delenv("KUBECONFIG", raising=False)
+
+        assert _kube_config_path() == ""
+
+    def test_home_kube_dirs_are_home_relative(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("HOME", "/fake-home")
+
+        for directory in _home_kube_dirs():
+            assert directory.startswith("/fake-home")
+            assert "djepeno" not in directory
 
 
 class TestConfigIsolation:

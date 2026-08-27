@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from kubernetes import client, config
 
@@ -11,11 +12,55 @@ def _kube_config_path() -> str:
     """Merged kubeconfig path(s), excluding 0-byte files.
 
     The Kubernetes python client treats an empty file as invalid and aborts the
-    whole KUBECONFIG merge, so any empty file is dropped here.
+    whole KUBECONFIG merge, so any empty file is dropped here. When the
+    ``KUBECONFIG`` env var is unset and the default path yields nothing usable,
+    fall back to discovering a kubeconfig autonomously under ``$HOME`` — this
+    makes a cluster reachable to a spawned MCP server that does not inherit
+    ``KUBECONFIG``. When ``KUBECONFIG`` is explicitly set, it is honored as-is
+    (no fallback).
     """
-    raw = os.environ.get("KUBECONFIG", DEFAULT_KUBECONFIG)
+    env_kubeconfig = os.environ.get("KUBECONFIG")
+    raw = env_kubeconfig if env_kubeconfig else DEFAULT_KUBECONFIG
     valid = [p for p in raw.split(os.pathsep) if os.path.isfile(p) and os.path.getsize(p) > 0]
+    if not valid and env_kubeconfig is None:
+        valid = _scan_kube_configs()
     return os.pathsep.join(valid)
+
+
+def _home_kube_dirs() -> list[str]:
+    """Standard kubeconfig directories under the user's home (multi-OS).
+
+    Uses ``Path.home()`` which resolves ``HOME`` on POSIX and ``USERPROFILE`` on
+    Windows — no absolute path is hardcoded. ``os.pathsep`` (``:`` / ``;``)
+    already splits ``KUBECONFIG`` correctly per OS.
+    """
+    home = Path.home()
+    return [
+        str(p)
+        for p in (
+            home / ".kube",
+            home / ".config" / "kube",
+            home / ".config" / "kubernetes",
+        )
+    ]
+
+
+def _scan_kube_configs() -> list[str]:
+    """Discover kubeconfig files autonomously: non-empty ``config``/``*.yaml``/
+    ``*.yml`` files under the standard ``$HOME`` kubeconfig directories."""
+    found: list[str] = []
+    for directory in _home_kube_dirs():
+        if not os.path.isdir(directory):
+            continue
+        for filename in sorted(os.listdir(directory)):
+            if not (
+                filename == "config" or filename.endswith(".yaml") or filename.endswith(".yml")
+            ):
+                continue
+            full = os.path.join(directory, filename)
+            if os.path.isfile(full) and os.path.getsize(full) > 0:
+                found.append(full)
+    return found
 
 
 def load_kubeconfig(context: str | None = None) -> client.CoreV1Api:
