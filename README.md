@@ -2,7 +2,7 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2.svg?logo=discord&logoColor=white)](https://discord.gg/HH3WsrnNw)
-[![Tests](https://img.shields.io/badge/tests-8706_passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-8702_passed-brightgreen.svg)]()
 [![Speed](https://img.shields.io/badge/suite-%3C90s-3B82F6.svg)]()
 [![codecov](https://codecov.io/gh/hexa-tools/hexawyn/branch/main/graph/badge.svg?token=E6PJX17GA8)](https://codecov.io/gh/hexa-tools/hexawyn)
 [![CI](https://github.com/hexa-tools/hexawyn/actions/workflows/ci.yml/badge.svg)](https://github.com/hexa-tools/hexawyn/actions/workflows/ci.yml)
@@ -267,6 +267,21 @@ corresponding use cases and MCP tools exposed to your coding agent.
 - `snapshots_list`, `snapshot_get`
 </details>
 
+## Ecosystem Coverage
+
+Hexawyn is built to cover the modern Kubernetes and cloud-native ecosystem,
+across platforms, networking, observability, security, GitOps, and integrations.
+
+| Platform & Cloud | Networking | Observability | Security | GitOps & Delivery | Integrations |
+|---|---|---|---|---|---|
+| ![OpenShift](https://cdn.simpleicons.org/redhatopenshift) OpenShift | ![Cilium](https://cdn.simpleicons.org/cilium) Cilium | ![OpenTelemetry](https://opentelemetry.io/img/logos/opentelemetry-horizontal-color.svg) OpenTelemetry | ![Kyverno](https://kyverno.io/_astro/kyverno-logo.BuVpk0lF.svg) Kyverno | ![Argo](https://cdn.simpleicons.org/argo) Argo CD | ![Slack](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/slack/slack-original.svg) Slack |
+| ![Amazon Web Services](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg) AWS | | ![Datadog](https://cdn.simpleicons.org/datadog) Datadog | ![Trivy](https://cdn.simpleicons.org/trivy) Trivy | ![Tekton](https://cdn.simpleicons.org/tekton) Tekton | |
+| ![Google Cloud](https://cdn.simpleicons.org/googlecloud) GCP | | ![Prometheus](https://cdn.simpleicons.org/prometheus) Prometheus | | ![Helm](https://cdn.simpleicons.org/helm) Helm | |
+| ![Microsoft Azure](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg) Azure | | | | ![Kustomize](https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/site/static/favicons/favicon-256.png) Kustomize | |
+| | | | | cert-manager | |
+
+> Coverage is continuously expanding as new domains, integrations, and use
+> cases are added.
 
 ## 🧩 130+ Use Cases
 

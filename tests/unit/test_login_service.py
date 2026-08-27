@@ -76,16 +76,18 @@ class TestLoginService:
         assert started == [1]
         assert auth.saved == []
 
-    def test_existing_invalid_prompts_replacement(self) -> None:
+    def test_existing_invalid_returns_invalid_without_prompt(self) -> None:
         auth = _FakeAuth(existing="hxw_bad", valid_values={"hxw_ok"})
+        prompt_called: list[bool] = []
         started: list[int] = []
-        service = _service(auth, lambda: "hxw_ok", started)
+        service = _service(auth, lambda: prompt_called.append(True) or "hxw_ok", started)
 
         outcome = service.authenticate()
 
-        assert outcome == LoginOutcome.AUTHENTICATED
-        assert auth.saved == ["hxw_ok"]
-        assert started == [1]
+        assert outcome == LoginOutcome.INVALID_TOKEN
+        assert not prompt_called
+        assert auth.saved == []
+        assert started == []
 
     def test_new_token_invalid_exits_without_saving_or_starting(self) -> None:
         auth = _FakeAuth(existing=None, valid_values={"hxw_ok"})

@@ -6,8 +6,7 @@ import yaml
 CONFIG_PATH = Path.home() / ".hexawyn" / "config.yaml"
 DEFAULT_RUNTIME_ENDPOINT = "https://api.hexawyn.com"
 RUNTIME_ENDPOINT_ENV_VAR = "HEXAWYN_RUNTIME_ENDPOINT"
-CLOUD_URL_ENV_VAR = "HEXAWYN_CLOUD_URL"
-DEFAULT_CLOUD_URL = "https://api.hexawyn.com"
+RUNTIME_MODE_ENV_VAR = "HEXAWYN_RUNTIME_MODE"
 
 
 def load_config() -> dict[str, object]:
@@ -73,6 +72,9 @@ def get_runtime_mode() -> str:
     Get the runtime mode from environment or config.yaml.
     Returns "remote" by default (production), "embedded" if explicitly configured.
     """
+    env_mode = os.environ.get(RUNTIME_MODE_ENV_VAR)
+    if env_mode in ("embedded", "remote"):
+        return env_mode
     if _get_runtime_endpoint_from_env() is not None:
         return "remote"
     config = load_config()
@@ -106,19 +108,3 @@ def _get_runtime_endpoint_from_env() -> str | None:
     if endpoint:
         return endpoint
     return None
-
-
-def get_cloud_url() -> str:
-    """Get the Hexawyn Cloud / Control Plane base URL.
-
-    Priority: HEXAWYN_CLOUD_URL env var › config.yaml cloud_url › production
-    default. Returns a well-formed URL without a trailing slash.
-    """
-    env_endpoint = os.environ.get(CLOUD_URL_ENV_VAR)
-    if env_endpoint:
-        return env_endpoint.rstrip("/")
-    config = load_config()
-    cloud_url = config.get("cloud_url")
-    if isinstance(cloud_url, str) and cloud_url:
-        return cloud_url.rstrip("/")
-    return DEFAULT_CLOUD_URL
