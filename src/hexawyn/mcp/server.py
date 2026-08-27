@@ -258,13 +258,35 @@ EXAMPLES_LIMIT: int = 5
 # Initialize FastMCP server
 mcp = FastMCP(
     name="hexawyn",
-    version="0.1.0b17",
+    version="0.1.0b18",
     instructions="AI-powered Kubernetes diagnostic agent",
 )
 
+
 # ── Startup kubeconfig validation ─────────────────────────
+def _apply_stored_provider_env() -> None:
+    """Apply CLI-set cloud provider credentials as SDK env vars.
+
+    The spawned MCP server does not inherit the shell environment, so stored
+    credentials (``hexa config provider set``) are re-injected here for the
+    cloud SDK credential chain to pick up.
+    """
+    from hexawyn.infrastructure.config.provider_config import (
+        apply_provider_env,
+        list_provider_credentials,
+    )
+
+    for provider in list_provider_credentials():
+        apply_provider_env(provider)
+
+
 _k8s_api = None
 _cluster_status: dict[str, str] = {"status": "not_initialized"}
+
+# Inject CLI-set cloud provider credentials as SDK env vars so the spawned MCP
+# server (which does not inherit the shell env) can authenticate through the
+# standard cloud SDK credential chain.
+_apply_stored_provider_env()
 
 context_name = "unknown"
 
@@ -613,7 +635,7 @@ def health() -> dict[str, str]:
 
     return {
         "status": "ok" if db_ok else "degraded",
-        "version": "0.1.0b17",
+        "version": "0.1.0b18",
         "duckdb": "connected" if db_ok else "unavailable",
         "api_key": "configured" if api_key_ok else "missing",
         "cluster": _cluster_status.get("status", "unknown"),
