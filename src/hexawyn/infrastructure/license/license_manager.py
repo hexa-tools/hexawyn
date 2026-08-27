@@ -1,4 +1,5 @@
 import os
+import time
 from pathlib import Path
 
 import jwt
@@ -54,6 +55,12 @@ def verify_license() -> LicenseClaims:
             payload = jwt.decode(token, options={"verify_signature": False})
         except jwt.InvalidTokenError:
             return LicenseClaims.free()
+
+    # The fallback decode (used when the public key is a placeholder) does not
+    # raise on an expired ``exp`` — enforce it here so an expired token drops
+    # back to the free tier instead of keeping a paid quota.
+    if int(payload["exp"]) <= int(time.time()):
+        raise LicenseExpiredError("Your license has expired. Renew at https://hexawyn.com/pricing")
 
     return LicenseClaims(
         sub=payload["sub"],
