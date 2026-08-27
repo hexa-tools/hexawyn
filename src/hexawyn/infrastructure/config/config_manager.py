@@ -6,6 +6,7 @@ import yaml
 CONFIG_PATH = Path.home() / ".hexawyn" / "config.yaml"
 DEFAULT_RUNTIME_ENDPOINT = "https://api.hexawyn.com"
 RUNTIME_ENDPOINT_ENV_VAR = "HEXAWYN_RUNTIME_ENDPOINT"
+RUNTIME_MODE_ENV_VAR = "HEXAWYN_RUNTIME_MODE"
 
 
 def load_config() -> dict[str, object]:
@@ -71,6 +72,9 @@ def get_runtime_mode() -> str:
     Get the runtime mode from environment or config.yaml.
     Returns "remote" by default (production), "embedded" if explicitly configured.
     """
+    env_mode = os.environ.get(RUNTIME_MODE_ENV_VAR)
+    if env_mode in ("embedded", "remote"):
+        return env_mode
     if _get_runtime_endpoint_from_env() is not None:
         return "remote"
     config = load_config()

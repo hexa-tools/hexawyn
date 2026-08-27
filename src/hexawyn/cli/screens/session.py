@@ -36,6 +36,9 @@ from hexawyn.cli.presentation.slash_commands import (
     extract_requested_context,
 )
 from hexawyn.cli.presentation.slash_commands import (
+    is_cloud_providers_command as _is_cloud_providers_command,
+)
+from hexawyn.cli.presentation.slash_commands import (
     is_context_command as _is_context_command,
 )
 from hexawyn.cli.presentation.slash_commands import (
@@ -353,6 +356,10 @@ class SessionScreen(Screen[None]):
             self._handle_stack_command(text.strip(), log)
             return
 
+        if _is_cloud_providers_command(text.strip()):
+            await self._open_cloud_providers()
+            return
+
         if text.strip() == "/refresh":
             from hexawyn.infrastructure.license.license_reader import refresh_license
 
@@ -557,6 +564,18 @@ class SessionScreen(Screen[None]):
             self._refresh_aside()
 
         app.push_screen(TokenInputScreen(), callback=_on_done)
+
+    async def _open_cloud_providers(self) -> None:
+        from hexawyn.cli.screens.cloud_providers import CloudProvidersScreen
+
+        app = self._tui_app()
+        log = self.query_one("#conversation", MarkdownLog)
+
+        def _on_done(_result: object) -> None:
+            log.write("[green]✓ Cloud provider credentials updated.[/]")
+            self._refresh_aside()
+
+        app.push_screen(CloudProvidersScreen(), callback=_on_done)
 
     def _requested_context_name(self, text: str) -> str | None:
         return extract_requested_context(text)

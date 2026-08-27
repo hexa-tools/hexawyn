@@ -17,6 +17,10 @@ def is_refresh_command(text: str) -> bool:
     return text.strip() == "/refresh"
 
 
+def is_cloud_providers_command(text: str) -> bool:
+    return text.strip() == "/providers"
+
+
 def is_setup_command(text: str) -> bool:
     return text.strip() == "/setup"
 

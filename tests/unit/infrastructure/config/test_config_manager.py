@@ -211,3 +211,25 @@ class TestConfigManagerEdgeCases:
                 from hexawyn.infrastructure.config.config_manager import get_runtime_mode
 
                 assert get_runtime_mode() == "embedded"
+
+
+class TestGetRuntimeMode:
+    def test_runtime_mode_env_overrides_to_embedded(self, tmp_path) -> None:
+        with patch(
+            "hexawyn.infrastructure.config.config_manager.CONFIG_PATH",
+            tmp_path / "nonexistent.yaml",
+        ):
+            with patch.dict(os.environ, {"HEXAWYN_RUNTIME_MODE": "embedded"}, clear=True):
+                from hexawyn.infrastructure.config.config_manager import get_runtime_mode
+
+                assert get_runtime_mode() == "embedded"
+
+    def test_runtime_mode_env_overrides_to_remote(self, tmp_path) -> None:
+        with patch(
+            "hexawyn.infrastructure.config.config_manager.CONFIG_PATH",
+            tmp_path / "nonexistent.yaml",
+        ):
+            with patch.dict(os.environ, {"HEXAWYN_RUNTIME_MODE": "remote"}, clear=True):
+                from hexawyn.infrastructure.config.config_manager import get_runtime_mode
+
+                assert get_runtime_mode() == "remote"
