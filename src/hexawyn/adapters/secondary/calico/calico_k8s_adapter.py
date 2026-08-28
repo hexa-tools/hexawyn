@@ -12,7 +12,12 @@ from typing import Any, cast
 
 from hexawyn.adapters.secondary.calico.calico_prometheus_adapter import CalicoPrometheusAdapter
 from hexawyn.application.ports.driven.calico_port import CalicoPort
-from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
+from hexawyn.domain.errors import (
+    ClusterUnreachableError,
+    HexawynError,
+    InsufficientPermissionsError,
+    ResourceNotFoundError,
+)
 from hexawyn.domain.models.calico import (
     CalicoDetectionResult,
     CalicoDetectionSignals,
@@ -39,6 +44,7 @@ _FORBIDDEN = 403
 _NOT_FOUND = 404
 _IPIP_ENABLED_MODES = {"always", "crosssubnet"}
 _VXLAN_ENABLED_MODES = {"always", "crosssubnet"}
+_CALICO_ALLOWED_KINDS = {"NetworkPolicy", "GlobalNetworkPolicy"}
 
 
 class CalicoK8sAdapter(CalicoPort):
@@ -137,6 +143,19 @@ class CalicoK8sAdapter(CalicoPort):
     def get_network_policy(self, name: str, namespace: str) -> CalicoNetworkPolicy | None:
         if not self._is_installed():
             return None
+        if namespace:
+            raw = self._get_policy_raw(name, namespace)
+            if raw is None:
+                raise ResourceNotFoundError(
+                    f"Calico network policy '{name}' not found in namespace '{namespace}'"
+                )
+            return self._parse_and_guard(raw, namespaced=True)
+        raw = self._get_policy_raw_cluster(name)
+        if raw is None:
+            raise ResourceNotFoundError(f"Calico GlobalNetworkPolicy '{name}' not found")
+        return self._parse_and_guard(raw, namespaced=False)
+
+    def _get_policy_raw(self, name: str, namespace: str) -> dict[str, Any] | None:
         try:
             raw = self._runtime_crd_api.get_namespaced_custom_object(
                 group=_CALICO_GROUP,
@@ -145,9 +164,44 @@ class CalicoK8sAdapter(CalicoPort):
                 plural="networkpolicies",
                 name=name,
             )
-        except Exception:
+        except Exception as exc:
+            return self._translate_get(exc)
+        return cast(dict[str, Any], raw) if isinstance(raw, dict) else None
+
+    def _get_policy_raw_cluster(self, name: str) -> dict[str, Any] | None:
+        try:
+            raw = self._runtime_crd_api.get_cluster_custom_object(
+                group=_CALICO_GROUP,
+                version=_CALICO_VERSION,
+                plural="globalnetworkpolicies",
+                name=name,
+            )
+        except Exception as exc:
+            return self._translate_get(exc)
+        return cast(dict[str, Any], raw) if isinstance(raw, dict) else None
+
+    @staticmethod
+    def _translate_get(exc: Exception) -> dict[str, Any] | None:
+        status = getattr(exc, "status", None)
+        if status == _NOT_FOUND:
             return None
-        return parse_calico_network_policy(cast(dict[str, Any], raw))
+        if status == _FORBIDDEN:
+            raise InsufficientPermissionsError(
+                "RBAC denied read access to Calico network policies"
+            ) from exc
+        raise ClusterUnreachableError(f"Cannot read Calico network policy: {exc}") from exc
+
+    @staticmethod
+    def _parse_and_guard(raw: dict[str, Any], *, namespaced: bool) -> CalicoNetworkPolicy:
+        api_version = str(raw.get("apiVersion", ""))
+        kind = str(raw.get("kind", ""))
+        if api_version and not api_version.startswith("projectcalico.org"):
+            raise HexawynError(f"Non-Calico policy kind refused (apiVersion={api_version})")
+        if kind and kind not in _CALICO_ALLOWED_KINDS:
+            raise HexawynError(f"Non-Calico policy kind refused (kind={kind})")
+        if namespaced:
+            return parse_calico_network_policy(raw)
+        return parse_global_network_policy(raw)
 
     def audit_policies(self) -> dict[str, object]:
         if not self._is_installed():

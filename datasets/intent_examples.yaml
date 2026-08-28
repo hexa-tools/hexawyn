@@ -855,6 +855,16 @@ get_namespace_events:
   - Which objects in production are throwing repeated warnings I should look at first?
   description: Get recent Warning and Error events in a namespace, which pods are involved, recurring
     BackOff or OOMKilled events, and what to look at first
+get_calico_network_policy:
+  tool: get_calico_network_policy
+  questions:
+  - Show me the full detail of Calico network policy default-deny.
+  - What selector and action does the Calico policy allow-api have?
+  - List the ingress and egress rules of the Calico GlobalNetworkPolicy global-default.
+  - Get the full spec of the Calico network policy payment-allow in the payments namespace.
+  - Is the Calico policy checkout-restrict a deny policy and what does it match?
+  description: Get the full detail of a specific CalicoNetworkPolicy or GlobalNetworkPolicy — name,
+    scope, endpoint selector, action and ingress/egress rules
 get_calico_status:
   tool: get_calico_status
   questions:

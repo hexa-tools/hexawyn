@@ -7,7 +7,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from hexawyn.adapters.secondary.calico.calico_k8s_adapter import CalicoK8sAdapter
-from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
+from hexawyn.domain.errors import (
+    ClusterUnreachableError,
+    HexawynError,
+    InsufficientPermissionsError,
+    ResourceNotFoundError,
+)
 from hexawyn.domain.models.calico import CalicoDetectionStatus, DataplaneMode
 from kubernetes.client.rest import ApiException
 
@@ -45,10 +50,11 @@ def _daemonset(namespace: str, image: str) -> MagicMock:
     return ds
 
 
-def _crd(**plural_behavior: object) -> MagicMock:
+def _crd(**plural_behavior: object) -> MagicMock:  # noqa: C901
     crd = MagicMock()
     ns_behavior = cast(dict, plural_behavior.pop("_namespaced", {}))
     get_behavior = cast(dict, plural_behavior.pop("_get", {}))
+    get_cluster_behavior = cast(dict, plural_behavior.pop("_get_cluster", {}))
 
     def list_cluster(group: str, version: str, plural: str) -> object:
         behavior = plural_behavior.get(plural)
@@ -76,9 +82,18 @@ def _crd(**plural_behavior: object) -> MagicMock:
             raise behavior
         return behavior
 
+    def get_cluster(group: str, version: str, plural: str, name: str) -> object:
+        behavior = get_cluster_behavior.get(plural)
+        if behavior is None:
+            raise ApiException(status=404, reason=f"not found: {plural}")
+        if isinstance(behavior, Exception):
+            raise behavior
+        return behavior
+
     crd.list_cluster_custom_object.side_effect = list_cluster
     crd.list_namespaced_custom_object.side_effect = list_namespaced
     crd.get_namespaced_custom_object.side_effect = get_namespaced
+    crd.get_cluster_custom_object.side_effect = get_cluster
     return crd
 
 
@@ -332,11 +347,59 @@ class TestCalicoK8sAdapterInstalledParsing:
     def test_get_network_policy_installed(self) -> None:
         crd = _crd(
             ippools={"items": [_pool()]},
-            _get={"networkpolicies": {"metadata": {"name": "np", "namespace": "ns"}, "spec": {}}},
+            _get={
+                "networkpolicies": {
+                    "apiVersion": "projectcalico.org/v3",
+                    "kind": "NetworkPolicy",
+                    "metadata": {"name": "np", "namespace": "ns"},
+                    "spec": {"selector": "app=='web'"},
+                }
+            },
         )
         policy = self._adapter(crd).get_network_policy("np", "ns")
         assert policy is not None
         assert policy.name == "np"
+        assert policy.kind == "CalicoNetworkPolicy"
+
+    def test_get_global_network_policy_cluster_scope(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            _get_cluster={
+                "globalnetworkpolicies": {
+                    "apiVersion": "projectcalico.org/v3",
+                    "kind": "GlobalNetworkPolicy",
+                    "metadata": {"name": "g-np"},
+                    "spec": {"selector": "all()"},
+                }
+            },
+        )
+        policy = self._adapter(crd).get_network_policy("g-np", "")
+        assert policy is not None
+        assert policy.kind == "GlobalNetworkPolicy"
+        assert policy.namespace == ""
+
+    def test_get_network_policy_wrong_kind_refused(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            _get={
+                "networkpolicies": {
+                    "apiVersion": "networking.k8s.io/v1",
+                    "kind": "NetworkPolicy",
+                    "metadata": {"name": "np", "namespace": "ns"},
+                    "spec": {},
+                }
+            },
+        )
+        with pytest.raises(HexawynError):
+            self._adapter(crd).get_network_policy("np", "ns")
+
+    def test_get_network_policy_rbac_forbidden(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            _get={"networkpolicies": ApiException(status=403, reason="forbidden")},
+        )
+        with pytest.raises(InsufficientPermissionsError):
+            self._adapter(crd).get_network_policy("np", "ns")
 
     def test_audit_policies_installed(self) -> None:
         crd = _crd(
@@ -435,7 +498,8 @@ class TestCalicoK8sAdapterInstalledParsing:
 
     def test_get_network_policy_installed_not_found(self) -> None:
         crd = _crd(ippools={"items": [_pool()]}, _get={"networkpolicies": ApiException(status=404)})
-        assert self._adapter(crd).get_network_policy("np", "ns") is None
+        with pytest.raises(ResourceNotFoundError):
+            self._adapter(crd).get_network_policy("np", "ns")
 
     def test_connectivity_health_with_source(self) -> None:
         metrics = MagicMock()
