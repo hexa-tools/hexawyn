@@ -6,13 +6,22 @@ import pytest
 from hexawyn.domain.models.calico import (
     NOT_INSTALLED_MARKER,
     CalicoAgentPhase,
+    CalicoBgpAuditResult,
+    CalicoBgpConfiguration,
+    CalicoBgpPeer,
+    CalicoConnectivityHealthResult,
     CalicoCoverageGap,
     CalicoDetectionResult,
     CalicoDetectionStatus,
+    CalicoEncryptionNodeStatus,
+    CalicoEncryptionStatusResult,
+    CalicoFelixMetricsResult,
+    CalicoFelixPolicyCounter,
     CalicoHostEndpoint,
     CalicoIPPool,
     CalicoNetworkPolicy,
     CalicoNodeAgent,
+    CalicoNodeConnectivity,
     CalicoPolicyAuditResult,
     CalicoSegmentationAuditResult,
     CalicoSegmentationEdge,
@@ -404,3 +413,187 @@ class TestSegmentationAuditProjections:
         )
         assert result.not_installed is True
         assert result.view == "vanilla"
+
+
+class TestBgpAuditProjections:
+    def test_bgp_configuration(self) -> None:
+        config = CalicoBgpConfiguration(
+            name="default",
+            as_number="64512",
+            node_to_node_mesh_enabled=True,
+            service_cluster_ips=("10.96.0.0/16",),
+        )
+        assert config.as_number == "64512"
+        assert config.node_to_node_mesh_enabled is True
+        assert config.service_cluster_ips == ("10.96.0.0/16",)
+
+    def test_bgp_peer(self) -> None:
+        peer = CalicoBgpPeer(
+            name="peer-1", peer_ip="10.0.0.2", as_number="64513", node_selector="all()"
+        )
+        assert peer.peer_ip == "10.0.0.2"
+        assert peer.as_number == "64513"
+
+    def test_bgp_audit_result(self) -> None:
+        result = CalicoBgpAuditResult(
+            installed=True,
+            not_installed_marker=None,
+            as_number="64512",
+            node_to_node_mesh_enabled=True,
+            service_cluster_ips=("10.96.0.0/16",),
+            peers=[],
+            peer_count=2,
+            session_state="reachable",
+            session_note="All calico-node agents ready",
+            summary="BGP ASN 64512, 2 peers",
+            error=None,
+        )
+        assert result.peer_count == 2  # noqa: PLR2004
+        assert result.session_state == "reachable"
+        assert result.not_installed is False
+
+    def test_bgp_audit_result_not_installed(self) -> None:
+        result = CalicoBgpAuditResult(
+            installed=False,
+            not_installed_marker=NOT_INSTALLED_MARKER,
+            as_number=None,
+            node_to_node_mesh_enabled=None,
+            service_cluster_ips=(),
+            peers=[],
+            peer_count=0,
+            session_state="unknown",
+            session_note=None,
+            summary=None,
+            error="absent",
+        )
+        assert result.not_installed is True
+        assert result.session_state == "unknown"
+
+
+class TestEncryptionStatusProjections:
+    def test_node_status(self) -> None:
+        node = CalicoEncryptionNodeStatus(node="node-1", wireguard_enabled=True)
+        assert node.node == "node-1"
+        assert node.wireguard_enabled is True
+
+    def test_encryption_status_result(self) -> None:
+        result = CalicoEncryptionStatusResult(
+            installed=True,
+            not_installed_marker=None,
+            wireguard_enabled=True,
+            mode=DataplaneMode.IPIP,
+            per_node=[CalicoEncryptionNodeStatus(node="node-1", wireguard_enabled=True)],
+            summary="WireGuard enabled (IPIP)",
+            error=None,
+        )
+        assert result.wireguard_enabled is True
+        assert result.mode == DataplaneMode.IPIP
+        assert result.not_installed is False
+
+    def test_encryption_status_result_not_installed(self) -> None:
+        result = CalicoEncryptionStatusResult(
+            installed=False,
+            not_installed_marker=NOT_INSTALLED_MARKER,
+            wireguard_enabled=None,
+            mode=None,
+            per_node=[],
+            summary=None,
+            error="absent",
+        )
+        assert result.not_installed is True
+        assert result.wireguard_enabled is None
+
+
+class TestFelixMetricsProjections:
+    def test_policy_counter(self) -> None:
+        counter = CalicoFelixPolicyCounter(
+            policy="default.deny-all",
+            allow_packets=0,
+            deny_packets=120,
+            allow_bytes=0,
+            deny_bytes=40960,
+        )
+        assert counter.policy == "default.deny-all"
+        assert counter.deny_packets == 120  # noqa: PLR2004
+
+    def test_felix_metrics_result(self) -> None:
+        result = CalicoFelixMetricsResult(
+            installed=True,
+            not_installed_marker=None,
+            metrics_available=True,
+            metrics_message=None,
+            policies=[
+                CalicoFelixPolicyCounter(
+                    policy="p", allow_packets=0, deny_packets=1, allow_bytes=0, deny_bytes=0
+                )
+            ],
+            total_denies=1,
+            total_allows=0,
+            deny_policy_count=1,
+            error=None,
+        )
+        assert result.metrics_available is True
+        assert result.total_denies == 1  # noqa: PLR2004
+        assert result.deny_policy_count == 1  # noqa: PLR2004
+        assert result.not_installed is False
+
+    def test_felix_metrics_result_not_installed(self) -> None:
+        result = CalicoFelixMetricsResult(
+            installed=False,
+            not_installed_marker=NOT_INSTALLED_MARKER,
+            metrics_available=False,
+            metrics_message=None,
+            policies=[],
+            total_denies=0,
+            total_allows=0,
+            deny_policy_count=0,
+            error="absent",
+        )
+        assert result.not_installed is True
+        assert result.policies == []
+
+
+class TestConnectivityHealthProjections:
+    def test_node_connectivity(self) -> None:
+        node = CalicoNodeConnectivity(node="node-1", ready=True)
+        assert node.node == "node-1"
+        assert node.ready is True
+
+    def test_connectivity_health_result(self) -> None:
+        result = CalicoConnectivityHealthResult(
+            installed=True,
+            not_installed_marker=None,
+            verdict="healthy",
+            ready_agents=3,
+            total_agents=3,
+            dataplane_mode=DataplaneMode.IPIP,
+            tunnel_summary="IPIP tunnel",
+            bgp_summary="BGP node-to-node mesh reachable",
+            connectivity_probe="healthy",
+            nodes=[CalicoNodeConnectivity(node="node-1", ready=True)],
+            degraded_nodes=[],
+            summary="Calico dataplane healthy: 3/3 calico-node agents ready",
+            error=None,
+        )
+        assert result.verdict == "healthy"
+        assert result.tunnel_summary == "IPIP tunnel"
+        assert result.not_installed is False
+
+    def test_connectivity_health_result_not_installed(self) -> None:
+        result = CalicoConnectivityHealthResult(
+            installed=False,
+            not_installed_marker=NOT_INSTALLED_MARKER,
+            verdict="unknown",
+            ready_agents=0,
+            total_agents=0,
+            dataplane_mode=None,
+            tunnel_summary="UNKNOWN",
+            bgp_summary="UNKNOWN",
+            connectivity_probe=None,
+            nodes=[],
+            degraded_nodes=[],
+            summary=None,
+            error="absent",
+        )
+        assert result.not_installed is True
+        assert result.verdict == "unknown"

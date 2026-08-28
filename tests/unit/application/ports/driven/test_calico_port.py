@@ -24,9 +24,12 @@ class TestCalicoPort:
             "audit_policies",
             "list_ip_pools",
             "list_host_endpoints",
+            "list_bgp_configurations",
+            "list_bgp_peers",
             "bgp_audit",
             "encryption_status",
             "felix_metrics",
+            "felix_policy_counters",
             "connectivity_health",
         ):
             assert method in CalicoPort.__abstractmethods__
@@ -57,6 +60,12 @@ class TestCalicoPort:
             def list_host_endpoints(self) -> list:
                 return []
 
+            def list_bgp_configurations(self) -> list:
+                return []
+
+            def list_bgp_peers(self) -> list:
+                return []
+
             def bgp_audit(self) -> dict:
                 return {}
 
@@ -64,6 +73,9 @@ class TestCalicoPort:
                 return {}
 
             def felix_metrics(self) -> dict:
+                return {}
+
+            def felix_policy_counters(self) -> dict:
                 return {}
 
             def connectivity_health(self) -> dict:

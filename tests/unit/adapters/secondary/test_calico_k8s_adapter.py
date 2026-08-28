@@ -314,6 +314,17 @@ class TestCalicoK8sAdapterOtherMethods:
         adapter = CalicoK8sAdapter()
         assert adapter.felix_metrics()["available"] is False
 
+    def test_felix_policy_counters_uses_metrics_source(self) -> None:
+        metrics = MagicMock()
+        metrics.felix_policy_counters.return_value = {"available": True, "samples": []}
+        adapter = CalicoK8sAdapter(metrics_source=metrics)
+        assert adapter.felix_policy_counters()["available"] is True
+        metrics.felix_policy_counters.assert_called_once()
+
+    def test_felix_policy_counters_without_source(self) -> None:
+        adapter = CalicoK8sAdapter()
+        assert adapter.felix_policy_counters()["available"] is False
+
     def test_status_returns_result(self) -> None:
         crd = _crd(ippools={"items": [_pool()]})
         apps = _apps([_daemonset("calico-system", "node:v3")])
@@ -476,12 +487,89 @@ class TestCalicoK8sAdapterInstalledParsing:
         assert out["bgp_configurations"] == 1  # noqa: PLR2004
         assert out["node_to_node_mesh_configured"] is True
 
+    def test_list_bgp_configurations(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            bgpconfigurations={
+                "items": [
+                    {
+                        "metadata": {"name": "default"},
+                        "spec": {
+                            "asNumber": "64512",
+                            "nodeToNodeMeshEnabled": True,
+                            "serviceClusterIPs": ["10.96.0.0/16"],
+                        },
+                    }
+                ]
+            },
+        )
+        configs = self._adapter(crd).list_bgp_configurations()
+        assert len(configs) == 1  # noqa: PLR2004
+        assert configs[0].as_number == "64512"
+        assert configs[0].service_cluster_ips == ("10.96.0.0/16",)
+
+    def test_list_bgp_configurations_malformed_asn(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            bgpconfigurations={"items": [{"spec": {"asNumber": "not-a-number"}}]},
+        )
+        configs = self._adapter(crd).list_bgp_configurations()
+        assert configs[0].as_number == "not-a-number"
+
+    def test_list_bgp_peers(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            bgppeers={
+                "items": [
+                    {
+                        "metadata": {"name": "peer-1"},
+                        "spec": {
+                            "peerIP": "10.0.0.2",
+                            "asNumber": "64513",
+                            "nodeSelector": "all()",
+                        },
+                    }
+                ]
+            },
+        )
+        peers = self._adapter(crd).list_bgp_peers()
+        assert len(peers) == 1  # noqa: PLR2004
+        assert peers[0].peer_ip == "10.0.0.2"
+        assert peers[0].as_number == "64513"
+        assert peers[0].node_selector == "all()"
+
+    def test_list_bgp_peers_not_installed(self) -> None:
+        adapter = CalicoK8sAdapter(core_api=_core([], []), apps_api=_apps([]), crd_api=_crd())
+        assert adapter.list_bgp_peers() == []
+        assert adapter.list_bgp_configurations() == []
+
     def test_encryption_status_encrypted(self) -> None:
         crd = _crd(
             ippools={"items": [_pool()]},
             felixconfigurations={"items": [{"spec": {"wireguardEnabled": True}}]},
         )
-        assert self._adapter(crd).encryption_status()["encryption"] == "encrypted"
+        out = self._adapter(crd).encryption_status()
+        assert out["wireguard_enabled"] is True
+
+    def test_encryption_status_per_node(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            felixconfigurations={
+                "items": [
+                    {
+                        "metadata": {"name": "default"},
+                        "spec": {"wireguardEnabled": True},
+                    },
+                    {
+                        "metadata": {"name": "node.node-1"},
+                        "spec": {"wireguardEnabled": False},
+                    },
+                ]
+            },
+        )
+        out = self._adapter(crd).encryption_status()
+        assert out["wireguard_enabled"] is True
+        assert {"node": "node-1", "wireguard_enabled": False} in out["per_node"]
 
     def test_version_from_install_via_tigera(self) -> None:
         crd = _crd(
@@ -531,7 +619,16 @@ class TestCalicoK8sAdapterInstalledParsing:
             ippools={"items": [_pool()]},
             felixconfigurations={"items": [{"spec": {"wireguardEnabled": False}}]},
         )
-        assert self._adapter(crd).encryption_status()["encryption"] == "unencrypted"
+        out = self._adapter(crd).encryption_status()
+        assert out["wireguard_enabled"] is False
+
+    def test_encryption_status_no_configuration(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            felixconfigurations={"items": []},
+        )
+        out = self._adapter(crd).encryption_status()
+        assert out["wireguard_enabled"] is None
 
     def test_get_network_policy_installed_not_found(self) -> None:
         crd = _crd(ippools={"items": [_pool()]}, _get={"networkpolicies": ApiException(status=404)})

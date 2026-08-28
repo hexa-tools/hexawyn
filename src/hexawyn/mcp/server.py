@@ -16,6 +16,10 @@ from hexawyn.infrastructure.config.kubeconfig_reader import (
     validate_connection,
 )
 from hexawyn.infrastructure.memory.duckdb_client import get_connection
+from hexawyn.mcp.adapters.calico_adapters import (
+    build_calico_adapter,
+    build_calico_metrics_adapter,
+)
 from hexawyn.mcp.adapters.cilium_adapters import (
     build_cilium_adapter,
     build_cilium_hubble_adapter,

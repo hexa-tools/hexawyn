@@ -70,3 +70,61 @@ class TestCalicoPrometheusAdapter:
         result = adapter.felix_metrics()
         assert result["available"] is False
         assert isinstance(result.get("error"), str)
+
+
+class TestCalicoPrometheusAdapterFelixCounters:
+    def _sample(self, policy: str, kind: str, value: float) -> dict:
+        return {"metric": {"policy": policy}, "value": value, "kind": kind}
+
+    def test_felix_policy_counters_available(self) -> None:
+        mq = MagicMock()
+        mq.instant_query.side_effect = [
+            [self._sample("a", "deny_packets", 10)],
+            [self._sample("a", "allow_packets", 5)],
+            [],
+            [],
+        ]
+        adapter = CalicoPrometheusAdapter(metrics_query_port=mq)
+        result = adapter.felix_policy_counters()
+        assert result["available"] is True
+        assert mq.instant_query.call_count >= 2  # noqa: PLR2004
+
+    def test_felix_policy_counters_without_port(self) -> None:
+        adapter = CalicoPrometheusAdapter(metrics_query_port=None)
+        result = adapter.felix_policy_counters()
+        assert result["available"] is False
+        assert "message" in result
+
+    def test_felix_policy_counters_on_error(self) -> None:
+        mq = MagicMock()
+        mq.instant_query.side_effect = RuntimeError("boom")
+        adapter = CalicoPrometheusAdapter(metrics_query_port=mq)
+        result = adapter.felix_policy_counters()
+        assert result["available"] is False
+        assert "boom" in str(result.get("message"))
+
+    def test_felix_policy_counters_skips_non_numeric(self) -> None:
+        mq = MagicMock()
+        mq.instant_query.side_effect = [
+            [{"metric": {"policy": "a"}, "value": "not-a-number"}],
+            [],
+            [],
+            [],
+        ]
+        adapter = CalicoPrometheusAdapter(metrics_query_port=mq)
+        result = adapter.felix_policy_counters()
+        assert result["available"] is True
+        assert result["samples"] == []
+
+    def test_felix_policy_counters_unknown_policy_label(self) -> None:
+        mq = MagicMock()
+        mq.instant_query.side_effect = [
+            [{"metric": {}, "value": 7}],
+            [],
+            [],
+            [],
+        ]
+        adapter = CalicoPrometheusAdapter(metrics_query_port=mq)
+        result = adapter.felix_policy_counters()
+        assert result["samples"][0]["policy"] == "unknown"
+        assert result["samples"][0]["kind"] == "deny_packets"

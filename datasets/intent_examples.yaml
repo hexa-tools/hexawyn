@@ -148,6 +148,79 @@ canary_comparison:
   - What is the error rate delta between the canary and stable deployments?
   description: Compare canary deployment latency and error rate against the stable baseline using real-time
     OTel metrics to decide whether to promote or rollback
+calico_detect:
+  tool: calico_detect
+  questions:
+  - Is Calico installed on this cluster and what version is running?
+  - Which dataplane mode is Calico using, IPIP, VXLAN or eBPF?
+  - Are the calico-node agents healthy on every node?
+  - Is Calico the active CNI or is something else in charge?
+  - Is any calico-node agent degraded or not ready right now?
+  - Is tigera-operator (Calico Enterprise) detected on this cluster?
+  description: Detect whether Calico is the active CNI and report its version, dataplane mode,
+    and per-node calico-node agent health with a degradation summary
+calico_encryption_status:
+  tool: calico_encryption_status
+  questions:
+  - Is Calico WireGuard encryption enabled on the dataplane?
+  - Is east-west Calico traffic encrypted with WireGuard?
+  - What is the WireGuard state per node in the FelixConfiguration?
+  - Which dataplane mode is Calico using alongside WireGuard?
+  - Are the Calico host endpoints encrypting traffic between nodes?
+  description: Report whether Calico wire-level encryption (WireGuard) is enabled from FelixConfiguration,
+    including per-node state and the dataplane mode
+calico_felix_metrics:
+  tool: calico_felix_metrics
+  questions:
+  - Which Calico policies are denying traffic right now?
+  - Show me the Felix allow/deny packet counters per Calico policy.
+  - What is the deny volume of each Calico policy from Prometheus?
+  - Which policy is blocking the most packets right now?
+  - Are there Calico policies with unexpected deny counts to investigate?
+  description: Read Felix per-policy allow/deny packet and byte counters from Prometheus, ranked by
+    deny volume, to find traffic blocked by a Calico policy
+calico_connectivity_health:
+  tool: calico_connectivity_health
+  questions:
+  - Is the Calico dataplane healthy end-to-end across all nodes?
+  - Are all calico-node agents ready and is the tunnel/BGP state healthy?
+  - Show me the per-node calico connectivity readiness and a global verdict.
+  - Which calico-node agents are down or degraded right now?
+  - Is the Calico IPIP/VXLAN/eBPF dataplane functional before I investigate higher-level issues?
+  description: Run a Calico connectivity health check across nodes — per-node calico-node readiness,
+    tunnel/BGP state summary and a global health verdict
+calico_policy_audit:
+  tool: calico_policy_audit
+  questions:
+  - Which Calico-selected workloads have no ingress or egress restriction?
+  - Find namespaces without a default-deny Calico policy covering their workloads.
+  - Audit Calico L3/L4 coverage gaps and rank them by risk.
+  - Which namespaces have Calico policies but no default-deny rule?
+  - Show me the Calico workloads lacking any L7 (HTTP/TLS) restriction.
+  - Are there workload namespaces with no Calico NetworkPolicy at all?
+  description: Audit Calico network policies for L3/L4 coverage gaps — flag namespaces whose workloads
+    lack a default-deny restriction and rank the gaps by risk
+calico_bgp_audit:
+  tool: calico_bgp_audit
+  questions:
+  - Show me the Calico BGP configuration and peer state.
+  - What AS number and node-to-node mesh is Calico BGP configured with?
+  - List the Calico BGPPeers with their peer IP, ASN and node selector.
+  - Are the Calico BGP sessions reaching a healthy state right now?
+  - Which BGP service cluster IPs does the Calico config advertise?
+  description: Audit Calico BGP configuration — BGPConfiguration (ASN, node-to-node mesh, service
+    cluster IPs), BGPPeers and session state
+calico_segmentation_audit:
+  tool: calico_segmentation_audit
+  questions:
+  - Which workloads can reach each other through Calico without a policy?
+  - Build the Calico east-west segmentation matrix for all tiers.
+  - Which tier-to-tier paths are allowed but unrestricted by a Calico policy?
+  - Is my Calico setup fully segmented by default-deny, or are there gaps?
+  - Show me the unreachable paths a policy should block between tiers.
+  - Compare the Calico segmentation view against the vanilla NetworkPolicy view.
+  description: Audit east-west segmentation based on Calico selectors and policies — build a tier-to-tier
+    reachability matrix and flag allowed-but-unrestricted paths against the vanilla view
 cilium_detect:
   tool: cilium_detect
   questions:

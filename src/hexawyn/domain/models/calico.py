@@ -247,3 +247,134 @@ class CalicoSegmentationAuditResult:
     def not_installed(self) -> bool:
         """Honest flag — Calico absence is never invented."""
         return not self.installed
+
+
+@dataclass(frozen=True)
+class CalicoBgpConfiguration:
+    """A Calico BGPConfiguration projection (cluster-scoped)."""
+
+    name: str
+    as_number: str | None
+    node_to_node_mesh_enabled: bool | None
+    service_cluster_ips: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class CalicoBgpPeer:
+    """A Calico BGPPeer projection (peer IP/ASN + node selector)."""
+
+    name: str
+    peer_ip: str
+    as_number: str | None
+    node_selector: str
+
+
+@dataclass(frozen=True)
+class CalicoBgpAuditResult:
+    """Calico BGP configuration + peer + session-state audit."""
+
+    installed: bool
+    not_installed_marker: str | None
+    as_number: str | None
+    node_to_node_mesh_enabled: bool | None
+    service_cluster_ips: tuple[str, ...]
+    peers: list[CalicoBgpPeer]
+    peer_count: int
+    session_state: str
+    session_note: str | None
+    summary: str | None
+    error: str | None
+
+    @property
+    def not_installed(self) -> bool:
+        """Honest flag — Calico absence is never invented."""
+        return not self.installed
+
+
+@dataclass(frozen=True)
+class CalicoEncryptionNodeStatus:
+    """Per-node WireGuard enablement as observed in FelixConfiguration."""
+
+    node: str
+    wireguard_enabled: bool
+
+
+@dataclass(frozen=True)
+class CalicoEncryptionStatusResult:
+    """Calico wire-level encryption (WireGuard) status from FelixConfiguration."""
+
+    installed: bool
+    not_installed_marker: str | None
+    wireguard_enabled: bool | None
+    mode: DataplaneMode | None
+    per_node: list[CalicoEncryptionNodeStatus]
+    summary: str | None
+    error: str | None
+
+    @property
+    def not_installed(self) -> bool:
+        """Honest flag — Calico absence is never invented."""
+        return not self.installed
+
+
+@dataclass(frozen=True)
+class CalicoFelixPolicyCounter:
+    """Observed Felix packet/byte counters for one Calico policy."""
+
+    policy: str
+    allow_packets: int
+    deny_packets: int
+    allow_bytes: int
+    deny_bytes: int
+
+
+@dataclass(frozen=True)
+class CalicoFelixMetricsResult:
+    """Felix per-policy allow/deny counters ranked by deny volume."""
+
+    installed: bool
+    not_installed_marker: str | None
+    metrics_available: bool
+    metrics_message: str | None
+    policies: list[CalicoFelixPolicyCounter]
+    total_denies: int
+    total_allows: int
+    deny_policy_count: int
+    error: str | None
+
+    @property
+    def not_installed(self) -> bool:
+        """Honest flag — Calico absence is never invented."""
+        return not self.installed
+
+
+@dataclass(frozen=True)
+class CalicoNodeConnectivity:
+    """Per-node calico-node readiness for the connectivity verdict."""
+
+    node: str
+    ready: bool
+
+
+@dataclass(frozen=True)
+class CalicoConnectivityHealthResult:
+    """Aggregated Calico dataplane connectivity health (ready/total + verdict)."""
+
+    installed: bool
+    not_installed_marker: str | None
+    verdict: str
+    ready_agents: int
+    total_agents: int
+    dataplane_mode: DataplaneMode | None
+    tunnel_summary: str
+    bgp_summary: str
+    connectivity_probe: str | None
+    nodes: list[CalicoNodeConnectivity]
+    degraded_nodes: list[str]
+    summary: str | None
+    error: str | None
+
+    @property
+    def not_installed(self) -> bool:
+        """Honest flag — Calico absence is never invented."""
+        return not self.installed

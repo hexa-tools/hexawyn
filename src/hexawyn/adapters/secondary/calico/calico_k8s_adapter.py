@@ -19,6 +19,8 @@ from hexawyn.domain.errors import (
     ResourceNotFoundError,
 )
 from hexawyn.domain.models.calico import (
+    CalicoBgpConfiguration,
+    CalicoBgpPeer,
     CalicoDetectionResult,
     CalicoDetectionSignals,
     CalicoHostEndpoint,
@@ -253,21 +255,66 @@ class CalicoK8sAdapter(CalicoPort):
         node_to_node = any("nodeToNodeMeshEnabled" in (c.get("spec") or {}) for c in configs)
         return {"bgp_configurations": len(configs), "node_to_node_mesh_configured": node_to_node}
 
+    def list_bgp_configurations(self) -> list[CalicoBgpConfiguration]:
+        if not self._is_installed():
+            return []
+        raw = self._safe_crd_list("bgpconfigurations")
+        return [self._parse_bgp_configuration(item) for item in raw_items(raw)]
+
+    def list_bgp_peers(self) -> list[CalicoBgpPeer]:
+        if not self._is_installed():
+            return []
+        raw = self._safe_crd_list("bgppeers")
+        return [self._parse_bgp_peer(item) for item in raw_items(raw)]
+
     def encryption_status(self) -> dict[str, object]:
         if not self._is_installed():
             return {}
         raw = self._safe_crd_list("felixconfigurations")
-        for item in raw_items(raw):
-            spec = item.get("spec") or {}
-            if spec.get("wireguardEnabled") or spec.get("encryptionEnabled"):
-                return {"encryption": "encrypted", "enabled": True}
-        return {"encryption": "unencrypted", "enabled": False}
+        items = raw_items(raw)
+        default = next(
+            (item for item in items if (item.get("metadata") or {}).get("name") == "default"),
+            items[0] if items else None,
+        )
+        wireguard_enabled: bool | None = None
+        if default is not None:
+            spec = default.get("spec") or {}
+            wireguard_raw = spec.get("wireguardEnabled")
+            wireguard_enabled = bool(wireguard_raw) if wireguard_raw is not None else None
+        per_node: list[dict[str, object]] = []
+        for item in items:
+            name = str((item.get("metadata") or {}).get("name", ""))
+            if name.startswith("node."):
+                spec = item.get("spec") or {}
+                wireguard_raw = spec.get("wireguardEnabled")
+                per_node.append(
+                    {
+                        "node": name[len("node.") :],
+                        "wireguard_enabled": bool(wireguard_raw)
+                        if wireguard_raw is not None
+                        else False,
+                    }
+                )
+        return {
+            "wireguard_enabled": wireguard_enabled,
+            "per_node": per_node,
+            "enabled": wireguard_enabled,
+        }
 
     # ── Metrics-backed (delegated) ────────────────────────────────────────
     def felix_metrics(self) -> dict[str, object]:
         if self._metrics is None:
             return {"available": False, "metrics": {}, "error": "no metrics source configured"}
         return self._metrics.felix_metrics()
+
+    def felix_policy_counters(self) -> dict[str, object]:
+        if self._metrics is None:
+            return {
+                "available": False,
+                "message": "no metrics source configured",
+                "samples": [],
+            }
+        return self._metrics.felix_policy_counters()
 
     def connectivity_health(self) -> dict[str, object]:
         if self._metrics is None:
@@ -489,6 +536,36 @@ class CalicoK8sAdapter(CalicoPort):
             expected_ips=expected_ips,
             labels=labels,
             applied_policies=applied_policies,
+        )
+
+    @staticmethod
+    def _parse_bgp_configuration(item: dict[str, Any]) -> CalicoBgpConfiguration:
+        meta = item.get("metadata") or {}
+        spec = item.get("spec") or {}
+        mesh_raw = spec.get("nodeToNodeMeshEnabled")
+        mesh = spec.get("nodeToNodeMesh")
+        if mesh_raw is None and isinstance(mesh, dict):
+            mesh_raw = mesh.get("enabled")
+        mesh_enabled = bool(mesh_raw) if mesh_raw is not None else None
+        ips = spec.get("serviceClusterIPs")
+        as_number = spec.get("asNumber")
+        return CalicoBgpConfiguration(
+            name=str(meta.get("name", "")),
+            as_number=str(as_number) if as_number is not None else None,
+            node_to_node_mesh_enabled=mesh_enabled,
+            service_cluster_ips=tuple(str(ip) for ip in ips) if isinstance(ips, list) else (),
+        )
+
+    @staticmethod
+    def _parse_bgp_peer(item: dict[str, Any]) -> CalicoBgpPeer:
+        meta = item.get("metadata") or {}
+        spec = item.get("spec") or {}
+        as_number = spec.get("asNumber")
+        return CalicoBgpPeer(
+            name=str(meta.get("name", "")),
+            peer_ip=str(spec.get("peerIP", "")),
+            as_number=str(as_number) if as_number is not None else None,
+            node_selector=str(spec.get("nodeSelector", "")),
         )
 
     @staticmethod
