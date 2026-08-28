@@ -887,6 +887,16 @@ get_calico_network_policy:
   - Is the Calico policy checkout-restrict a deny policy and what does it match?
   description: Get the full detail of a specific CalicoNetworkPolicy or GlobalNetworkPolicy — name,
     scope, endpoint selector, action and ingress/egress rules
+get_calico_host_endpoints:
+  tool: get_calico_host_endpoints
+  questions:
+  - List the Calico HostEndpoints and the host interfaces they protect.
+  - Which host nodes have Calico HostEndpoints with applied policies?
+  - Show me the HostEndpoint labels and expected IPs for each node interface.
+  - Which host interfaces are protected by at least one Calico policy?
+  - List the network interfaces outside pods that Calico is protecting.
+  description: List Calico HostEndpoint resources — node, interface, expected IPs, labels and applied
+    policies — to see which non-pod host interfaces Calico protects
 get_calico_status:
   tool: get_calico_status
   questions:

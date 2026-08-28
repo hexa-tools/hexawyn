@@ -210,6 +210,23 @@ class TestSerieProjections:
             name="he", node="node-1", interface_name="eth0", expected_ip="10.0.0.1"
         )
         assert he.expected_ip == "10.0.0.1"
+        assert he.expected_ips == ()
+        assert he.labels == ()
+        assert he.applied_policies == ()
+
+    def test_host_endpoint_full_fields(self) -> None:
+        he = CalicoHostEndpoint(
+            name="he",
+            node="node-1",
+            interface_name="eth0",
+            expected_ip="10.0.0.1",
+            expected_ips=("10.0.0.1",),
+            labels=(("kubernetes.io/hostname", "node-1"),),
+            applied_policies=("default.host-endpoints",),
+        )
+        assert he.labels == (("kubernetes.io/hostname", "node-1"),)
+        assert he.applied_policies == ("default.host-endpoints",)
+        assert he.expected_ips == ("10.0.0.1",)
 
 
 class TestCalicoStatusResult:

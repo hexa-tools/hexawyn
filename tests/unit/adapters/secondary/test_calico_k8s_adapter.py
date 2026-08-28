@@ -445,6 +445,8 @@ class TestCalicoK8sAdapterInstalledParsing:
                             "node": "n1",
                             "interfaceName": "eth0",
                             "expectedIPs": ["10.0.0.1"],
+                            "labels": {"kubernetes.io/hostname": "n1"},
+                            "profiles": ["default.host-endpoints"],
                         },
                     }
                 ]
@@ -453,6 +455,17 @@ class TestCalicoK8sAdapterInstalledParsing:
         endpoints = self._adapter(crd).list_host_endpoints()
         assert len(endpoints) == 1  # noqa: PLR2004
         assert endpoints[0].expected_ip == "10.0.0.1"
+        assert ("kubernetes.io/hostname", "n1") in endpoints[0].labels
+        assert endpoints[0].applied_policies == ("default.host-endpoints",)
+
+    def test_list_host_endpoints_no_labels(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            hostendpoints={"items": [{"metadata": {"name": "he"}, "spec": {"node": "n1"}}]},
+        )
+        endpoints = self._adapter(crd).list_host_endpoints()
+        assert endpoints[0].labels == ()
+        assert endpoints[0].applied_policies == ()
 
     def test_bgp_audit_installed(self) -> None:
         crd = _crd(

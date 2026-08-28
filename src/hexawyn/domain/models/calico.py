@@ -95,12 +95,15 @@ class CalicoIPPool:
 
 @dataclass(frozen=True)
 class CalicoHostEndpoint:
-    """A Calico HostEndpoint projection."""
+    """A Calico HostEndpoint projection (non-pod host interface)."""
 
     name: str
     node: str
     interface_name: str
     expected_ip: str
+    expected_ips: tuple[str, ...] = ()
+    labels: tuple[tuple[str, str], ...] = ()
+    applied_policies: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)

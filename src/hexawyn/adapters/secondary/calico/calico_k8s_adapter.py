@@ -471,14 +471,31 @@ class CalicoK8sAdapter(CalicoPort):
     def _parse_host_endpoint(item: dict[str, Any]) -> CalicoHostEndpoint:
         meta = item.get("metadata") or {}
         spec = item.get("spec") or {}
-        expected_ips = spec.get("expectedIPs")
-        expected_ip = str(expected_ips[0] or "") if expected_ips else ""
+        expected_ips_raw = spec.get("expectedIPs")
+        expected_ips = (
+            tuple(str(ip) for ip in expected_ips_raw) if isinstance(expected_ips_raw, list) else ()
+        )
+        expected_ip = expected_ips[0] if expected_ips else ""
+        labels = CalicoK8sAdapter._parse_labels(spec.get("labels"))
+        profiles = spec.get("profiles")
+        applied_policies = (
+            tuple(str(profile) for profile in profiles) if isinstance(profiles, list) else ()
+        )
         return CalicoHostEndpoint(
             name=str(meta.get("name", "")),
             node=str(spec.get("node", "")),
             interface_name=str(spec.get("interfaceName", "")),
             expected_ip=expected_ip,
+            expected_ips=expected_ips,
+            labels=labels,
+            applied_policies=applied_policies,
         )
+
+    @staticmethod
+    def _parse_labels(raw: object) -> tuple[tuple[str, str], ...]:
+        if not isinstance(raw, dict):
+            return ()
+        return tuple((str(key), str(value)) for key, value in raw.items())
 
 
 def raw_items(raw: dict[str, Any] | None) -> list[dict[str, Any]]:
