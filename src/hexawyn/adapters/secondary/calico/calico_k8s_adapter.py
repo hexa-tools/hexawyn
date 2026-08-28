@@ -271,11 +271,35 @@ class CalicoK8sAdapter(CalicoPort):
         if not self._is_installed():
             return {}
         raw = self._safe_crd_list("felixconfigurations")
-        for item in raw_items(raw):
-            spec = item.get("spec") or {}
-            if spec.get("wireguardEnabled") or spec.get("encryptionEnabled"):
-                return {"encryption": "encrypted", "enabled": True}
-        return {"encryption": "unencrypted", "enabled": False}
+        items = raw_items(raw)
+        default = next(
+            (item for item in items if (item.get("metadata") or {}).get("name") == "default"),
+            items[0] if items else None,
+        )
+        wireguard_enabled: bool | None = None
+        if default is not None:
+            spec = default.get("spec") or {}
+            wireguard_raw = spec.get("wireguardEnabled")
+            wireguard_enabled = bool(wireguard_raw) if wireguard_raw is not None else None
+        per_node: list[dict[str, object]] = []
+        for item in items:
+            name = str((item.get("metadata") or {}).get("name", ""))
+            if name.startswith("node."):
+                spec = item.get("spec") or {}
+                wireguard_raw = spec.get("wireguardEnabled")
+                per_node.append(
+                    {
+                        "node": name[len("node.") :],
+                        "wireguard_enabled": bool(wireguard_raw)
+                        if wireguard_raw is not None
+                        else False,
+                    }
+                )
+        return {
+            "wireguard_enabled": wireguard_enabled,
+            "per_node": per_node,
+            "enabled": wireguard_enabled,
+        }
 
     # ── Metrics-backed (delegated) ────────────────────────────────────────
     def felix_metrics(self) -> dict[str, object]:

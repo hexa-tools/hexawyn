@@ -159,6 +159,16 @@ calico_detect:
   - Is tigera-operator (Calico Enterprise) detected on this cluster?
   description: Detect whether Calico is the active CNI and report its version, dataplane mode,
     and per-node calico-node agent health with a degradation summary
+calico_encryption_status:
+  tool: calico_encryption_status
+  questions:
+  - Is Calico WireGuard encryption enabled on the dataplane?
+  - Is east-west Calico traffic encrypted with WireGuard?
+  - What is the WireGuard state per node in the FelixConfiguration?
+  - Which dataplane mode is Calico using alongside WireGuard?
+  - Are the Calico host endpoints encrypting traffic between nodes?
+  description: Report whether Calico wire-level encryption (WireGuard) is enabled from FelixConfiguration,
+    including per-node state and the dataplane mode
 calico_policy_audit:
   tool: calico_policy_audit
   questions:

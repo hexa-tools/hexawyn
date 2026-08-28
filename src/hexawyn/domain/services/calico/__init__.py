@@ -7,6 +7,9 @@ from hexawyn.domain.services.calico.detection_service import (
     build_detection_result,
     resolve_dataplane_mode,
 )
+from hexawyn.domain.services.calico.encryption_status_service import (
+    build_calico_encryption_status,
+)
 from hexawyn.domain.services.calico.get_calico_status_service import (
     build_calico_status_result,
 )
@@ -24,6 +27,7 @@ from hexawyn.domain.services.calico.segmentation_service import (
 __all__ = [
     "build_agent_phase",
     "build_calico_bgp_audit",
+    "build_calico_encryption_status",
     "build_calico_policy_audit",
     "build_calico_segmentation_audit",
     "build_calico_status_result",

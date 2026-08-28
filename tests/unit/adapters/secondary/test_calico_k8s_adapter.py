@@ -537,7 +537,28 @@ class TestCalicoK8sAdapterInstalledParsing:
             ippools={"items": [_pool()]},
             felixconfigurations={"items": [{"spec": {"wireguardEnabled": True}}]},
         )
-        assert self._adapter(crd).encryption_status()["encryption"] == "encrypted"
+        out = self._adapter(crd).encryption_status()
+        assert out["wireguard_enabled"] is True
+
+    def test_encryption_status_per_node(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            felixconfigurations={
+                "items": [
+                    {
+                        "metadata": {"name": "default"},
+                        "spec": {"wireguardEnabled": True},
+                    },
+                    {
+                        "metadata": {"name": "node.node-1"},
+                        "spec": {"wireguardEnabled": False},
+                    },
+                ]
+            },
+        )
+        out = self._adapter(crd).encryption_status()
+        assert out["wireguard_enabled"] is True
+        assert {"node": "node-1", "wireguard_enabled": False} in out["per_node"]
 
     def test_version_from_install_via_tigera(self) -> None:
         crd = _crd(
@@ -587,7 +608,16 @@ class TestCalicoK8sAdapterInstalledParsing:
             ippools={"items": [_pool()]},
             felixconfigurations={"items": [{"spec": {"wireguardEnabled": False}}]},
         )
-        assert self._adapter(crd).encryption_status()["encryption"] == "unencrypted"
+        out = self._adapter(crd).encryption_status()
+        assert out["wireguard_enabled"] is False
+
+    def test_encryption_status_no_configuration(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            felixconfigurations={"items": []},
+        )
+        out = self._adapter(crd).encryption_status()
+        assert out["wireguard_enabled"] is None
 
     def test_get_network_policy_installed_not_found(self) -> None:
         crd = _crd(ippools={"items": [_pool()]}, _get={"networkpolicies": ApiException(status=404)})

@@ -289,3 +289,29 @@ class CalicoBgpAuditResult:
     def not_installed(self) -> bool:
         """Honest flag — Calico absence is never invented."""
         return not self.installed
+
+
+@dataclass(frozen=True)
+class CalicoEncryptionNodeStatus:
+    """Per-node WireGuard enablement as observed in FelixConfiguration."""
+
+    node: str
+    wireguard_enabled: bool
+
+
+@dataclass(frozen=True)
+class CalicoEncryptionStatusResult:
+    """Calico wire-level encryption (WireGuard) status from FelixConfiguration."""
+
+    installed: bool
+    not_installed_marker: str | None
+    wireguard_enabled: bool | None
+    mode: DataplaneMode | None
+    per_node: list[CalicoEncryptionNodeStatus]
+    summary: str | None
+    error: str | None
+
+    @property
+    def not_installed(self) -> bool:
+        """Honest flag — Calico absence is never invented."""
+        return not self.installed

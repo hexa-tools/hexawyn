@@ -12,6 +12,8 @@ from hexawyn.domain.models.calico import (
     CalicoCoverageGap,
     CalicoDetectionResult,
     CalicoDetectionStatus,
+    CalicoEncryptionNodeStatus,
+    CalicoEncryptionStatusResult,
     CalicoHostEndpoint,
     CalicoIPPool,
     CalicoNetworkPolicy,
@@ -462,3 +464,37 @@ class TestBgpAuditProjections:
         )
         assert result.not_installed is True
         assert result.session_state == "unknown"
+
+
+class TestEncryptionStatusProjections:
+    def test_node_status(self) -> None:
+        node = CalicoEncryptionNodeStatus(node="node-1", wireguard_enabled=True)
+        assert node.node == "node-1"
+        assert node.wireguard_enabled is True
+
+    def test_encryption_status_result(self) -> None:
+        result = CalicoEncryptionStatusResult(
+            installed=True,
+            not_installed_marker=None,
+            wireguard_enabled=True,
+            mode=DataplaneMode.IPIP,
+            per_node=[CalicoEncryptionNodeStatus(node="node-1", wireguard_enabled=True)],
+            summary="WireGuard enabled (IPIP)",
+            error=None,
+        )
+        assert result.wireguard_enabled is True
+        assert result.mode == DataplaneMode.IPIP
+        assert result.not_installed is False
+
+    def test_encryption_status_result_not_installed(self) -> None:
+        result = CalicoEncryptionStatusResult(
+            installed=False,
+            not_installed_marker=NOT_INSTALLED_MARKER,
+            wireguard_enabled=None,
+            mode=None,
+            per_node=[],
+            summary=None,
+            error="absent",
+        )
+        assert result.not_installed is True
+        assert result.wireguard_enabled is None
