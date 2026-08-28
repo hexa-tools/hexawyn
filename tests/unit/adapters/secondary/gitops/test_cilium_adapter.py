@@ -853,3 +853,116 @@ class TestCiliumGetNetworkPolicy:
 
         with pytest.raises(AdapterTimeoutError):
             CiliumAdapter(vanilla).get_network_policy("x", None)
+
+
+def _audit_policy_raw(
+    name: str,
+    labels: dict[str, str],
+    ingress: int = 0,
+    egress: int = 0,
+    l7: int = 0,
+) -> dict:
+    spec: dict[str, object] = {"endpointSelector": {"matchLabels": labels}}
+    if ingress:
+        spec["ingress"] = [{"toPorts": [{"rules": {"http": {}}}]}] if l7 else [{}]
+    if egress:
+        spec["egress"] = [{}]
+    return {"metadata": {"name": name}, "spec": spec}
+
+
+def _pod_raw(namespace: str, name: str, labels: dict[str, str]) -> dict:
+    return {"metadata": {"namespace": namespace, "name": name, "labels": labels}}
+
+
+def _make_audit_vanilla(list_result: object, pods_response: object) -> MagicMock:
+    vanilla = MagicMock()
+    crd_api = MagicMock()
+    if isinstance(list_result, Exception):
+        crd_api.list_cluster_custom_object.side_effect = list_result
+    else:
+        crd_api.list_cluster_custom_object.return_value = list_result
+    vanilla._crd_api_client.return_value = crd_api
+    core_api = MagicMock()
+    if isinstance(pods_response, Exception):
+        core_api.list_pod_for_all_namespaces.side_effect = pods_response
+    else:
+        core_api.list_pod_for_all_namespaces.return_value = pods_response
+    vanilla._api_client.return_value = core_api
+    vanilla._apps_api_client.return_value = MagicMock()
+    return vanilla
+
+
+class TestCiliumPolicyAudit:
+    def test_audit_flags_workload_without_policy(self) -> None:
+        list_result = {
+            "items": [_audit_policy_raw("allow-db", {"app": "db"}, ingress=1, egress=1, l7=1)]
+        }
+        pods = {
+            "items": [
+                _pod_raw("payments", "db-0", {"app": "db"}),
+                _pod_raw("payments", "web-0", {"app": "web"}),
+                {"no-metadata": True},
+            ]
+        }
+        vanilla = _make_audit_vanilla(list_result, pods)
+
+        result = CiliumAdapter(vanilla).audit_policies()
+
+        assert result.status == "gaps_found"
+        assert result.view == "cilium"
+        assert result.total_workloads == 2  # noqa: PLR2004
+        assert result.findings[0].coverage == "no_policy"
+        assert result.findings[0].workload == "web-0"
+
+    def test_audit_fully_covered(self) -> None:
+        list_result = {
+            "items": [_audit_policy_raw("allow-db", {"app": "db"}, ingress=1, egress=1, l7=1)]
+        }
+        pods = {"items": [_pod_raw("payments", "db-0", {"app": "db"})]}
+        vanilla = _make_audit_vanilla(list_result, pods)
+
+        result = CiliumAdapter(vanilla).audit_policies()
+
+        assert result.status == "covered"
+        assert result.findings == []
+
+    def test_audit_l7_gap(self) -> None:
+        list_result = {"items": [_audit_policy_raw("allow-db", {"app": "db"}, ingress=1, egress=1)]}
+        pods = {"items": [_pod_raw("payments", "db-0", {"app": "db"})]}
+        vanilla = _make_audit_vanilla(list_result, pods)
+
+        result = CiliumAdapter(vanilla).audit_policies()
+
+        assert result.findings[0].coverage == "l7_gap"
+        assert result.findings[0].l7_restricted is False
+
+    def test_audit_partial_restriction(self) -> None:
+        list_result = {"items": [_audit_policy_raw("allow-db", {"app": "db"}, ingress=1)]}
+        pods = {"items": [_pod_raw("payments", "db-0", {"app": "db"})]}
+        vanilla = _make_audit_vanilla(list_result, pods)
+
+        result = CiliumAdapter(vanilla).audit_policies()
+
+        assert result.findings[0].coverage == "partial"
+
+    def test_audit_not_installed_returns_vanilla_view(self) -> None:
+        vanilla = _make_audit_vanilla(ApiException(status=404), {"items": []})
+
+        result = CiliumAdapter(vanilla).audit_policies()
+
+        assert result.installed is False
+        assert result.status == "not_installed"
+        assert result.view == "vanilla"
+        assert result.findings == []
+
+    def test_audit_rbac_403_raises_insufficient_permissions(self) -> None:
+        vanilla = _make_audit_vanilla(ApiException(status=403), {"items": []})
+
+        with pytest.raises(InsufficientPermissionsError):
+            CiliumAdapter(vanilla).audit_policies()
+
+    def test_audit_workload_timeout_raises_adapter_timeout(self) -> None:
+        vanilla = _make_audit_vanilla({"items": []}, TimeoutError("timed out"))
+
+        with pytest.raises(AdapterTimeoutError):
+            CiliumAdapter(vanilla).audit_policies()

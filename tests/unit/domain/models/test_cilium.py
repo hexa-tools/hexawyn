@@ -2,13 +2,16 @@ from __future__ import annotations
 
 from hexawyn.domain.models.cilium import (
     CiliumAgentHealth,
+    CiliumAuditFinding,
     CiliumDetectionResult,
     CiliumL7RuleSummary,
     CiliumNetworkPoliciesResult,
     CiliumNetworkPolicyDetail,
     CiliumNetworkPolicyInfo,
+    CiliumPolicyAuditResult,
     CiliumRuleSummary,
     CiliumStatusResult,
+    CiliumWorkload,
 )
 
 
@@ -264,3 +267,56 @@ class TestCiliumNetworkPolicyDetail:
         assert detail.namespace == "payments"
         assert detail.l7_protocols == ("http",)
         assert detail.spec["endpointSelector"] == {"matchLabels": {"app": "db"}}
+
+
+class TestCiliumWorkload:
+    def test_constructs(self) -> None:
+        workload = CiliumWorkload(namespace="payments", name="db-0", labels={"app": "db"})
+        assert workload.namespace == "payments"
+        assert workload.labels == {"app": "db"}
+
+
+class TestCiliumAuditFinding:
+    def test_constructs(self) -> None:
+        finding = CiliumAuditFinding(
+            namespace="payments",
+            workload="db-0",
+            coverage="no_policy",
+            ingress_restricted=False,
+            egress_restricted=False,
+            l7_restricted=False,
+            risk="critical",
+            note=None,
+        )
+        assert finding.coverage == "no_policy"
+        assert finding.risk == "critical"
+
+
+class TestCiliumPolicyAuditResult:
+    def test_constructs_not_installed(self) -> None:
+        result = CiliumPolicyAuditResult(
+            installed=False,
+            status="not_installed",
+            view="vanilla",
+            total_workloads=0,
+            uncovered_count=0,
+            findings=[],
+            summary="",
+            note="Cilium is not installed in this cluster",
+        )
+        assert result.installed is False
+        assert result.view == "vanilla"
+
+    def test_network_policy_info_carries_endpoint_labels(self) -> None:
+        policy = CiliumNetworkPolicyInfo(
+            kind="CiliumNetworkPolicy",
+            name="allow-db",
+            namespace="payments",
+            endpoint_selector="matchLabels: app=db",
+            ingress_rule_count=1,
+            egress_rule_count=1,
+            l7_rule_count=0,
+            l7_protocols=(),
+            endpoint_labels=(("app", "db"),),
+        )
+        assert policy.endpoint_labels == (("app", "db"),)

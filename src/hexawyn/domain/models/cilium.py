@@ -60,6 +60,7 @@ class CiliumNetworkPolicyInfo:
     egress_rule_count: int
     l7_rule_count: int
     l7_protocols: tuple[str, ...]
+    endpoint_labels: tuple[tuple[str, str], ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -107,4 +108,41 @@ class CiliumNetworkPolicyDetail:
     egress_rules: tuple[CiliumRuleSummary, ...]
     l7_protocols: tuple[str, ...]
     spec: dict[str, object]
+    note: str | None
+
+
+@dataclass(frozen=True)
+class CiliumWorkload:
+    """A workload (pod) carrying labels that Cilium endpoint selectors match."""
+
+    namespace: str
+    name: str
+    labels: dict[str, str]
+
+
+@dataclass(frozen=True)
+class CiliumAuditFinding:
+    """A coverage gap or a partially restricted Cilium workload."""
+
+    namespace: str
+    workload: str
+    coverage: str
+    ingress_restricted: bool
+    egress_restricted: bool
+    l7_restricted: bool
+    risk: str
+    note: str | None
+
+
+@dataclass(frozen=True)
+class CiliumPolicyAuditResult:
+    """Aggregated Cilium network-policy coverage audit."""
+
+    installed: bool
+    status: str
+    view: str
+    total_workloads: int
+    uncovered_count: int
+    findings: list[CiliumAuditFinding]
+    summary: str
     note: str | None

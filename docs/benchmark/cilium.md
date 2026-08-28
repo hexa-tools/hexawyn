@@ -30,8 +30,13 @@ The `cilium_detect` tool must satisfy the scenarios below once the hexa-benchmar
 | `cilium/302-cilium-netpol-get-not-found` | upstream `ResourceNotFoundError` (not a raw K8s 404) | AC4 |
 | `cilium/303-cilium-netpol-get-not-installed` | `installed=false`, `status="not_installed"` | AC3 |
 | `cilium/304-cilium-netpol-get-rbac-denied` | upstream `InsufficientPermissionsError` | AC6 |
+| `cilium/401-cilium-policy-audit-gap` | uncovered workload flagged, `risk` observed | AC2, AC3 |
+| `cilium/402-cilium-policy-audit-covered` | `status="covered"`, no findings | AC2 |
+| `cilium/403-cilium-policy-audit-l7-gap` | L3/L4 restricted but no L7 → flagged | AC3 |
+| `cilium/404-cilium-policy-audit-not-installed` | `installed=false`, `view="vanilla"`, NOT_INSTALLED | AC4 |
+| `cilium/405-cilium-policy-audit-rbac-denied` | upstream `InsufficientPermissionsError` | AC6 |
 
 ## Expected coverage
 
-- **Classified categories:** reading mode mapping (tunnel / native-routing / cluster / ipvlan / UNKNOWN); health/connectivity aggregation (healthy / degraded / unknown / not_installed); network-policy rule summarisation (L3/L4/L7, endpoint selector, kind breakdown); policy detail retrieval (full spec, L7 protocols, not-installed vs not-found).
-- **Guardrails:** `installed=true` and `status="healthy"` are never invented without a cilium DaemonSet or `cilium.io` CRD; a version is never fabricated; degraded state is never omitted; Cilium is never confused with Calico or Istio; policies, rule counts and detail come only from observed CRDs; a missing policy is reported via `ResourceNotFoundError`, never an invented one.
+- **Classified categories:** reading mode mapping (tunnel / native-routing / cluster / ipvlan / UNKNOWN); health/connectivity aggregation (healthy / degraded / unknown / not_installed); network-policy rule summarisation (L3/L4/L7, endpoint selector, kind breakdown); policy detail retrieval (full spec, L7 protocols, not-installed vs not-found); policy coverage audit (no_policy / no_default_deny / partial / l7_gap, risk ranking).
+- **Guardrails:** `installed=true` and `status="healthy"` are never invented without a cilium DaemonSet or `cilium.io` CRD; a version is never fabricated; degraded state is never omitted; Cilium is never confused with Calico or Istio; policies, rule counts, detail and audit findings come only from observed CRDs and workloads; a missing policy is reported via `ResourceNotFoundError`, and absent Cilium yields a `view="vanilla"` NOT_INSTALLED marker, never a fabricated audit.

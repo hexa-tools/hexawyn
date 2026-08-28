@@ -6,6 +6,7 @@ from hexawyn.domain.models.cilium import (
     CiliumDetectionResult,
     CiliumNetworkPoliciesResult,
     CiliumNetworkPolicyDetail,
+    CiliumPolicyAuditResult,
     CiliumStatusResult,
 )
 
@@ -24,3 +25,6 @@ class CiliumPort(ABC):
 
     @abstractmethod
     def get_network_policy(self, name: str, namespace: str | None) -> CiliumNetworkPolicyDetail: ...
+
+    @abstractmethod
+    def audit_policies(self) -> CiliumPolicyAuditResult: ...

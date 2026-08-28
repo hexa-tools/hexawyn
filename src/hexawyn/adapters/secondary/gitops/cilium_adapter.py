@@ -19,13 +19,16 @@ from hexawyn.domain.models.cilium import (
     CiliumNetworkPoliciesResult,
     CiliumNetworkPolicyDetail,
     CiliumNetworkPolicyInfo,
+    CiliumPolicyAuditResult,
     CiliumStatusResult,
+    CiliumWorkload,
 )
 from hexawyn.domain.services.cilium.network_policy_summary import (
     build_network_policy,
     build_policies_result,
     not_installed_policies_result,
 )
+from hexawyn.domain.services.cilium.policy_audit import build_policy_audit
 from hexawyn.domain.services.cilium.policy_detail_builder import (
     build_policy_detail,
     not_installed_policy_detail,
@@ -201,6 +204,46 @@ class CiliumAdapter(CiliumPort):
                 raise ResourceNotFoundError(f"Cilium network policy '{name}' not found")
             self._raise_translated(exc)
         return build_policy_detail(kind, namespace, cast(dict[str, object], raw))
+
+    def audit_policies(self) -> CiliumPolicyAuditResult:
+        policies = self.list_network_policies()
+        if not policies.installed:
+            return self._vanilla_fallback_audit()
+        return build_policy_audit(policies.policies, self._list_workloads())
+
+    def _list_workloads(self) -> list[CiliumWorkload]:
+        try:
+            core_api = self._vanilla._api_client()
+            raw = getattr(core_api, "list_pod_for_all_namespaces")()
+        except Exception as exc:
+            self._raise_translated(exc)
+        workloads: list[CiliumWorkload] = []
+        for pod in _items(raw):
+            metadata = _get(pod, "metadata")
+            if metadata is None:
+                continue
+            labels = _get(metadata, "labels")
+            workloads.append(
+                CiliumWorkload(
+                    namespace=str(_get(metadata, "namespace") or "default"),
+                    name=str(_get(metadata, "name") or ""),
+                    labels=labels if isinstance(labels, dict) else {},
+                )
+            )
+        return workloads
+
+    @staticmethod
+    def _vanilla_fallback_audit() -> CiliumPolicyAuditResult:
+        return CiliumPolicyAuditResult(
+            installed=False,
+            status="not_installed",
+            view="vanilla",
+            total_workloads=0,
+            uncovered_count=0,
+            findings=[],
+            summary="Cilium is not installed; vanilla NetworkPolicy view is out of scope",
+            note="Cilium is not installed in this cluster",
+        )
 
     def _raise_if_error_status(self, response: object) -> None:
         """Raise RBAC errors carried on a returned response object."""

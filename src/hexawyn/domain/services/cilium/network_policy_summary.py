@@ -35,6 +35,7 @@ def build_network_policy(kind: str, raw: dict[str, object]) -> CiliumNetworkPoli
         egress_rule_count=len(egress),
         l7_rule_count=l7_count,
         l7_protocols=l7_protocols,
+        endpoint_labels=_extract_endpoint_labels(spec.get("endpointSelector")),
     )
 
 
@@ -66,6 +67,26 @@ def not_installed_policies_result() -> CiliumNetworkPoliciesResult:
         policies=[],
         note=_NOT_INSTALLED_NOTE,
     )
+
+
+def _extract_endpoint_labels(
+    selector: object,
+) -> tuple[tuple[str, str], ...] | None:
+    """Structured endpoint matchLabels for workload matching.
+
+    ``None`` means the selector cannot be parsed (never claims coverage); an
+    empty tuple means an empty selector (matches every workload).
+    """
+    if selector is None:
+        return ()
+    if not isinstance(selector, dict):
+        return None
+    match_labels = selector.get("matchLabels")
+    if match_labels is None:
+        return ()
+    if not isinstance(match_labels, dict):
+        return None
+    return tuple(sorted((str(k), str(v)) for k, v in match_labels.items()))
 
 
 def _render_selector(selector: object) -> str:

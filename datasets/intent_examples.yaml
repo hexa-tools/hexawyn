@@ -158,6 +158,16 @@ cilium_detect:
   - What routing mode is configured in the cilium-config ConfigMap?
   description: Detect whether Cilium is the active CNI, reporting its version, routing mode (tunnel,
     native-routing), and per-node agent health with a degraded summary
+cilium_policy_audit:
+  tool: cilium_policy_audit
+  questions:
+  - Which workloads selected by Cilium policies have no ingress or egress restriction?
+  - Audit my Cilium network policy coverage and show me the exposure gaps
+  - Are there any workloads in the cluster not covered by a Cilium policy?
+  - Which namespaces have Cilium workloads lacking a default-deny or L7 rule?
+  - Show me the Cilium policy coverage gaps ranked by risk per namespace
+  description: Audit Cilium network policy coverage, flagging workloads with no policy, no default-deny
+    or L3/L4-only (L7 gap) restriction, ranked by risk per namespace
 certs_challenges_list:
   tool: certs_challenges_list
   questions:

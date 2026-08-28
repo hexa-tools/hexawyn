@@ -70,6 +70,17 @@ class TestBuildNetworkPolicy:
         assert policy.endpoint_selector == "not-a-map"
         assert policy.namespace is None
 
+    def test_malformed_match_labels_unknown(self) -> None:
+        raw = {
+            "metadata": {"name": "odd"},
+            "spec": {"endpointSelector": {"matchLabels": "not-a-map"}},
+        }
+
+        policy = build_network_policy("CiliumNetworkPolicy", raw)
+
+        assert policy.endpoint_selector == "matchLabels: {}"
+        assert policy.endpoint_labels is None
+
     def test_empty_selector_rendered_empty(self) -> None:
         raw = {"metadata": {"name": "broad"}, "spec": {}}
 
@@ -86,6 +97,17 @@ class TestBuildNetworkPolicy:
         policy = build_network_policy("CiliumNetworkPolicy", raw)
 
         assert policy.endpoint_selector == "matchLabels: {}"
+
+    def test_selector_without_match_labels_matches_all(self) -> None:
+        raw = {
+            "metadata": {"name": "broad"},
+            "spec": {"endpointSelector": {}},
+        }
+
+        policy = build_network_policy("CiliumNetworkPolicy", raw)
+
+        assert policy.endpoint_selector == "matchLabels: {}"
+        assert policy.endpoint_labels == ()
 
     def test_l7_summary_skips_malformed_entries(self) -> None:
         raw = {

@@ -10,6 +10,7 @@ from hexawyn.domain.models.cilium import (
     CiliumDetectionResult,
     CiliumNetworkPoliciesResult,
     CiliumNetworkPolicyDetail,
+    CiliumPolicyAuditResult,
     CiliumStatusResult,
 )
 
@@ -68,6 +69,18 @@ class _FakeCiliumPort(CiliumPort):
             note=None,
         )
 
+    def audit_policies(self) -> CiliumPolicyAuditResult:
+        return CiliumPolicyAuditResult(
+            installed=False,
+            status="not_installed",
+            view="vanilla",
+            total_workloads=0,
+            uncovered_count=0,
+            findings=[],
+            summary="",
+            note=None,
+        )
+
 
 class _FakeCiliumDetectServicePort(CiliumDetectServicePort):
     def detect(self, command: object) -> object:
@@ -104,6 +117,12 @@ class TestCiliumPort:
     def test_subclass_must_implement_get_network_policy(self) -> None:
         detail = _FakeCiliumPort().get_network_policy("p", "ns")
         assert detail.status == "not_installed"
+
+    def test_audit_policies_is_abstract_method(self) -> None:
+        assert "audit_policies" in CiliumPort.__abstractmethods__
+
+    def test_subclass_must_implement_audit_policies(self) -> None:
+        assert _FakeCiliumPort().audit_policies().view == "vanilla"
 
 
 class TestCiliumDetectServicePort:
