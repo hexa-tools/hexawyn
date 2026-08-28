@@ -282,3 +282,27 @@ class CiliumEncryptionStatusResult:
     total_nodes: int
     coverage: str | None
     note: str | None
+
+
+@dataclass(frozen=True)
+class CiliumBandwidthEntry:
+    """Per-pod bandwidth quota and observed usage state."""
+
+    namespace: str
+    pod: str
+    ingress_limit: str | None
+    egress_limit: str | None
+    usage_ratio: float | None
+    state: str
+    note: str | None
+
+
+@dataclass(frozen=True)
+class CiliumBandwidthAuditResult:
+    """Cilium bandwidth-manager audit with per-pod quotas and anomalies."""
+
+    installed: bool
+    status: str
+    total_pods: int
+    entries: list[CiliumBandwidthEntry]
+    note: str | None

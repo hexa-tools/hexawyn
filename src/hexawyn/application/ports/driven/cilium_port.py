@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from hexawyn.domain.models.cilium import (
+    CiliumBandwidthAuditResult,
     CiliumDetectionResult,
     CiliumEncryptionStatusResult,
     CiliumIdentitiesResult,
@@ -40,3 +41,6 @@ class CiliumPort(ABC):
 
     @abstractmethod
     def encryption_status(self) -> CiliumEncryptionStatusResult: ...
+
+    @abstractmethod
+    def bandwidth_audit(self) -> CiliumBandwidthAuditResult: ...

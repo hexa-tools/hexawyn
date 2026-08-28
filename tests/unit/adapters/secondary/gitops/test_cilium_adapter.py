@@ -509,6 +509,13 @@ class TestCiliumHelpers:
     def test_safe_int_invalid_string_is_zero(self) -> None:
         assert ca._safe_int("abc") == 0
 
+    def test_parse_float_variants(self) -> None:
+        assert ca._parse_float(True) is None
+        assert ca._parse_float(5) == 5.0  # noqa: PLR2004
+        assert ca._parse_float("1.5") == 1.5  # noqa: PLR2004
+        assert ca._parse_float("abc") is None
+        assert ca._parse_float(None) is None
+
 
 class TestCiliumStatus:
     def test_status_healthy_when_all_ready(self) -> None:
@@ -1356,3 +1363,150 @@ class TestCiliumEncryptionStatus:
 
         with pytest.raises(AdapterTimeoutError):
             CiliumAdapter(vanilla).encryption_status()
+
+
+def _bw_pod(name: str, namespace: str, annotations: dict[str, str]) -> dict:
+    return {"metadata": {"name": name, "namespace": namespace, "annotations": annotations}}
+
+
+def _make_bw_vanilla(daemonsets: object, crds: object, pods: object) -> MagicMock:
+    vanilla = MagicMock()
+    apps_api = MagicMock()
+    if isinstance(daemonsets, Exception):
+        apps_api.list_daemon_set_for_all_namespaces.side_effect = daemonsets
+    else:
+        apps_api.list_daemon_set_for_all_namespaces.return_value = daemonsets
+    vanilla._apps_api_client.return_value = apps_api
+    crd_api = MagicMock()
+    if isinstance(crds, Exception):
+        crd_api.list_cluster_custom_object.side_effect = crds
+    else:
+        crd_api.list_cluster_custom_object.return_value = crds
+    vanilla._crd_api_client.return_value = crd_api
+    core_api = MagicMock()
+    if isinstance(pods, Exception):
+        core_api.list_pod_for_all_namespaces.side_effect = pods
+    else:
+        core_api.list_pod_for_all_namespaces.return_value = pods
+    vanilla._api_client.return_value = core_api
+    return vanilla
+
+
+class TestCiliumBandwidthAudit:
+    def _daemonset(self) -> dict:
+        return _daemonset_response(
+            [
+                _daemonset(
+                    {"name": "cilium", "namespace": "kube-system"},
+                    [{"name": "cilium-agent", "image": "quay.io/cilium/cilium:v1.16.3"}],
+                    {"desiredNumberScheduled": 4, "numberReady": 4},
+                )
+            ]
+        )
+
+    def test_flags_throttled_pod(self) -> None:
+        pods = {
+            "items": [
+                _bw_pod(
+                    "db-0",
+                    "payments",
+                    {
+                        "kubernetes.io/egress-bandwidth": "10M",
+                        "cilium.io/bandwidth-throttled": "true",
+                    },
+                )
+            ]
+        }
+        vanilla = _make_bw_vanilla(self._daemonset(), {"items": []}, pods)
+
+        result = CiliumAdapter(vanilla).bandwidth_audit()
+
+        assert result.status == "anomalies"
+        assert result.entries[0].state == "throttled"
+        assert result.entries[0].egress_limit == "10M"
+
+    def test_flags_near_limit(self) -> None:
+        pods = {
+            "items": [
+                _bw_pod(
+                    "db-0",
+                    "payments",
+                    {
+                        "kubernetes.io/egress-bandwidth": "10M",
+                        "cilium.io/bandwidth-usage": "0.95",
+                    },
+                )
+            ]
+        }
+        vanilla = _make_bw_vanilla(self._daemonset(), {"items": []}, pods)
+
+        result = CiliumAdapter(vanilla).bandwidth_audit()
+
+        assert result.entries[0].state == "near_limit"
+
+    def test_no_annotations_returns_not_available(self) -> None:
+        pods = {"items": [_bw_pod("db-0", "payments", {})]}
+        vanilla = _make_bw_vanilla(self._daemonset(), {"items": []}, pods)
+
+        result = CiliumAdapter(vanilla).bandwidth_audit()
+
+        assert result.status == "not_available"
+        assert result.entries == []
+
+    def test_not_installed(self) -> None:
+        vanilla = _make_bw_vanilla({"items": []}, ApiException(status=404), {"items": []})
+
+        result = CiliumAdapter(vanilla).bandwidth_audit()
+
+        assert result.installed is False
+        assert result.status == "not_installed"
+
+    def test_crds_only_not_available(self) -> None:
+        vanilla = _make_bw_vanilla(
+            {"items": []}, {"items": [{"kind": "CiliumNode"}]}, {"items": []}
+        )
+
+        result = CiliumAdapter(vanilla).bandwidth_audit()
+
+        assert result.installed is True
+        assert result.status == "not_available"
+
+    def test_rbac_403_raises_insufficient_permissions(self) -> None:
+        vanilla = _make_bw_vanilla(ApiException(status=403), {"items": []}, {"items": []})
+
+        with pytest.raises(InsufficientPermissionsError):
+            CiliumAdapter(vanilla).bandwidth_audit()
+
+    def test_timeout_raises_adapter_timeout(self) -> None:
+        vanilla = _make_bw_vanilla(TimeoutError("timed out"), {"items": []}, {"items": []})
+
+        with pytest.raises(AdapterTimeoutError):
+            CiliumAdapter(vanilla).bandwidth_audit()
+
+    def test_pod_list_error_raises_cluster_unreachable(self) -> None:
+        vanilla = _make_bw_vanilla(self._daemonset(), {"items": []}, RuntimeError("boom"))
+
+        with pytest.raises(ClusterUnreachableError):
+            CiliumAdapter(vanilla).bandwidth_audit()
+
+    def test_skips_pod_without_metadata(self) -> None:
+        pods = {"items": [{"no-metadata": True}]}
+        vanilla = _make_bw_vanilla(self._daemonset(), {"items": []}, pods)
+
+        result = CiliumAdapter(vanilla).bandwidth_audit()
+
+        assert result.status == "not_available"
+
+    def test_not_installed_when_crds_empty(self) -> None:
+        vanilla = _make_bw_vanilla({"items": []}, {"items": []}, {"items": []})
+
+        result = CiliumAdapter(vanilla).bandwidth_audit()
+
+        assert result.installed is False
+        assert result.status == "not_installed"
+
+    def test_crd_error_raises_cluster_unreachable(self) -> None:
+        vanilla = _make_bw_vanilla({"items": []}, RuntimeError("boom"), {"items": []})
+
+        with pytest.raises(ClusterUnreachableError):
+            CiliumAdapter(vanilla).bandwidth_audit()

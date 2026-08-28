@@ -15,6 +15,7 @@ from hexawyn.domain.errors import (
 )
 from hexawyn.domain.models.cilium import (
     CiliumAgentHealth,
+    CiliumBandwidthAuditResult,
     CiliumDetectionResult,
     CiliumEncryptionStatusResult,
     CiliumIdentitiesResult,
@@ -25,6 +26,12 @@ from hexawyn.domain.models.cilium import (
     CiliumSegmentationAuditResult,
     CiliumStatusResult,
     CiliumWorkload,
+)
+from hexawyn.domain.services.cilium.bandwidth_builder import (
+    build_bandwidth_audit,
+    build_bandwidth_entry,
+    not_available_bandwidth_audit,
+    not_installed_bandwidth_audit,
 )
 from hexawyn.domain.services.cilium.encryption_status_builder import (
     build_encryption_status,
@@ -97,6 +104,25 @@ def _items(response: object) -> list[object]:
     else:
         return []
     return raw if isinstance(raw, list) else []
+
+
+def _parse_float(value: object) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int | float):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return None
+    return None
+
+
+def _is_truthy(value: object) -> bool:
+    if isinstance(value, str):
+        return value.lower() in ("true", "1", "yes")
+    return bool(value)
 
 
 def _safe_int(value: object) -> int:
@@ -289,6 +315,62 @@ class CiliumAdapter(CiliumPort):
         if _items(crd_list):
             return unknown_encryption_status()
         return not_installed_encryption_status()
+
+    def bandwidth_audit(self) -> CiliumBandwidthAuditResult:
+        try:
+            apps_api = self._vanilla._apps_api_client()
+            daemonset_list = getattr(apps_api, "list_daemon_set_for_all_namespaces")()
+        except Exception as exc:
+            self._raise_translated(exc)
+        self._raise_if_error_status(daemonset_list)
+        daemonset = self._find_daemonset(_items(daemonset_list))
+        if daemonset is None:
+            return self._bandwidth_when_no_daemonset()
+        try:
+            core_api = self._vanilla._api_client()
+            raw = getattr(core_api, "list_pod_for_all_namespaces")()
+        except Exception as exc:
+            self._raise_translated(exc)
+        entries = []
+        for pod in _items(raw):
+            metadata = _get(pod, "metadata")
+            if metadata is None:
+                continue
+            annotations = _get(metadata, "annotations")
+            annotations = annotations if isinstance(annotations, dict) else {}
+            ingress_limit = annotations.get("kubernetes.io/ingress-bandwidth")
+            egress_limit = annotations.get("kubernetes.io/egress-bandwidth")
+            if not ingress_limit and not egress_limit:
+                continue
+            entries.append(
+                build_bandwidth_entry(
+                    namespace=str(_get(metadata, "namespace") or "default"),
+                    pod=str(_get(metadata, "name") or ""),
+                    ingress_limit=ingress_limit if isinstance(ingress_limit, str) else None,
+                    egress_limit=egress_limit if isinstance(egress_limit, str) else None,
+                    usage_ratio=_parse_float(annotations.get("cilium.io/bandwidth-usage")),
+                    throttled=_is_truthy(annotations.get("cilium.io/bandwidth-throttled")),
+                )
+            )
+        if not entries:
+            return not_available_bandwidth_audit()
+        return build_bandwidth_audit(entries)
+
+    def _bandwidth_when_no_daemonset(self) -> CiliumBandwidthAuditResult:
+        try:
+            crd_api = self._vanilla._crd_api_client()
+            crd_list = getattr(crd_api, "list_cluster_custom_object")(
+                group=_CILIUM_GROUP,
+                version=_CILIUM_VERSION,
+                plural=_CILIUM_PLURAL,
+            )
+        except Exception as exc:
+            if getattr(exc, "status", None) == _NOT_FOUND_STATUS:
+                return not_installed_bandwidth_audit()
+            self._raise_translated(exc)
+        if _items(crd_list):
+            return not_available_bandwidth_audit()
+        return not_installed_bandwidth_audit()
 
     def _list_workloads(self) -> list[CiliumWorkload]:
         try:

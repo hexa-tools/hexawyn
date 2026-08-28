@@ -3,6 +3,8 @@ from __future__ import annotations
 from hexawyn.domain.models.cilium import (
     CiliumAgentHealth,
     CiliumAuditFinding,
+    CiliumBandwidthAuditResult,
+    CiliumBandwidthEntry,
     CiliumDenialGroup,
     CiliumDenialsQuery,
     CiliumDenialsResult,
@@ -498,3 +500,32 @@ class TestCiliumEncryptionStatusResult:
         )
         assert result.installed is False
         assert result.status == "not_installed"
+
+
+class TestCiliumBandwidthEntry:
+    def test_constructs(self) -> None:
+        entry = CiliumBandwidthEntry(
+            namespace="payments",
+            pod="db-0",
+            ingress_limit="10M",
+            egress_limit="20M",
+            usage_ratio=0.95,
+            state="near_limit",
+            note="Pod at 95% of its bandwidth limit",
+        )
+        assert entry.state == "near_limit"
+        assert entry.egress_limit == "20M"
+
+
+class TestCiliumBandwidthAuditResult:
+    def test_constructs_not_installed(self) -> None:
+        result = CiliumBandwidthAuditResult(
+            installed=False,
+            status="not_installed",
+            total_pods=0,
+            entries=[],
+            note="Cilium is not installed in this cluster",
+        )
+        assert result.installed is False
+        assert result.status == "not_installed"
+        assert result.entries == []

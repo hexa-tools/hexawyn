@@ -7,6 +7,7 @@ from hexawyn.application.ports.driving.cilium_detect.cilium_detect_service_port 
     CiliumDetectServicePort,
 )
 from hexawyn.domain.models.cilium import (
+    CiliumBandwidthAuditResult,
     CiliumDetectionResult,
     CiliumEncryptionStatusResult,
     CiliumIdentitiesResult,
@@ -117,6 +118,15 @@ class _FakeCiliumPort(CiliumPort):
             note=None,
         )
 
+    def bandwidth_audit(self) -> CiliumBandwidthAuditResult:
+        return CiliumBandwidthAuditResult(
+            installed=False,
+            status="not_installed",
+            total_pods=0,
+            entries=[],
+            note=None,
+        )
+
 
 class _FakeCiliumDetectServicePort(CiliumDetectServicePort):
     def detect(self, command: object) -> object:
@@ -177,6 +187,12 @@ class TestCiliumPort:
 
     def test_subclass_must_implement_encryption_status(self) -> None:
         assert _FakeCiliumPort().encryption_status().status == "not_installed"
+
+    def test_bandwidth_audit_is_abstract_method(self) -> None:
+        assert "bandwidth_audit" in CiliumPort.__abstractmethods__
+
+    def test_subclass_must_implement_bandwidth_audit(self) -> None:
+        assert _FakeCiliumPort().bandwidth_audit().status == "not_installed"
 
 
 class TestCiliumDetectServicePort:

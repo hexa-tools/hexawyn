@@ -168,6 +168,16 @@ cilium_encryption_status:
   - Show me the Cilium encryption status and node coverage
   description: Report the Cilium wire-level encryption mode (none/wireguard/ipsec) and node coverage,
     with any errors, from the observed Cilium configuration
+cilium_bandwidth_audit:
+  tool: cilium_bandwidth_audit
+  questions:
+  - Which pods are hitting their Cilium bandwidth limits and being throttled?
+  - Audit my Cilium bandwidth manager quotas and show me near-limit workloads
+  - Are any pods throttled by the Cilium bandwidth manager right now?
+  - Show me per-pod bandwidth quotas and anomalies across my cluster
+  - Which namespaces have workloads close to or over their egress bandwidth limit?
+  description: Audit Cilium bandwidth-manager per-pod quotas and usage, flagging throttled or near-limit
+    workloads with their ingress/egress bandwidth settings
 cilium_policy_audit:
   tool: cilium_policy_audit
   questions:
