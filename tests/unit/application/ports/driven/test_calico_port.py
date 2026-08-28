@@ -29,6 +29,7 @@ class TestCalicoPort:
             "bgp_audit",
             "encryption_status",
             "felix_metrics",
+            "felix_policy_counters",
             "connectivity_health",
         ):
             assert method in CalicoPort.__abstractmethods__
@@ -72,6 +73,9 @@ class TestCalicoPort:
                 return {}
 
             def felix_metrics(self) -> dict:
+                return {}
+
+            def felix_policy_counters(self) -> dict:
                 return {}
 
             def connectivity_health(self) -> dict:

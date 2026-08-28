@@ -314,6 +314,17 @@ class TestCalicoK8sAdapterOtherMethods:
         adapter = CalicoK8sAdapter()
         assert adapter.felix_metrics()["available"] is False
 
+    def test_felix_policy_counters_uses_metrics_source(self) -> None:
+        metrics = MagicMock()
+        metrics.felix_policy_counters.return_value = {"available": True, "samples": []}
+        adapter = CalicoK8sAdapter(metrics_source=metrics)
+        assert adapter.felix_policy_counters()["available"] is True
+        metrics.felix_policy_counters.assert_called_once()
+
+    def test_felix_policy_counters_without_source(self) -> None:
+        adapter = CalicoK8sAdapter()
+        assert adapter.felix_policy_counters()["available"] is False
+
     def test_status_returns_result(self) -> None:
         crd = _crd(ippools={"items": [_pool()]})
         apps = _apps([_daemonset("calico-system", "node:v3")])

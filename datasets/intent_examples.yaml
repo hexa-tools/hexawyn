@@ -169,6 +169,16 @@ calico_encryption_status:
   - Are the Calico host endpoints encrypting traffic between nodes?
   description: Report whether Calico wire-level encryption (WireGuard) is enabled from FelixConfiguration,
     including per-node state and the dataplane mode
+calico_felix_metrics:
+  tool: calico_felix_metrics
+  questions:
+  - Which Calico policies are denying traffic right now?
+  - Show me the Felix allow/deny packet counters per Calico policy.
+  - What is the deny volume of each Calico policy from Prometheus?
+  - Which policy is blocking the most packets right now?
+  - Are there Calico policies with unexpected deny counts to investigate?
+  description: Read Felix per-policy allow/deny packet and byte counters from Prometheus, ranked by
+    deny volume, to find traffic blocked by a Calico policy
 calico_policy_audit:
   tool: calico_policy_audit
   questions:

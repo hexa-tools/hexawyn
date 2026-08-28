@@ -14,6 +14,8 @@ from hexawyn.domain.models.calico import (
     CalicoDetectionStatus,
     CalicoEncryptionNodeStatus,
     CalicoEncryptionStatusResult,
+    CalicoFelixMetricsResult,
+    CalicoFelixPolicyCounter,
     CalicoHostEndpoint,
     CalicoIPPool,
     CalicoNetworkPolicy,
@@ -498,3 +500,52 @@ class TestEncryptionStatusProjections:
         )
         assert result.not_installed is True
         assert result.wireguard_enabled is None
+
+
+class TestFelixMetricsProjections:
+    def test_policy_counter(self) -> None:
+        counter = CalicoFelixPolicyCounter(
+            policy="default.deny-all",
+            allow_packets=0,
+            deny_packets=120,
+            allow_bytes=0,
+            deny_bytes=40960,
+        )
+        assert counter.policy == "default.deny-all"
+        assert counter.deny_packets == 120  # noqa: PLR2004
+
+    def test_felix_metrics_result(self) -> None:
+        result = CalicoFelixMetricsResult(
+            installed=True,
+            not_installed_marker=None,
+            metrics_available=True,
+            metrics_message=None,
+            policies=[
+                CalicoFelixPolicyCounter(
+                    policy="p", allow_packets=0, deny_packets=1, allow_bytes=0, deny_bytes=0
+                )
+            ],
+            total_denies=1,
+            total_allows=0,
+            deny_policy_count=1,
+            error=None,
+        )
+        assert result.metrics_available is True
+        assert result.total_denies == 1  # noqa: PLR2004
+        assert result.deny_policy_count == 1  # noqa: PLR2004
+        assert result.not_installed is False
+
+    def test_felix_metrics_result_not_installed(self) -> None:
+        result = CalicoFelixMetricsResult(
+            installed=False,
+            not_installed_marker=NOT_INSTALLED_MARKER,
+            metrics_available=False,
+            metrics_message=None,
+            policies=[],
+            total_denies=0,
+            total_allows=0,
+            deny_policy_count=0,
+            error="absent",
+        )
+        assert result.not_installed is True
+        assert result.policies == []

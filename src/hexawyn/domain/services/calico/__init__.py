@@ -10,6 +10,9 @@ from hexawyn.domain.services.calico.detection_service import (
 from hexawyn.domain.services.calico.encryption_status_service import (
     build_calico_encryption_status,
 )
+from hexawyn.domain.services.calico.felix_metrics_service import (
+    build_calico_felix_metrics_result,
+)
 from hexawyn.domain.services.calico.get_calico_status_service import (
     build_calico_status_result,
 )
@@ -28,6 +31,7 @@ __all__ = [
     "build_agent_phase",
     "build_calico_bgp_audit",
     "build_calico_encryption_status",
+    "build_calico_felix_metrics_result",
     "build_calico_policy_audit",
     "build_calico_segmentation_audit",
     "build_calico_status_result",

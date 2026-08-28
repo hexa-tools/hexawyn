@@ -76,5 +76,9 @@ class CalicoPort(ABC):
         """Return Felix metrics via the metrics source (unavailable flag otherwise)."""
 
     @abstractmethod
+    def felix_policy_counters(self) -> dict[str, object]:
+        """Return per-policy allow/deny counters (available flag otherwise)."""
+
+    @abstractmethod
     def connectivity_health(self) -> dict[str, object]:
         """Return dataplane connectivity health (unavailable flag otherwise)."""

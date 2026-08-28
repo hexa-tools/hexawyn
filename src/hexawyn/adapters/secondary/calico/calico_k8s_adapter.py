@@ -307,6 +307,15 @@ class CalicoK8sAdapter(CalicoPort):
             return {"available": False, "metrics": {}, "error": "no metrics source configured"}
         return self._metrics.felix_metrics()
 
+    def felix_policy_counters(self) -> dict[str, object]:
+        if self._metrics is None:
+            return {
+                "available": False,
+                "message": "no metrics source configured",
+                "samples": [],
+            }
+        return self._metrics.felix_policy_counters()
+
     def connectivity_health(self) -> dict[str, object]:
         if self._metrics is None:
             return {

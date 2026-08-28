@@ -315,3 +315,34 @@ class CalicoEncryptionStatusResult:
     def not_installed(self) -> bool:
         """Honest flag — Calico absence is never invented."""
         return not self.installed
+
+
+@dataclass(frozen=True)
+class CalicoFelixPolicyCounter:
+    """Observed Felix packet/byte counters for one Calico policy."""
+
+    policy: str
+    allow_packets: int
+    deny_packets: int
+    allow_bytes: int
+    deny_bytes: int
+
+
+@dataclass(frozen=True)
+class CalicoFelixMetricsResult:
+    """Felix per-policy allow/deny counters ranked by deny volume."""
+
+    installed: bool
+    not_installed_marker: str | None
+    metrics_available: bool
+    metrics_message: str | None
+    policies: list[CalicoFelixPolicyCounter]
+    total_denies: int
+    total_allows: int
+    deny_policy_count: int
+    error: str | None
+
+    @property
+    def not_installed(self) -> bool:
+        """Honest flag — Calico absence is never invented."""
+        return not self.installed
