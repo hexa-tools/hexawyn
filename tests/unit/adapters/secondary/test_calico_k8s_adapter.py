@@ -20,7 +20,14 @@ from kubernetes.client.rest import ApiException
 def _pool(mode: str = "Never", vxlan: str = "Never", cidr: str = "10.1.0.0/16") -> dict:
     return {
         "metadata": {"name": "pool-1"},
-        "spec": {"cidr": cidr, "ipipMode": mode, "vxlanMode": vxlan, "disabled": False},
+        "spec": {
+            "cidr": cidr,
+            "ipipMode": mode,
+            "vxlanMode": vxlan,
+            "disabled": False,
+            "natOutgoing": True,
+            "nodeSelector": "all()",
+        },
     }
 
 
@@ -249,6 +256,23 @@ class TestCalicoK8sAdapterOtherMethods:
         assert len(pools) == 1
         assert pools[0].cidr == "10.1.0.0/16"
         assert pools[0].ipip_mode == "Always"
+        assert pools[0].nat_outgoing is True
+        assert pools[0].node_selector == "all()"
+
+    def test_list_ip_pools_disabled_flag_surfaced(self) -> None:
+        disabled_pool = {
+            "metadata": {"name": "pool-disabled"},
+            "spec": {"cidr": "10.2.0.0/16", "disabled": True, "natOutgoing": False},
+        }
+        crd = _crd(ippools={"items": [disabled_pool]})
+        apps = _apps([_daemonset("calico-system", "node:v3")])
+        core = _core([_pod("node-1")], [_node("node-1")])
+        adapter = CalicoK8sAdapter(core_api=core, apps_api=apps, crd_api=crd)
+
+        pools = adapter.list_ip_pools()
+
+        assert pools[0].disabled is True
+        assert pools[0].nat_outgoing is False
 
     def test_list_ip_pools_not_installed(self) -> None:
         adapter = CalicoK8sAdapter(core_api=_core([], []), apps_api=_apps([]), crd_api=_crd())

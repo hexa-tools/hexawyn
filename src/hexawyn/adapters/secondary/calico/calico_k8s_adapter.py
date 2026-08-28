@@ -463,6 +463,8 @@ class CalicoK8sAdapter(CalicoPort):
             ipip_mode=str(spec.get("ipipMode", "Never")),
             vxlan_mode=str(spec.get("vxlanMode", "Never")),
             disabled=bool(spec.get("disabled", False)),
+            nat_outgoing=bool(spec.get("natOutgoing", False)),
+            node_selector=str(spec.get("nodeSelector", "")),
         )
 
     @staticmethod

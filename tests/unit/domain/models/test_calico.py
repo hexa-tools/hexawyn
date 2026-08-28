@@ -181,9 +181,29 @@ class TestSerieProjections:
 
     def test_ip_pool(self) -> None:
         pool = CalicoIPPool(
-            name="pool", cidr="10.1.0.0/16", ipip_mode="Always", vxlan_mode="Never", disabled=False
+            name="pool",
+            cidr="10.1.0.0/16",
+            ipip_mode="Always",
+            vxlan_mode="Never",
+            disabled=False,
         )
         assert pool.cidr == "10.1.0.0/16"
+        assert pool.nat_outgoing is False
+        assert pool.node_selector == ""
+
+    def test_ip_pool_nat_and_node_selector(self) -> None:
+        pool = CalicoIPPool(
+            name="pool",
+            cidr="10.1.0.0/16",
+            ipip_mode="Never",
+            vxlan_mode="Never",
+            disabled=True,
+            nat_outgoing=True,
+            node_selector="all()",
+        )
+        assert pool.disabled is True
+        assert pool.nat_outgoing is True
+        assert pool.node_selector == "all()"
 
     def test_host_endpoint(self) -> None:
         he = CalicoHostEndpoint(

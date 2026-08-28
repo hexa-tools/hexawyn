@@ -89,6 +89,8 @@ class CalicoIPPool:
     ipip_mode: str
     vxlan_mode: str
     disabled: bool
+    nat_outgoing: bool = False
+    node_selector: str = ""
 
 
 @dataclass(frozen=True)
