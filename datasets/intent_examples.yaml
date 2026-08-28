@@ -944,6 +944,37 @@ get_namespace_events:
   - Which objects in production are throwing repeated warnings I should look at first?
   description: Get recent Warning and Error events in a namespace, which pods are involved, recurring
     BackOff or OOMKilled events, and what to look at first
+get_calico_network_policy:
+  tool: get_calico_network_policy
+  questions:
+  - Show me the full detail of Calico network policy default-deny.
+  - What selector and action does the Calico policy allow-api have?
+  - List the ingress and egress rules of the Calico GlobalNetworkPolicy global-default.
+  - Get the full spec of the Calico network policy payment-allow in the payments namespace.
+  - Is the Calico policy checkout-restrict a deny policy and what does it match?
+  description: Get the full detail of a specific CalicoNetworkPolicy or GlobalNetworkPolicy — name,
+    scope, endpoint selector, action and ingress/egress rules
+get_calico_host_endpoints:
+  tool: get_calico_host_endpoints
+  questions:
+  - List the Calico HostEndpoints and the host interfaces they protect.
+  - Which host nodes have Calico HostEndpoints with applied policies?
+  - Show me the HostEndpoint labels and expected IPs for each node interface.
+  - Which host interfaces are protected by at least one Calico policy?
+  - List the network interfaces outside pods that Calico is protecting.
+  description: List Calico HostEndpoint resources — node, interface, expected IPs, labels and applied
+    policies — to see which non-pod host interfaces Calico protects
+get_calico_status:
+  tool: get_calico_status
+  questions:
+  - "Are the calico-node / felix agents healthy and is the datapath functional?"
+  - How many calico-node agents are ready out of the total across the cluster?
+  - Is there any felix error or degraded dataplane connectivity right now?
+  - Is the Calico datapath healthy enough to trust a network diagnosis?
+  - Are all calico-node healthz probes passing on every node?
+  - Show me the per-node calico-node status and a global degradation summary.
+  description: Get the Calico dataplane health and connectivity status — ready/total agent counts,
+    felix errors, per-node status and a global degraded summary
 get_pipeline_run_status:
   tool: get_pipeline_run_status
   questions:
@@ -1235,6 +1266,27 @@ list_ingresses:
   - Show all ingress resources and their backend services
   - Are there duplicate ingress hosts?
   - Which ingresses expose services without TLS?
+list_calico_network_policies:
+  tool: list_calico_network_policies
+  questions:
+  - List all Calico network policies in this cluster.
+  - Show me the Calico NetworkPolicies in the default namespace.
+  - What GlobalNetworkPolicies exist cluster-wide for Calico?
+  - List Calico policies with their endpoint selector and allow/deny action.
+  - Show the ingress/egress rule summary of each Calico policy.
+  - Are there Calico policies denying traffic to the production namespace?
+  description: List CalicoNetworkPolicy (namespaced) and GlobalNetworkPolicy (cluster-wide) with
+    endpoint selector, action and ingress/egress rule summary
+list_calico_ip_pools:
+  tool: list_calico_ip_pools
+  questions:
+  - List the Calico IPPools and their CIDR allocation.
+  - Are there any disabled Calico IPPools in the cluster?
+  - Which IPPools have NAT outgoing enabled for pod egress?
+  - List the Calico IPPools and their node selectors.
+  - Show me all Calico IPPool CIDRs with their disabled and NAT state.
+  description: List Calico IPPool resources — CIDR allocation, disabled flag, NAT outgoing and
+    node selector — to spot misconfigured or disabled pools
 list_openshift_projects:
   tool: list_openshift_projects
   description: OpenShift-only. List OpenShift projects (namespaces) with their status and display name,
