@@ -3,6 +3,9 @@ from __future__ import annotations
 from hexawyn.domain.models.cilium import (
     CiliumAgentHealth,
     CiliumAuditFinding,
+    CiliumDenialGroup,
+    CiliumDenialsQuery,
+    CiliumDenialsResult,
     CiliumDetectionResult,
     CiliumFlowEntry,
     CiliumFlowQuery,
@@ -413,6 +416,44 @@ class TestCiliumFlowEntry:
         assert flow.destination_port == "443"
         assert flow.l7_protocol == "http"
         assert flow.source_namespace == "payments"
+        assert flow.policy is None
+
+
+class TestCiliumDenialsQuery:
+    def test_defaults(self) -> None:
+        query = CiliumDenialsQuery()
+        assert query.namespace is None
+        assert query.window_minutes == 5  # noqa: PLR2004
+        assert query.limit == 100  # noqa: PLR2004
+
+
+class TestCiliumDenialGroup:
+    def test_constructs(self) -> None:
+        group = CiliumDenialGroup(
+            policy="default/deny-all",
+            source="web-0",
+            destination="db-0",
+            source_namespace="payments",
+            destination_namespace="payments",
+            reason="Policy denied",
+            count=3,  # noqa: PLR2004
+        )
+        assert group.policy == "default/deny-all"
+        assert group.count == 3  # noqa: PLR2004
+
+
+class TestCiliumDenialsResult:
+    def test_constructs_not_installed(self) -> None:
+        result = CiliumDenialsResult(
+            installed=False,
+            status="not_installed",
+            total_denials=0,
+            groups=[],
+            note="Hubble relay is not available in this cluster",
+        )
+        assert result.installed is False
+        assert result.status == "not_installed"
+        assert result.groups == []
 
 
 class TestCiliumFlowsResult:

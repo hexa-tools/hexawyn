@@ -45,6 +45,25 @@ class TestBuildFlows:
 
         assert result.flows[0].verdict == "UNKNOWN"
 
+    def test_extracts_policy_from_labels(self) -> None:
+        raw = _raw_flow()
+        raw["labels"] = ["k8s:io.cilium.k8s.policy.name=default/deny-all"]
+        result = build_flows([raw], CiliumFlowQuery())
+
+        assert result.flows[0].policy == "default/deny-all"
+
+    def test_policy_none_when_no_label(self) -> None:
+        result = build_flows([_raw_flow()], CiliumFlowQuery())
+
+        assert result.flows[0].policy is None
+
+    def test_policy_none_for_non_policy_labels(self) -> None:
+        raw = _raw_flow()
+        raw["labels"] = ["env=prod", "not-policy"]
+        result = build_flows([raw], CiliumFlowQuery())
+
+        assert result.flows[0].policy is None
+
     def test_filters_by_namespace(self) -> None:
         flows = [_raw_flow(namespace="payments"), _raw_flow(namespace="checkout")]
         result = build_flows(flows, CiliumFlowQuery(namespace="payments"))
@@ -58,6 +77,20 @@ class TestBuildFlows:
 
         assert result.total_flows == 1  # noqa: PLR2004
         assert result.flows[0].verdict == "DROPPED"
+
+    def test_filters_by_pod(self) -> None:
+        other = _raw_flow()
+        other["source"]["pod_name"] = "checkout-0"
+        result = build_flows([_raw_flow(), other], CiliumFlowQuery(pod="web-0"))
+
+        assert result.total_flows == 1  # noqa: PLR2004
+
+    def test_filters_by_direction(self) -> None:
+        other = _raw_flow()
+        other["direction"] = "egress"
+        result = build_flows([_raw_flow(), other], CiliumFlowQuery(direction="ingress"))
+
+        assert result.total_flows == 1  # noqa: PLR2004
 
     def test_limit_clamps_volume(self) -> None:
         flows = [_raw_flow(namespace=f"ns-{i}") for i in range(5)]

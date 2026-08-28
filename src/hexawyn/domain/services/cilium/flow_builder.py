@@ -63,7 +63,22 @@ def _to_entry(raw: dict[str, object]) -> CiliumFlowEntry:
         destination_port=destination_port or None,
         l7_protocol=_as_str(l7.get("protocol")),
         direction=_as_str(raw.get("direction")),
+        policy=_extract_policy(raw.get("labels")),
     )
+
+
+def _extract_policy(labels: object) -> str | None:
+    if not isinstance(labels, list):
+        return None
+    for label in labels:
+        if not isinstance(label, str) or "=" not in label:
+            continue
+        if "policy" not in label.lower():
+            continue
+        value = label.split("=", 1)[1]
+        if value:
+            return value
+    return None
 
 
 def _matches(entry: CiliumFlowEntry, query: CiliumFlowQuery) -> bool:

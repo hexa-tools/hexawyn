@@ -600,6 +600,16 @@ detect_container_image_drift:
   - "Ignore anything still pinned to latest \u2014 what's genuinely drifted?"
   description: Detect deployments whose running container image differs from Git, direct hotfixes, and
     mutable tags drifting by tag or digest
+detect_cilium_denials:
+  tool: detect_cilium_denials
+  questions:
+  - Which flows are being denied by a Cilium policy right now?
+  - Show me the dropped Cilium flows grouped by policy, source and destination
+  - Are there any Cilium policy denials in the payments namespace in the last 5 minutes?
+  - What traffic is blocked by a Cilium policy and why, with counts?
+  - List the Cilium policy denials with their drop reason and affected pods
+  description: Detect dropped/denied Cilium flows via Hubble, grouped by policy/source/destination
+    with counts and drop reason, filtered by namespace and window
 detect_cross_cluster_incident:
   tool: detect_cross_cluster_incident
   questions:

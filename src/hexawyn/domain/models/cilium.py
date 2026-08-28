@@ -224,6 +224,7 @@ class CiliumFlowEntry:
     destination_port: str | None
     l7_protocol: str | None
     direction: str | None
+    policy: str | None = None
 
 
 @dataclass(frozen=True)
@@ -234,4 +235,37 @@ class CiliumFlowsResult:
     status: str
     total_flows: int
     flows: list[CiliumFlowEntry]
+    note: str | None
+
+
+@dataclass(frozen=True)
+class CiliumDenialsQuery:
+    """Filter parameters for a Cilium dropped-flow (denial) query."""
+
+    namespace: str | None = None
+    window_minutes: int = 5
+    limit: int = 100
+
+
+@dataclass(frozen=True)
+class CiliumDenialGroup:
+    """Aggregated dropped-flow group by policy / source / destination / reason."""
+
+    policy: str | None
+    source: str
+    destination: str
+    source_namespace: str | None
+    destination_namespace: str | None
+    reason: str
+    count: int
+
+
+@dataclass(frozen=True)
+class CiliumDenialsResult:
+    """Aggregated Cilium policy-denial counts."""
+
+    installed: bool
+    status: str
+    total_denials: int
+    groups: list[CiliumDenialGroup]
     note: str | None

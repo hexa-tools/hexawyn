@@ -63,6 +63,7 @@ class TestGetCiliumFlowsUseCase:
                 "destination_port": "443",
                 "l7_protocol": "http",
                 "direction": "ingress",
+                "policy": None,
             }
         ]
 

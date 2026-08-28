@@ -8,7 +8,16 @@ from hexawyn.adapters.secondary.cilium.hubble_client import (
 )
 from hexawyn.application.ports.driven.cilium_hubble_port import CiliumHubblePort
 from hexawyn.domain.errors import AdapterTimeoutError, ClusterUnreachableError
-from hexawyn.domain.models.cilium import CiliumFlowQuery, CiliumFlowsResult
+from hexawyn.domain.models.cilium import (
+    CiliumDenialsQuery,
+    CiliumDenialsResult,
+    CiliumFlowQuery,
+    CiliumFlowsResult,
+)
+from hexawyn.domain.services.cilium.denial_builder import (
+    build_denials,
+    not_installed_denials_result,
+)
 from hexawyn.domain.services.cilium.flow_builder import (
     build_flows,
     not_installed_flows_result,
@@ -35,3 +44,15 @@ class CiliumHubbleAdapter(CiliumHubblePort):
         except Exception as exc:
             raise ClusterUnreachableError(f"Hubble Relay is unreachable: {exc}") from exc
         return build_flows(raw, query)
+
+    def detect_denials(self, query: CiliumDenialsQuery) -> CiliumDenialsResult:
+        flow_query = CiliumFlowQuery(
+            namespace=query.namespace,
+            window_minutes=query.window_minutes,
+            limit=query.limit,
+            verdict="DROPPED",
+        )
+        flows = self.get_flows(flow_query)
+        if not flows.installed:
+            return not_installed_denials_result()
+        return build_denials(flows.flows, query)

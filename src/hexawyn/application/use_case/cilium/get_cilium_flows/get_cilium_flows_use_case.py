@@ -52,4 +52,5 @@ class GetCiliumFlowsUseCase:
             "destination_port": flow.destination_port,
             "l7_protocol": flow.l7_protocol,
             "direction": flow.direction,
+            "policy": flow.policy,
         }

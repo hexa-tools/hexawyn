@@ -18,6 +18,7 @@ class CiliumFlowOutput(TypedDict):
     destination_port: str | None
     l7_protocol: str | None
     direction: str | None
+    policy: str | None
 
 
 @dataclass

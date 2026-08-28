@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from hexawyn.domain.models.cilium import CiliumFlowQuery, CiliumFlowsResult
+from hexawyn.domain.models.cilium import (
+    CiliumDenialsQuery,
+    CiliumDenialsResult,
+    CiliumFlowQuery,
+    CiliumFlowsResult,
+)
 
 
 class CiliumHubblePort(ABC):
@@ -10,3 +15,6 @@ class CiliumHubblePort(ABC):
 
     @abstractmethod
     def get_flows(self, query: CiliumFlowQuery) -> CiliumFlowsResult: ...
+
+    @abstractmethod
+    def detect_denials(self, query: CiliumDenialsQuery) -> CiliumDenialsResult: ...
