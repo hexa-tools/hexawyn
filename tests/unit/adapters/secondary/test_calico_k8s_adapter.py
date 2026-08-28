@@ -540,6 +540,61 @@ class TestCalicoK8sAdapterInstalledParsing:
         crd = _crd(ippools={"items": [_pool(mode="CrossSubnet"), _pool(mode="Always")]})
         assert self._adapter(crd).detect().mode == DataplaneMode.IPIP
 
+    def _core_with_namespaces(self, namespaces: list[str]) -> MagicMock:
+        core = MagicMock()
+        core.list_node.return_value = MagicMock(items=[])
+        core.list_pod_for_all_namespaces.return_value = MagicMock(items=[])
+        core.list_namespace.return_value = MagicMock(
+            items=[MagicMock(metadata=MagicMock(name=ns)) for ns in namespaces]
+        )
+        return core
+
+    def test_list_network_policies_cluster_only(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            globalnetworkpolicies={
+                "items": [{"metadata": {"name": "g-np"}, "spec": {"selector": "all()"}}]
+            },
+        )
+        adapter = CalicoK8sAdapter(
+            core_api=self._core_with_namespaces([]),
+            apps_api=_apps([_daemonset("calico-system", "v3")]),
+            crd_api=crd,
+        )
+        policies = adapter.list_network_policies()
+        assert len(policies) == 1  # noqa: PLR2004
+        assert policies[0].kind == "GlobalNetworkPolicy"
+        assert policies[0].namespace == ""
+
+    def test_list_network_policies_scans_namespaces(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            globalnetworkpolicies={"items": [{"metadata": {"name": "g-np"}, "spec": {}}]},
+            _namespaced={
+                "networkpolicies": {
+                    "items": [{"metadata": {"name": "np", "namespace": "ns"}, "spec": {}}]
+                }
+            },
+        )
+        adapter = CalicoK8sAdapter(
+            core_api=self._core_with_namespaces(["ns"]),
+            apps_api=_apps([_daemonset("calico-system", "v3")]),
+            crd_api=crd,
+        )
+        policies = adapter.list_network_policies()
+        assert len(policies) == 2  # noqa: PLR2004
+        assert sum(1 for p in policies if p.kind == "GlobalNetworkPolicy") == 1  # noqa: PLR2004
+        assert sum(1 for p in policies if p.kind == "CalicoNetworkPolicy") == 1  # noqa: PLR2004
+
+    def test_list_network_policies_rbac_forbidden(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            globalnetworkpolicies=ApiException(status=403, reason="forbidden"),
+        )
+        adapter = self._adapter(crd)
+        with pytest.raises(InsufficientPermissionsError):
+            adapter.list_network_policies()
+
 
 class TestCalicoK8sAdapterRuntimeFallbacks:
     def test_runtime_api_fallbacks(self) -> None:

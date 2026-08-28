@@ -134,6 +134,27 @@ class TestSerieProjections:
         )
         assert np.name == "np"
         assert np.ingress_rules == ("allow-80",)
+        assert np.kind == "CalicoNetworkPolicy"
+        assert np.action is None
+        assert np.ingress_rule_count == 0
+
+    def test_network_policy_full_fields(self) -> None:
+        np = CalicoNetworkPolicy(
+            name="g-np",
+            namespace="",
+            kind="GlobalNetworkPolicy",
+            selector="all()",
+            action="deny",
+            ingress_rules=("deny tcp",),
+            egress_rules=(),
+            ingress_rule_count=1,
+            egress_rule_count=0,
+            order=20.0,
+            apply_on_forward=True,
+        )
+        assert np.kind == "GlobalNetworkPolicy"
+        assert np.action == "deny"
+        assert np.ingress_rule_count == 1  # noqa: PLR2004
 
     def test_ip_pool(self) -> None:
         pool = CalicoIPPool(

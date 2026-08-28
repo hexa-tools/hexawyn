@@ -1137,6 +1137,17 @@ list_ingresses:
   - Show all ingress resources and their backend services
   - Are there duplicate ingress hosts?
   - Which ingresses expose services without TLS?
+list_calico_network_policies:
+  tool: list_calico_network_policies
+  questions:
+  - List all Calico network policies in this cluster.
+  - Show me the Calico NetworkPolicies in the default namespace.
+  - What GlobalNetworkPolicies exist cluster-wide for Calico?
+  - List Calico policies with their endpoint selector and allow/deny action.
+  - Show the ingress/egress rule summary of each Calico policy.
+  - Are there Calico policies denying traffic to the production namespace?
+  description: List CalicoNetworkPolicy (namespaced) and GlobalNetworkPolicy (cluster-wide) with
+    endpoint selector, action and ingress/egress rule summary
 list_openshift_projects:
   tool: list_openshift_projects
   description: OpenShift-only. List OpenShift projects (namespaces) with their status and display name,

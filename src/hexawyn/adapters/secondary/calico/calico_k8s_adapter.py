@@ -25,6 +25,10 @@ from hexawyn.domain.services.calico.detection_service import (
     build_agent_phase,
     build_detection_result,
 )
+from hexawyn.domain.services.calico.network_policy_service import (
+    parse_calico_network_policy,
+    parse_global_network_policy,
+)
 
 _CALICO_GROUP = "projectcalico.org"
 _CALICO_VERSION = "v3"
@@ -123,10 +127,11 @@ class CalicoK8sAdapter(CalicoPort):
             return []
         policies: list[CalicoNetworkPolicy] = []
         global_raw = self._safe_crd_list("globalnetworkpolicies")
-        policies.extend(self._parse_global_policy(i) for i in raw_items(global_raw))
-        if namespace:
-            ns_raw = self._safe_namespaced_list("networkpolicies", namespace)
-            policies.extend(self._parse_network_policy(i) for i in raw_items(ns_raw))
+        policies.extend(parse_global_network_policy(item) for item in raw_items(global_raw))
+        namespaces = [namespace] if namespace is not None else self._namespaces()
+        for name in namespaces:
+            ns_raw = self._safe_namespaced_list("networkpolicies", name)
+            policies.extend(parse_calico_network_policy(item) for item in raw_items(ns_raw))
         return policies
 
     def get_network_policy(self, name: str, namespace: str) -> CalicoNetworkPolicy | None:
@@ -142,7 +147,7 @@ class CalicoK8sAdapter(CalicoPort):
             )
         except Exception:
             return None
-        return self._parse_network_policy(cast(dict[str, Any], raw))
+        return parse_calico_network_policy(cast(dict[str, Any], raw))
 
     def audit_policies(self) -> dict[str, object]:
         if not self._is_installed():
@@ -335,6 +340,21 @@ class CalicoK8sAdapter(CalicoPort):
             return []
         return getattr(result, "items", []) or []
 
+    def _namespaces(self) -> list[str]:
+        try:
+            result = self._runtime_core_api.list_namespace()
+        except Exception:
+            return []
+        items = getattr(result, "items", None)
+        if not isinstance(items, list):
+            return []
+        namespaces: list[str] = []
+        for item in items:
+            name = getattr(getattr(item, "metadata", None), "name", None)
+            if name:
+                namespaces.append(str(name))
+        return namespaces
+
     @staticmethod
     def _pod_ready_status(pod: Any) -> str:
         for cond in getattr(pod.status, "conditions", []) or []:
@@ -384,34 +404,6 @@ class CalicoK8sAdapter(CalicoPort):
             node=str(spec.get("node", "")),
             interface_name=str(spec.get("interfaceName", "")),
             expected_ip=expected_ip,
-        )
-
-    @staticmethod
-    def _parse_global_policy(item: dict[str, Any]) -> CalicoNetworkPolicy:
-        meta = item.get("metadata") or {}
-        spec = item.get("spec") or {}
-        return CalicoNetworkPolicy(
-            name=str(meta.get("name", "")),
-            namespace="",
-            order=float(spec.get("order", 0.0)),
-            selector=str(spec.get("selector", "")),
-            ingress_rules=tuple(spec.get("ingress") or []),
-            egress_rules=tuple(spec.get("egress") or []),
-            apply_on_forward=bool(spec.get("applyOnForward", False)),
-        )
-
-    @staticmethod
-    def _parse_network_policy(item: dict[str, Any]) -> CalicoNetworkPolicy:
-        meta = item.get("metadata") or {}
-        spec = item.get("spec") or {}
-        return CalicoNetworkPolicy(
-            name=str(meta.get("name", "")),
-            namespace=str(meta.get("namespace", "")),
-            order=float(spec.get("order", 0.0)),
-            selector=str(spec.get("selector", "")),
-            ingress_rules=tuple(spec.get("ingress") or []),
-            egress_rules=tuple(spec.get("egress") or []),
-            apply_on_forward=bool(spec.get("applyOnForward", False)),
         )
 
 

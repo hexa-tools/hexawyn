@@ -73,6 +73,10 @@ class CalicoNetworkPolicy:
     ingress_rules: tuple[str, ...]
     egress_rules: tuple[str, ...]
     apply_on_forward: bool
+    kind: str = "CalicoNetworkPolicy"
+    action: str | None = None
+    ingress_rule_count: int = 0
+    egress_rule_count: int = 0
 
 
 @dataclass(frozen=True)

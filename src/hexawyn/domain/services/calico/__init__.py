@@ -9,11 +9,17 @@ from hexawyn.domain.services.calico.detection_service import (
 from hexawyn.domain.services.calico.get_calico_status_service import (
     build_calico_status_result,
 )
+from hexawyn.domain.services.calico.network_policy_service import (
+    parse_calico_network_policy,
+    parse_global_network_policy,
+)
 
 __all__ = [
     "build_agent_phase",
     "build_calico_status_result",
     "build_degraded_summary",
     "build_detection_result",
+    "parse_calico_network_policy",
+    "parse_global_network_policy",
     "resolve_dataplane_mode",
 ]
