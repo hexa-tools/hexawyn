@@ -855,6 +855,17 @@ get_namespace_events:
   - Which objects in production are throwing repeated warnings I should look at first?
   description: Get recent Warning and Error events in a namespace, which pods are involved, recurring
     BackOff or OOMKilled events, and what to look at first
+get_calico_status:
+  tool: get_calico_status
+  questions:
+  - "Are the calico-node / felix agents healthy and is the datapath functional?"
+  - How many calico-node agents are ready out of the total across the cluster?
+  - Is there any felix error or degraded dataplane connectivity right now?
+  - Is the Calico datapath healthy enough to trust a network diagnosis?
+  - Are all calico-node healthz probes passing on every node?
+  - Show me the per-node calico-node status and a global degradation summary.
+  description: Get the Calico dataplane health and connectivity status — ready/total agent counts,
+    felix errors, per-node status and a global degraded summary
 get_pipeline_run_status:
   tool: get_pipeline_run_status
   questions:

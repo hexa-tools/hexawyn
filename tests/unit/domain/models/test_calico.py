@@ -12,6 +12,7 @@ from hexawyn.domain.models.calico import (
     CalicoIPPool,
     CalicoNetworkPolicy,
     CalicoNodeAgent,
+    CalicoStatusResult,
     DataplaneMode,
 )
 
@@ -145,3 +146,74 @@ class TestSerieProjections:
             name="he", node="node-1", interface_name="eth0", expected_ip="10.0.0.1"
         )
         assert he.expected_ip == "10.0.0.1"
+
+
+class TestCalicoStatusResult:
+    def _result(self, **overrides: object) -> CalicoStatusResult:
+        base: dict[str, object] = {
+            "installed": True,
+            "not_installed_marker": None,
+            "status": CalicoDetectionStatus.INSTALLED,
+            "ready_agents": 3,
+            "total_agents": 3,
+            "degraded_summary": None,
+            "agents": [],
+            "felix_errors_available": True,
+            "felix_errors": 0,
+            "connectivity_available": True,
+            "connectivity_status": "healthy",
+            "connectivity_detail": None,
+            "error": None,
+        }
+        base.update(overrides)
+        return CalicoStatusResult(**base)  # type: ignore[arg-type]
+
+    def test_healthy_fields(self) -> None:
+        result = self._result()
+        assert result.installed is True
+        assert result.status == CalicoDetectionStatus.INSTALLED
+        assert result.ready_agents == 3  # noqa: PLR2004
+        assert result.total_agents == 3  # noqa: PLR2004
+        assert result.degraded_summary is None
+        assert result.connectivity_status == "healthy"
+
+    def test_not_installed_flag_and_marker(self) -> None:
+        result = self._result(
+            installed=False,
+            not_installed_marker=NOT_INSTALLED_MARKER,
+            status=CalicoDetectionStatus.NOT_INSTALLED,
+            ready_agents=0,
+            total_agents=0,
+        )
+        assert result.not_installed is True
+        assert result.not_installed_marker == "NOT_INSTALLED"
+
+    def test_degraded_status(self) -> None:
+        result = self._result(
+            status=CalicoDetectionStatus.DEGRADED,
+            degraded_summary="1/3 calico-node agents ready (2 degraded)",
+        )
+        assert result.degraded_summary is not None
+
+    def test_felix_errors_exposed(self) -> None:
+        result = self._result(felix_errors=3, felix_errors_available=True)
+        assert result.felix_errors == 3  # noqa: PLR2004
+        assert result.felix_errors_available is True
+
+    def test_felix_unavailable_none_errors(self) -> None:
+        result = self._result(felix_errors=None, felix_errors_available=False)
+        assert result.felix_errors is None
+        assert result.felix_errors_available is False
+
+    def test_connectivity_unavailable(self) -> None:
+        result = self._result(connectivity_available=False, connectivity_status=None)
+        assert result.connectivity_available is False
+        assert result.connectivity_status is None
+
+    def test_empty_agents_allowed(self) -> None:
+        result = self._result(agents=[])
+        assert result.agents == []
+
+    def test_frozen(self) -> None:
+        with pytest.raises(Exception):
+            self._result().installed = False  # type: ignore[misc]

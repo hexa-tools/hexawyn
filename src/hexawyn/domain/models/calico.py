@@ -138,3 +138,27 @@ class CalicoDetectionResult:
     def marker(self) -> str | None:
         """The explicit NOT_INSTALLED marker when Calico is absent."""
         return self.not_installed_marker
+
+
+@dataclass(frozen=True)
+class CalicoStatusResult:
+    """Aggregated datapath health: agents + felix errors + connectivity probe."""
+
+    installed: bool
+    not_installed_marker: str | None
+    status: CalicoDetectionStatus
+    ready_agents: int
+    total_agents: int
+    degraded_summary: str | None
+    agents: list[CalicoNodeAgent]
+    felix_errors_available: bool
+    felix_errors: int | None
+    connectivity_available: bool
+    connectivity_status: str | None
+    connectivity_detail: str | None
+    error: str | None
+
+    @property
+    def not_installed(self) -> bool:
+        """Honest flag — Calico absence is never invented."""
+        return not self.installed
