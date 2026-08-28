@@ -247,3 +247,45 @@ class CalicoSegmentationAuditResult:
     def not_installed(self) -> bool:
         """Honest flag — Calico absence is never invented."""
         return not self.installed
+
+
+@dataclass(frozen=True)
+class CalicoBgpConfiguration:
+    """A Calico BGPConfiguration projection (cluster-scoped)."""
+
+    name: str
+    as_number: str | None
+    node_to_node_mesh_enabled: bool | None
+    service_cluster_ips: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class CalicoBgpPeer:
+    """A Calico BGPPeer projection (peer IP/ASN + node selector)."""
+
+    name: str
+    peer_ip: str
+    as_number: str | None
+    node_selector: str
+
+
+@dataclass(frozen=True)
+class CalicoBgpAuditResult:
+    """Calico BGP configuration + peer + session-state audit."""
+
+    installed: bool
+    not_installed_marker: str | None
+    as_number: str | None
+    node_to_node_mesh_enabled: bool | None
+    service_cluster_ips: tuple[str, ...]
+    peers: list[CalicoBgpPeer]
+    peer_count: int
+    session_state: str
+    session_note: str | None
+    summary: str | None
+    error: str | None
+
+    @property
+    def not_installed(self) -> bool:
+        """Honest flag — Calico absence is never invented."""
+        return not self.installed

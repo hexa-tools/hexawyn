@@ -476,6 +476,62 @@ class TestCalicoK8sAdapterInstalledParsing:
         assert out["bgp_configurations"] == 1  # noqa: PLR2004
         assert out["node_to_node_mesh_configured"] is True
 
+    def test_list_bgp_configurations(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            bgpconfigurations={
+                "items": [
+                    {
+                        "metadata": {"name": "default"},
+                        "spec": {
+                            "asNumber": "64512",
+                            "nodeToNodeMeshEnabled": True,
+                            "serviceClusterIPs": ["10.96.0.0/16"],
+                        },
+                    }
+                ]
+            },
+        )
+        configs = self._adapter(crd).list_bgp_configurations()
+        assert len(configs) == 1  # noqa: PLR2004
+        assert configs[0].as_number == "64512"
+        assert configs[0].service_cluster_ips == ("10.96.0.0/16",)
+
+    def test_list_bgp_configurations_malformed_asn(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            bgpconfigurations={"items": [{"spec": {"asNumber": "not-a-number"}}]},
+        )
+        configs = self._adapter(crd).list_bgp_configurations()
+        assert configs[0].as_number == "not-a-number"
+
+    def test_list_bgp_peers(self) -> None:
+        crd = _crd(
+            ippools={"items": [_pool()]},
+            bgppeers={
+                "items": [
+                    {
+                        "metadata": {"name": "peer-1"},
+                        "spec": {
+                            "peerIP": "10.0.0.2",
+                            "asNumber": "64513",
+                            "nodeSelector": "all()",
+                        },
+                    }
+                ]
+            },
+        )
+        peers = self._adapter(crd).list_bgp_peers()
+        assert len(peers) == 1  # noqa: PLR2004
+        assert peers[0].peer_ip == "10.0.0.2"
+        assert peers[0].as_number == "64513"
+        assert peers[0].node_selector == "all()"
+
+    def test_list_bgp_peers_not_installed(self) -> None:
+        adapter = CalicoK8sAdapter(core_api=_core([], []), apps_api=_apps([]), crd_api=_crd())
+        assert adapter.list_bgp_peers() == []
+        assert adapter.list_bgp_configurations() == []
+
     def test_encryption_status_encrypted(self) -> None:
         crd = _crd(
             ippools={"items": [_pool()]},

@@ -10,6 +10,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from hexawyn.domain.models.calico import (
+    CalicoBgpConfiguration,
+    CalicoBgpPeer,
     CalicoDetectionResult,
     CalicoHostEndpoint,
     CalicoIPPool,
@@ -52,6 +54,14 @@ class CalicoPort(ABC):
     @abstractmethod
     def list_host_endpoints(self) -> list[CalicoHostEndpoint]:
         """List Calico HostEndpoints (empty when absent)."""
+
+    @abstractmethod
+    def list_bgp_configurations(self) -> list[CalicoBgpConfiguration]:
+        """List Calico BGPConfigurations (empty when absent)."""
+
+    @abstractmethod
+    def list_bgp_peers(self) -> list[CalicoBgpPeer]:
+        """List Calico BGPPeers (empty when absent)."""
 
     @abstractmethod
     def bgp_audit(self) -> dict[str, object]:

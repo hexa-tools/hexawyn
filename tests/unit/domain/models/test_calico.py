@@ -6,6 +6,9 @@ import pytest
 from hexawyn.domain.models.calico import (
     NOT_INSTALLED_MARKER,
     CalicoAgentPhase,
+    CalicoBgpAuditResult,
+    CalicoBgpConfiguration,
+    CalicoBgpPeer,
     CalicoCoverageGap,
     CalicoDetectionResult,
     CalicoDetectionStatus,
@@ -404,3 +407,58 @@ class TestSegmentationAuditProjections:
         )
         assert result.not_installed is True
         assert result.view == "vanilla"
+
+
+class TestBgpAuditProjections:
+    def test_bgp_configuration(self) -> None:
+        config = CalicoBgpConfiguration(
+            name="default",
+            as_number="64512",
+            node_to_node_mesh_enabled=True,
+            service_cluster_ips=("10.96.0.0/16",),
+        )
+        assert config.as_number == "64512"
+        assert config.node_to_node_mesh_enabled is True
+        assert config.service_cluster_ips == ("10.96.0.0/16",)
+
+    def test_bgp_peer(self) -> None:
+        peer = CalicoBgpPeer(
+            name="peer-1", peer_ip="10.0.0.2", as_number="64513", node_selector="all()"
+        )
+        assert peer.peer_ip == "10.0.0.2"
+        assert peer.as_number == "64513"
+
+    def test_bgp_audit_result(self) -> None:
+        result = CalicoBgpAuditResult(
+            installed=True,
+            not_installed_marker=None,
+            as_number="64512",
+            node_to_node_mesh_enabled=True,
+            service_cluster_ips=("10.96.0.0/16",),
+            peers=[],
+            peer_count=2,
+            session_state="reachable",
+            session_note="All calico-node agents ready",
+            summary="BGP ASN 64512, 2 peers",
+            error=None,
+        )
+        assert result.peer_count == 2  # noqa: PLR2004
+        assert result.session_state == "reachable"
+        assert result.not_installed is False
+
+    def test_bgp_audit_result_not_installed(self) -> None:
+        result = CalicoBgpAuditResult(
+            installed=False,
+            not_installed_marker=NOT_INSTALLED_MARKER,
+            as_number=None,
+            node_to_node_mesh_enabled=None,
+            service_cluster_ips=(),
+            peers=[],
+            peer_count=0,
+            session_state="unknown",
+            session_note=None,
+            summary=None,
+            error="absent",
+        )
+        assert result.not_installed is True
+        assert result.session_state == "unknown"

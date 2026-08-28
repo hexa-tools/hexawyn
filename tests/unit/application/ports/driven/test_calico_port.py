@@ -24,6 +24,8 @@ class TestCalicoPort:
             "audit_policies",
             "list_ip_pools",
             "list_host_endpoints",
+            "list_bgp_configurations",
+            "list_bgp_peers",
             "bgp_audit",
             "encryption_status",
             "felix_metrics",
@@ -55,6 +57,12 @@ class TestCalicoPort:
                 return []
 
             def list_host_endpoints(self) -> list:
+                return []
+
+            def list_bgp_configurations(self) -> list:
+                return []
+
+            def list_bgp_peers(self) -> list:
                 return []
 
             def bgp_audit(self) -> dict:
