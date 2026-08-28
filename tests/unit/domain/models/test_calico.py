@@ -14,6 +14,8 @@ from hexawyn.domain.models.calico import (
     CalicoNetworkPolicy,
     CalicoNodeAgent,
     CalicoPolicyAuditResult,
+    CalicoSegmentationAuditResult,
+    CalicoSegmentationEdge,
     CalicoStatusResult,
     CalicoWorkload,
     DataplaneMode,
@@ -308,3 +310,60 @@ class TestAuditProjections:
         )
         assert result.not_installed is True
         assert result.not_installed_marker == "NOT_INSTALLED"
+
+
+class TestSegmentationAuditProjections:
+    def test_edge(self) -> None:
+        edge = CalicoSegmentationEdge(
+            source="tier-a",
+            destination="tier-b",
+            restricted=False,
+            selectors=["app=='web'"],
+            note="allowed",
+        )
+        assert edge.source == "tier-a"
+        assert edge.destination == "tier-b"
+        assert edge.restricted is False
+        assert edge.selectors == ["app=='web'"]
+
+    def test_edge_restricted(self) -> None:
+        edge = CalicoSegmentationEdge(
+            source="tier-a",
+            destination="tier-b",
+            restricted=True,
+            selectors=[],
+            note=None,
+        )
+        assert edge.restricted is True
+
+    def test_segmentation_audit_result(self) -> None:
+        result = CalicoSegmentationAuditResult(
+            installed=True,
+            not_installed_marker=None,
+            view="calico",
+            tiers=["tier-a", "tier-b"],
+            edges=[],
+            gap_count=0,
+            total_paths=2,
+            summary="No unrestricted tier-to-tier paths out of 2.",
+            error=None,
+        )
+        assert result.view == "calico"
+        assert result.tiers == ["tier-a", "tier-b"]
+        assert result.total_paths == 2  # noqa: PLR2004
+        assert result.not_installed is False
+
+    def test_segmentation_audit_result_not_installed(self) -> None:
+        result = CalicoSegmentationAuditResult(
+            installed=False,
+            not_installed_marker=NOT_INSTALLED_MARKER,
+            view="vanilla",
+            tiers=[],
+            edges=[],
+            gap_count=0,
+            total_paths=0,
+            summary=None,
+            error="absent",
+        )
+        assert result.not_installed is True
+        assert result.view == "vanilla"

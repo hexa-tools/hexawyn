@@ -170,6 +170,17 @@ calico_policy_audit:
   - Are there workload namespaces with no Calico NetworkPolicy at all?
   description: Audit Calico network policies for L3/L4 coverage gaps — flag namespaces whose workloads
     lack a default-deny restriction and rank the gaps by risk
+calico_segmentation_audit:
+  tool: calico_segmentation_audit
+  questions:
+  - Which workloads can reach each other through Calico without a policy?
+  - Build the Calico east-west segmentation matrix for all tiers.
+  - Which tier-to-tier paths are allowed but unrestricted by a Calico policy?
+  - Is my Calico setup fully segmented by default-deny, or are there gaps?
+  - Show me the unreachable paths a policy should block between tiers.
+  - Compare the Calico segmentation view against the vanilla NetworkPolicy view.
+  description: Audit east-west segmentation based on Calico selectors and policies — build a tier-to-tier
+    reachability matrix and flag allowed-but-unrestricted paths against the vanilla view
 certs_challenges_list:
   tool: certs_challenges_list
   questions:

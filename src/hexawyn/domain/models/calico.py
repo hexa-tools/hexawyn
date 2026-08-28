@@ -207,3 +207,38 @@ class CalicoPolicyAuditResult:
     def not_installed(self) -> bool:
         """Honest flag — Calico absence is never invented."""
         return not self.installed
+
+
+@dataclass(frozen=True)
+class CalicoSegmentationEdge:
+    """One directed tier-to-tier path of the Calico segmentation matrix."""
+
+    source: str
+    destination: str
+    restricted: bool
+    selectors: list[str]
+    note: str | None
+
+
+@dataclass(frozen=True)
+class CalicoSegmentationAuditResult:
+    """Calico east-west segmentation matrix (tiers = namespaces).
+
+    Calico has no Cilium-like identities, so reachability is derived from the
+    endpoint selectors and the default-deny presence (allow/deny) per tier.
+    """
+
+    installed: bool
+    not_installed_marker: str | None
+    view: str
+    tiers: list[str]
+    edges: list[CalicoSegmentationEdge]
+    gap_count: int
+    total_paths: int
+    summary: str | None
+    error: str | None
+
+    @property
+    def not_installed(self) -> bool:
+        """Honest flag — Calico absence is never invented."""
+        return not self.installed
