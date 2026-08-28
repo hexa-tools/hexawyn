@@ -17,6 +17,7 @@ from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
 from hexawyn.application.ports.driven.certificate_investigation_port import (
     CertificateInvestigationPort,
 )
+from hexawyn.application.ports.driven.cilium_port import CiliumPort
 from hexawyn.application.ports.driven.cluster_certificate_health_port import (
     ClusterCertificateHealthPort,
 )
@@ -262,6 +263,10 @@ class TestMCPBuilderFunctions:
     def test_build_keda_adapter(self) -> None:
         result = self.server_mod.build_keda_adapter()
         assert isinstance(result, KedaPort)
+
+    def test_build_cilium_adapter(self) -> None:
+        result = self.server_mod.build_cilium_adapter()
+        assert isinstance(result, CiliumPort)
 
     def test_build_canary_comparison_adapter(self) -> None:
         result = self.server_mod.build_canary_comparison_adapter()

@@ -148,6 +148,16 @@ canary_comparison:
   - What is the error rate delta between the canary and stable deployments?
   description: Compare canary deployment latency and error rate against the stable baseline using real-time
     OTel metrics to decide whether to promote or rollback
+cilium_detect:
+  tool: cilium_detect
+  questions:
+  - Is Cilium installed in my cluster and what version is running?
+  - Is Cilium in tunnel mode or native-routing mode on this cluster?
+  - Are all Cilium agent pods ready, or is any node's dataplane degraded?
+  - Show me the Cilium agent health per node and whether the CNI is functional
+  - What routing mode is configured in the cilium-config ConfigMap?
+  description: Detect whether Cilium is the active CNI, reporting its version, routing mode (tunnel,
+    native-routing), and per-node agent health with a degraded summary
 certs_challenges_list:
   tool: certs_challenges_list
   questions:
@@ -833,6 +843,16 @@ generate_weekly_reliability_report:
   - Which services failed their SLO this week and what was the root cause?
   description: Generate a weekly reliability report for production services with uptime, error rate, p99
     latency, SLO pass/fail and the top incidents ranked by impact
+get_cilium_status:
+  tool: get_cilium_status
+  questions:
+  - Are the Cilium agents healthy and is the datapath functional on my cluster?
+  - Are all the Cilium agent pods ready, or is any node's dataplane degraded?
+  - How many Cilium agents are ready out of the total scheduled across nodes?
+  - Show me the per-node Cilium agent status and whether connectivity is OK
+  - Are there any Cilium controller errors or unhealthy agents right now?
+  description: Get the health and connectivity status of the Cilium agents and datapath, aggregated
+    ready versus total, per-node status, controller errors, and a degraded summary
 get_namespace_events:
   tool: get_namespace_events
   questions:
