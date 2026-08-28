@@ -7,6 +7,7 @@ from hexawyn.domain.models.cilium import (
     CiliumDenialsQuery,
     CiliumDenialsResult,
     CiliumDetectionResult,
+    CiliumEncryptionStatusResult,
     CiliumFlowEntry,
     CiliumFlowQuery,
     CiliumFlowsResult,
@@ -468,3 +469,32 @@ class TestCiliumFlowsResult:
         assert result.installed is False
         assert result.status == "not_installed"
         assert result.flows == []
+
+
+class TestCiliumEncryptionStatusResult:
+    def test_constructs_enabled(self) -> None:
+        result = CiliumEncryptionStatusResult(
+            installed=True,
+            status="enabled",
+            mode="wireguard",
+            encrypted_nodes=3,
+            total_nodes=4,
+            coverage="3/4",
+            note=None,
+        )
+        assert result.installed is True
+        assert result.mode == "wireguard"
+        assert result.coverage == "3/4"
+
+    def test_constructs_not_installed(self) -> None:
+        result = CiliumEncryptionStatusResult(
+            installed=False,
+            status="not_installed",
+            mode="UNKNOWN",
+            encrypted_nodes=0,
+            total_nodes=0,
+            coverage=None,
+            note="Cilium is not installed in this cluster",
+        )
+        assert result.installed is False
+        assert result.status == "not_installed"

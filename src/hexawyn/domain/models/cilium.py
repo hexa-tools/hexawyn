@@ -269,3 +269,16 @@ class CiliumDenialsResult:
     total_denials: int
     groups: list[CiliumDenialGroup]
     note: str | None
+
+
+@dataclass(frozen=True)
+class CiliumEncryptionStatusResult:
+    """Wire-level encryption state observed from Cilium configuration."""
+
+    installed: bool
+    status: str
+    mode: str
+    encrypted_nodes: int
+    total_nodes: int
+    coverage: str | None
+    note: str | None

@@ -1155,3 +1155,204 @@ class TestCiliumSegmentationAudit:
 
         with pytest.raises(AdapterTimeoutError):
             CiliumAdapter(vanilla).segmentation_audit()
+
+
+class TestCiliumEncryptionStatus:
+    def test_wireguard_enabled(self) -> None:
+        ds = _daemonset_response(
+            [
+                _daemonset(
+                    {"name": "cilium", "namespace": "kube-system"},
+                    [{"name": "cilium-agent", "image": "quay.io/cilium/cilium:v1.16.3"}],
+                    {"desiredNumberScheduled": 4, "numberReady": 3},
+                )
+            ]
+        )
+        vanilla = _make_vanilla(
+            daemonsets=ds,
+            crds={"items": []},
+            pods={"items": []},
+            configmap=_configmap({"encryption-type": "wireguard", "encryption-enabled": "true"}),
+        )
+
+        result = CiliumAdapter(vanilla).encryption_status()
+
+        assert result.installed is True
+        assert result.status == "enabled"
+        assert result.mode == "wireguard"
+        assert result.coverage == "3/4"
+
+    def test_ipsec_enabled(self) -> None:
+        ds = _daemonset_response(
+            [
+                _daemonset(
+                    {"name": "cilium", "namespace": "kube-system"},
+                    [{"name": "cilium-agent", "image": "quay.io/cilium/cilium:v1.16.3"}],
+                    {"desiredNumberScheduled": 2, "numberReady": 2},
+                )
+            ]
+        )
+        vanilla = _make_vanilla(
+            daemonsets=ds,
+            crds={"items": []},
+            pods={"items": []},
+            configmap=_configmap({"encryption-type": "ipsec", "encryption-enabled": "true"}),
+        )
+
+        result = CiliumAdapter(vanilla).encryption_status()
+
+        assert result.mode == "ipsec"
+        assert result.status == "enabled"
+
+    def test_none_when_disabled(self) -> None:
+        ds = _daemonset_response(
+            [
+                _daemonset(
+                    {"name": "cilium", "namespace": "kube-system"},
+                    [{"name": "cilium-agent", "image": "quay.io/cilium/cilium:v1.16.3"}],
+                    {"desiredNumberScheduled": 4, "numberReady": 4},
+                )
+            ]
+        )
+        vanilla = _make_vanilla(
+            daemonsets=ds,
+            crds={"items": []},
+            pods={"items": []},
+            configmap=_configmap({"encryption-enabled": "false"}),
+        )
+
+        result = CiliumAdapter(vanilla).encryption_status()
+
+        assert result.mode == "none"
+        assert result.status == "disabled"
+        assert result.encrypted_nodes == 0
+
+    def test_unknown_mode_when_config_unreadable(self) -> None:
+        ds = _daemonset_response(
+            [
+                _daemonset(
+                    {"name": "cilium", "namespace": "kube-system"},
+                    [{"name": "cilium-agent", "image": "quay.io/cilium/cilium:v1.16.3"}],
+                    {"desiredNumberScheduled": 4, "numberReady": 4},
+                )
+            ]
+        )
+        vanilla = _make_vanilla(
+            daemonsets=ds,
+            crds={"items": []},
+            pods={"items": []},
+            configmap={},
+        )
+
+        result = CiliumAdapter(vanilla).encryption_status()
+
+        assert result.mode == "UNKNOWN"
+        assert result.status == "unknown"
+
+    def test_not_installed(self) -> None:
+        vanilla = _make_vanilla(
+            daemonsets={"items": []},
+            crds=ApiException(status=404),
+            pods={"items": []},
+            configmap={},
+        )
+
+        result = CiliumAdapter(vanilla).encryption_status()
+
+        assert result.installed is False
+        assert result.status == "not_installed"
+
+    def test_crds_only_unknown(self) -> None:
+        vanilla = _make_vanilla(
+            daemonsets={"items": []},
+            crds={"items": [{"kind": "CiliumNode"}]},
+            pods={"items": []},
+            configmap={},
+        )
+
+        result = CiliumAdapter(vanilla).encryption_status()
+
+        assert result.installed is True
+        assert result.status == "unknown"
+
+    def test_unknown_mode_when_config_read_fails(self) -> None:
+        ds = _daemonset_response(
+            [
+                _daemonset(
+                    {"name": "cilium", "namespace": "kube-system"},
+                    [{"name": "cilium-agent", "image": "quay.io/cilium/cilium:v1.16.3"}],
+                    {"desiredNumberScheduled": 4, "numberReady": 4},
+                )
+            ]
+        )
+        vanilla = MagicMock()
+        apps_api = MagicMock()
+        apps_api.list_daemon_set_for_all_namespaces.return_value = ds
+        vanilla._apps_api_client.return_value = apps_api
+        crd_api = MagicMock()
+        vanilla._crd_api_client.return_value = crd_api
+        core_api = MagicMock()
+        core_api.read_namespaced_config_map.side_effect = RuntimeError("read failed")
+        vanilla._api_client.return_value = core_api
+
+        result = CiliumAdapter(vanilla).encryption_status()
+
+        assert result.mode == "UNKNOWN"
+        assert result.status == "unknown"
+
+    def test_not_installed_when_crds_empty(self) -> None:
+        vanilla = _make_vanilla(
+            daemonsets={"items": []},
+            crds={"items": []},
+            pods={"items": []},
+            configmap={},
+        )
+
+        result = CiliumAdapter(vanilla).encryption_status()
+
+        assert result.installed is False
+        assert result.status == "not_installed"
+
+    def test_crd_error_raises_cluster_unreachable(self) -> None:
+        vanilla = _make_vanilla(
+            daemonsets={"items": []},
+            crds=RuntimeError("connection refused"),
+            pods={"items": []},
+            configmap={},
+        )
+
+        with pytest.raises(ClusterUnreachableError):
+            CiliumAdapter(vanilla).encryption_status()
+
+    def test_rbac_403_raises_insufficient_permissions(self) -> None:
+        vanilla = _make_vanilla(
+            daemonsets=ApiException(status=403),
+            crds={"items": []},
+            pods={"items": []},
+            configmap={},
+        )
+
+        with pytest.raises(InsufficientPermissionsError):
+            CiliumAdapter(vanilla).encryption_status()
+
+    def test_unreachable_raises_cluster_unreachable(self) -> None:
+        vanilla = _make_vanilla(
+            daemonsets=RuntimeError("connection refused"),
+            crds={"items": []},
+            pods={"items": []},
+            configmap={},
+        )
+
+        with pytest.raises(ClusterUnreachableError):
+            CiliumAdapter(vanilla).encryption_status()
+
+    def test_timeout_raises_adapter_timeout(self) -> None:
+        vanilla = _make_vanilla(
+            daemonsets=TimeoutError("timed out"),
+            crds={"items": []},
+            pods={"items": []},
+            configmap={},
+        )
+
+        with pytest.raises(AdapterTimeoutError):
+            CiliumAdapter(vanilla).encryption_status()

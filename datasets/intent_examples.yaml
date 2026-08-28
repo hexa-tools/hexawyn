@@ -158,6 +158,16 @@ cilium_detect:
   - What routing mode is configured in the cilium-config ConfigMap?
   description: Detect whether Cilium is the active CNI, reporting its version, routing mode (tunnel,
     native-routing), and per-node agent health with a degraded summary
+cilium_encryption_status:
+  tool: cilium_encryption_status
+  questions:
+  - Is Cilium wire-level encryption (WireGuard or IPsec) enabled on my cluster?
+  - What encryption mode is Cilium using, and how many nodes are covered?
+  - Are my east-west workloads encrypted on the dataplane right now?
+  - Which Cilium encryption mode is configured, wireguard or ipsec?
+  - Show me the Cilium encryption status and node coverage
+  description: Report the Cilium wire-level encryption mode (none/wireguard/ipsec) and node coverage,
+    with any errors, from the observed Cilium configuration
 cilium_policy_audit:
   tool: cilium_policy_audit
   questions:

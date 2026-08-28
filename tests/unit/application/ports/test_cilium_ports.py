@@ -8,6 +8,7 @@ from hexawyn.application.ports.driving.cilium_detect.cilium_detect_service_port 
 )
 from hexawyn.domain.models.cilium import (
     CiliumDetectionResult,
+    CiliumEncryptionStatusResult,
     CiliumIdentitiesResult,
     CiliumNetworkPoliciesResult,
     CiliumNetworkPolicyDetail,
@@ -105,6 +106,17 @@ class _FakeCiliumPort(CiliumPort):
             note=None,
         )
 
+    def encryption_status(self) -> CiliumEncryptionStatusResult:
+        return CiliumEncryptionStatusResult(
+            installed=False,
+            status="not_installed",
+            mode="UNKNOWN",
+            encrypted_nodes=0,
+            total_nodes=0,
+            coverage=None,
+            note=None,
+        )
+
 
 class _FakeCiliumDetectServicePort(CiliumDetectServicePort):
     def detect(self, command: object) -> object:
@@ -159,6 +171,12 @@ class TestCiliumPort:
 
     def test_subclass_must_implement_segmentation_audit(self) -> None:
         assert _FakeCiliumPort().segmentation_audit().view == "vanilla"
+
+    def test_encryption_status_is_abstract_method(self) -> None:
+        assert "encryption_status" in CiliumPort.__abstractmethods__
+
+    def test_subclass_must_implement_encryption_status(self) -> None:
+        assert _FakeCiliumPort().encryption_status().status == "not_installed"
 
 
 class TestCiliumDetectServicePort:

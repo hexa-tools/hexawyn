@@ -16,6 +16,7 @@ from hexawyn.domain.errors import (
 from hexawyn.domain.models.cilium import (
     CiliumAgentHealth,
     CiliumDetectionResult,
+    CiliumEncryptionStatusResult,
     CiliumIdentitiesResult,
     CiliumNetworkPoliciesResult,
     CiliumNetworkPolicyDetail,
@@ -24,6 +25,12 @@ from hexawyn.domain.models.cilium import (
     CiliumSegmentationAuditResult,
     CiliumStatusResult,
     CiliumWorkload,
+)
+from hexawyn.domain.services.cilium.encryption_status_builder import (
+    build_encryption_status,
+    deduce_encryption_mode,
+    not_installed_encryption_status,
+    unknown_encryption_status,
 )
 from hexawyn.domain.services.cilium.identity_builder import (
     build_identities_result,
@@ -236,6 +243,52 @@ class CiliumAdapter(CiliumPort):
         if not policies.installed:
             return not_installed_segmentation_audit()
         return build_segmentation_audit(identities.identities, policies.policies)
+
+    def encryption_status(self) -> CiliumEncryptionStatusResult:
+        try:
+            apps_api = self._vanilla._apps_api_client()
+            daemonset_list = getattr(apps_api, "list_daemon_set_for_all_namespaces")()
+        except Exception as exc:
+            self._raise_translated(exc)
+        self._raise_if_error_status(daemonset_list)
+        daemonset = self._find_daemonset(_items(daemonset_list))
+        if daemonset is None:
+            return self._encryption_when_no_daemonset()
+        namespace = _get(_get(daemonset, "metadata"), "namespace")
+        total_nodes = _safe_int(_get(_get(daemonset, "status"), "desiredNumberScheduled"))
+        ready_nodes = _safe_int(_get(_get(daemonset, "status"), "numberReady"))
+        mode = self._read_encryption_mode(namespace)
+        encrypted_nodes = ready_nodes if mode != "none" else 0
+        return build_encryption_status(mode, encrypted_nodes, total_nodes)
+
+    def _read_encryption_mode(self, namespace: object) -> str:
+        try:
+            core_api = self._vanilla._api_client()
+            configmap = getattr(core_api, "read_namespaced_config_map")(
+                name=_CONFIGMAP_NAME, namespace=namespace
+            )
+        except Exception:
+            return "UNKNOWN"
+        data = _get(configmap, "data")
+        if not isinstance(data, dict):
+            return "UNKNOWN"
+        return deduce_encryption_mode(data.get("encryption-type"), data.get("encryption-enabled"))
+
+    def _encryption_when_no_daemonset(self) -> CiliumEncryptionStatusResult:
+        try:
+            crd_api = self._vanilla._crd_api_client()
+            crd_list = getattr(crd_api, "list_cluster_custom_object")(
+                group=_CILIUM_GROUP,
+                version=_CILIUM_VERSION,
+                plural=_CILIUM_PLURAL,
+            )
+        except Exception as exc:
+            if getattr(exc, "status", None) == _NOT_FOUND_STATUS:
+                return not_installed_encryption_status()
+            self._raise_translated(exc)
+        if _items(crd_list):
+            return unknown_encryption_status()
+        return not_installed_encryption_status()
 
     def _list_workloads(self) -> list[CiliumWorkload]:
         try:
