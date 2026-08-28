@@ -148,6 +148,139 @@ canary_comparison:
   - What is the error rate delta between the canary and stable deployments?
   description: Compare canary deployment latency and error rate against the stable baseline using real-time
     OTel metrics to decide whether to promote or rollback
+calico_detect:
+  tool: calico_detect
+  questions:
+  - Is Calico installed on this cluster and what version is running?
+  - Which dataplane mode is Calico using, IPIP, VXLAN or eBPF?
+  - Are the calico-node agents healthy on every node?
+  - Is Calico the active CNI or is something else in charge?
+  - Is any calico-node agent degraded or not ready right now?
+  - Is tigera-operator (Calico Enterprise) detected on this cluster?
+  description: Detect whether Calico is the active CNI and report its version, dataplane mode,
+    and per-node calico-node agent health with a degradation summary
+calico_encryption_status:
+  tool: calico_encryption_status
+  questions:
+  - Is Calico WireGuard encryption enabled on the dataplane?
+  - Is east-west Calico traffic encrypted with WireGuard?
+  - What is the WireGuard state per node in the FelixConfiguration?
+  - Which dataplane mode is Calico using alongside WireGuard?
+  - Are the Calico host endpoints encrypting traffic between nodes?
+  description: Report whether Calico wire-level encryption (WireGuard) is enabled from FelixConfiguration,
+    including per-node state and the dataplane mode
+calico_felix_metrics:
+  tool: calico_felix_metrics
+  questions:
+  - Which Calico policies are denying traffic right now?
+  - Show me the Felix allow/deny packet counters per Calico policy.
+  - What is the deny volume of each Calico policy from Prometheus?
+  - Which policy is blocking the most packets right now?
+  - Are there Calico policies with unexpected deny counts to investigate?
+  description: Read Felix per-policy allow/deny packet and byte counters from Prometheus, ranked by
+    deny volume, to find traffic blocked by a Calico policy
+calico_connectivity_health:
+  tool: calico_connectivity_health
+  questions:
+  - Is the Calico dataplane healthy end-to-end across all nodes?
+  - Are all calico-node agents ready and is the tunnel/BGP state healthy?
+  - Show me the per-node calico connectivity readiness and a global verdict.
+  - Which calico-node agents are down or degraded right now?
+  - Is the Calico IPIP/VXLAN/eBPF dataplane functional before I investigate higher-level issues?
+  description: Run a Calico connectivity health check across nodes — per-node calico-node readiness,
+    tunnel/BGP state summary and a global health verdict
+calico_policy_audit:
+  tool: calico_policy_audit
+  questions:
+  - Which Calico-selected workloads have no ingress or egress restriction?
+  - Find namespaces without a default-deny Calico policy covering their workloads.
+  - Audit Calico L3/L4 coverage gaps and rank them by risk.
+  - Which namespaces have Calico policies but no default-deny rule?
+  - Show me the Calico workloads lacking any L7 (HTTP/TLS) restriction.
+  - Are there workload namespaces with no Calico NetworkPolicy at all?
+  description: Audit Calico network policies for L3/L4 coverage gaps — flag namespaces whose workloads
+    lack a default-deny restriction and rank the gaps by risk
+calico_bgp_audit:
+  tool: calico_bgp_audit
+  questions:
+  - Show me the Calico BGP configuration and peer state.
+  - What AS number and node-to-node mesh is Calico BGP configured with?
+  - List the Calico BGPPeers with their peer IP, ASN and node selector.
+  - Are the Calico BGP sessions reaching a healthy state right now?
+  - Which BGP service cluster IPs does the Calico config advertise?
+  description: Audit Calico BGP configuration — BGPConfiguration (ASN, node-to-node mesh, service
+    cluster IPs), BGPPeers and session state
+calico_segmentation_audit:
+  tool: calico_segmentation_audit
+  questions:
+  - Which workloads can reach each other through Calico without a policy?
+  - Build the Calico east-west segmentation matrix for all tiers.
+  - Which tier-to-tier paths are allowed but unrestricted by a Calico policy?
+  - Is my Calico setup fully segmented by default-deny, or are there gaps?
+  - Show me the unreachable paths a policy should block between tiers.
+  - Compare the Calico segmentation view against the vanilla NetworkPolicy view.
+  description: Audit east-west segmentation based on Calico selectors and policies — build a tier-to-tier
+    reachability matrix and flag allowed-but-unrestricted paths against the vanilla view
+cilium_detect:
+  tool: cilium_detect
+  questions:
+  - Is Cilium installed in my cluster and what version is running?
+  - Is Cilium in tunnel mode or native-routing mode on this cluster?
+  - Are all Cilium agent pods ready, or is any node's dataplane degraded?
+  - Show me the Cilium agent health per node and whether the CNI is functional
+  - What routing mode is configured in the cilium-config ConfigMap?
+  description: Detect whether Cilium is the active CNI, reporting its version, routing mode (tunnel,
+    native-routing), and per-node agent health with a degraded summary
+cilium_encryption_status:
+  tool: cilium_encryption_status
+  questions:
+  - Is Cilium wire-level encryption (WireGuard or IPsec) enabled on my cluster?
+  - What encryption mode is Cilium using, and how many nodes are covered?
+  - Are my east-west workloads encrypted on the dataplane right now?
+  - Which Cilium encryption mode is configured, wireguard or ipsec?
+  - Show me the Cilium encryption status and node coverage
+  description: Report the Cilium wire-level encryption mode (none/wireguard/ipsec) and node coverage,
+    with any errors, from the observed Cilium configuration
+cilium_bandwidth_audit:
+  tool: cilium_bandwidth_audit
+  questions:
+  - Which pods are hitting their Cilium bandwidth limits and being throttled?
+  - Audit my Cilium bandwidth manager quotas and show me near-limit workloads
+  - Are any pods throttled by the Cilium bandwidth manager right now?
+  - Show me per-pod bandwidth quotas and anomalies across my cluster
+  - Which namespaces have workloads close to or over their egress bandwidth limit?
+  description: Audit Cilium bandwidth-manager per-pod quotas and usage, flagging throttled or near-limit
+    workloads with their ingress/egress bandwidth settings
+cilium_policy_audit:
+  tool: cilium_policy_audit
+  questions:
+  - Which workloads selected by Cilium policies have no ingress or egress restriction?
+  - Audit my Cilium network policy coverage and show me the exposure gaps
+  - Are there any workloads in the cluster not covered by a Cilium policy?
+  - Which namespaces have Cilium workloads lacking a default-deny or L7 rule?
+  - Show me the Cilium policy coverage gaps ranked by risk per namespace
+  description: Audit Cilium network policy coverage, flagging workloads with no policy, no default-deny
+    or L3/L4-only (L7 gap) restriction, ranked by risk per namespace
+cilium_segmentation_audit:
+  tool: cilium_segmentation_audit
+  questions:
+  - Which workloads can reach each other through Cilium identities without a policy?
+  - Audit my east-west segmentation and show me the allowed-but-unrestricted paths
+  - Which Cilium identities can talk to each other freely across tiers?
+  - Show me the reachability matrix between Cilium identities and where policies block traffic
+  - Are there any paths between Cilium identities that no policy restricts?
+  description: Audit east-west segmentation built from Cilium identities and policies, flagging
+    allowed-but-unrestricted paths between identities and distinguishing the Cilium vs vanilla view
+cilium_service_graph:
+  tool: cilium_service_graph
+  questions:
+  - Draw the service dependency graph from the Cilium flow logs in the payments namespace
+  - Which services talk to each other according to observed Cilium flows?
+  - Show me the Cilium-based service graph with edge traffic and dropped flows
+  - What is the actual connectivity between my workloads from Hubble flows?
+  - Build a service-to-service graph from the last hour of Cilium flows
+  description: Build a service<->service graph from observed Cilium (Hubble) flows, with nodes,
+    edges, per-pair traffic counts, latency and dropped-flow error rate
 certs_challenges_list:
   tool: certs_challenges_list
   questions:
@@ -570,6 +703,16 @@ detect_container_image_drift:
   - "Ignore anything still pinned to latest \u2014 what's genuinely drifted?"
   description: Detect deployments whose running container image differs from Git, direct hotfixes, and
     mutable tags drifting by tag or digest
+detect_cilium_denials:
+  tool: detect_cilium_denials
+  questions:
+  - Which flows are being denied by a Cilium policy right now?
+  - Show me the dropped Cilium flows grouped by policy, source and destination
+  - Are there any Cilium policy denials in the payments namespace in the last 5 minutes?
+  - What traffic is blocked by a Cilium policy and why, with counts?
+  - List the Cilium policy denials with their drop reason and affected pods
+  description: Detect dropped/denied Cilium flows via Hubble, grouped by policy/source/destination
+    with counts and drop reason, filtered by namespace and window
 detect_cross_cluster_incident:
   tool: detect_cross_cluster_incident
   questions:
@@ -833,6 +976,36 @@ generate_weekly_reliability_report:
   - Which services failed their SLO this week and what was the root cause?
   description: Generate a weekly reliability report for production services with uptime, error rate, p99
     latency, SLO pass/fail and the top incidents ranked by impact
+get_cilium_status:
+  tool: get_cilium_status
+  questions:
+  - Are the Cilium agents healthy and is the datapath functional on my cluster?
+  - Are all the Cilium agent pods ready, or is any node's dataplane degraded?
+  - How many Cilium agents are ready out of the total scheduled across nodes?
+  - Show me the per-node Cilium agent status and whether connectivity is OK
+  - Are there any Cilium controller errors or unhealthy agents right now?
+  description: Get the health and connectivity status of the Cilium agents and datapath, aggregated
+    ready versus total, per-node status, controller errors, and a degraded summary
+get_cilium_flows:
+  tool: get_cilium_flows
+  questions:
+  - Show me recent Hubble network flows for the payments namespace
+  - Which flows were dropped by Cilium in the last 15 minutes?
+  - What traffic is flowing between web and db pods, with verdicts and ports?
+  - Are there any forwarded flows hitting payment-api from outside the namespace?
+  - List the last 50 Cilium flows for pod web-0 with their source and destination identities
+  description: Query Cilium flow logs via Hubble, filtered by namespace/pod/direction/verdict, with
+    source and destination identity, verdict (forwarded/dropped), protocol and ports
+get_cilium_network_policy:
+  tool: get_cilium_network_policy
+  questions:
+  - Show me the full details of the Cilium network policy allow-db
+  - What are the exact ingress and egress rules of the Cilium policy securing payments?
+  - Are there any HTTP or gRPC L7 rules in the Cilium network policy api-allow?
+  - Which endpoints does the cluster-wide Cilium policy global-allow select?
+  - Show the full spec of CiliumNetworkPolicy 'deny-external' with its L7 rules
+  description: Get the full detail of a CiliumNetworkPolicy or CiliumClusterwideNetworkPolicy, including
+    the endpoint selector, ingress/egress rules and L7 (HTTP/gRPC/Kafka/DNS) rules
 get_namespace_events:
   tool: get_namespace_events
   questions:
@@ -844,6 +1017,37 @@ get_namespace_events:
   - Which objects in production are throwing repeated warnings I should look at first?
   description: Get recent Warning and Error events in a namespace, which pods are involved, recurring
     BackOff or OOMKilled events, and what to look at first
+get_calico_network_policy:
+  tool: get_calico_network_policy
+  questions:
+  - Show me the full detail of Calico network policy default-deny.
+  - What selector and action does the Calico policy allow-api have?
+  - List the ingress and egress rules of the Calico GlobalNetworkPolicy global-default.
+  - Get the full spec of the Calico network policy payment-allow in the payments namespace.
+  - Is the Calico policy checkout-restrict a deny policy and what does it match?
+  description: Get the full detail of a specific CalicoNetworkPolicy or GlobalNetworkPolicy — name,
+    scope, endpoint selector, action and ingress/egress rules
+get_calico_host_endpoints:
+  tool: get_calico_host_endpoints
+  questions:
+  - List the Calico HostEndpoints and the host interfaces they protect.
+  - Which host nodes have Calico HostEndpoints with applied policies?
+  - Show me the HostEndpoint labels and expected IPs for each node interface.
+  - Which host interfaces are protected by at least one Calico policy?
+  - List the network interfaces outside pods that Calico is protecting.
+  description: List Calico HostEndpoint resources — node, interface, expected IPs, labels and applied
+    policies — to see which non-pod host interfaces Calico protects
+get_calico_status:
+  tool: get_calico_status
+  questions:
+  - "Are the calico-node / felix agents healthy and is the datapath functional?"
+  - How many calico-node agents are ready out of the total across the cluster?
+  - Is there any felix error or degraded dataplane connectivity right now?
+  - Is the Calico datapath healthy enough to trust a network diagnosis?
+  - Are all calico-node healthz probes passing on every node?
+  - Show me the per-node calico-node status and a global degradation summary.
+  description: Get the Calico dataplane health and connectivity status — ready/total agent counts,
+    felix errors, per-node status and a global degraded summary
 get_pipeline_run_status:
   tool: get_pipeline_run_status
   questions:
@@ -1093,6 +1297,26 @@ latency_diagnostic:
   - What is the bottleneck span causing high latency on the payment API?
   description: Diagnose the root cause of high service latency, find the bottleneck span and slow internal
     call causing slow responses above 500ms, from trace span breakdown
+list_cilium_identities:
+  tool: list_cilium_identities
+  questions:
+  - List all the Cilium security identities in my cluster
+  - Which pods share the same Cilium identity labels so I can gauge policy effect?
+  - Show me the Cilium identities in the payments namespace with their endpoint counts
+  - What are the numeric IDs and label sets of the Cilium security identities?
+  - How many endpoints are associated with each Cilium identity right now?
+  description: List Cilium security identities with their numeric ID, label set and associated endpoint
+    count to understand which set of pods share an identity
+list_cilium_network_policies:
+  tool: list_cilium_network_policies
+  questions:
+  - List all the Cilium network policies defined in my cluster
+  - What CiliumNetworkPolicy rules exist in the payments namespace?
+  - Are there any Cilium cluster-wide network policies applying to the whole cluster?
+  - Show me all Cilium L7 network policies with their ingress and egress rules
+  - Which Cilium policies apply to the database endpoints via their selectors?
+  description: List every CiliumNetworkPolicy and CiliumClusterwideNetworkPolicy with their endpoint
+    selector, ingress/egress and L7 rule summary before auditing connectivity
 list_namespaces:
   tool: list_namespaces
   questions:
@@ -1115,6 +1339,27 @@ list_ingresses:
   - Show all ingress resources and their backend services
   - Are there duplicate ingress hosts?
   - Which ingresses expose services without TLS?
+list_calico_network_policies:
+  tool: list_calico_network_policies
+  questions:
+  - List all Calico network policies in this cluster.
+  - Show me the Calico NetworkPolicies in the default namespace.
+  - What GlobalNetworkPolicies exist cluster-wide for Calico?
+  - List Calico policies with their endpoint selector and allow/deny action.
+  - Show the ingress/egress rule summary of each Calico policy.
+  - Are there Calico policies denying traffic to the production namespace?
+  description: List CalicoNetworkPolicy (namespaced) and GlobalNetworkPolicy (cluster-wide) with
+    endpoint selector, action and ingress/egress rule summary
+list_calico_ip_pools:
+  tool: list_calico_ip_pools
+  questions:
+  - List the Calico IPPools and their CIDR allocation.
+  - Are there any disabled Calico IPPools in the cluster?
+  - Which IPPools have NAT outgoing enabled for pod egress?
+  - List the Calico IPPools and their node selectors.
+  - Show me all Calico IPPool CIDRs with their disabled and NAT state.
+  description: List Calico IPPool resources — CIDR allocation, disabled flag, NAT outgoing and
+    node selector — to spot misconfigured or disabled pools
 list_openshift_projects:
   tool: list_openshift_projects
   description: OpenShift-only. List OpenShift projects (namespaces) with their status and display name,
