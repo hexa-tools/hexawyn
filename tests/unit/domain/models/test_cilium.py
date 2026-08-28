@@ -4,6 +4,9 @@ from hexawyn.domain.models.cilium import (
     CiliumAgentHealth,
     CiliumAuditFinding,
     CiliumDetectionResult,
+    CiliumFlowEntry,
+    CiliumFlowQuery,
+    CiliumFlowsResult,
     CiliumIdentitiesResult,
     CiliumIdentityInfo,
     CiliumL7RuleSummary,
@@ -379,3 +382,48 @@ class TestCiliumSegmentationAuditResult:
         assert result.installed is False
         assert result.view == "vanilla"
         assert result.findings == []
+
+
+class TestCiliumFlowQuery:
+    def test_defaults(self) -> None:
+        query = CiliumFlowQuery()
+        assert query.namespace is None
+        assert query.window_minutes == 15  # noqa: PLR2004
+        assert query.limit == 100  # noqa: PLR2004
+
+
+class TestCiliumFlowEntry:
+    def test_constructs(self) -> None:
+        flow = CiliumFlowEntry(
+            timestamp="2026-08-28T10:00:00Z",
+            source="web-0",
+            destination="db-0",
+            source_namespace="payments",
+            destination_namespace="payments",
+            source_identity="100",
+            destination_identity="200",
+            verdict="FORWARDED",
+            drop_reason=None,
+            protocol="tcp",
+            destination_port="443",
+            l7_protocol="http",
+            direction="ingress",
+        )
+        assert flow.verdict == "FORWARDED"
+        assert flow.destination_port == "443"
+        assert flow.l7_protocol == "http"
+        assert flow.source_namespace == "payments"
+
+
+class TestCiliumFlowsResult:
+    def test_constructs_not_installed(self) -> None:
+        result = CiliumFlowsResult(
+            installed=False,
+            status="not_installed",
+            total_flows=0,
+            flows=[],
+            note="Hubble relay is not available in this cluster",
+        )
+        assert result.installed is False
+        assert result.status == "not_installed"
+        assert result.flows == []

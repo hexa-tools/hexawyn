@@ -193,3 +193,45 @@ class CiliumSegmentationAuditResult:
     findings: list[CiliumPathFinding]
     summary: str
     note: str | None
+
+
+@dataclass(frozen=True)
+class CiliumFlowQuery:
+    """Filter parameters for a Hubble flow query."""
+
+    namespace: str | None = None
+    pod: str | None = None
+    direction: str | None = None
+    verdict: str | None = None
+    window_minutes: int = 15
+    limit: int = 100
+
+
+@dataclass(frozen=True)
+class CiliumFlowEntry:
+    """One Hubble flow observation between two workloads."""
+
+    timestamp: str
+    source: str
+    destination: str
+    source_namespace: str | None
+    destination_namespace: str | None
+    source_identity: str | None
+    destination_identity: str | None
+    verdict: str
+    drop_reason: str | None
+    protocol: str | None
+    destination_port: str | None
+    l7_protocol: str | None
+    direction: str | None
+
+
+@dataclass(frozen=True)
+class CiliumFlowsResult:
+    """Hubble flow log query result."""
+
+    installed: bool
+    status: str
+    total_flows: int
+    flows: list[CiliumFlowEntry]
+    note: str | None

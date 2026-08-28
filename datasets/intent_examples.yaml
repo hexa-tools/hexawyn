@@ -873,6 +873,16 @@ get_cilium_status:
   - Are there any Cilium controller errors or unhealthy agents right now?
   description: Get the health and connectivity status of the Cilium agents and datapath, aggregated
     ready versus total, per-node status, controller errors, and a degraded summary
+get_cilium_flows:
+  tool: get_cilium_flows
+  questions:
+  - Show me recent Hubble network flows for the payments namespace
+  - Which flows were dropped by Cilium in the last 15 minutes?
+  - What traffic is flowing between web and db pods, with verdicts and ports?
+  - Are there any forwarded flows hitting payment-api from outside the namespace?
+  - List the last 50 Cilium flows for pod web-0 with their source and destination identities
+  description: Query Cilium flow logs via Hubble, filtered by namespace/pod/direction/verdict, with
+    source and destination identity, verdict (forwarded/dropped), protocol and ports
 get_cilium_network_policy:
   tool: get_cilium_network_policy
   questions:
