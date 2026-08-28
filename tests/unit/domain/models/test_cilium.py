@@ -4,6 +4,8 @@ from hexawyn.domain.models.cilium import (
     CiliumAgentHealth,
     CiliumAuditFinding,
     CiliumDetectionResult,
+    CiliumIdentitiesResult,
+    CiliumIdentityInfo,
     CiliumL7RuleSummary,
     CiliumNetworkPoliciesResult,
     CiliumNetworkPolicyDetail,
@@ -320,3 +322,25 @@ class TestCiliumPolicyAuditResult:
             endpoint_labels=(("app", "db"),),
         )
         assert policy.endpoint_labels == (("app", "db"),)
+
+
+class TestCiliumIdentityInfo:
+    def test_constructs(self) -> None:
+        identity = CiliumIdentityInfo(id="12345", labels=("k8s:io.cilium",), endpoint_count=3)
+        assert identity.id == "12345"
+        assert identity.labels == ("k8s:io.cilium",)
+        assert identity.endpoint_count == 3  # noqa: PLR2004
+
+
+class TestCiliumIdentitiesResult:
+    def test_constructs_not_installed(self) -> None:
+        result = CiliumIdentitiesResult(
+            installed=False,
+            status="not_installed",
+            total_identities=0,
+            identities=[],
+            note="Cilium is not installed in this cluster",
+        )
+        assert result.installed is False
+        assert result.status == "not_installed"
+        assert result.identities == []

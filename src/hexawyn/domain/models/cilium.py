@@ -146,3 +146,23 @@ class CiliumPolicyAuditResult:
     findings: list[CiliumAuditFinding]
     summary: str
     note: str | None
+
+
+@dataclass(frozen=True)
+class CiliumIdentityInfo:
+    """One Cilium security identity: numeric id, label set, endpoint count."""
+
+    id: str
+    labels: tuple[str, ...]
+    endpoint_count: int
+
+
+@dataclass(frozen=True)
+class CiliumIdentitiesResult:
+    """List of Cilium security identities with their endpoint counts."""
+
+    installed: bool
+    status: str
+    total_identities: int
+    identities: list[CiliumIdentityInfo]
+    note: str | None

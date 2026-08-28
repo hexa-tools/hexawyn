@@ -16,12 +16,17 @@ from hexawyn.domain.errors import (
 from hexawyn.domain.models.cilium import (
     CiliumAgentHealth,
     CiliumDetectionResult,
+    CiliumIdentitiesResult,
     CiliumNetworkPoliciesResult,
     CiliumNetworkPolicyDetail,
     CiliumNetworkPolicyInfo,
     CiliumPolicyAuditResult,
     CiliumStatusResult,
     CiliumWorkload,
+)
+from hexawyn.domain.services.cilium.identity_builder import (
+    build_identities_result,
+    not_installed_identities_result,
 )
 from hexawyn.domain.services.cilium.network_policy_summary import (
     build_network_policy,
@@ -210,6 +215,13 @@ class CiliumAdapter(CiliumPort):
         if not policies.installed:
             return self._vanilla_fallback_audit()
         return build_policy_audit(policies.policies, self._list_workloads())
+
+    def list_identities(self) -> CiliumIdentitiesResult:
+        identities = self._list_cilium_crd("ciliumidentities")
+        if identities is None:
+            return not_installed_identities_result()
+        endpoints = self._list_cilium_crd("ciliumendpoints") or []
+        return build_identities_result(identities, endpoints)
 
     def _list_workloads(self) -> list[CiliumWorkload]:
         try:

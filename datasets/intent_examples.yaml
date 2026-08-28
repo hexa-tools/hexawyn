@@ -1133,6 +1133,16 @@ latency_diagnostic:
   - What is the bottleneck span causing high latency on the payment API?
   description: Diagnose the root cause of high service latency, find the bottleneck span and slow internal
     call causing slow responses above 500ms, from trace span breakdown
+list_cilium_identities:
+  tool: list_cilium_identities
+  questions:
+  - List all the Cilium security identities in my cluster
+  - Which pods share the same Cilium identity labels so I can gauge policy effect?
+  - Show me the Cilium identities in the payments namespace with their endpoint counts
+  - What are the numeric IDs and label sets of the Cilium security identities?
+  - How many endpoints are associated with each Cilium identity right now?
+  description: List Cilium security identities with their numeric ID, label set and associated endpoint
+    count to understand which set of pods share an identity
 list_cilium_network_policies:
   tool: list_cilium_network_policies
   questions:

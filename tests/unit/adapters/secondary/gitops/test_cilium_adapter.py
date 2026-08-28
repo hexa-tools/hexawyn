@@ -966,3 +966,93 @@ class TestCiliumPolicyAudit:
 
         with pytest.raises(AdapterTimeoutError):
             CiliumAdapter(vanilla).audit_policies()
+
+
+def _identity_raw(raw_id: str, labels: dict[str, str] | None = None) -> dict:
+    metadata: dict[str, object] = {"name": raw_id}
+    if labels:
+        metadata["labels"] = labels
+    return {"metadata": metadata, "spec": {}}
+
+
+def _endpoint_raw(raw_id: str) -> dict:
+    return {"status": {"identity": {"id": raw_id}}}
+
+
+def _make_identities_vanilla(identities: object, endpoints: object) -> MagicMock:
+    vanilla = MagicMock()
+    crd_api = MagicMock()
+
+    def dispatch(plural: str, **kwargs: object) -> object:
+        if plural == "ciliumidentities":
+            if isinstance(identities, Exception):
+                raise identities
+            return identities
+        if plural == "ciliumendpoints":
+            if isinstance(endpoints, Exception):
+                raise endpoints
+            return endpoints
+        raise AssertionError(f"unexpected plural {plural}")
+
+    crd_api.list_cluster_custom_object.side_effect = dispatch
+    vanilla._crd_api_client.return_value = crd_api
+    vanilla._apps_api_client.return_value = MagicMock()
+    vanilla._api_client.return_value = MagicMock()
+    return vanilla
+
+
+class TestCiliumIdentities:
+    def test_list_identities_with_endpoint_counts(self) -> None:
+        identities = {
+            "items": [
+                _identity_raw("100", {"app": "db"}),
+                _identity_raw("200", {"app": "web"}),
+            ]
+        }
+        endpoints = {"items": [_endpoint_raw("100"), _endpoint_raw("100"), _endpoint_raw("200")]}
+        vanilla = _make_identities_vanilla(identities, endpoints)
+
+        result = CiliumAdapter(vanilla).list_identities()
+
+        assert result.installed is True
+        assert result.status == "present"
+        assert result.total_identities == 2  # noqa: PLR2004
+        assert result.identities[0].id == "100"
+        assert result.identities[0].endpoint_count == 2  # noqa: PLR2004
+        assert result.identities[1].endpoint_count == 1  # noqa: PLR2004
+
+    def test_list_identities_empty(self) -> None:
+        vanilla = _make_identities_vanilla({"items": []}, {"items": []})
+
+        result = CiliumAdapter(vanilla).list_identities()
+
+        assert result.status == "empty"
+        assert result.total_identities == 0
+
+    def test_list_identities_not_installed(self) -> None:
+        vanilla = _make_identities_vanilla(ApiException(status=404), {"items": []})
+
+        result = CiliumAdapter(vanilla).list_identities()
+
+        assert result.installed is False
+        assert result.status == "not_installed"
+
+    def test_list_identities_endpoints_absent_counts_zero(self) -> None:
+        identities = {"items": [_identity_raw("100")]}
+        vanilla = _make_identities_vanilla(identities, ApiException(status=404))
+
+        result = CiliumAdapter(vanilla).list_identities()
+
+        assert result.identities[0].endpoint_count == 0
+
+    def test_list_identities_rbac_403_raises_insufficient_permissions(self) -> None:
+        vanilla = _make_identities_vanilla(ApiException(status=403), {"items": []})
+
+        with pytest.raises(InsufficientPermissionsError):
+            CiliumAdapter(vanilla).list_identities()
+
+    def test_list_identities_timeout_raises_adapter_timeout(self) -> None:
+        vanilla = _make_identities_vanilla(TimeoutError("timed out"), {"items": []})
+
+        with pytest.raises(AdapterTimeoutError):
+            CiliumAdapter(vanilla).list_identities()
