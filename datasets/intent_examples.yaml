@@ -853,6 +853,16 @@ get_cilium_status:
   - Are there any Cilium controller errors or unhealthy agents right now?
   description: Get the health and connectivity status of the Cilium agents and datapath, aggregated
     ready versus total, per-node status, controller errors, and a degraded summary
+get_cilium_network_policy:
+  tool: get_cilium_network_policy
+  questions:
+  - Show me the full details of the Cilium network policy allow-db
+  - What are the exact ingress and egress rules of the Cilium policy securing payments?
+  - Are there any HTTP or gRPC L7 rules in the Cilium network policy api-allow?
+  - Which endpoints does the cluster-wide Cilium policy global-allow select?
+  - Show the full spec of CiliumNetworkPolicy 'deny-external' with its L7 rules
+  description: Get the full detail of a CiliumNetworkPolicy or CiliumClusterwideNetworkPolicy, including
+    the endpoint selector, ingress/egress rules and L7 (HTTP/gRPC/Kafka/DNS) rules
 get_namespace_events:
   tool: get_namespace_events
   questions:

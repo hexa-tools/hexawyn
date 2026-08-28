@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from hexawyn.domain.models.cilium import (
     CiliumDetectionResult,
     CiliumNetworkPoliciesResult,
+    CiliumNetworkPolicyDetail,
     CiliumStatusResult,
 )
 
@@ -20,3 +21,6 @@ class CiliumPort(ABC):
 
     @abstractmethod
     def list_network_policies(self) -> CiliumNetworkPoliciesResult: ...
+
+    @abstractmethod
+    def get_network_policy(self, name: str, namespace: str | None) -> CiliumNetworkPolicyDetail: ...

@@ -3,8 +3,11 @@ from __future__ import annotations
 from hexawyn.domain.models.cilium import (
     CiliumAgentHealth,
     CiliumDetectionResult,
+    CiliumL7RuleSummary,
     CiliumNetworkPoliciesResult,
+    CiliumNetworkPolicyDetail,
     CiliumNetworkPolicyInfo,
+    CiliumRuleSummary,
     CiliumStatusResult,
 )
 
@@ -219,3 +222,45 @@ class TestCiliumNetworkPoliciesResult:
         assert result.installed is False
         assert result.status == "not_installed"
         assert result.policies == []
+
+
+class TestCiliumL7RuleSummary:
+    def test_constructs(self) -> None:
+        l7 = CiliumL7RuleSummary(protocol="http", match=("GET", "/api"))
+        assert l7.protocol == "http"
+        assert l7.match == ("GET", "/api")
+
+
+class TestCiliumRuleSummary:
+    def test_constructs(self) -> None:
+        rule = CiliumRuleSummary(
+            direction="ingress",
+            endpoints=("matchLabels: app=web",),
+            ports=("443/TCP",),
+            l7=(CiliumL7RuleSummary(protocol="grpc", match=("health",)),),
+        )
+        assert rule.direction == "ingress"
+        assert rule.ports == ("443/TCP",)
+
+
+class TestCiliumNetworkPolicyDetail:
+    def test_constructs(self) -> None:
+        detail = CiliumNetworkPolicyDetail(
+            installed=True,
+            status="ok",
+            kind="CiliumNetworkPolicy",
+            name="allow-db",
+            namespace="payments",
+            endpoint_selector="matchLabels: app=db",
+            ingress_rules=(),
+            egress_rules=(),
+            l7_protocols=("http",),
+            spec={"endpointSelector": {"matchLabels": {"app": "db"}}},
+            note=None,
+        )
+
+        assert detail.installed is True
+        assert detail.kind == "CiliumNetworkPolicy"
+        assert detail.namespace == "payments"
+        assert detail.l7_protocols == ("http",)
+        assert detail.spec["endpointSelector"] == {"matchLabels": {"app": "db"}}

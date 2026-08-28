@@ -73,3 +73,38 @@ class CiliumNetworkPoliciesResult:
     clusterwide_count: int
     policies: list[CiliumNetworkPolicyInfo]
     note: str | None
+
+
+@dataclass(frozen=True)
+class CiliumL7RuleSummary:
+    """One L7 rule (HTTP/gRPC/Kafka/DNS) with its observed match values."""
+
+    protocol: str
+    match: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class CiliumRuleSummary:
+    """Summarised ingress/egress rule: endpoints, ports and L7 rules."""
+
+    direction: str
+    endpoints: tuple[str, ...]
+    ports: tuple[str, ...]
+    l7: tuple[CiliumL7RuleSummary, ...]
+
+
+@dataclass(frozen=True)
+class CiliumNetworkPolicyDetail:
+    """Full detail of a single Cilium network policy, incl. raw spec."""
+
+    installed: bool
+    status: str
+    kind: str
+    name: str
+    namespace: str | None
+    endpoint_selector: str
+    ingress_rules: tuple[CiliumRuleSummary, ...]
+    egress_rules: tuple[CiliumRuleSummary, ...]
+    l7_protocols: tuple[str, ...]
+    spec: dict[str, object]
+    note: str | None

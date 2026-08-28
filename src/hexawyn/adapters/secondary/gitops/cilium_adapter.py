@@ -11,11 +11,13 @@ from hexawyn.domain.errors import (
     AdapterTimeoutError,
     ClusterUnreachableError,
     InsufficientPermissionsError,
+    ResourceNotFoundError,
 )
 from hexawyn.domain.models.cilium import (
     CiliumAgentHealth,
     CiliumDetectionResult,
     CiliumNetworkPoliciesResult,
+    CiliumNetworkPolicyDetail,
     CiliumNetworkPolicyInfo,
     CiliumStatusResult,
 )
@@ -23,6 +25,10 @@ from hexawyn.domain.services.cilium.network_policy_summary import (
     build_network_policy,
     build_policies_result,
     not_installed_policies_result,
+)
+from hexawyn.domain.services.cilium.policy_detail_builder import (
+    build_policy_detail,
+    not_installed_policy_detail,
 )
 from hexawyn.domain.services.cilium.status_report_builder import (
     build_status_result,
@@ -163,6 +169,38 @@ class CiliumAdapter(CiliumPort):
                 return None
             self._raise_translated(exc)
         return [cast(dict[str, object], item) for item in _items(raw) if isinstance(item, dict)]
+
+    def get_network_policy(self, name: str, namespace: str | None) -> CiliumNetworkPolicyDetail:
+        if namespace:
+            kind = "CiliumNetworkPolicy"
+            plural = "ciliumnetworkpolicies"
+        else:
+            kind = "CiliumClusterwideNetworkPolicy"
+            plural = "ciliumclusterwidenetworkpolicies"
+        if self._list_cilium_crd(plural) is None:
+            return not_installed_policy_detail()
+        try:
+            crd_api = self._vanilla._crd_api_client()
+            if namespace:
+                raw = getattr(crd_api, "get_namespaced_custom_object")(
+                    group=_CILIUM_GROUP,
+                    version=_CILIUM_VERSION,
+                    namespace=namespace,
+                    plural=plural,
+                    name=name,
+                )
+            else:
+                raw = getattr(crd_api, "get_cluster_custom_object")(
+                    group=_CILIUM_GROUP,
+                    version=_CILIUM_VERSION,
+                    plural=plural,
+                    name=name,
+                )
+        except Exception as exc:
+            if getattr(exc, "status", None) == _NOT_FOUND_STATUS:
+                raise ResourceNotFoundError(f"Cilium network policy '{name}' not found")
+            self._raise_translated(exc)
+        return build_policy_detail(kind, namespace, cast(dict[str, object], raw))
 
     def _raise_if_error_status(self, response: object) -> None:
         """Raise RBAC errors carried on a returned response object."""

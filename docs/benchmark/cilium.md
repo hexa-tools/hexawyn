@@ -26,8 +26,12 @@ The `cilium_detect` tool must satisfy the scenarios below once the hexa-benchmar
 | `cilium/203-cilium-netpol-not-installed` | `installed=false`, `status="not_installed"`, no invented policies | AC3 |
 | `cilium/204-cilium-netpol-rbac-denied` | upstream `InsufficientPermissionsError` | AC6 |
 | `cilium/205-cilium-netpol-kinds-separated` | `CiliumNetworkPolicy` vs `CiliumClusterwideNetworkPolicy` kept distinct | AC2 |
+| `cilium/301-cilium-netpol-get` | full spec + endpoint selector + ingress/egress/L7 rules returned | AC2 |
+| `cilium/302-cilium-netpol-get-not-found` | upstream `ResourceNotFoundError` (not a raw K8s 404) | AC4 |
+| `cilium/303-cilium-netpol-get-not-installed` | `installed=false`, `status="not_installed"` | AC3 |
+| `cilium/304-cilium-netpol-get-rbac-denied` | upstream `InsufficientPermissionsError` | AC6 |
 
 ## Expected coverage
 
-- **Classified categories:** reading mode mapping (tunnel / native-routing / cluster / ipvlan / UNKNOWN); health/connectivity aggregation (healthy / degraded / unknown / not_installed); network-policy rule summarisation (L3/L4/L7, endpoint selector, kind breakdown).
-- **Guardrails:** `installed=true` and `status="healthy"` are never invented without a cilium DaemonSet or `cilium.io` CRD; a version is never fabricated; degraded state is never omitted; Cilium is never confused with Calico or Istio; policies and rule counts come only from observed CRDs.
+- **Classified categories:** reading mode mapping (tunnel / native-routing / cluster / ipvlan / UNKNOWN); health/connectivity aggregation (healthy / degraded / unknown / not_installed); network-policy rule summarisation (L3/L4/L7, endpoint selector, kind breakdown); policy detail retrieval (full spec, L7 protocols, not-installed vs not-found).
+- **Guardrails:** `installed=true` and `status="healthy"` are never invented without a cilium DaemonSet or `cilium.io` CRD; a version is never fabricated; degraded state is never omitted; Cilium is never confused with Calico or Istio; policies, rule counts and detail come only from observed CRDs; a missing policy is reported via `ResourceNotFoundError`, never an invented one.

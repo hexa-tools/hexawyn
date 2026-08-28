@@ -11,6 +11,7 @@ from hexawyn.domain.errors import (
     AdapterTimeoutError,
     ClusterUnreachableError,
     InsufficientPermissionsError,
+    ResourceNotFoundError,
 )
 from kubernetes.client.exceptions import ApiException
 
@@ -760,3 +761,95 @@ class TestCiliumNetworkPolicies:
 
         with pytest.raises(AdapterTimeoutError):
             CiliumAdapter(vanilla).list_network_policies()
+
+
+def _policy_raw(name: str, spec: dict, namespace: str | None = None) -> dict:
+    metadata: dict[str, object] = {"name": name}
+    if namespace is not None:
+        metadata["namespace"] = namespace
+    return {"metadata": metadata, "spec": spec}
+
+
+def _make_get_vanilla(list_result: object, namespaced: object, clusterwide: object) -> MagicMock:
+    vanilla = MagicMock()
+    crd_api = MagicMock()
+    if isinstance(list_result, Exception):
+        crd_api.list_cluster_custom_object.side_effect = list_result
+    else:
+        crd_api.list_cluster_custom_object.return_value = list_result
+    if isinstance(namespaced, Exception):
+        crd_api.get_namespaced_custom_object.side_effect = namespaced
+    else:
+        crd_api.get_namespaced_custom_object.return_value = namespaced
+    if isinstance(clusterwide, Exception):
+        crd_api.get_cluster_custom_object.side_effect = clusterwide
+    else:
+        crd_api.get_cluster_custom_object.return_value = clusterwide
+    vanilla._crd_api_client.return_value = crd_api
+    vanilla._apps_api_client.return_value = MagicMock()
+    vanilla._api_client.return_value = MagicMock()
+    return vanilla
+
+
+class TestCiliumGetNetworkPolicy:
+    def test_get_namespaced_policy(self) -> None:
+        raw = _policy_raw(
+            "allow-db",
+            {
+                "endpointSelector": {"matchLabels": {"app": "db"}},
+                "ingress": [{"toPorts": [{"rules": {"http": {}}}]}],
+            },
+            namespace="payments",
+        )
+        vanilla = _make_get_vanilla({"items": []}, raw, None)
+
+        detail = CiliumAdapter(vanilla).get_network_policy("allow-db", "payments")
+
+        assert detail.installed is True
+        assert detail.kind == "CiliumNetworkPolicy"
+        assert detail.namespace == "payments"
+        assert detail.name == "allow-db"
+        assert detail.endpoint_selector == "matchLabels: app=db"
+        assert detail.ingress_rules[0].l7[0].protocol == "http"
+
+    def test_get_clusterwide_policy(self) -> None:
+        raw = _policy_raw("global-allow", {"endpointSelector": {"matchLabels": {}}})
+        vanilla = _make_get_vanilla({"items": []}, None, raw)
+
+        detail = CiliumAdapter(vanilla).get_network_policy("global-allow", None)
+
+        assert detail.kind == "CiliumClusterwideNetworkPolicy"
+        assert detail.namespace is None
+        assert detail.name == "global-allow"
+
+    def test_get_not_found_raises_resource_not_found(self) -> None:
+        vanilla = _make_get_vanilla({"items": []}, ApiException(status=404), None)
+
+        with pytest.raises(ResourceNotFoundError):
+            CiliumAdapter(vanilla).get_network_policy("missing", "payments")
+
+    def test_get_not_installed_returns_marker(self) -> None:
+        vanilla = _make_get_vanilla(ApiException(status=404), None, None)
+
+        detail = CiliumAdapter(vanilla).get_network_policy("x", "payments")
+
+        assert detail.installed is False
+        assert detail.status == "not_installed"
+
+    def test_get_rbac_403_raises_insufficient_permissions(self) -> None:
+        vanilla = _make_get_vanilla({"items": []}, ApiException(status=403), None)
+
+        with pytest.raises(InsufficientPermissionsError):
+            CiliumAdapter(vanilla).get_network_policy("x", "ns")
+
+    def test_get_unreachable_raises_cluster_unreachable(self) -> None:
+        vanilla = _make_get_vanilla({"items": []}, RuntimeError("connection refused"), None)
+
+        with pytest.raises(ClusterUnreachableError):
+            CiliumAdapter(vanilla).get_network_policy("x", "ns")
+
+    def test_get_timeout_raises_adapter_timeout(self) -> None:
+        vanilla = _make_get_vanilla({"items": []}, None, TimeoutError("timed out"))
+
+        with pytest.raises(AdapterTimeoutError):
+            CiliumAdapter(vanilla).get_network_policy("x", None)

@@ -9,6 +9,7 @@ from hexawyn.application.ports.driving.cilium_detect.cilium_detect_service_port 
 from hexawyn.domain.models.cilium import (
     CiliumDetectionResult,
     CiliumNetworkPoliciesResult,
+    CiliumNetworkPolicyDetail,
     CiliumStatusResult,
 )
 
@@ -52,6 +53,21 @@ class _FakeCiliumPort(CiliumPort):
             note=None,
         )
 
+    def get_network_policy(self, name: str, namespace: str | None) -> CiliumNetworkPolicyDetail:
+        return CiliumNetworkPolicyDetail(
+            installed=False,
+            status="not_installed",
+            kind="",
+            name="",
+            namespace=None,
+            endpoint_selector="",
+            ingress_rules=(),
+            egress_rules=(),
+            l7_protocols=(),
+            spec={},
+            note=None,
+        )
+
 
 class _FakeCiliumDetectServicePort(CiliumDetectServicePort):
     def detect(self, command: object) -> object:
@@ -81,6 +97,13 @@ class TestCiliumPort:
 
     def test_subclass_must_implement_list_network_policies(self) -> None:
         assert _FakeCiliumPort().list_network_policies().status == "not_installed"
+
+    def test_get_network_policy_is_abstract_method(self) -> None:
+        assert "get_network_policy" in CiliumPort.__abstractmethods__
+
+    def test_subclass_must_implement_get_network_policy(self) -> None:
+        detail = _FakeCiliumPort().get_network_policy("p", "ns")
+        assert detail.status == "not_installed"
 
 
 class TestCiliumDetectServicePort:
