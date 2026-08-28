@@ -148,6 +148,17 @@ canary_comparison:
   - What is the error rate delta between the canary and stable deployments?
   description: Compare canary deployment latency and error rate against the stable baseline using real-time
     OTel metrics to decide whether to promote or rollback
+calico_detect:
+  tool: calico_detect
+  questions:
+  - Is Calico installed on this cluster and what version is running?
+  - Which dataplane mode is Calico using, IPIP, VXLAN or eBPF?
+  - Are the calico-node agents healthy on every node?
+  - Is Calico the active CNI or is something else in charge?
+  - Is any calico-node agent degraded or not ready right now?
+  - Is tigera-operator (Calico Enterprise) detected on this cluster?
+  description: Detect whether Calico is the active CNI and report its version, dataplane mode,
+    and per-node calico-node agent health with a degradation summary
 certs_challenges_list:
   tool: certs_challenges_list
   questions:
