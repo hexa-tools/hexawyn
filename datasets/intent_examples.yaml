@@ -1113,6 +1113,16 @@ latency_diagnostic:
   - What is the bottleneck span causing high latency on the payment API?
   description: Diagnose the root cause of high service latency, find the bottleneck span and slow internal
     call causing slow responses above 500ms, from trace span breakdown
+list_cilium_network_policies:
+  tool: list_cilium_network_policies
+  questions:
+  - List all the Cilium network policies defined in my cluster
+  - What CiliumNetworkPolicy rules exist in the payments namespace?
+  - Are there any Cilium cluster-wide network policies applying to the whole cluster?
+  - Show me all Cilium L7 network policies with their ingress and egress rules
+  - Which Cilium policies apply to the database endpoints via their selectors?
+  description: List every CiliumNetworkPolicy and CiliumClusterwideNetworkPolicy with their endpoint
+    selector, ingress/egress and L7 rule summary before auditing connectivity
 list_namespaces:
   tool: list_namespaces
   questions:

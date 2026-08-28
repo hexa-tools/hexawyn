@@ -3,6 +3,8 @@ from __future__ import annotations
 from hexawyn.domain.models.cilium import (
     CiliumAgentHealth,
     CiliumDetectionResult,
+    CiliumNetworkPoliciesResult,
+    CiliumNetworkPolicyInfo,
     CiliumStatusResult,
 )
 
@@ -167,3 +169,53 @@ class TestCiliumStatusResult:
         )
 
         assert result.nodes[0].phase == "CrashLoopBackOff"
+
+
+class TestCiliumNetworkPolicyInfo:
+    def test_constructs_namespaced(self) -> None:
+        policy = CiliumNetworkPolicyInfo(
+            kind="CiliumNetworkPolicy",
+            name="allow-db",
+            namespace="payments",
+            endpoint_selector="matchLabels: app=db",
+            ingress_rule_count=2,
+            egress_rule_count=1,
+            l7_rule_count=1,
+            l7_protocols=("http", "dns"),
+        )
+
+        assert policy.kind == "CiliumNetworkPolicy"
+        assert policy.namespace == "payments"
+        assert policy.l7_protocols == ("http", "dns")
+
+    def test_constructs_clusterwide_without_namespace(self) -> None:
+        policy = CiliumNetworkPolicyInfo(
+            kind="CiliumClusterwideNetworkPolicy",
+            name="global-allow",
+            namespace=None,
+            endpoint_selector="matchLabels: {}",
+            ingress_rule_count=0,
+            egress_rule_count=0,
+            l7_rule_count=0,
+            l7_protocols=(),
+        )
+
+        assert policy.kind == "CiliumClusterwideNetworkPolicy"
+        assert policy.namespace is None
+
+
+class TestCiliumNetworkPoliciesResult:
+    def test_constructs_not_installed(self) -> None:
+        result = CiliumNetworkPoliciesResult(
+            installed=False,
+            status="not_installed",
+            total_policies=0,
+            namespaced_count=0,
+            clusterwide_count=0,
+            policies=[],
+            note="Cilium is not installed in this cluster",
+        )
+
+        assert result.installed is False
+        assert result.status == "not_installed"
+        assert result.policies == []

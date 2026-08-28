@@ -46,3 +46,30 @@ class CiliumStatusResult:
     connectivity: str | None
     nodes: list[CiliumAgentHealth]
     note: str | None
+
+
+@dataclass(frozen=True)
+class CiliumNetworkPolicyInfo:
+    """Summary of one Cilium network policy (namespaced or cluster-wide)."""
+
+    kind: str
+    name: str
+    namespace: str | None
+    endpoint_selector: str
+    ingress_rule_count: int
+    egress_rule_count: int
+    l7_rule_count: int
+    l7_protocols: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class CiliumNetworkPoliciesResult:
+    """Total Cilium network policy inventory with kind breakdown."""
+
+    installed: bool
+    status: str
+    total_policies: int
+    namespaced_count: int
+    clusterwide_count: int
+    policies: list[CiliumNetworkPolicyInfo]
+    note: str | None

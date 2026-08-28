@@ -649,3 +649,114 @@ class TestCiliumStatus:
 
         with pytest.raises(InsufficientPermissionsError):
             CiliumAdapter(vanilla).status()
+
+
+def _netpol_item(name: str, spec: dict, namespace: str | None = None) -> dict:
+    metadata: dict[str, object] = {"name": name}
+    if namespace is not None:
+        metadata["namespace"] = namespace
+    return {"metadata": metadata, "spec": spec}
+
+
+def _make_netpol_vanilla(namespaced: object, clusterwide: object) -> MagicMock:
+    vanilla = MagicMock()
+    crd_api = MagicMock()
+
+    def dispatch(plural: str, **kwargs: object) -> object:
+        if plural == "ciliumnetworkpolicies":
+            if isinstance(namespaced, Exception):
+                raise namespaced
+            return namespaced
+        if plural == "ciliumclusterwidenetworkpolicies":
+            if isinstance(clusterwide, Exception):
+                raise clusterwide
+            return clusterwide
+        raise AssertionError(f"unexpected plural {plural}")
+
+    crd_api.list_cluster_custom_object.side_effect = dispatch
+    vanilla._crd_api_client.return_value = crd_api
+    vanilla._apps_api_client.return_value = MagicMock()
+    vanilla._api_client.return_value = MagicMock()
+    return vanilla
+
+
+class TestCiliumNetworkPolicies:
+    def test_lists_both_kinds_with_summary(self) -> None:
+        namespaced = {
+            "items": [
+                _netpol_item(
+                    "allow-db",
+                    {
+                        "endpointSelector": {"matchLabels": {"app": "db"}},
+                        "ingress": [{"toPorts": [{"rules": {"http": {}}}]}],
+                        "egress": [{}],
+                    },
+                    namespace="payments",
+                )
+            ]
+        }
+        clusterwide = {"items": [_netpol_item("global-allow", {}, namespace=None)]}
+        vanilla = _make_netpol_vanilla(namespaced, clusterwide)
+
+        result = CiliumAdapter(vanilla).list_network_policies()
+
+        assert result.installed is True
+        assert result.status == "present"
+        assert result.total_policies == 2  # noqa: PLR2004
+        assert result.namespaced_count == 1  # noqa: PLR2004
+        assert result.clusterwide_count == 1  # noqa: PLR2004
+        namespaced_policy = result.policies[0]
+        assert namespaced_policy.kind == "CiliumNetworkPolicy"
+        assert namespaced_policy.namespace == "payments"
+        assert namespaced_policy.endpoint_selector == "matchLabels: app=db"
+        assert namespaced_policy.l7_rule_count == 1  # noqa: PLR2004
+        assert namespaced_policy.l7_protocols == ("http",)
+        assert result.policies[1].kind == "CiliumClusterwideNetworkPolicy"
+
+    def test_empty_when_no_policies(self) -> None:
+        vanilla = _make_netpol_vanilla({"items": []}, {"items": []})
+
+        result = CiliumAdapter(vanilla).list_network_policies()
+
+        assert result.installed is True
+        assert result.status == "empty"
+        assert result.total_policies == 0
+        assert result.note is not None
+
+    def test_not_installed_when_group_absent(self) -> None:
+        vanilla = _make_netpol_vanilla(ApiException(status=404), ApiException(status=404))
+
+        result = CiliumAdapter(vanilla).list_network_policies()
+
+        assert result.installed is False
+        assert result.status == "not_installed"
+        assert result.policies == []
+        assert result.note is not None
+
+    def test_one_kind_absent(self) -> None:
+        clusterwide = {"items": [_netpol_item("global-allow", {})]}
+        vanilla = _make_netpol_vanilla(ApiException(status=404), clusterwide)
+
+        result = CiliumAdapter(vanilla).list_network_policies()
+
+        assert result.installed is True
+        assert result.clusterwide_count == 1  # noqa: PLR2004
+        assert result.namespaced_count == 0
+
+    def test_rbac_403_raises_insufficient_permissions(self) -> None:
+        vanilla = _make_netpol_vanilla(ApiException(status=403), {"items": []})
+
+        with pytest.raises(InsufficientPermissionsError):
+            CiliumAdapter(vanilla).list_network_policies()
+
+    def test_unreachable_raises_cluster_unreachable(self) -> None:
+        vanilla = _make_netpol_vanilla(RuntimeError("connection refused"), {"items": []})
+
+        with pytest.raises(ClusterUnreachableError):
+            CiliumAdapter(vanilla).list_network_policies()
+
+    def test_timeout_raises_adapter_timeout(self) -> None:
+        vanilla = _make_netpol_vanilla(TimeoutError("timed out"), {"items": []})
+
+        with pytest.raises(AdapterTimeoutError):
+            CiliumAdapter(vanilla).list_network_policies()

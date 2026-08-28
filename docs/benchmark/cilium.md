@@ -21,8 +21,13 @@ The `cilium_detect` tool must satisfy the scenarios below once the hexa-benchmar
 | `cilium/103-cilium-status-not-installed` | `installed=false`, `status="not_installed"`, no invented values | AC4 |
 | `cilium/104-cilium-status-unreachable` | upstream `ClusterUnreachableError` | AC6 |
 | `cilium/105-cilium-status-rbac-denied` | upstream `InsufficientPermissionsError` | AC6 |
+| `cilium/201-cilium-netpol-list` | both kinds listed, endpoint selector + ingress/egress/L7 summary | AC2 |
+| `cilium/202-cilium-netpol-empty` | `status="empty"`, empty list, no crash | AC2 |
+| `cilium/203-cilium-netpol-not-installed` | `installed=false`, `status="not_installed"`, no invented policies | AC3 |
+| `cilium/204-cilium-netpol-rbac-denied` | upstream `InsufficientPermissionsError` | AC6 |
+| `cilium/205-cilium-netpol-kinds-separated` | `CiliumNetworkPolicy` vs `CiliumClusterwideNetworkPolicy` kept distinct | AC2 |
 
 ## Expected coverage
 
-- **Classified categories:** reading mode mapping (tunnel / native-routing / cluster / ipvlan / UNKNOWN); health/connectivity aggregation (healthy / degraded / unknown / not_installed).
-- **Guardrails:** `installed=true` and `status="healthy"` are never invented without a cilium DaemonSet or `cilium.io` CRD; a version is never fabricated; degraded state is never omitted; Cilium is never confused with Calico or Istio.
+- **Classified categories:** reading mode mapping (tunnel / native-routing / cluster / ipvlan / UNKNOWN); health/connectivity aggregation (healthy / degraded / unknown / not_installed); network-policy rule summarisation (L3/L4/L7, endpoint selector, kind breakdown).
+- **Guardrails:** `installed=true` and `status="healthy"` are never invented without a cilium DaemonSet or `cilium.io` CRD; a version is never fabricated; degraded state is never omitted; Cilium is never confused with Calico or Istio; policies and rule counts come only from observed CRDs.

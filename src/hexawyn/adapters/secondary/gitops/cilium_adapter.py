@@ -15,7 +15,14 @@ from hexawyn.domain.errors import (
 from hexawyn.domain.models.cilium import (
     CiliumAgentHealth,
     CiliumDetectionResult,
+    CiliumNetworkPoliciesResult,
+    CiliumNetworkPolicyInfo,
     CiliumStatusResult,
+)
+from hexawyn.domain.services.cilium.network_policy_summary import (
+    build_network_policy,
+    build_policies_result,
+    not_installed_policies_result,
 )
 from hexawyn.domain.services.cilium.status_report_builder import (
     build_status_result,
@@ -130,6 +137,32 @@ class CiliumAdapter(CiliumPort):
                 note="Cilium CRDs are present but no cilium DaemonSet was found"
             )
         return not_installed_result()
+
+    def list_network_policies(self) -> CiliumNetworkPoliciesResult:
+        namespaced = self._list_cilium_crd("ciliumnetworkpolicies")
+        clusterwide = self._list_cilium_crd("ciliumclusterwidenetworkpolicies")
+        if namespaced is None and clusterwide is None:
+            return not_installed_policies_result()
+        policies: list[CiliumNetworkPolicyInfo] = []
+        for item in namespaced or []:
+            policies.append(build_network_policy("CiliumNetworkPolicy", item))
+        for item in clusterwide or []:
+            policies.append(build_network_policy("CiliumClusterwideNetworkPolicy", item))
+        return build_policies_result(policies)
+
+    def _list_cilium_crd(self, plural: str) -> list[dict[str, object]] | None:
+        try:
+            crd_api = self._vanilla._crd_api_client()
+            raw = getattr(crd_api, "list_cluster_custom_object")(
+                group=_CILIUM_GROUP,
+                version=_CILIUM_VERSION,
+                plural=plural,
+            )
+        except Exception as exc:
+            if getattr(exc, "status", None) == _NOT_FOUND_STATUS:
+                return None
+            self._raise_translated(exc)
+        return [cast(dict[str, object], item) for item in _items(raw) if isinstance(item, dict)]
 
     def _raise_if_error_status(self, response: object) -> None:
         """Raise RBAC errors carried on a returned response object."""
