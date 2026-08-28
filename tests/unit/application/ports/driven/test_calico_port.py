@@ -20,6 +20,7 @@ class TestCalicoPort:
             "status",
             "list_network_policies",
             "get_network_policy",
+            "list_workloads",
             "audit_policies",
             "list_ip_pools",
             "list_host_endpoints",
@@ -43,6 +44,9 @@ class TestCalicoPort:
 
             def get_network_policy(self, name: str, namespace: str):
                 return None
+
+            def list_workloads(self, namespace: str | None = None) -> list:
+                return []
 
             def audit_policies(self) -> dict:
                 return {}

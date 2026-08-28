@@ -14,6 +14,7 @@ from hexawyn.domain.models.calico import (
     CalicoHostEndpoint,
     CalicoIPPool,
     CalicoNetworkPolicy,
+    CalicoWorkload,
 )
 
 
@@ -35,6 +36,10 @@ class CalicoPort(ABC):
     @abstractmethod
     def get_network_policy(self, name: str, namespace: str) -> CalicoNetworkPolicy | None:
         """Fetch one policy, or None when Calico is absent / policy missing."""
+
+    @abstractmethod
+    def list_workloads(self, namespace: str | None = None) -> list[CalicoWorkload]:
+        """List workload namespaces with their pod counts (for audit coverage)."""
 
     @abstractmethod
     def audit_policies(self) -> dict[str, object]:

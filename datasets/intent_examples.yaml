@@ -159,6 +159,17 @@ calico_detect:
   - Is tigera-operator (Calico Enterprise) detected on this cluster?
   description: Detect whether Calico is the active CNI and report its version, dataplane mode,
     and per-node calico-node agent health with a degradation summary
+calico_policy_audit:
+  tool: calico_policy_audit
+  questions:
+  - Which Calico-selected workloads have no ingress or egress restriction?
+  - Find namespaces without a default-deny Calico policy covering their workloads.
+  - Audit Calico L3/L4 coverage gaps and rank them by risk.
+  - Which namespaces have Calico policies but no default-deny rule?
+  - Show me the Calico workloads lacking any L7 (HTTP/TLS) restriction.
+  - Are there workload namespaces with no Calico NetworkPolicy at all?
+  description: Audit Calico network policies for L3/L4 coverage gaps — flag namespaces whose workloads
+    lack a default-deny restriction and rank the gaps by risk
 certs_challenges_list:
   tool: certs_challenges_list
   questions:

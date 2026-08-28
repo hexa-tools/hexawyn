@@ -6,13 +6,16 @@ import pytest
 from hexawyn.domain.models.calico import (
     NOT_INSTALLED_MARKER,
     CalicoAgentPhase,
+    CalicoCoverageGap,
     CalicoDetectionResult,
     CalicoDetectionStatus,
     CalicoHostEndpoint,
     CalicoIPPool,
     CalicoNetworkPolicy,
     CalicoNodeAgent,
+    CalicoPolicyAuditResult,
     CalicoStatusResult,
+    CalicoWorkload,
     DataplaneMode,
 )
 
@@ -155,6 +158,24 @@ class TestSerieProjections:
         assert np.kind == "GlobalNetworkPolicy"
         assert np.action == "deny"
         assert np.ingress_rule_count == 1  # noqa: PLR2004
+        assert np.has_l7_rule is False
+
+    def test_network_policy_l7_flag(self) -> None:
+        np = CalicoNetworkPolicy(
+            name="np",
+            namespace="ns",
+            kind="CalicoNetworkPolicy",
+            selector="app=='web'",
+            action="allow",
+            ingress_rules=(),
+            egress_rules=(),
+            ingress_rule_count=0,
+            egress_rule_count=0,
+            order=10.0,
+            apply_on_forward=False,
+            has_l7_rule=True,
+        )
+        assert np.has_l7_rule is True
 
     def test_ip_pool(self) -> None:
         pool = CalicoIPPool(
@@ -238,3 +259,52 @@ class TestCalicoStatusResult:
     def test_frozen(self) -> None:
         with pytest.raises(Exception):
             self._result().installed = False  # type: ignore[misc]
+
+
+class TestAuditProjections:
+    def test_workload(self) -> None:
+        workload = CalicoWorkload(namespace="default", pod_count=4)
+        assert workload.namespace == "default"
+        assert workload.pod_count == 4  # noqa: PLR2004
+
+    def test_coverage_gap(self) -> None:
+        gap = CalicoCoverageGap(
+            namespace="staging",
+            workload_count=3,
+            policy_count=1,
+            issue="no_default_deny",
+            network_status="partially_restricted",
+            risk_level="medium",
+            selectors=["app=='web'"],
+            note="partial",
+        )
+        assert gap.namespace == "staging"
+        assert gap.issue == "no_default_deny"
+        assert gap.risk_level == "medium"
+
+    def test_audit_result(self) -> None:
+        result = CalicoPolicyAuditResult(
+            installed=True,
+            not_installed_marker=None,
+            total_namespaces_checked=2,
+            gap_count=1,
+            findings=[],
+            summary="1 namespace(s) have Calico L3/L4 coverage gaps out of 2.",
+            error=None,
+        )
+        assert result.gap_count == 1  # noqa: PLR2004
+        assert result.installed is True
+        assert result.total_namespaces_checked == 2  # noqa: PLR2004
+
+    def test_audit_result_not_installed(self) -> None:
+        result = CalicoPolicyAuditResult(
+            installed=False,
+            not_installed_marker=NOT_INSTALLED_MARKER,
+            total_namespaces_checked=0,
+            gap_count=0,
+            findings=[],
+            summary=None,
+            error="gone",
+        )
+        assert result.not_installed is True
+        assert result.not_installed_marker == "NOT_INSTALLED"

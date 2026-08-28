@@ -35,6 +35,7 @@ def parse_calico_network_policy(item: Mapping[str, object]) -> CalicoNetworkPoli
         egress_rule_count=len(egress),
         action=resolve_action(ingress, egress),
         apply_on_forward=bool(spec.get("applyOnForward", False)),
+        has_l7_rule=_has_l7(ingress) or _has_l7(egress),
     )
 
 
@@ -56,6 +57,7 @@ def parse_global_network_policy(item: Mapping[str, object]) -> CalicoNetworkPoli
         egress_rule_count=len(egress),
         action=resolve_action(ingress, egress),
         apply_on_forward=bool(spec.get("applyOnForward", False)),
+        has_l7_rule=_has_l7(ingress) or _has_l7(egress),
     )
 
 
@@ -96,6 +98,11 @@ def _rules(raw: object) -> list[dict[str, object]]:
     if not isinstance(raw, list):
         return []
     return [rule for rule in raw if isinstance(rule, dict)]
+
+
+def _has_l7(rules: list[dict[str, object]]) -> bool:
+    """True when any rule carries application-layer (http/tls) semantics."""
+    return any("http" in rule or "tls" in rule for rule in rules)
 
 
 def _summarize_rule(rule: dict[str, object]) -> str:

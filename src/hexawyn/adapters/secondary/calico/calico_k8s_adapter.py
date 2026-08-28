@@ -25,6 +25,7 @@ from hexawyn.domain.models.calico import (
     CalicoIPPool,
     CalicoNetworkPolicy,
     CalicoNodeAgent,
+    CalicoWorkload,
 )
 from hexawyn.domain.services.calico.detection_service import (
     build_agent_phase,
@@ -213,6 +214,23 @@ class CalicoK8sAdapter(CalicoPort):
             "namespaced": sum(1 for p in policies if p.namespace != ""),
             "total": len(policies),
         }
+
+    def list_workloads(self, namespace: str | None = None) -> list[CalicoWorkload]:
+        try:
+            if namespace:
+                result = self._runtime_core_api.list_namespaced_pod(
+                    namespace=namespace, timeout_seconds=10
+                )
+            else:
+                result = self._runtime_core_api.list_pod_for_all_namespaces()
+        except Exception:
+            return []
+        counts: dict[str, int] = {}
+        for pod in getattr(result, "items", []) or []:
+            ns = getattr(getattr(pod, "metadata", None), "namespace", None)
+            if ns:
+                counts[str(ns)] = counts.get(str(ns), 0) + 1
+        return [CalicoWorkload(namespace=ns, pod_count=count) for ns, count in counts.items()]
 
     # ── IP pools / host endpoints ─────────────────────────────────────────
     def list_ip_pools(self) -> list[CalicoIPPool]:

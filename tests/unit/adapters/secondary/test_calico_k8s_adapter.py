@@ -671,3 +671,36 @@ class TestCalicoK8sAdapterRuntimeFallbacks:
             assert adapter._runtime_core_api is core_cls.return_value
             assert adapter._runtime_apps_api is apps_cls.return_value
             assert adapter._runtime_crd_api is crd_cls.return_value
+
+
+class TestCalicoK8sAdapterWorkloads:
+    def _workload_pod(self, namespace: str) -> MagicMock:
+        pod = MagicMock()
+        pod.metadata.namespace = namespace
+        return pod
+
+    def test_list_workloads_groups_by_namespace(self) -> None:
+        core = MagicMock()
+        core.list_pod_for_all_namespaces.return_value = MagicMock(
+            items=[
+                self._workload_pod("ns1"),
+                self._workload_pod("ns1"),
+                self._workload_pod("ns2"),
+            ]
+        )
+        adapter = CalicoK8sAdapter(core_api=core, apps_api=_apps([]), crd_api=_crd())
+        workloads = adapter.list_workloads()
+        by_ns = {w.namespace: w.pod_count for w in workloads}
+        assert by_ns == {"ns1": 2, "ns2": 1}
+
+    def test_list_workloads_empty(self) -> None:
+        core = MagicMock()
+        core.list_pod_for_all_namespaces.return_value = MagicMock(items=[])
+        adapter = CalicoK8sAdapter(core_api=core, apps_api=_apps([]), crd_api=_crd())
+        assert adapter.list_workloads() == []
+
+    def test_list_workloads_error_returns_empty(self) -> None:
+        core = MagicMock()
+        core.list_pod_for_all_namespaces.side_effect = RuntimeError("boom")
+        adapter = CalicoK8sAdapter(core_api=core, apps_api=_apps([]), crd_api=_crd())
+        assert adapter.list_workloads() == []

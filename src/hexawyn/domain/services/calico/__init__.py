@@ -13,9 +13,13 @@ from hexawyn.domain.services.calico.network_policy_service import (
     parse_calico_network_policy,
     parse_global_network_policy,
 )
+from hexawyn.domain.services.calico.policy_audit_service import (
+    build_calico_policy_audit,
+)
 
 __all__ = [
     "build_agent_phase",
+    "build_calico_policy_audit",
     "build_calico_status_result",
     "build_degraded_summary",
     "build_detection_result",

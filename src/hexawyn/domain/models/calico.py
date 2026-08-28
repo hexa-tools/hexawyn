@@ -77,6 +77,7 @@ class CalicoNetworkPolicy:
     action: str | None = None
     ingress_rule_count: int = 0
     egress_rule_count: int = 0
+    has_l7_rule: bool = False
 
 
 @dataclass(frozen=True)
@@ -160,6 +161,46 @@ class CalicoStatusResult:
     connectivity_available: bool
     connectivity_status: str | None
     connectivity_detail: str | None
+    error: str | None
+
+    @property
+    def not_installed(self) -> bool:
+        """Honest flag — Calico absence is never invented."""
+        return not self.installed
+
+
+@dataclass(frozen=True)
+class CalicoWorkload:
+    """Workload population of a namespace (pod count) for coverage auditing."""
+
+    namespace: str
+    pod_count: int
+
+
+@dataclass(frozen=True)
+class CalicoCoverageGap:
+    """A namespace with workloads lacking full L3/L4 (or L7) restriction."""
+
+    namespace: str
+    workload_count: int
+    policy_count: int
+    issue: str
+    network_status: str
+    risk_level: str
+    selectors: list[str]
+    note: str | None
+
+
+@dataclass(frozen=True)
+class CalicoPolicyAuditResult:
+    """Calico policy coverage audit — gaps ranked by risk."""
+
+    installed: bool
+    not_installed_marker: str | None
+    total_namespaces_checked: int
+    gap_count: int
+    findings: list[CalicoCoverageGap]
+    summary: str | None
     error: str | None
 
     @property
