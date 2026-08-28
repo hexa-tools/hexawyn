@@ -166,3 +166,30 @@ class CiliumIdentitiesResult:
     total_identities: int
     identities: list[CiliumIdentityInfo]
     note: str | None
+
+
+@dataclass(frozen=True)
+class CiliumPathFinding:
+    """An allowed-but-unrestricted east-west path between two identities."""
+
+    source_id: str
+    destination_id: str
+    source_labels: tuple[str, ...]
+    destination_labels: tuple[str, ...]
+    severity: str
+    note: str | None
+
+
+@dataclass(frozen=True)
+class CiliumSegmentationAuditResult:
+    """East-west reachability audit built from Cilium identities and policies."""
+
+    installed: bool
+    status: str
+    view: str
+    total_identities: int
+    total_paths: int
+    uncovered_paths: int
+    findings: list[CiliumPathFinding]
+    summary: str
+    note: str | None

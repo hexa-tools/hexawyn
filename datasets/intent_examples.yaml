@@ -168,6 +168,16 @@ cilium_policy_audit:
   - Show me the Cilium policy coverage gaps ranked by risk per namespace
   description: Audit Cilium network policy coverage, flagging workloads with no policy, no default-deny
     or L3/L4-only (L7 gap) restriction, ranked by risk per namespace
+cilium_segmentation_audit:
+  tool: cilium_segmentation_audit
+  questions:
+  - Which workloads can reach each other through Cilium identities without a policy?
+  - Audit my east-west segmentation and show me the allowed-but-unrestricted paths
+  - Which Cilium identities can talk to each other freely across tiers?
+  - Show me the reachability matrix between Cilium identities and where policies block traffic
+  - Are there any paths between Cilium identities that no policy restricts?
+  description: Audit east-west segmentation built from Cilium identities and policies, flagging
+    allowed-but-unrestricted paths between identities and distinguishing the Cilium vs vanilla view
 certs_challenges_list:
   tool: certs_challenges_list
   questions:

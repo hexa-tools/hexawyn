@@ -10,8 +10,10 @@ from hexawyn.domain.models.cilium import (
     CiliumNetworkPoliciesResult,
     CiliumNetworkPolicyDetail,
     CiliumNetworkPolicyInfo,
+    CiliumPathFinding,
     CiliumPolicyAuditResult,
     CiliumRuleSummary,
+    CiliumSegmentationAuditResult,
     CiliumStatusResult,
     CiliumWorkload,
 )
@@ -344,3 +346,36 @@ class TestCiliumIdentitiesResult:
         assert result.installed is False
         assert result.status == "not_installed"
         assert result.identities == []
+
+
+class TestCiliumPathFinding:
+    def test_constructs(self) -> None:
+        finding = CiliumPathFinding(
+            source_id="100",
+            destination_id="200",
+            source_labels=("app=web",),
+            destination_labels=("app=db",),
+            severity="high",
+            note="unrestricted path",
+        )
+        assert finding.source_id == "100"
+        assert finding.destination_id == "200"
+        assert finding.severity == "high"
+
+
+class TestCiliumSegmentationAuditResult:
+    def test_constructs_not_installed(self) -> None:
+        result = CiliumSegmentationAuditResult(
+            installed=False,
+            status="not_installed",
+            view="vanilla",
+            total_identities=0,
+            total_paths=0,
+            uncovered_paths=0,
+            findings=[],
+            summary="",
+            note="Cilium is not installed in this cluster",
+        )
+        assert result.installed is False
+        assert result.view == "vanilla"
+        assert result.findings == []

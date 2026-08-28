@@ -1056,3 +1056,102 @@ class TestCiliumIdentities:
 
         with pytest.raises(AdapterTimeoutError):
             CiliumAdapter(vanilla).list_identities()
+
+
+def _make_seg_vanilla(
+    identities: object,
+    endpoints: object,
+    netpol: object,
+    netpol_clusterwide: object,
+) -> MagicMock:
+    vanilla = MagicMock()
+    crd_api = MagicMock()
+
+    def dispatch(plural: str, **kwargs: object) -> object:
+        mapping = {
+            "ciliumidentities": identities,
+            "ciliumendpoints": endpoints,
+            "ciliumnetworkpolicies": netpol,
+            "ciliumclusterwidenetworkpolicies": netpol_clusterwide,
+        }
+        value = mapping[plural]
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+    crd_api.list_cluster_custom_object.side_effect = dispatch
+    vanilla._crd_api_client.return_value = crd_api
+    vanilla._apps_api_client.return_value = MagicMock()
+    vanilla._api_client.return_value = MagicMock()
+    return vanilla
+
+
+class TestCiliumSegmentationAudit:
+    def test_flags_unrestricted_paths(self) -> None:
+        identities = {
+            "items": [
+                _identity_raw("100", {"app": "web"}),
+                _identity_raw("200", {"app": "db"}),
+            ]
+        }
+        vanilla = _make_seg_vanilla(identities, {"items": []}, {"items": []}, {"items": []})
+
+        result = CiliumAdapter(vanilla).segmentation_audit()
+
+        assert result.status == "gaps_found"
+        assert result.view == "cilium"
+        assert result.total_paths == 2  # noqa: PLR2004
+        assert result.uncovered_paths == 2  # noqa: PLR2004
+
+    def test_isolated_when_policy_restricts(self) -> None:
+        identities = {
+            "items": [
+                _identity_raw("100", {"app": "web"}),
+                _identity_raw("200", {"app": "db"}),
+            ]
+        }
+        netpol = {"items": [_audit_policy_raw("deny-db", {"app": "db"}, ingress=1, egress=1)]}
+        vanilla = _make_seg_vanilla(identities, {"items": []}, netpol, {"items": []})
+
+        result = CiliumAdapter(vanilla).segmentation_audit()
+
+        assert result.status == "isolated"
+        assert result.findings == []
+
+    def test_not_installed_returns_vanilla_view(self) -> None:
+        vanilla = _make_seg_vanilla(
+            ApiException(status=404), {"items": []}, {"items": []}, {"items": []}
+        )
+
+        result = CiliumAdapter(vanilla).segmentation_audit()
+
+        assert result.installed is False
+        assert result.status == "not_installed"
+        assert result.view == "vanilla"
+
+    def test_policies_not_installed_falls_back(self) -> None:
+        identities = {"items": [_identity_raw("100")]}
+        vanilla = _make_seg_vanilla(
+            identities, {"items": []}, ApiException(status=404), ApiException(status=404)
+        )
+
+        result = CiliumAdapter(vanilla).segmentation_audit()
+
+        assert result.installed is False
+        assert result.view == "vanilla"
+
+    def test_rbac_403_raises_insufficient_permissions(self) -> None:
+        vanilla = _make_seg_vanilla(
+            ApiException(status=403), {"items": []}, {"items": []}, {"items": []}
+        )
+
+        with pytest.raises(InsufficientPermissionsError):
+            CiliumAdapter(vanilla).segmentation_audit()
+
+    def test_timeout_raises_adapter_timeout(self) -> None:
+        vanilla = _make_seg_vanilla(
+            TimeoutError("timed out"), {"items": []}, {"items": []}, {"items": []}
+        )
+
+        with pytest.raises(AdapterTimeoutError):
+            CiliumAdapter(vanilla).segmentation_audit()

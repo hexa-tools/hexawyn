@@ -8,6 +8,7 @@ from hexawyn.domain.models.cilium import (
     CiliumNetworkPoliciesResult,
     CiliumNetworkPolicyDetail,
     CiliumPolicyAuditResult,
+    CiliumSegmentationAuditResult,
     CiliumStatusResult,
 )
 
@@ -32,3 +33,6 @@ class CiliumPort(ABC):
 
     @abstractmethod
     def list_identities(self) -> CiliumIdentitiesResult: ...
+
+    @abstractmethod
+    def segmentation_audit(self) -> CiliumSegmentationAuditResult: ...

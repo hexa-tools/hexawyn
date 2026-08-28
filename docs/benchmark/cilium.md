@@ -39,8 +39,12 @@ The `cilium_detect` tool must satisfy the scenarios below once the hexa-benchmar
 | `cilium/502-cilium-identities-empty` | `status="empty"`, empty list, no crash | AC2 |
 | `cilium/503-cilium-identities-not-installed` | `installed=false`, `status="not_installed"` | AC3 |
 | `cilium/504-cilium-identities-rbac-denied` | upstream `InsufficientPermissionsError` | AC6 |
+| `cilium/601-cilium-segmentation-reachable` | allowed-but-unrestricted path flagged, source/destination tagged | AC2 |
+| `cilium/602-cilium-segmentation-isolated` | policy blocks path → not flagged | AC2 |
+| `cilium/603-cilium-segmentation-not-installed` | `installed=false`, `view="vanilla"`, NOT_INSTALLED | AC4 |
+| `cilium/604-cilium-segmentation-rbac-denied` | upstream `InsufficientPermissionsError` | AC6 |
 
 ## Expected coverage
 
-- **Classified categories:** reading mode mapping (tunnel / native-routing / cluster / ipvlan / UNKNOWN); health/connectivity aggregation (healthy / degraded / unknown / not_installed); network-policy rule summarisation (L3/L4/L7, endpoint selector, kind breakdown); policy detail retrieval (full spec, L7 protocols, not-installed vs not-found); policy coverage audit (no_policy / no_default_deny / partial / l7_gap, risk ranking); identity listing (numeric id, label set, endpoint count).
-- **Guardrails:** `installed=true` and `status="healthy"` are never invented without a cilium DaemonSet or `cilium.io` CRD; a version is never fabricated; degraded state is never omitted; Cilium is never confused with Calico or Istio; policies, rule counts, detail, audit findings and identities come only from observed CRDs and workloads; a missing policy is reported via `ResourceNotFoundError`, and absent Cilium yields a `view="vanilla"` NOT_INSTALLED marker, never a fabricated audit or identity.
+- **Classified categories:** reading mode mapping (tunnel / native-routing / cluster / ipvlan / UNKNOWN); health/connectivity aggregation (healthy / degraded / unknown / not_installed); network-policy rule summarisation (L3/L4/L7, endpoint selector, kind breakdown); policy detail retrieval (full spec, L7 protocols, not-installed vs not-found); policy coverage audit (no_policy / no_default_deny / partial / l7_gap, risk ranking); identity listing (numeric id, label set, endpoint count); east-west segmentation audit (allowed-but-unrestricted reachability matrix, Cilium vs vanilla view).
+- **Guardrails:** `installed=true` and `status="healthy"` are never invented without a cilium DaemonSet or `cilium.io` CRD; a version is never fabricated; degraded state is never omitted; Cilium is never confused with Calico or Istio; policies, rule counts, detail, audit findings, identities and reachability paths come only from observed CRDs and workloads; a missing policy is reported via `ResourceNotFoundError`, and absent Cilium yields a `view="vanilla"` NOT_INSTALLED marker, never a fabricated audit, identity or reachability path.

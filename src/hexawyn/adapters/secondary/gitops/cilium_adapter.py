@@ -21,6 +21,7 @@ from hexawyn.domain.models.cilium import (
     CiliumNetworkPolicyDetail,
     CiliumNetworkPolicyInfo,
     CiliumPolicyAuditResult,
+    CiliumSegmentationAuditResult,
     CiliumStatusResult,
     CiliumWorkload,
 )
@@ -37,6 +38,10 @@ from hexawyn.domain.services.cilium.policy_audit import build_policy_audit
 from hexawyn.domain.services.cilium.policy_detail_builder import (
     build_policy_detail,
     not_installed_policy_detail,
+)
+from hexawyn.domain.services.cilium.segmentation_audit_builder import (
+    build_segmentation_audit,
+    not_installed_segmentation_audit,
 )
 from hexawyn.domain.services.cilium.status_report_builder import (
     build_status_result,
@@ -222,6 +227,15 @@ class CiliumAdapter(CiliumPort):
             return not_installed_identities_result()
         endpoints = self._list_cilium_crd("ciliumendpoints") or []
         return build_identities_result(identities, endpoints)
+
+    def segmentation_audit(self) -> CiliumSegmentationAuditResult:
+        identities = self.list_identities()
+        if not identities.installed:
+            return not_installed_segmentation_audit()
+        policies = self.list_network_policies()
+        if not policies.installed:
+            return not_installed_segmentation_audit()
+        return build_segmentation_audit(identities.identities, policies.policies)
 
     def _list_workloads(self) -> list[CiliumWorkload]:
         try:

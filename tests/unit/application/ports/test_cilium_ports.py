@@ -12,6 +12,7 @@ from hexawyn.domain.models.cilium import (
     CiliumNetworkPoliciesResult,
     CiliumNetworkPolicyDetail,
     CiliumPolicyAuditResult,
+    CiliumSegmentationAuditResult,
     CiliumStatusResult,
 )
 
@@ -91,6 +92,19 @@ class _FakeCiliumPort(CiliumPort):
             note=None,
         )
 
+    def segmentation_audit(self) -> CiliumSegmentationAuditResult:
+        return CiliumSegmentationAuditResult(
+            installed=False,
+            status="not_installed",
+            view="vanilla",
+            total_identities=0,
+            total_paths=0,
+            uncovered_paths=0,
+            findings=[],
+            summary="",
+            note=None,
+        )
+
 
 class _FakeCiliumDetectServicePort(CiliumDetectServicePort):
     def detect(self, command: object) -> object:
@@ -139,6 +153,12 @@ class TestCiliumPort:
 
     def test_subclass_must_implement_list_identities(self) -> None:
         assert _FakeCiliumPort().list_identities().status == "not_installed"
+
+    def test_segmentation_audit_is_abstract_method(self) -> None:
+        assert "segmentation_audit" in CiliumPort.__abstractmethods__
+
+    def test_subclass_must_implement_segmentation_audit(self) -> None:
+        assert _FakeCiliumPort().segmentation_audit().view == "vanilla"
 
 
 class TestCiliumDetectServicePort:
