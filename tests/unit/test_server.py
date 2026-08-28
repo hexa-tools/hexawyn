@@ -273,6 +273,10 @@ class TestMCPBuilderFunctions:
         result = self.server_mod.build_cilium_hubble_adapter()
         assert isinstance(result, CiliumHubblePort)
 
+    def test_build_cilium_service_graph_adapter(self) -> None:
+        result = self.server_mod.build_cilium_service_graph_adapter()
+        assert isinstance(result, ServiceDependencyGraphPort)
+
     def test_build_canary_comparison_adapter(self) -> None:
         result = self.server_mod.build_canary_comparison_adapter()
         assert isinstance(result, CanaryComparisonPort)

@@ -198,6 +198,16 @@ cilium_segmentation_audit:
   - Are there any paths between Cilium identities that no policy restricts?
   description: Audit east-west segmentation built from Cilium identities and policies, flagging
     allowed-but-unrestricted paths between identities and distinguishing the Cilium vs vanilla view
+cilium_service_graph:
+  tool: cilium_service_graph
+  questions:
+  - Draw the service dependency graph from the Cilium flow logs in the payments namespace
+  - Which services talk to each other according to observed Cilium flows?
+  - Show me the Cilium-based service graph with edge traffic and dropped flows
+  - What is the actual connectivity between my workloads from Hubble flows?
+  - Build a service-to-service graph from the last hour of Cilium flows
+  description: Build a service<->service graph from observed Cilium (Hubble) flows, with nodes,
+    edges, per-pair traffic counts, latency and dropped-flow error rate
 certs_challenges_list:
   tool: certs_challenges_list
   questions:
