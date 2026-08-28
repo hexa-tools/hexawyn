@@ -16,6 +16,10 @@ from hexawyn.infrastructure.config.kubeconfig_reader import (
     validate_connection,
 )
 from hexawyn.infrastructure.memory.duckdb_client import get_connection
+from hexawyn.mcp.adapters.calico_adapters import (
+    build_calico_adapter,
+    build_calico_metrics_adapter,
+)
 from hexawyn.mcp.adapters.cluster_adapters import (
     build_canary_comparison_adapter,
     build_capacity_forecast_adapter,
@@ -111,6 +115,8 @@ __all__ = [
     "build_audit_log_adapter",
     "build_budget_intelligence_adapter",
     "build_budget_projection_adapter",
+    "build_calico_adapter",
+    "build_calico_metrics_adapter",
     "build_canary_comparison_adapter",
     "build_capacity_forecast_adapter",
     "build_cert_manager_adapter",
