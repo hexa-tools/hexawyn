@@ -9,6 +9,7 @@ from hexawyn.domain.models.calico import (
     CalicoBgpAuditResult,
     CalicoBgpConfiguration,
     CalicoBgpPeer,
+    CalicoConnectivityHealthResult,
     CalicoCoverageGap,
     CalicoDetectionResult,
     CalicoDetectionStatus,
@@ -20,6 +21,7 @@ from hexawyn.domain.models.calico import (
     CalicoIPPool,
     CalicoNetworkPolicy,
     CalicoNodeAgent,
+    CalicoNodeConnectivity,
     CalicoPolicyAuditResult,
     CalicoSegmentationAuditResult,
     CalicoSegmentationEdge,
@@ -549,3 +551,49 @@ class TestFelixMetricsProjections:
         )
         assert result.not_installed is True
         assert result.policies == []
+
+
+class TestConnectivityHealthProjections:
+    def test_node_connectivity(self) -> None:
+        node = CalicoNodeConnectivity(node="node-1", ready=True)
+        assert node.node == "node-1"
+        assert node.ready is True
+
+    def test_connectivity_health_result(self) -> None:
+        result = CalicoConnectivityHealthResult(
+            installed=True,
+            not_installed_marker=None,
+            verdict="healthy",
+            ready_agents=3,
+            total_agents=3,
+            dataplane_mode=DataplaneMode.IPIP,
+            tunnel_summary="IPIP tunnel",
+            bgp_summary="BGP node-to-node mesh reachable",
+            connectivity_probe="healthy",
+            nodes=[CalicoNodeConnectivity(node="node-1", ready=True)],
+            degraded_nodes=[],
+            summary="Calico dataplane healthy: 3/3 calico-node agents ready",
+            error=None,
+        )
+        assert result.verdict == "healthy"
+        assert result.tunnel_summary == "IPIP tunnel"
+        assert result.not_installed is False
+
+    def test_connectivity_health_result_not_installed(self) -> None:
+        result = CalicoConnectivityHealthResult(
+            installed=False,
+            not_installed_marker=NOT_INSTALLED_MARKER,
+            verdict="unknown",
+            ready_agents=0,
+            total_agents=0,
+            dataplane_mode=None,
+            tunnel_summary="UNKNOWN",
+            bgp_summary="UNKNOWN",
+            connectivity_probe=None,
+            nodes=[],
+            degraded_nodes=[],
+            summary=None,
+            error="absent",
+        )
+        assert result.not_installed is True
+        assert result.verdict == "unknown"

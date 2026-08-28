@@ -1,6 +1,9 @@
 """Calico domain service — pure detection & status logic."""
 
 from hexawyn.domain.services.calico.bgp_audit_service import build_calico_bgp_audit
+from hexawyn.domain.services.calico.connectivity_health_service import (
+    build_calico_connectivity_health,
+)
 from hexawyn.domain.services.calico.detection_service import (
     build_agent_phase,
     build_degraded_summary,
@@ -30,6 +33,7 @@ from hexawyn.domain.services.calico.segmentation_service import (
 __all__ = [
     "build_agent_phase",
     "build_calico_bgp_audit",
+    "build_calico_connectivity_health",
     "build_calico_encryption_status",
     "build_calico_felix_metrics_result",
     "build_calico_policy_audit",

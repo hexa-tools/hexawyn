@@ -346,3 +346,35 @@ class CalicoFelixMetricsResult:
     def not_installed(self) -> bool:
         """Honest flag — Calico absence is never invented."""
         return not self.installed
+
+
+@dataclass(frozen=True)
+class CalicoNodeConnectivity:
+    """Per-node calico-node readiness for the connectivity verdict."""
+
+    node: str
+    ready: bool
+
+
+@dataclass(frozen=True)
+class CalicoConnectivityHealthResult:
+    """Aggregated Calico dataplane connectivity health (ready/total + verdict)."""
+
+    installed: bool
+    not_installed_marker: str | None
+    verdict: str
+    ready_agents: int
+    total_agents: int
+    dataplane_mode: DataplaneMode | None
+    tunnel_summary: str
+    bgp_summary: str
+    connectivity_probe: str | None
+    nodes: list[CalicoNodeConnectivity]
+    degraded_nodes: list[str]
+    summary: str | None
+    error: str | None
+
+    @property
+    def not_installed(self) -> bool:
+        """Honest flag — Calico absence is never invented."""
+        return not self.installed

@@ -179,6 +179,16 @@ calico_felix_metrics:
   - Are there Calico policies with unexpected deny counts to investigate?
   description: Read Felix per-policy allow/deny packet and byte counters from Prometheus, ranked by
     deny volume, to find traffic blocked by a Calico policy
+calico_connectivity_health:
+  tool: calico_connectivity_health
+  questions:
+  - Is the Calico dataplane healthy end-to-end across all nodes?
+  - Are all calico-node agents ready and is the tunnel/BGP state healthy?
+  - Show me the per-node calico connectivity readiness and a global verdict.
+  - Which calico-node agents are down or degraded right now?
+  - Is the Calico IPIP/VXLAN/eBPF dataplane functional before I investigate higher-level issues?
+  description: Run a Calico connectivity health check across nodes — per-node calico-node readiness,
+    tunnel/BGP state summary and a global health verdict
 calico_policy_audit:
   tool: calico_policy_audit
   questions:
