@@ -29,6 +29,8 @@ def _register_start(start_group: click.Group) -> None:
     @click.option("--no-cloud", is_flag=True, help="Start in local/BYOK mode (no Cloud auth)")
     def start(demo: bool, scenario: str, expert: bool, no_cloud: bool) -> None:
         """Start the hexawyn TUI (Cloud auth, or local/BYOK with --no-cloud)."""
+        _welcome()
+
         import os
 
         if no_cloud:
@@ -76,11 +78,23 @@ def _cloud_auth_ready() -> bool:
 
 def _prompt_token() -> str | None:
     """Prompt for the Hexawyn Cloud token using hidden input."""
+    click.echo("  ✨ A Cloud token unlocks AI investigations against your cluster.")
+    click.echo("     Press Ctrl+C to continue in local/BYOK mode (no cloud).")
+    click.echo("")
     try:
-        value = click.prompt("Hexawyn Cloud token", hide_input=True, show_default=False)
+        value = click.prompt("  Hexawyn Cloud token", hide_input=True, show_default=False)
         return value if isinstance(value, str) else None
-    except click.Abort:
+    except (click.Abort, KeyboardInterrupt):
         return None
+
+
+def _welcome() -> None:
+    """Render a welcoming banner for `hexa start`."""
+    from hexawyn.cli.presentation.feedback import header
+
+    header()
+    click.echo("  👋 Welcome to Hexawyn — your AI-powered Kubernetes assistant.")
+    click.echo("")
 
 
 _register_start(app)

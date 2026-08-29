@@ -838,3 +838,56 @@ class TestCalicoK8sAdapterWorkloads:
         core.list_pod_for_all_namespaces.side_effect = RuntimeError("boom")
         adapter = CalicoK8sAdapter(core_api=core, apps_api=_apps([]), crd_api=_crd())
         assert adapter.list_workloads() == []
+
+
+class TestCalicoK8sAdapterCoverage:
+    def test_get_network_policy_cluster_not_found_raises(self) -> None:
+        crd = _crd(ippools={"items": []}, _get_cluster={"globalnetworkpolicies": None})
+        adapter = CalicoK8sAdapter(core_api=_core([], []), apps_api=_apps([]), crd_api=crd)
+        with pytest.raises(ResourceNotFoundError):
+            adapter.get_network_policy("global-pol", "")
+
+    def test_get_network_policy_cluster_api_error_raises_unreachable(self) -> None:
+        crd = _crd(
+            ippools={"items": []},
+            _get_cluster={"globalnetworkpolicies": ApiException(status=500, reason="backend down")},
+        )
+        adapter = CalicoK8sAdapter(core_api=_core([], []), apps_api=_apps([]), crd_api=crd)
+        with pytest.raises(ClusterUnreachableError):
+            adapter.get_network_policy("global-pol", "")
+
+    def test_parse_and_guard_rejects_unknown_kind(self) -> None:
+        with pytest.raises(HexawynError):
+            CalicoK8sAdapter._parse_and_guard(
+                {"apiVersion": "projectcalico.org", "kind": "BogusKind"},
+                namespaced=False,
+            )
+
+    def test_list_workloads_namespaced_uses_namespaced_api(self) -> None:
+        core = MagicMock()
+        pod = MagicMock()
+        pod.metadata.namespace = "default"
+        core.list_namespaced_pod.return_value = MagicMock(items=[pod])
+        adapter = CalicoK8sAdapter(core_api=core, apps_api=_apps([]), crd_api=_crd())
+
+        result = adapter.list_workloads(namespace="default")
+
+        core.list_namespaced_pod.assert_called_with(namespace="default", timeout_seconds=10)
+        assert len(result) == 1
+        assert result[0].namespace == "default"
+
+    def test_namespaces_api_error_returns_empty(self) -> None:
+        core = MagicMock()
+        core.list_namespace.side_effect = RuntimeError("boom")
+        adapter = CalicoK8sAdapter(core_api=core, apps_api=_apps([]), crd_api=_crd())
+        assert adapter._namespaces() == []
+
+    def test_parse_bgp_configuration_mesh_from_dict(self) -> None:
+        result = CalicoK8sAdapter._parse_bgp_configuration(
+            {
+                "metadata": {"name": "default"},
+                "spec": {"nodeToNodeMesh": {"enabled": True}},
+            }
+        )
+        assert result.name == "default"
+        assert result.node_to_node_mesh_enabled is True
