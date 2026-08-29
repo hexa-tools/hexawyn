@@ -1,7 +1,5 @@
 import asyncio
-import platform
-import subprocess
-import tempfile
+from collections.abc import Callable
 from dataclasses import asdict as _asdict
 from typing import Any
 
@@ -51,11 +49,21 @@ from hexawyn.cli.presentation.slash_commands import (
     is_token_command as _is_token_command,
 )
 from hexawyn.cli.screens.context_picker import ContextPickerScreen
+from hexawyn.cli.screens.session.clipboard import (
+    copy_to_clipboard,
+    open_in_editor,
+    write_export_file,
+)
 from hexawyn.cli.widgets.command_input import CommandInput
 from hexawyn.cli.widgets.markdown_log import MarkdownLog
 from hexawyn.infrastructure.config.kubernetes_context import (
     ClusterContext as KubernetesClusterContext,
 )
+
+
+def _steps_markup(seen_steps: list[str], char: str) -> str:
+    line = " · ".join(seen_steps) if seen_steps else "Thinking"
+    return f"[bold #3B82F6]  {char}[/] [dim #8a93a6]{line}...[/]"
 
 
 class SessionScreen(Screen[None]):
@@ -334,33 +342,33 @@ class SessionScreen(Screen[None]):
         finally:
             status.update("")
 
-    async def _handle_command(self, text: str) -> None:  # noqa: C901, PLR0912, PLR0915
-        app = self._tui_app()
+    async def _handle_command(self, text: str) -> None:
         log = self.query_one("#conversation", MarkdownLog)
-
         log.write(f"\n> **{text}**\n")
 
-        if _is_setup_command(text.strip()):
+        if await self._dispatch_slash_command(text.strip(), log):
+            return
+
+        await self._run_chat_command(text, log)
+
+    async def _dispatch_slash_command(self, text: str, log: MarkdownLog) -> bool:
+        """Handle a slash command. Returns True when a command was handled."""
+        if _is_setup_command(text):
             render_setup_info(log)
-            return
-
-        if _is_token_command(text.strip()):
+            return True
+        if _is_token_command(text):
             await self._open_token_input()
-            return
-
-        if _is_context_command(text.strip()):
-            await self._handle_context_command(text.strip(), log)
-            return
-
-        if _is_stack_command(text.strip()):
-            self._handle_stack_command(text.strip(), log)
-            return
-
-        if _is_cloud_providers_command(text.strip()):
+            return True
+        if _is_context_command(text):
+            await self._handle_context_command(text, log)
+            return True
+        if _is_stack_command(text):
+            self._handle_stack_command(text, log)
+            return True
+        if _is_cloud_providers_command(text):
             await self._open_cloud_providers()
-            return
-
-        if text.strip() == "/refresh":
+            return True
+        if text == "/refresh":
             from hexawyn.infrastructure.license.license_reader import refresh_license
 
             if refresh_license():
@@ -368,69 +376,23 @@ class SessionScreen(Screen[None]):
             else:
                 log.write("[yellow]⚠ Could not refresh license. Run /token to re-activate.[/]")
             self._refresh_aside()
-            return
+            return True
+        return False
 
+    async def _run_chat_command(self, text: str, log: MarkdownLog) -> None:
+        app = self._tui_app()
         status = self.query_one("#status-bar", Static)
         steps_widget = self.query_one("#agentic-steps", Static)
         seen_steps: list[str] = []
 
-        def _steps_markup(char: str) -> str:
-            line = " · ".join(seen_steps) if seen_steps else "Thinking"
-            return f"[bold #3B82F6]  {char}[/] [dim #8a93a6]{line}...[/]"
-
-        def _on_progress(_node_name: str, label: str) -> None:
-            if label not in seen_steps:
-                seen_steps.append(label)
-            line = " · ".join(seen_steps)
-            self.app.call_from_thread(
-                status.update, f"[bold #3B82F6]  ⬡[/] [dim #8a93a6]{line}...[/]"
-            )
-            self.app.call_from_thread(
-                steps_widget.update,
-                f"[dim #8a93a6]{_steps_markup('⬡')}[/]",
-            )
-
-        async def _continuous_spinner() -> None:
-            chars = ["⬡", "⬢", "⬡", "⬢"]
-            i = 0
-            try:
-                while True:
-                    line = " · ".join(seen_steps) if seen_steps else "Thinking"
-                    status.update(f"[bold #3B82F6]  {chars[i % 4]}[/] [dim #8a93a6]{line}...[/]")
-                    steps_widget.update(f"[dim #8a93a6]{_steps_markup(chars[i % 4])}[/]")
-                    i += 1
-                    await asyncio.sleep(0.3)
-            except asyncio.CancelledError:
-                pass
-
-        spinner_task = asyncio.create_task(_continuous_spinner())
+        progress = self._on_progress_cb(status, steps_widget, seen_steps)
+        spinner_task = asyncio.create_task(self._session_spinner(status, steps_widget, seen_steps))
 
         loop = asyncio.get_running_loop()
-        history_with_context = list(self._history)
-        findings = safe_findings(app.adapter)
-        if findings:
-            finding_lines = [
-                f"{f.get('type', 'issue')}: {f.get('resource', 'unknown')} "
-                f"in {f.get('namespace', '?')} — {f.get('message', '')}"
-                for f in findings[:5]
-            ]
-            history_with_context.insert(
-                0,
-                {
-                    "role": "system",
-                    "content": (
-                        "IMPORTANT — The cluster dashboard detected these issues at startup. "
-                        "You MUST investigate them using appropriate tools (describe_pod, "
-                        "analyze_pod_logs, detect_crashloop, etc.) before giving a diagnosis: "
-                        + "; ".join(finding_lines)
-                    ),
-                },
-            )
+        history_with_context = self._history_with_findings(app, text)
         result: ChatCliResponse = await loop.run_in_executor(
             None,
-            lambda: route_command(
-                text, app.adapter, history_with_context, on_progress=_on_progress
-            ),
+            lambda: route_command(text, app.adapter, history_with_context, on_progress=progress),
         )
 
         spinner_task.cancel()
@@ -460,23 +422,63 @@ class SessionScreen(Screen[None]):
         self._history.append({"role": "assistant", "content": answer_text[:2000]})
         self._refresh_aside()
 
-    def _copy_to_clipboard(self, text: str) -> str:
-        system = platform.system()
+    def _on_progress_cb(
+        self, status: Static, steps_widget: Static, seen_steps: list[str]
+    ) -> Callable[[str, str], None]:
+        def _cb(_node_name: str, label: str) -> None:
+            if label not in seen_steps:
+                seen_steps.append(label)
+            line = " · ".join(seen_steps)
+            self.app.call_from_thread(
+                status.update, f"[bold #3B82F6]  ⬡[/] [dim #8a93a6]{line}...[/]"
+            )
+            self.app.call_from_thread(
+                steps_widget.update, f"[dim #8a93a6]{_steps_markup(seen_steps, '⬡')}[/]"
+            )
+
+        return _cb
+
+    async def _session_spinner(
+        self, status: Static, steps_widget: Static, seen_steps: list[str]
+    ) -> None:
+        chars = ["⬡", "⬢", "⬡", "⬢"]
+        i = 0
         try:
-            if system == "Darwin":
-                subprocess.run(["pbcopy"], input=text.encode(), check=True)
-                return "✓ Copied to clipboard"
-            if system == "Linux":
-                for cmd in (["wl-copy"], ["xclip", "-selection", "c"]):
-                    try:
-                        subprocess.run(cmd, input=text.encode(), check=True)
-                        return "✓ Copied to clipboard"
-                    except (FileNotFoundError, subprocess.CalledProcessError):
-                        continue
-                return "✗ Install xclip or wl-clipboard to enable copy"
-            return f"✗ Copy not supported on {system}"
-        except Exception as exc:
-            return f"✗ Copy failed: {exc}"
+            while True:
+                line = " · ".join(seen_steps) if seen_steps else "Thinking"
+                status.update(f"[bold #3B82F6]  {chars[i % 4]}[/] [dim #8a93a6]{line}...[/]")
+                steps_widget.update(f"[dim #8a93a6]{_steps_markup(seen_steps, chars[i % 4])}[/]")
+                i += 1
+                await asyncio.sleep(0.3)
+        except asyncio.CancelledError:
+            pass
+
+    def _history_with_findings(self, app: Any, text: str) -> list[dict[str, str]]:
+        history_with_context = list(self._history)
+        findings = safe_findings(app.adapter)
+        if not findings:
+            return history_with_context
+        finding_lines = [
+            f"{f.get('type', 'issue')}: {f.get('resource', 'unknown')} "
+            f"in {f.get('namespace', '?')} — {f.get('message', '')}"
+            for f in findings[:5]
+        ]
+        history_with_context.insert(
+            0,
+            {
+                "role": "system",
+                "content": (
+                    "IMPORTANT — The cluster dashboard detected these issues at startup. "
+                    "You MUST investigate them using appropriate tools (describe_pod, "
+                    "analyze_pod_logs, detect_crashloop, etc.) before giving a diagnosis: "
+                    + "; ".join(finding_lines)
+                ),
+            },
+        )
+        return history_with_context
+
+    def _copy_to_clipboard(self, text: str) -> str:
+        return copy_to_clipboard(text)
 
     def action_copy_response(self) -> None:
         if not self._last_response:
@@ -490,16 +492,8 @@ class SessionScreen(Screen[None]):
             self.query_one("#status-bar", Static).update("[dim #8a93a6]Nothing to export yet.[/]")  # noqa: E501
             return
         try:
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".txt", delete=False, encoding="utf-8"
-            ) as f:  # noqa: E501
-                f.write(self._last_response)
-                path = f.name
-            system = platform.system()
-            if system == "Darwin":
-                subprocess.Popen(["open", path])
-            elif system == "Linux":
-                subprocess.Popen(["xdg-open", path])
+            path = write_export_file(self._last_response)
+            open_in_editor(path)
             self.query_one("#status-bar", Static).update("[dim #8a93a6]✓ Opened in editor[/]")  # noqa: E501
         except Exception as exc:
             self.query_one("#status-bar", Static).update(f"[dim #8a93a6]✗ Export failed: {exc}[/]")  # noqa: E501

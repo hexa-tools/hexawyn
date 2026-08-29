@@ -2,20 +2,20 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2.svg?logo=discord&logoColor=white)](https://discord.gg/HH3WsrnNw)
-[![Tests](https://img.shields.io/badge/tests-9460_passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-9477_passed-brightgreen.svg)]()
 [![Speed](https://img.shields.io/badge/suite-%3C90s-3B82F6.svg)]()
 [![codecov](https://codecov.io/gh/hexa-tools/hexawyn/branch/main/graph/badge.svg?token=E6PJX17GA8)](https://codecov.io/gh/hexa-tools/hexawyn)
 [![CI](https://github.com/hexa-tools/hexawyn/actions/workflows/ci.yml/badge.svg)](https://github.com/hexa-tools/hexawyn/actions/workflows/ci.yml)
 [![Security](https://github.com/hexa-tools/hexawyn/actions/workflows/security.yml/badge.svg)](https://github.com/hexa-tools/hexawyn/actions/workflows/security.yml)
 [![Docker Hub](https://img.shields.io/docker/pulls/hexatools/hexawyn.svg)](https://hub.docker.com/r/hexatools/hexawyn)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
-[![Benchmark](https://img.shields.io/badge/benchmark-80.6%2F100-yellow.svg)](docs/benchmark/README.md)
+[![Benchmark](https://img.shields.io/badge/benchmark-81.1%2F100-yellow.svg)](docs/benchmark/README.md)
 
 </p>
 
 <p align="center">
   <img
-    src="assets/hexawyn-logo-light.svg"
+    src="assets/hexawyn-logo.svg"
     alt="Hexawyn"
     width="900"
   />
@@ -92,7 +92,7 @@ hexa start
 ```
 
 
-![Hexawyn](assets/hexa.png)
+<img src="assets/hexa.png" width="240" alt="Hexawyn" />
 
 
 
@@ -123,7 +123,7 @@ installed. The integration registers the server over stdio — no separate
 process to manage.
 
 
-![Claude](assets/claude.png)
+<img src="assets/claude.png" width="240" alt="Claude" />
 
 
 
@@ -274,11 +274,11 @@ across platforms, networking, observability, security, GitOps, and integrations.
 
 | Platform & Cloud | Networking | Observability | Security | GitOps & Delivery | Integrations |
 |---|---|---|---|---|---|
-| ![OpenShift](https://cdn.simpleicons.org/redhatopenshift) OpenShift | ![Cilium](https://cdn.simpleicons.org/cilium) Cilium | ![OpenTelemetry](https://opentelemetry.io/img/logos/opentelemetry-horizontal-color.svg) OpenTelemetry | ![Kyverno](https://kyverno.io/_astro/kyverno-logo.BuVpk0lF.svg) Kyverno | ![Argo](https://cdn.simpleicons.org/argo) Argo CD | ![Slack](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/slack/slack-original.svg) Slack |
-| ![Amazon Web Services](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg) AWS | | ![Datadog](https://cdn.simpleicons.org/datadog) Datadog | ![Trivy](https://cdn.simpleicons.org/trivy) Trivy | ![Tekton](https://cdn.simpleicons.org/tekton) Tekton | |
-| ![Google Cloud](https://cdn.simpleicons.org/googlecloud) GCP | | ![Prometheus](https://cdn.simpleicons.org/prometheus) Prometheus | | ![Helm](https://cdn.simpleicons.org/helm) Helm | |
-| ![Microsoft Azure](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg) Azure | | | | ![Kustomize](https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/site/static/favicons/favicon-256.png) Kustomize | |
-| | | | | cert-manager | |
+| <img src="https://cdn.simpleicons.org/redhatopenshift" height="28" alt="OpenShift" /> OpenShift | <img src="https://cdn.simpleicons.org/cilium" height="28" alt="Cilium" /> Cilium | <img src="https://opentelemetry.io/img/logos/opentelemetry-horizontal-color.svg" height="28" alt="OpenTelemetry" /> OpenTelemetry | <img src="https://kyverno.io/_astro/kyverno-logo.BuVpk0lF.svg" height="28" alt="Kyverno" /> Kyverno | <img src="https://cdn.simpleicons.org/argo" height="28" alt="Argo CD" /> Argo CD | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/slack/slack-original.svg" height="28" alt="Slack" /> Slack |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg" height="28" alt="AWS" /> AWS | <img src="https://cdn.simpleicons.org/istio" height="28" alt="Istio" /> Istio | <img src="https://cdn.simpleicons.org/datadog" height="28" alt="Datadog" /> Datadog | <img src="https://cdn.simpleicons.org/trivy" height="28" alt="Trivy" /> Trivy | <img src="https://cdn.simpleicons.org/tekton" height="28" alt="Tekton" /> Tekton | |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/googlecloud/googlecloud-original.svg" height="28" alt="GCP" /> GCP | <img src="https://avatars.githubusercontent.com/u/12304728" height="28" alt="Calico" /> Calico | <img src="https://cdn.simpleicons.org/prometheus" height="28" alt="Prometheus" /> Prometheus | | <img src="https://cdn.simpleicons.org/helm" height="28" alt="Helm" /> Helm | |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg" height="28" alt="Azure" /> Azure | | | | <img src="https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/site/static/favicons/favicon-256.png" height="28" alt="Kustomize" /> Kustomize | |
+| | | | | <img src="https://avatars.githubusercontent.com/u/39950598" height="28" alt="cert-manager" /> cert-manager | |
 
 > Coverage is continuously expanding as new domains, integrations, and use
 > cases are added.
@@ -335,7 +335,9 @@ sequenceDiagram
 ```
 
 👉 Browse all [138 use cases](docs/use-cases/40-query-kubearchive.md) — each with questions, diagrams, and
-test coverage.
+test coverage. **Every use case ships with its own sequence diagram** in
+[`docs/use-cases/`](docs/use-cases/), following the hexagonal flow
+(MCP Tool → Use Case → Port → Adapter → API).
 
 ## Architecture
 

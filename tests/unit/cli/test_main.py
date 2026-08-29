@@ -19,7 +19,7 @@ class TestAppGroup:
 
         assert result.exit_code == 0
         assert "█" in result.output
-        assert "v0.1.0b18" in result.output
+        assert "v0.1.0b19" in result.output
 
     def test_subcommands_registered(self) -> None:
         from hexawyn.cli.main import app
@@ -164,4 +164,14 @@ class TestStartInternals:
         from hexawyn.cli.main import _prompt_token
 
         with patch("hexawyn.cli.main.click.prompt", side_effect=click.Abort()):
+            assert _prompt_token() is None
+
+    def test_prompt_token_returns_none_on_keyboard_interrupt(self) -> None:
+        # A real TTY raises KeyboardInterrupt (not click.Abort) from the raw
+        # getpass read — Ctrl+C must still fall through to local/BYOK mode.
+        from unittest.mock import patch
+
+        from hexawyn.cli.main import _prompt_token
+
+        with patch("hexawyn.cli.main.click.prompt", side_effect=KeyboardInterrupt()):
             assert _prompt_token() is None
