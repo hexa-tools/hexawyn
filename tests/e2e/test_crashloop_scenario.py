@@ -11,10 +11,35 @@ Usage:
 
 from __future__ import annotations
 
+import time
+
 import pytest
 from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
 NAMESPACE = "hexawyn-test"
+
+
+def _poll_for_pod_status(
+    adapter: VanillaAdapter,
+    namespace: str,
+    pod_name: str,
+    expected_status: str,
+    timeout: float = 45.0,
+) -> dict[str, object] | None:
+    """Poll until a pod reaches the expected status.
+
+    A CrashLoopBackOff pod only reads as ``CrashLoop`` while it is in the
+    (long) backoff wait; during the brief running burst between crashes the
+    adapter honestly reports the pod phase (``Running``). Polling across the
+    cycle makes the assertion deterministic.
+    """
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        for pod in adapter.list_pods(namespace=namespace):
+            if pod.get("name") == pod_name and pod.get("status") == expected_status:
+                return pod
+        time.sleep(1.0)
+    return None
 
 
 @pytest.mark.e2e
@@ -24,11 +49,10 @@ class TestCrashloopE2E:
         self._adapter = VanillaAdapter("k3d-hexawyn-e2e")
 
     def test_list_pods_detects_crashloop(self, crashloop_pod: str) -> None:
-        pods = self._adapter.list_pods(namespace=NAMESPACE)
+        pod = _poll_for_pod_status(self._adapter, NAMESPACE, "crashloop-test", "CrashLoop")
 
-        crashloop_pods = [p for p in pods if p.get("status", "") == "CrashLoop"]
-        assert len(crashloop_pods) >= 1, "Expected at least one CrashLoopBackOff pod"
-        assert crashloop_pods[0]["name"] == "crashloop-test"
+        assert pod is not None, "Expected at least one CrashLoopBackOff pod"
+        assert pod["name"] == "crashloop-test"
 
     def test_list_pods_detects_pending(self, pending_pod: str) -> None:
         pods = self._adapter.list_pods(namespace=NAMESPACE)
