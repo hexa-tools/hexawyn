@@ -193,6 +193,13 @@ class TestGetApiKeyProviderAware:
             with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-openai-key"}, clear=True):
                 assert get_api_key() == "sk-openai-key"
 
+    def test_api_key_falls_back_to_universal_when_provider_unknown(self, tmp_path):
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("api_key: sk-from-file\nllm_provider: UnknownProvider\n")
+        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_file):
+            with patch.dict(os.environ, {"LLM_API_KEY": "sk-universal"}, clear=True):
+                assert get_api_key() == "sk-universal"
+
     def test_api_key_leftover_deepseek_is_ignored_when_provider_is_openai(self, tmp_path):
         config_file = tmp_path / "config.yaml"
         config_file.write_text("api_key: sk-from-file\nllm_provider: OpenAI\n")

@@ -30,7 +30,7 @@ terminal.
 
 ## Quality & Performance
 
-- 🧪 **8,500+ tests passed**
+- 🧪 **9,500+ tests passed**
 - ⚡ **<90s full test suite**
 
 
