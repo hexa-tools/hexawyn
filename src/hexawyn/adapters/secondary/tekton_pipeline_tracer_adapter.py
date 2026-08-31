@@ -11,9 +11,9 @@ from hexawyn.application.ports.driven.pipeline_tracer_port import (
 )
 from hexawyn.domain.errors import (
     ClusterUnreachableError,
+    ComponentNotInstalledError,
     InsufficientPermissionsError,
     PipelineNotFoundError,
-    TektonNotInstalledError,
 )
 
 _TEKTON_GROUP = "tekton.dev"
@@ -68,7 +68,9 @@ class TektonPipelineTracerAdapter(PipelineTracerPort):
         except Exception as exc:
             status = getattr(exc, "status", None)
             if status == _K8S_NOT_FOUND:
-                raise TektonNotInstalledError() from exc
+                raise ComponentNotInstalledError(
+                    "Tekton", "https://tekton.dev/docs/installation/"
+                ) from exc
             if status == _K8S_FORBIDDEN:
                 raise InsufficientPermissionsError(
                     f"RBAC denied access to TaskRuns in namespace {namespace!r}",

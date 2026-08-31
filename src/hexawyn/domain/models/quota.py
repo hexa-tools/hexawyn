@@ -14,6 +14,12 @@ QUOTA_RESOURCES = [
 
 
 class LicenseTier(Enum):
+    """Plan label only — NO per-tier numeric limits live here.
+
+    Tier -> limit is owned by the control plane (``/api/v1/quota``); the public
+    client never hardcodes business figures.
+    """
+
     STARTER = "starter"
     TEAM = "team"
     SCALE_UP = "scale_up"
@@ -62,105 +68,18 @@ class QuotaUsage:
         return QuotaState.NORMAL
 
 
-# ── Investigation limits ───────────────────────────────────
-_INVESTIGATION_LIMITS: dict[LicenseTier, int] = {
-    LicenseTier.STARTER: 200,
-    LicenseTier.TEAM: 500,
-    LicenseTier.SCALE_UP: UNLIMITED,
-}
-
-# ── Slack alert limits ─────────────────────────────────────
-_SLACK_LIMITS: dict[LicenseTier, int] = {
-    LicenseTier.STARTER: 50,
-    LicenseTier.TEAM: UNLIMITED,
-    LicenseTier.SCALE_UP: UNLIMITED,
-}
-
-# ── DuckDB history days ────────────────────────────────────
-_HISTORY_DAYS: dict[LicenseTier, int] = {
-    LicenseTier.STARTER: 30,
-    LicenseTier.TEAM: 90,
-    LicenseTier.SCALE_UP: UNLIMITED,
-}
-
-# ── Cluster limits ─────────────────────────────────────────
-_CLUSTER_LIMITS: dict[LicenseTier, int] = {
-    LicenseTier.STARTER: 1,
-    LicenseTier.TEAM: 3,
-    LicenseTier.SCALE_UP: UNLIMITED,
-}
-
-# ── User limits ────────────────────────────────────────────
-_USER_LIMITS: dict[LicenseTier, int] = {
-    LicenseTier.STARTER: 1,
-    LicenseTier.TEAM: 5,
-    LicenseTier.SCALE_UP: 20,
-}
-
-# ── Slack channel limits ───────────────────────────────────
-_SLACK_CHANNEL_LIMITS: dict[LicenseTier, int] = {
-    LicenseTier.STARTER: 1,
-    LicenseTier.TEAM: 3,
-    LicenseTier.SCALE_UP: UNLIMITED,
-}
-
-# ── Billing API call limits (cost tracking) ────────────────
-_BILLING_API_LIMITS: dict[LicenseTier, int] = {
-    LicenseTier.STARTER: 2,
-    LicenseTier.TEAM: UNLIMITED,
-    LicenseTier.SCALE_UP: UNLIMITED,
-}
-
-
-def get_investigation_limit(tier: LicenseTier) -> int:
-    return _INVESTIGATION_LIMITS[tier]
-
-
-def get_slack_limit(tier: LicenseTier) -> int:
-    return _SLACK_LIMITS[tier]
-
-
-def get_history_days(tier: LicenseTier) -> int:
-    return _HISTORY_DAYS[tier]
-
-
-def get_cluster_limit(tier: LicenseTier) -> int:
-    return _CLUSTER_LIMITS[tier]
-
-
-def get_user_limit(tier: LicenseTier) -> int:
-    return _USER_LIMITS[tier]
-
-
-def get_slack_channel_limit(tier: LicenseTier) -> int:
-    return _SLACK_CHANNEL_LIMITS[tier]
-
-
-def get_billing_api_limit(tier: LicenseTier) -> int:
-    return _BILLING_API_LIMITS[tier]
-
-
-# ── Backward-compatible constants ──────────────────────────
-STARTER_MONTHLY_LIMIT = get_investigation_limit(LicenseTier.STARTER)
-STARTER_SLACK_LIMIT = get_slack_limit(LicenseTier.STARTER)
-STARTER_HISTORY_DAYS = get_history_days(LicenseTier.STARTER)
-FREE_MONTHLY_LIMIT = STARTER_MONTHLY_LIMIT  # backward compat
-FREE_SLACK_LIMIT = STARTER_SLACK_LIMIT  # backward compat
-FREE_HISTORY_DAYS = STARTER_HISTORY_DAYS  # backward compat
-PRO_HISTORY_DAYS = 90  # kept for backward compat (Team/Scale-up)
-
-
 @dataclass
 class UsageQuota:
-    """
-    Monthly investigation usage.
-    Limit depends on license tier:
-    Starter=50 / Team=500 / Scale-up=unlimited
+    """Monthly investigation usage.
+
+    The ``limit`` is streamed from the control plane (or its encrypted cache).
+    When neither is available it defaults to ``UNLIMITED`` (= neutral / not
+    locally constrained) because the public client never fabricates a number.
     """
 
     month: str
     count: int
-    limit: int = STARTER_MONTHLY_LIMIT
+    limit: int = UNLIMITED
 
     @property
     def remaining(self) -> int:
@@ -181,15 +100,15 @@ class UsageQuota:
 
 @dataclass
 class SlackQuota:
-    """
-    Monthly Slack alert usage.
-    Limit depends on license tier:
-    Starter=5 / Team=unlimited / Scale-up=unlimited
+    """Monthly Slack alert usage.
+
+    Counted locally; the limit is ``UNLIMITED`` until the control plane exposes
+    a real server-side slack quota (follow-up). No hardcoded figure here.
     """
 
     month: str
     count: int
-    limit: int = STARTER_SLACK_LIMIT
+    limit: int = UNLIMITED
 
     @property
     def remaining(self) -> int:

@@ -3,13 +3,7 @@ from pathlib import Path
 import duckdb
 
 from hexawyn.application.ports.driven.quota_port import QuotaStorePort
-from hexawyn.domain.models.quota import (
-    LicenseTier,
-    SlackQuota,
-    UsageQuota,
-    get_investigation_limit,
-    get_slack_limit,
-)
+from hexawyn.domain.models.quota import UNLIMITED, LicenseTier, SlackQuota, UsageQuota
 
 SQL_DIR = Path(__file__).parent / "sql"
 
@@ -19,10 +13,11 @@ def _load_sql(filename: str) -> str:
 
 
 class QuotaRepository(QuotaStorePort):
-    """
-    Repository for usage quota in DuckDB.
-    Handles both investigation quota and Slack alert quota.
-    Tier-aware: limits come from LicenseTier constants.
+    """Repository for usage quota in DuckDB.
+
+    Handles both investigation quota and Slack alert quota. Limits are not
+    hardcoded here: they stream from the control plane / cache, defaulting to
+    ``UNLIMITED`` (neutral) when unknown.
     """
 
     def __init__(self, conn: duckdb.DuckDBPyConnection) -> None:
@@ -32,11 +27,7 @@ class QuotaRepository(QuotaStorePort):
         row = self._conn.execute(_load_sql("get_quota.sql"), [month]).fetchone()
 
         if row is None:
-            return UsageQuota(
-                month=month,
-                count=0,
-                limit=get_investigation_limit(LicenseTier.STARTER),
-            )
+            return UsageQuota(month=month, count=0, limit=UNLIMITED)
 
         return UsageQuota(
             month=str(row[1]),
@@ -48,11 +39,7 @@ class QuotaRepository(QuotaStorePort):
         row = self._conn.execute(_load_sql("get_quota.sql"), [month]).fetchone()
 
         if row is None:
-            return SlackQuota(
-                month=month,
-                count=0,
-                limit=get_slack_limit(LicenseTier.STARTER),
-            )
+            return SlackQuota(month=month, count=0, limit=UNLIMITED)
 
         return SlackQuota(
             month=str(row[1]),

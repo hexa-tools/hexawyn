@@ -103,7 +103,7 @@ sequenceDiagram
 
 ---
 
-## TC5 — Tekton Not Installed (TektonNotInstalledError)
+## TC5 — Tekton Not Installed (ComponentNotInstalledError)
 
 ```mermaid
 sequenceDiagram
@@ -116,7 +116,7 @@ sequenceDiagram
     MCP->>VanillaAdapter: list_pipeline_runs_in_namespace("tekton", limit=100)
     VanillaAdapter->>K8sAPI: list_namespaced_custom_object(group="tekton.dev", ...)
     K8sAPI-->>VanillaAdapter: ApiException(status=404, reason="Not Found")
-    VanillaAdapter->>VanillaAdapter: raise TektonNotInstalledError()
-    VanillaAdapter-->>MCP: TektonNotInstalledError
+    VanillaAdapter->>VanillaAdapter: raise ComponentNotInstalledError()
+    VanillaAdapter-->>MCP: ComponentNotInstalledError
     MCP-->>SRE: {runs: [], stuck_runs: [], note: null, error: "Tekton is not installed in this cluster. Install Tekton Pipelines first."}
 ```

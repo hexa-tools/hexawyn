@@ -5,6 +5,7 @@ from hexawyn.domain.errors import (
     CheckerNodeError,
     ClusterOperatorCRDNotFoundError,
     ClusterUnreachableError,
+    ComponentNotInstalledError,
     DuckDBUnavailableError,
     EncryptionError,
     HexawynError,
@@ -23,7 +24,6 @@ from hexawyn.domain.errors import (
     SchemaMigrationError,
     SemanticLayerError,
     ServiceNotFoundError,
-    TektonNotInstalledError,
     TracesUnavailableError,
 )
 
@@ -78,17 +78,27 @@ class TestAllExceptions:
             raise exc_cls("catch me")
 
 
-class TestTektonNotInstalledError:
+class TestComponentNotInstalledError:
     def test_inherits_from_hexawyn_error(self) -> None:
-        assert issubclass(TektonNotInstalledError, HexawynError)
+        assert issubclass(ComponentNotInstalledError, HexawynError)
 
-    def test_message_mentions_tekton(self) -> None:
-        err = TektonNotInstalledError()
+    def test_message_mentions_component(self) -> None:
+        err = ComponentNotInstalledError("Tekton", "https://tekton.dev/docs/installation/")
         assert "Tekton" in str(err)
+        assert "not installed" in str(err)
+
+    def test_install_url_in_message(self) -> None:
+        err = ComponentNotInstalledError("KEDA", "https://keda.sh/docs/deploy/")
+        assert "https://keda.sh/docs/deploy/" in str(err)
+
+    def test_stores_component_and_url(self) -> None:
+        err = ComponentNotInstalledError("KEDA", "https://keda.sh/docs/deploy/")
+        assert err.component_name == "KEDA"
+        assert err.install_url == "https://keda.sh/docs/deploy/"
 
     def test_can_be_caught_as_hexawyn_error(self) -> None:
         with pytest.raises(HexawynError):
-            raise TektonNotInstalledError()
+            raise ComponentNotInstalledError("KEDA", "https://keda.sh/docs/deploy/")
 
 
 class TestClusterOperatorCRDNotFoundError:

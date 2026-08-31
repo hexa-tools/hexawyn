@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
-from hexawyn.domain.errors import CertManagerNotFoundError
+from hexawyn.domain.errors import ComponentNotInstalledError
 from hexawyn.domain.models.certificates import (
     AcmeChallenge,
     Certificate,
@@ -26,19 +26,31 @@ class CertManagerDetector(CertManagerPort):
         )
 
     def list_certificates(self, namespace: str | None = None) -> list[Certificate]:
-        raise CertManagerNotFoundError()
+        raise ComponentNotInstalledError(
+            "Cert-Manager", "https://cert-manager.io/docs/installation/"
+        )
 
     def get_certificate(self, name: str, namespace: str) -> Certificate:
-        raise CertManagerNotFoundError()
+        raise ComponentNotInstalledError(
+            "Cert-Manager", "https://cert-manager.io/docs/installation/"
+        )
 
     def list_issuers(self, namespace: str | None = None) -> list[CertificateIssuer]:
-        raise CertManagerNotFoundError()
+        raise ComponentNotInstalledError(
+            "Cert-Manager", "https://cert-manager.io/docs/installation/"
+        )
 
     def get_issuer(self, name: str, namespace: str | None = None) -> CertificateIssuer:
-        raise CertManagerNotFoundError()
+        raise ComponentNotInstalledError(
+            "Cert-Manager", "https://cert-manager.io/docs/installation/"
+        )
 
     def list_challenges(self, namespace: str | None = None) -> list[AcmeChallenge]:
-        raise CertManagerNotFoundError()
+        raise ComponentNotInstalledError(
+            "Cert-Manager", "https://cert-manager.io/docs/installation/"
+        )
 
     def list_requests(self, namespace: str | None = None) -> list[Certificate]:
-        raise CertManagerNotFoundError()
+        raise ComponentNotInstalledError(
+            "Cert-Manager", "https://cert-manager.io/docs/installation/"
+        )

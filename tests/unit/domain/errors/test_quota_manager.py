@@ -101,32 +101,10 @@ class TestIncrementQuota:
 
 
 class TestGetHistoryDays:
-    def test_starter_returns_7(self) -> None:
-        with patch(
-            "hexawyn.infrastructure.config.quota_manager._get_current_tier",
-            return_value=LicenseTier.STARTER,
-        ):
-            from hexawyn.infrastructure.config.quota_manager import get_history_days
+    def test_returns_neutral_unlimited(self) -> None:
+        from hexawyn.infrastructure.config.quota_manager import get_history_days
 
-            assert get_history_days() == 30  # noqa: PLR2004
-
-    def test_team_returns_90(self) -> None:
-        with patch(
-            "hexawyn.infrastructure.config.quota_manager._get_current_tier",
-            return_value=LicenseTier.TEAM,
-        ):
-            from hexawyn.infrastructure.config.quota_manager import get_history_days
-
-            assert get_history_days() == 90  # noqa: PLR2004
-
-    def test_scale_up_returns_unlimited(self) -> None:
-        with patch(
-            "hexawyn.infrastructure.config.quota_manager._get_current_tier",
-            return_value=LicenseTier.SCALE_UP,
-        ):
-            from hexawyn.infrastructure.config.quota_manager import get_history_days
-
-            assert get_history_days() == UNLIMITED
+        assert get_history_days() == UNLIMITED
 
 
 class TestGetQuotaDisplay:
@@ -267,12 +245,34 @@ class TestIncrementQuotaViaDb:
                 "hexawyn.infrastructure.config.quota_manager._get_current_tier",
                 return_value=LicenseTier.STARTER,
             ):
+                with patch(
+                    "hexawyn.infrastructure.config.quota_manager.quota_cache.load_quota",
+                    return_value=None,
+                ):
+                    from hexawyn.infrastructure.config.quota_manager import (
+                        _increment_investigation,
+                    )
+
+                    _increment_investigation()
+                    mock_store.increment_investigation.assert_called_once()
+
+    def test_increment_investigation_uses_cached_limit(self) -> None:
+        mock_store = MagicMock()
+        with patch(
+            "hexawyn.infrastructure.config.quota_manager._get_store",
+            return_value=mock_store,
+        ):
+            with patch(
+                "hexawyn.infrastructure.config.quota_manager.quota_cache.load_quota",
+                return_value={"allowed": True, "used": 3, "limit": 200, "remaining": 197},
+            ):
                 from hexawyn.infrastructure.config.quota_manager import (
                     _increment_investigation,
                 )
 
                 _increment_investigation()
-                mock_store.increment_investigation.assert_called_once()
+                _, kwargs = mock_store.increment_investigation.call_args
+                assert kwargs["limit"] == 200  # noqa: PLR2004
 
     def test_increment_slack_via_db(self) -> None:
         mock_store = MagicMock()

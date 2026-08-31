@@ -3,15 +3,12 @@ from datetime import UTC, datetime
 from hexawyn.application.ports.driven.quota_port import QuotaStorePort
 from hexawyn.domain.errors import QuotaExceededError, SlackQuotaExceededError
 from hexawyn.domain.models.quota import (
+    UNLIMITED,
     LicenseTier,
     SlackQuota,
     UsageQuota,
-    get_investigation_limit,
-    get_slack_limit,
 )
-from hexawyn.domain.models.quota import (
-    get_history_days as _tier_history_days,
-)
+from hexawyn.infrastructure.config import quota_cache
 
 _store: QuotaStorePort | None = None
 
@@ -51,6 +48,14 @@ def _get_current_tier() -> LicenseTier:
         return LicenseTier.STARTER
 
 
+def _local_investigation_limit() -> int:
+    """Investigation limit from the encrypted CP cache, else neutral (UNLIMITED)."""
+    cached = quota_cache.load_quota()
+    if cached is not None:
+        return int(cached["limit"])
+    return UNLIMITED
+
+
 def _get_current_investigation_quota() -> UsageQuota:
     return _get_store().get_investigation_quota(month=_get_current_month())
 
@@ -61,7 +66,7 @@ def _get_current_slack_quota() -> SlackQuota:
 
 def _increment_investigation() -> None:
     tier = _get_current_tier()
-    limit = get_investigation_limit(tier)
+    limit = _local_investigation_limit()
     _get_store().increment_investigation(
         month=_get_current_month(),
         tier=tier,
@@ -70,21 +75,22 @@ def _increment_investigation() -> None:
 
 
 def _increment_slack() -> None:
+    # (ii) Slack is counted-but-unlimited locally; real limit is a CP follow-up.
     tier = _get_current_tier()
-    limit = get_slack_limit(tier)
     _get_store().increment_slack(
         month=_get_current_month(),
         tier=tier,
-        limit=limit,
+        limit=UNLIMITED,
     )
 
 
 def check_quota() -> None:
-    """
-    Check investigation quota before starting LangGraph pipeline.
-    Limits: Free=50 / Dev=200 / Startup=500 / Scale-up=unlimited / Enterprise=unlimited
-    Raises QuotaExceededError if limit reached.
-    Demo mode: caller must skip this.
+    """Check investigation quota before starting LangGraph pipeline.
+
+    The limit is streamed from the control plane (or its cache). When unknown
+    (neutral), the quota is not locally constrained and this does not block —
+    the control plane re-enforces on the next sync. Demo mode: caller must
+    skip this.
     """
     quota = _get_current_investigation_quota()
     if quota.is_exceeded:
@@ -92,10 +98,10 @@ def check_quota() -> None:
 
 
 def check_slack_quota() -> None:
-    """
-    Check Slack alert quota before sending.
-    Limits: Free=5 / Dev=50 / Startup=unlimited / Scale-up=unlimited / Enterprise=unlimited
-    Raises SlackQuotaExceededError if limit reached.
+    """Check Slack alert quota before sending.
+
+    Slack is counted-but-unlimited locally until the control plane exposes a
+    real limit, so this does not block on a fabricated number.
     """
     quota = _get_current_slack_quota()
     if quota.is_exceeded:
@@ -116,19 +122,20 @@ def increment_slack_quota() -> None:
 def get_history_days() -> int:
     """
     DuckDB history window for VSS search.
-    Free=7 / Dev=30 / Startup=90 / Scale-up=unlimited / Enterprise=unlimited
+
+    Neutral by design: no hardcoded tiered figure. When the control plane does
+    not supply a retention window, the client does not fabricate one — it keeps
+    the full window (unlimited).
     """
-    tier = _get_current_tier()
-    return _tier_history_days(tier)
+    return UNLIMITED
 
 
 def get_quota_display() -> str:
     """
     Display string shown in CLI after each investigation.
-    Examples:
-      Free:     "[23/50 free investigations · 27 remaining]"
-      Dev:      "[45/200 Dev investigations · 155 remaining]"
-      Scale-up: "[⭐ Scale-up — unlimited investigations]"
+
+    When the quota is neutral (UNKNOWN / unlimited locally) this reports the
+    plan label without fabricating a numeric usage figure.
     """
     tier = _get_current_tier()
     quota = _get_current_investigation_quota()

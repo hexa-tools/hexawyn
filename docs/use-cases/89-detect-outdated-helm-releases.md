@@ -67,7 +67,7 @@ sequenceDiagram
     alt Helm CLI not installed
         Adapter->>Helm: helm list
         Helm-->>Adapter: FileNotFoundError
-        Adapter-->>Engine: raise HelmNotFoundError
+        Adapter-->>Engine: raise ComponentNotInstalledError
     else Chart repo unreachable
         Adapter->>Repo: helm search repo
         Repo-->>Adapter: timeout

@@ -1054,7 +1054,7 @@ class TestVanillaAdapterListPipelineRunsInNamespace:
             adapter.list_pipeline_runs_in_namespace("tekton", limit=100)
 
     def test_raises_tekton_not_installed_on_404(self) -> None:
-        from hexawyn.domain.errors import TektonNotInstalledError
+        from hexawyn.domain.errors import ComponentNotInstalledError
         from kubernetes.client.exceptions import ApiException
 
         crd_api = MagicMock()
@@ -1062,7 +1062,7 @@ class TestVanillaAdapterListPipelineRunsInNamespace:
         crd_api.list_namespaced_custom_object.side_effect = exc
         adapter = VanillaAdapter("test-cluster", crd_api=crd_api)
 
-        with pytest.raises(TektonNotInstalledError):
+        with pytest.raises(ComponentNotInstalledError):
             adapter.list_pipeline_runs_in_namespace("tekton", limit=100)
 
     def test_raises_cluster_unreachable_on_other_api_exception(self) -> None:

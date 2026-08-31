@@ -10,10 +10,10 @@ from hexawyn.adapters.secondary.vanilla.adapters.tekton_adapter import (
 )
 from hexawyn.domain.errors import (
     ClusterUnreachableError,
+    ComponentNotInstalledError,
     InsufficientPermissionsError,
     PipelineNotFoundError,
     ServiceNotFoundError,
-    TektonNotInstalledError,
 )
 
 
@@ -60,7 +60,7 @@ class TestVanillaTektonAdapter:
 
         api = _FakeCRDApi(exc=ApiException(status=404, reason="Not Found"))
         adapter = VanillaTektonAdapter(crd_api=api)
-        with pytest.raises(TektonNotInstalledError):
+        with pytest.raises(ComponentNotInstalledError):
             adapter.list_pipeline_runs_in_namespace("ns", limit=10)
 
     def test_list_pipeline_runs_in_namespace_generic_error(self) -> None:

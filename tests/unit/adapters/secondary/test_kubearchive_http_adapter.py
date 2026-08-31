@@ -11,7 +11,7 @@ from hexawyn.application.ports.driven.kubearchive_port import (
     KubeArchivePort,
     KubeArchiveQuery,
 )
-from hexawyn.domain.errors import KubeArchiveUnavailableError
+from hexawyn.domain.errors import ComponentNotInstalledError
 
 
 class TestKubeArchiveHTTPAdapter:
@@ -107,7 +107,7 @@ class TestKubeArchiveHTTPAdapter:
                 "timestamp": "t",
             }
 
-            with pytest.raises(KubeArchiveUnavailableError):
+            with pytest.raises(ComponentNotInstalledError):
                 adapter.query_historical_state(query)
 
     def test_http_error_translated(self) -> None:
@@ -128,7 +128,7 @@ class TestKubeArchiveHTTPAdapter:
                 "timestamp": "t",
             }
 
-            with pytest.raises(KubeArchiveUnavailableError):
+            with pytest.raises(ComponentNotInstalledError):
                 adapter.query_historical_state(query)
 
     def test_null_timestamp_data(self) -> None:

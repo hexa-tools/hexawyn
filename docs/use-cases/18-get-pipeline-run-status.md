@@ -63,7 +63,7 @@ sequenceDiagram
 
     else Tekton CRDs not installed (404)
         K8s--xAdapter: ApiException(status=404)
-        Adapter-->>MCP: TektonNotInstalledError propagates
+        Adapter-->>MCP: ComponentNotInstalledError propagates
         MCP-->>User: {error: "Tekton is not installed in this cluster", total: 0}
 
     else Cluster unreachable (connection error or other API failure)
@@ -135,7 +135,7 @@ sequenceDiagram
 - **Elapsed time for running** — `duration_seconds` is computed as `now - start_time` for in-progress runs, giving live elapsed time without waiting for completion.
 - **Failure reason surfacing** — the adapter extracts the Tekton condition `reason` field (e.g., `TaskRunTimeout`, `TaskRunImagePullFailed`) so engineers can act immediately without browsing the Tekton dashboard.
 - **Slowest run** — computed across all completed (Succeeded + Failed) runs within the window; useful for detecting regressions in build time.
-- **Graceful Tekton-absent handling** — `TektonNotInstalledError` on 404 gives a clear message instead of a raw API error.
+- **Graceful Tekton-absent handling** — `ComponentNotInstalledError` on 404 gives a clear message instead of a raw API error.
 
 ## Test Coverage
 
@@ -150,7 +150,7 @@ sequenceDiagram
 | `TestPipelineRunStatusService::test_custom_hours_window_applied` | 2h window excludes 3h old run |
 | `TestPipelineRunStatusService::test_rbac_error_propagates` | InsufficientPermissionsError bubbles |
 | `TestKubernetesTektonAdapter::test_list_pipeline_runs_403_raises_insufficient_permissions` | 403 → InsufficientPermissionsError |
-| `TestKubernetesTektonAdapter::test_list_pipeline_runs_404_raises_tekton_not_installed` | 404 → TektonNotInstalledError |
+| `TestKubernetesTektonAdapter::test_list_pipeline_runs_404_raises_tekton_not_installed` | 404 → ComponentNotInstalledError |
 | `TestKubernetesTektonAdapter::test_failure_reason_extracted_for_failed_run` | reason="TaskRunTimeout" extracted |
 | `TestKubernetesTektonAdapter::test_running_run_has_elapsed_duration` | duration_seconds ≥ 0 for running |
 | `TestFilterByWindow::test_includes_pending_run_with_no_start_time` | None start_time → included |

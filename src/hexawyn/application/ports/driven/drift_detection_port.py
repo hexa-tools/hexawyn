@@ -19,7 +19,7 @@ class DriftDetectionPort(ABC):
     def render_desired_manifests(self, source: str, namespace: str) -> list[ResourceManifestRaw]:
         """Renders the desired-state manifests for the given source.
 
-        Raises HelmNotFoundError/KustomizeNotFoundError if the CLI binary
+        Raises ComponentNotInstalledError if the CLI binary
         is not installed.
         Raises ManifestRenderError on a genuine render failure (malformed
         chart/path/YAML, command error) — distinct from the source not

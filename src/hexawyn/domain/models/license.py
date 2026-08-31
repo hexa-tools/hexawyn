@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
+from hexawyn.domain.models.quota import UNLIMITED
+
 
 @dataclass
 class LicenseKey:
@@ -40,14 +42,19 @@ class LicenseClaims:
 
     @classmethod
     def free(cls) -> "LicenseClaims":
-        """Default claims when no license is present (Starter tier)."""
+        """Default claims when no license is present.
+
+        Neutral by design: no per-tier usage figures are hardcoded here. The
+        control plane owns entitlement; the public client never fabricates a
+        number, so unknown resources default to ``UNLIMITED``.
+        """
         return cls(
             sub="anonymous",
             plan="starter",
-            clusters_max=1,
-            users_max=1,
-            investigations_monthly=50,
-            history_days=7,
+            clusters_max=UNLIMITED,
+            users_max=UNLIMITED,
+            investigations_monthly=UNLIMITED,
+            history_days=UNLIMITED,
             providers=["vanilla"],
             exp=9999999999,
             iat=0,

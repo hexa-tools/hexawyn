@@ -1,25 +1,33 @@
 from __future__ import annotations
 
 from hexawyn.domain.errors import (
+    ComponentNotInstalledError,
     HexawynError,
     HistoricalDataWindowExpiredError,
-    KubeArchiveUnavailableError,
 )
 
 
-class TestKubeArchiveUnavailableError:
+class TestComponentNotInstalledError:
     def test_inherits_from_hexawyn_error(self) -> None:
-        error = KubeArchiveUnavailableError()
+        error = ComponentNotInstalledError(
+            "KubeArchive", "https://kubearchive.org/docs/installation"
+        )
         assert isinstance(error, HexawynError)
 
     def test_has_sensible_message(self) -> None:
-        error = KubeArchiveUnavailableError()
+        error = ComponentNotInstalledError(
+            "KubeArchive", "https://kubearchive.org/docs/installation"
+        )
         message = str(error)
         assert "KubeArchive" in message
         assert len(message) > 10  # noqa: PLR2004
 
     def test_accepts_context(self) -> None:
-        error = KubeArchiveUnavailableError(context={"url": "http://localhost:8081"})
+        error = ComponentNotInstalledError(
+            "KubeArchive",
+            "https://kubearchive.org/docs/installation",
+            context={"url": "http://localhost:8081"},
+        )
         assert error.context["url"] == "http://localhost:8081"
 
 

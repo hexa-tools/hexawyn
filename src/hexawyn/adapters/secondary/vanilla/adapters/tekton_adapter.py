@@ -18,10 +18,10 @@ from hexawyn.application.ports.driven.tekton_port import (
 )
 from hexawyn.domain.errors import (
     ClusterUnreachableError,
+    ComponentNotInstalledError,
     InsufficientPermissionsError,
     PipelineNotFoundError,
     ServiceNotFoundError,
-    TektonNotInstalledError,
 )
 
 _TEKTON_GROUP = "tekton.dev"
@@ -69,7 +69,9 @@ class VanillaTektonAdapter(TektonPort):
                     f"Access denied to namespace '{namespace}': {exc.reason}"
                 ) from exc
             if exc.status == 404:  # noqa: PLR2004
-                raise TektonNotInstalledError() from exc
+                raise ComponentNotInstalledError(
+                    "Tekton", "https://tekton.dev/docs/installation/"
+                ) from exc
             raise ClusterUnreachableError(f"Cannot reach Tekton API: {exc}") from exc
         except Exception as exc:
             raise ClusterUnreachableError(f"Cannot reach Tekton API: {exc}") from exc

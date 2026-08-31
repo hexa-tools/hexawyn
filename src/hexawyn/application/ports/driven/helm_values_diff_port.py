@@ -21,6 +21,6 @@ class HelmValuesDiffPort(ABC):
     def get_effective_values(self, release: str, namespace: str) -> HelmReleaseValues:
         """Return the effective values for *release* in *namespace*.
 
-        Raises HelmNotFoundError when the helm CLI is unavailable.
+        Raises ComponentNotInstalledError when the helm CLI is unavailable.
         Raises ManifestRenderError when the release does not exist or helm fails.
         """

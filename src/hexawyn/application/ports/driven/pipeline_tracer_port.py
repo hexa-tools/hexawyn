@@ -40,7 +40,7 @@ class PipelineTracerPort(ABC):
     ) -> list[TaskRunRecord]:
         """List all TaskRuns associated with a PipelineRun.
 
-        Raises TektonNotInstalledError on 404.
+        Raises ComponentNotInstalledError on 404.
         Raises InsufficientPermissionsError on 403.
         Raises ClusterUnreachableError on other API failures.
         """

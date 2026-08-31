@@ -94,7 +94,7 @@ sequenceDiagram
     Adapter->>K8s: Check keda.sh CRDs
     K8s-->>Adapter: ❌ CRD not found
 
-    Note over Adapter: KedaNotFoundError
+    Note over Adapter: ComponentNotInstalledError
 
     Adapter-->>Tool: KedaDetectionResult(installed=False)
     Tool-->>AI: "KEDA not detected. Install: https://keda.sh/docs/deploy/"
@@ -121,7 +121,7 @@ sequenceDiagram
 ## Related Files
 
 - `src/hexawyn/domain/models/keda.py` — KedaScaledObject, KedaTrigger, KedaTriggerAuth, KedaScaledJob, KedaDetectionResult
-- `src/hexawyn/domain/errors.py` — KedaNotFoundError
+- `src/hexawyn/domain/errors.py` — ComponentNotInstalledError
 - `src/hexawyn/application/ports/driven/keda_port.py` — KedaPort ABC
 - `src/hexawyn/adapters/secondary/gitops/keda_detector.py` — KedaDetector
 - `src/hexawyn/mcp/tools/keda_*.py` — 9 tools

@@ -1,12 +1,6 @@
 from unittest.mock import MagicMock
 
-from hexawyn.domain.models.quota import (
-    LicenseTier,
-    SlackQuota,
-    UsageQuota,
-    get_investigation_limit,
-    get_slack_limit,
-)
+from hexawyn.domain.models.quota import UNLIMITED, LicenseTier, SlackQuota, UsageQuota
 from hexawyn.infrastructure.memory.quota_repository import QuotaRepository
 
 
@@ -15,13 +9,13 @@ class TestQuotaRepository:
         self.mock_conn = MagicMock()
         self.repo = QuotaRepository(conn=self.mock_conn)
 
-    def test_get_investigation_quota_returns_default_when_no_row(self) -> None:
+    def test_get_investigation_quota_defaults_to_neutral_when_no_row(self) -> None:
         self.mock_conn.execute.return_value.fetchone.return_value = None
         quota = self.repo.get_investigation_quota(month="2026-06")
         assert isinstance(quota, UsageQuota)
         assert quota.month == "2026-06"
         assert quota.count == 0
-        assert quota.limit == get_investigation_limit(LicenseTier.STARTER)
+        assert quota.limit == UNLIMITED
 
     def test_get_investigation_quota_returns_row_when_exists(self) -> None:
         self.mock_conn.execute.return_value.fetchone.return_value = (
@@ -40,14 +34,14 @@ class TestQuotaRepository:
         assert quota.count == 23  # noqa: PLR2004
         assert quota.limit == 200  # noqa: PLR2004
 
-    def test_get_slack_quota_returns_default_when_no_row(self) -> None:
+    def test_get_slack_quota_defaults_to_neutral_when_no_row(self) -> None:
         self.mock_conn.execute.return_value.fetchone.return_value = None
         quota = self.repo.get_slack_quota(month="2026-06")
         assert isinstance(quota, SlackQuota)
         assert quota.count == 0
-        assert quota.limit == get_slack_limit(LicenseTier.STARTER)
+        assert quota.limit == UNLIMITED
 
-    def test_get_slack_quota_returns_dev_limits(self) -> None:
+    def test_get_slack_quota_returns_row_when_exists(self) -> None:
         self.mock_conn.execute.return_value.fetchone.return_value = (
             "uuid-123",
             "2026-06",

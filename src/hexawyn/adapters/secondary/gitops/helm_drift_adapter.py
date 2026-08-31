@@ -7,7 +7,7 @@ from hexawyn.application.ports.driven.drift_detection_port import (
     DriftDetectionPort,
     ResourceManifestRaw,
 )
-from hexawyn.domain.errors import HelmNotFoundError, ManifestRenderError
+from hexawyn.domain.errors import ComponentNotInstalledError, ManifestRenderError
 
 _HELM_COMMAND_TIMEOUT_SECONDS = 30.0
 _NOT_FOUND_HINT = "not found"
@@ -42,7 +42,7 @@ class HelmDriftAdapter(DriftDetectionPort):
                 timeout=_HELM_COMMAND_TIMEOUT_SECONDS,
             )
         except FileNotFoundError as exc:
-            raise HelmNotFoundError() from exc
+            raise ComponentNotInstalledError("helm", "https://helm.sh/docs/intro/install/") from exc
         except subprocess.TimeoutExpired as exc:
             raise ManifestRenderError(
                 source=" ".join(args), detail="helm command timed out"

@@ -12,6 +12,14 @@ you contribute:
 - [Issues](https://github.com/hexa-tools/hexawyn/issues) — what needs help
 - [SECURITY.md](SECURITY.md) — how to report vulnerabilities
 
+## Why contributing here is cheap (in tokens)
+
+This project uses a hexagonal architecture: ports define contracts, adapters implement them, the domain stays untouched by either.
+
+Practical upshot for AI-assisted contributors: adding a new adapter (a provider, a channel, a store) only requires reading one port + one existing adapter — a couple hundred lines, tops. No need to load the domain, the other adapters, or the rest of the codebase to understand what to do.
+
+Fast iterations. Cheap contributions — for humans and agents alike.
+
 ## Contribution priorities
 
 We accept contributions in this order of preference:
