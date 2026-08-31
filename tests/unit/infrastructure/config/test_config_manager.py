@@ -1,7 +1,9 @@
 import os
 from unittest.mock import patch
 
+import pytest
 from hexawyn.infrastructure.config.config_manager import (
+    ConfigCorruptedError,
     get_api_key,
     get_llm_config,
     load_config,
@@ -156,6 +158,72 @@ class TestGetLLMConfig:
         ):
             with patch.dict(os.environ, {}, clear=True):
                 assert get_llm_config() == {}
+
+
+class TestGetApiKeyProviderAware:
+    def test_api_key_uses_provider_env_key_when_provider_set(self, tmp_path):
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("api_key: sk-from-file\nllm_provider: OpenAI\n")
+        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_file):
+            with patch.dict(
+                os.environ,
+                {"OPENAI_API_KEY": "sk-from-openai", "DEEPSEEK_API_KEY": "sk-leftover"},
+                clear=True,
+            ):
+                assert get_api_key() == "sk-from-openai"
+
+    def test_api_key_falls_back_to_llm_api_key_universal_when_provider_env_absent(
+        self,
+        tmp_path,
+    ):
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("api_key: sk-from-file\nllm_provider: OpenAI\n")
+        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_file):
+            with patch.dict(
+                os.environ,
+                {"LLM_API_KEY": "sk-universal"},
+                clear=True,
+            ):
+                assert get_api_key() == "sk-universal"
+
+    def test_api_key_resolves_provider_by_numeric_key(self, tmp_path):
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("api_key: sk-from-file\nllm_provider: '2'\n")
+        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_file):
+            with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-openai-key"}, clear=True):
+                assert get_api_key() == "sk-openai-key"
+
+    def test_api_key_leftover_deepseek_is_ignored_when_provider_is_openai(self, tmp_path):
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("api_key: sk-from-file\nllm_provider: OpenAI\n")
+        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_file):
+            with patch.dict(os.environ, {"DEEPSEEK_API_KEY": "sk-leftover"}, clear=True):
+                assert get_api_key() == "sk-from-file"
+
+
+class TestSaveConfigPermissions:
+    def test_save_config_sets_restrictive_permissions(self, tmp_path):
+        config_path = tmp_path / ".hexawyn" / "config.yaml"
+        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_path):
+            save_config({"api_key": "sk-new"})
+            assert config_path.stat().st_mode & 0o777 == 0o600  # noqa: PLR2004
+
+    def test_save_config_restricts_parent_directory(self, tmp_path):
+        config_path = tmp_path / ".hexawyn" / "config.yaml"
+        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_path):
+            save_config({"api_key": "sk-new"})
+            assert config_path.parent.stat().st_mode & 0o777 == 0o700  # noqa: PLR2004
+
+
+class TestLoadConfigCorrupted:
+    def test_load_config_corrupted_yaml_raises_clear_error(self, tmp_path):
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("api_key: [1, 2\n")
+        with patch("hexawyn.infrastructure.config.config_manager.CONFIG_PATH", config_file):
+            with pytest.raises(ConfigCorruptedError) as excinfo:
+                load_config()
+            assert "config.yaml is corrupted" in str(excinfo.value)
+            assert str(config_file) in str(excinfo.value)
 
 
 class TestConfigManagerEdgeCases:

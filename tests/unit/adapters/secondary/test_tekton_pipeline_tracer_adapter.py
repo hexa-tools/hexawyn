@@ -10,9 +10,9 @@ from hexawyn.adapters.secondary.tekton_pipeline_tracer_adapter import (
 )
 from hexawyn.domain.errors import (
     ClusterUnreachableError,
+    ComponentNotInstalledError,
     InsufficientPermissionsError,
     PipelineNotFoundError,
-    TektonNotInstalledError,
 )
 
 
@@ -104,7 +104,7 @@ class TestTektonPipelineTracerAdapter:
         mock_api.list_namespaced_custom_object.side_effect = NotFoundError("not found")
 
         with patch("kubernetes.client.CustomObjectsApi", return_value=mock_api):
-            with pytest.raises(TektonNotInstalledError):
+            with pytest.raises(ComponentNotInstalledError):
                 adapter.list_task_runs_for_pipeline("ci", "pr-1")
 
     def test_list_task_runs_forbidden_raises(self) -> None:

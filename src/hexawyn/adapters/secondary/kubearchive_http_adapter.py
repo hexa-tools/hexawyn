@@ -10,7 +10,7 @@ from hexawyn.application.ports.driven.kubearchive_port import (
     KubeArchiveQuery,
     KubeArchiveResponse,
 )
-from hexawyn.domain.errors import KubeArchiveUnavailableError
+from hexawyn.domain.errors import ComponentNotInstalledError
 
 
 class KubeArchiveHTTPAdapter(KubeArchivePort):
@@ -34,8 +34,10 @@ class KubeArchiveHTTPAdapter(KubeArchivePort):
             response.raise_for_status()
             data: dict[str, object] = response.json()
         except (httpx.ConnectError, httpx.HTTPStatusError, httpx.TimeoutException) as exc:
-            raise KubeArchiveUnavailableError(
-                context={"endpoint": self._endpoint, "detail": str(exc)}
+            raise ComponentNotInstalledError(
+                "KubeArchive",
+                "https://kubearchive.org/docs/installation",
+                context={"endpoint": self._endpoint, "detail": str(exc)},
             ) from exc
 
         raw_items = data.get("items")

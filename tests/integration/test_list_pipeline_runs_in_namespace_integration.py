@@ -17,8 +17,8 @@ from hexawyn.application.use_case.pipelines.list_pipeline_runs_in_namespace.list
     ListPipelineRunsInNamespaceUseCase,
 )
 from hexawyn.domain.errors import (
+    ComponentNotInstalledError,
     InsufficientPermissionsError,
-    TektonNotInstalledError,
 )
 from kubernetes.client.exceptions import ApiException
 
@@ -135,7 +135,7 @@ class TestListPipelineRunsInNamespaceIntegration:
         )
         use_case = _build_use_case(crd_api)
 
-        with pytest.raises(TektonNotInstalledError):
+        with pytest.raises(ComponentNotInstalledError):
             use_case.list_pipeline_runs_in_namespace(
                 ListPipelineRunsInNamespaceCommand(namespace="tekton")
             )

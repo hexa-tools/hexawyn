@@ -2,22 +2,17 @@ from __future__ import annotations
 
 from hexawyn.domain.errors import (
     AdapterTimeoutError,
-    ArgoRolloutsNotFoundError,
-    CertManagerNotFoundError,
     CheckerNodeError,
     ClusterOperatorCRDNotFoundError,
     ClusterUnreachableError,
+    ComponentNotInstalledError,
     DuckDBUnavailableError,
     EncryptionError,
     GitOpsEngineNotFoundError,
-    HelmNotFoundError,
     HexawynError,
     HistoricalDataWindowExpiredError,
     InsufficientPermissionsError,
     InvestigationError,
-    KedaNotFoundError,
-    KubeArchiveUnavailableError,
-    KustomizeNotFoundError,
     LabelSelectorError,
     LogPatternError,
     MachineConfigPoolCRDNotFoundError,
@@ -34,7 +29,6 @@ from hexawyn.domain.errors import (
     SemanticLayerError,
     ServiceNotFoundError,
     SlackQuotaExceededError,
-    TektonNotInstalledError,
     TracesUnavailableError,
 )
 
@@ -141,13 +135,18 @@ class TestErrorHierarchy:
         err = LogPatternError("[invalid", "bad regex")
         assert isinstance(err, HexawynError)
 
-    def test_tekton_not_installed(self) -> None:
-        err = TektonNotInstalledError()
+    def test_component_not_installed(self) -> None:
+        err = ComponentNotInstalledError("Tekton", "https://tekton.dev/docs/installation/")
         assert isinstance(err, HexawynError)
+        assert err.component_name == "Tekton"
+        assert err.install_url == "https://tekton.dev/docs/installation/"
 
-    def test_kubearchive_unavailable(self) -> None:
-        err = KubeArchiveUnavailableError()
+    def test_component_not_installed_with_context(self) -> None:
+        err = ComponentNotInstalledError(
+            "KubeArchive", "https://kubearchive.org/docs/installation", context={"endpoint": "x"}
+        )
         assert isinstance(err, HexawynError)
+        assert err.context == {"endpoint": "x"}
 
     def test_historical_window_expired(self) -> None:
         err = HistoricalDataWindowExpiredError("2020-01-01", "90d")
@@ -159,28 +158,8 @@ class TestErrorHierarchy:
         err = GitOpsEngineNotFoundError()
         assert isinstance(err, HexawynError)
 
-    def test_argo_rollouts_not_found(self) -> None:
-        err = ArgoRolloutsNotFoundError()
-        assert isinstance(err, HexawynError)
-
     def test_policy_engine_not_found(self) -> None:
         err = PolicyEngineNotFoundError()
-        assert isinstance(err, HexawynError)
-
-    def test_cert_manager_not_found(self) -> None:
-        err = CertManagerNotFoundError()
-        assert isinstance(err, HexawynError)
-
-    def test_keda_not_found(self) -> None:
-        err = KedaNotFoundError()
-        assert isinstance(err, HexawynError)
-
-    def test_helm_not_found(self) -> None:
-        err = HelmNotFoundError()
-        assert isinstance(err, HexawynError)
-
-    def test_kustomize_not_found(self) -> None:
-        err = KustomizeNotFoundError()
         assert isinstance(err, HexawynError)
 
     def test_manifest_render_error(self) -> None:

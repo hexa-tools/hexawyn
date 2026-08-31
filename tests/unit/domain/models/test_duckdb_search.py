@@ -1,10 +1,6 @@
 from unittest.mock import MagicMock
 
-from hexawyn.domain.models.quota import (
-    UNLIMITED,
-    LicenseTier,
-    get_history_days,
-)
+from hexawyn.domain.models.quota import UNLIMITED
 from hexawyn.infrastructure.memory.duckdb_client import search_similar
 
 
@@ -14,27 +10,7 @@ class TestSearchSimilarHistoryDays:
         self.mock_conn.execute.return_value.fetchall.return_value = []
         self.embedding: list[float] = [0.1] * 768
 
-    def test_free_tier_uses_7_days(self) -> None:
-        search_similar(
-            conn=self.mock_conn,
-            embedding=self.embedding,
-            cluster_name="prod-eu",
-            history_days=get_history_days(LicenseTier.STARTER),
-        )
-        call_args = self.mock_conn.execute.call_args[0]
-        assert 30 in call_args[1]  # noqa: PLR2004
-
-    def test_team_tier_uses_90_days(self) -> None:
-        search_similar(
-            conn=self.mock_conn,
-            embedding=self.embedding,
-            cluster_name="prod-eu",
-            history_days=get_history_days(LicenseTier.TEAM),
-        )
-        call_args = self.mock_conn.execute.call_args[0]
-        assert 90 in call_args[1]  # noqa: PLR2004
-
-    def test_scale_up_unlimited_uses_large_window(self) -> None:
+    def test_neutral_unlimited_history_uses_large_window(self) -> None:
         search_similar(
             conn=self.mock_conn,
             embedding=self.embedding,
@@ -44,6 +20,16 @@ class TestSearchSimilarHistoryDays:
         self.mock_conn.execute.assert_called_once()
         call_args = self.mock_conn.execute.call_args[0]
         assert 36500 in call_args[1]  # noqa: PLR2004
+
+    def test_explicit_history_days_are_forwarded(self) -> None:
+        search_similar(
+            conn=self.mock_conn,
+            embedding=self.embedding,
+            cluster_name="prod-eu",
+            history_days=30,
+        )
+        call_args = self.mock_conn.execute.call_args[0]
+        assert 30 in call_args[1]  # noqa: PLR2004
 
     def test_interval_param_uses_multiplication(self) -> None:
         search_similar(

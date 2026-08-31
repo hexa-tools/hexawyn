@@ -8,7 +8,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from hexawyn.domain.errors import HexawynError
 from hexawyn.domain.models.license import LicenseClaims
-from hexawyn.domain.models.quota import LicenseTier
+from hexawyn.domain.models.quota import UNLIMITED, LicenseTier
 
 
 def _generate_rsa_keypair() -> tuple[str, str]:
@@ -51,10 +51,10 @@ class TestLicenseClaims:
     def test_default_free_claims(self) -> None:
         claims = LicenseClaims.free()
         assert claims.plan == "starter"
-        assert claims.clusters_max == 1
-        assert claims.users_max == 1
-        assert claims.investigations_monthly == 50  # noqa: PLR2004
-        assert claims.history_days == 7  # noqa: PLR2004
+        assert claims.clusters_max == UNLIMITED
+        assert claims.users_max == UNLIMITED
+        assert claims.investigations_monthly == UNLIMITED
+        assert claims.history_days == UNLIMITED
         assert claims.providers == ["vanilla"]
 
 
@@ -69,7 +69,7 @@ class TestVerifyLicense:
 
                 claims = verify_license()
                 assert claims.plan == "starter"
-                assert claims.clusters_max == 1
+                assert claims.clusters_max == UNLIMITED
 
     def test_valid_jwt_decodes_correctly(self) -> None:
         private_pem, public_pem = _generate_rsa_keypair()

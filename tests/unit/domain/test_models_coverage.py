@@ -5,7 +5,7 @@ class TestAllModels:
     def test_constants(self) -> None:
         from hexawyn.domain.models import constants as c
 
-        [c.QuotaConstants(), c.LogAnalysisConstants()]
+        c.LogAnalysisConstants()
         assert True
 
         from hexawyn.domain.models.keda import AuthType, KedaScaledObjectPhase, TriggerType

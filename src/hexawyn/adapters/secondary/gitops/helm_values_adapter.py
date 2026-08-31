@@ -7,7 +7,7 @@ from hexawyn.application.ports.driven.helm_values_diff_port import (
     HelmReleaseValues,
     HelmValuesDiffPort,
 )
-from hexawyn.domain.errors import HelmNotFoundError, ManifestRenderError
+from hexawyn.domain.errors import ComponentNotInstalledError, ManifestRenderError
 
 _HELM_COMMAND_TIMEOUT_SECONDS = 30.0
 
@@ -36,7 +36,7 @@ class HelmValuesAdapter(HelmValuesDiffPort):
                 timeout=_HELM_COMMAND_TIMEOUT_SECONDS,
             )
         except FileNotFoundError as exc:
-            raise HelmNotFoundError() from exc
+            raise ComponentNotInstalledError("helm", "https://helm.sh/docs/intro/install/") from exc
         except subprocess.TimeoutExpired as exc:
             raise ManifestRenderError(
                 source=" ".join(args), detail="helm command timed out"

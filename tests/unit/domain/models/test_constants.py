@@ -8,7 +8,7 @@ import pytest
 
 class TestVersionAndUrls:
     def test_version_is_string(self) -> None:
-        assert c.VERSION == "0.1.0b19"
+        assert c.VERSION == "0.1.0b20"
 
     def test_pricing_url(self) -> None:
         assert c.PRICING_URL.startswith("https://")
@@ -98,12 +98,6 @@ class TestLogSearch:
 
 
 class TestDataClasses:
-    def test_quota_constants(self) -> None:
-        qc = c.QuotaConstants()
-        assert qc.free_monthly_investigations == 50  # noqa: PLR2004
-        assert qc.free_history_days == 7  # noqa: PLR2004
-        assert qc.unlimited_sentinel == -1
-
     def test_log_analysis_constants(self) -> None:
         lac = c.LogAnalysisConstants()
         assert lac.streaming_chunk_size == 5000  # noqa: PLR2004
@@ -141,7 +135,6 @@ class TestDataClasses:
 
     def test_all_dataclasses_instantiable(self) -> None:
         classes = [
-            c.QuotaConstants,
             c.LogAnalysisConstants,
             c.EventAnalysisConstants,
             c.LogAnomalyDetectionConstants,
@@ -155,7 +148,6 @@ class TestDataClasses:
             c.NamespaceOverviewConstants,
             c.PodAnomalyDetectionConstants,
             c.SemanticSearchConstants,
-            c.LicenseConstants,
             c.ScoringConstants,
             c.PodPrioritizationConstants,
             c.AdaptiveInvestigationConstants,

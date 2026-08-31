@@ -74,39 +74,30 @@ class EncryptionError(HexawynError):
 
 # ── Quota ────────────────────────────────────────────────
 class QuotaExceededError(HexawynError):
-    """
-    Raised when the monthly investigation limit is reached.
-    Limits by tier:
-    - Free    : 50/month
-    - Dev     : 200/month
-    - Startup : 500/month
-    - Scale-up: unlimited
-    - Enterprise: unlimited
+    """Raised when the monthly investigation limit is reached.
+
+    Carries data (used/limit); interface-specific messaging (pricing, the
+    activation command) is built by the primary adapter that surfaces it.
     """
 
     def __init__(self, used: int, limit: int) -> None:
-        super().__init__(
-            f"You've used {used}/{limit} investigations this month.\n"
-            f"Resets on the 1st of next month.\n"
-            f"Upgrade your plan: https://hexawyn.com/pricing\n"
-            f"Activate: hexa license activate <YOUR-KEY>"
-        )
+        super().__init__(f"Quota exceeded: {used}/{limit}.")
         self.used = used
         self.limit = limit
 
 
 class PipelineNotFoundError(HexawynError):
-    """Raised when the requested pipeline has no TaskRuns in the given namespace."""
+    """Raised when the requested pipeline has no runs in the given namespace."""
 
     def __init__(self, pipeline_name: str) -> None:
         super().__init__(
-            f"Pipeline '{pipeline_name}' not found or has no TaskRuns in the requested namespace."
+            f"Pipeline '{pipeline_name}' not found or has no runs in the requested namespace."
         )
         self.pipeline_name = pipeline_name
 
 
 class ServiceNotFoundError(HexawynError):
-    """Raised when no PipelineRuns are found for the requested service."""
+    """Raised when no runs are found for the requested service."""
 
     def __init__(self, service_name: str) -> None:
         super().__init__(f"No pipelines found for service '{service_name}'.")
@@ -151,46 +142,46 @@ class LogPatternError(HexawynError):
         self.detail = detail
 
 
-class TektonNotInstalledError(HexawynError):
-    """Raised when Tekton CRDs are not installed in the cluster."""
-
-    def __init__(self) -> None:
-        super().__init__("Tekton is not installed in this cluster. Install Tekton Pipelines first.")
-
-
 class SlackQuotaExceededError(HexawynError):
-    """
-    Raised when the monthly Slack alert limit is reached.
-    Limits by tier:
-    - Free    : 5/month
-    - Dev     : 50/month
-    - Startup : unlimited
-    - Scale-up: unlimited
-    - Enterprise: unlimited
+    """Raised when the monthly Slack alert limit is reached.
+
+    Carries data (used/limit); interface-specific messaging is built by the
+    primary adapter that surfaces it.
     """
 
     def __init__(self, used: int, limit: int) -> None:
-        super().__init__(
-            f"You've used {used}/{limit} Slack alerts this month.\n"
-            f"Resets on the 1st of next month.\n"
-            f"Upgrade your plan: https://hexawyn.com/pricing"
-        )
+        super().__init__(f"Slack alert quota exceeded: {used}/{limit}.")
         self.used = used
         self.limit = limit
 
 
-# ── KubeArchive ───────────────────────────────────────────
-class KubeArchiveUnavailableError(HexawynError):
-    """Raised when KubeArchive is not installed or unreachable in the cluster."""
+# ── Optional components ─────────────────────────────────────
+class ComponentNotInstalledError(HexawynError):
+    """Raised when a single named optional component is absent.
 
-    def __init__(self, context: dict[str, str] | None = None) -> None:
+    Describes the absence of ONE named component (e.g. Tekton, Argo Rollouts,
+    Cert-Manager, KEDA, KubeArchive, helm, kustomize). This is distinct from
+    GitOpsEngineNotFoundError / PolicyEngineNotFoundError, which express "no
+    engine among several candidates was detected" (an OR over a set), not the
+    absence of a specific named component.
+    """
+
+    def __init__(
+        self,
+        component_name: str,
+        install_url: str | None = None,
+        context: dict[str, str] | None = None,
+    ) -> None:
+        suffix = f": {install_url}" if install_url else "."
         super().__init__(
-            "KubeArchive is not available in this cluster. "
-            "Install KubeArchive first: https://kubearchive.org/docs/installation",
+            f"{component_name} is not installed in this cluster. Install it first{suffix}",
             context=context,
         )
+        self.component_name = component_name
+        self.install_url = install_url
 
 
+# ── KubeArchive ───────────────────────────────────────────
 class HistoricalDataWindowExpiredError(HexawynError):
     """Raised when the requested timestamp predates KubeArchive's data retention window."""
 
@@ -214,17 +205,6 @@ class GitOpsEngineNotFoundError(HexawynError):
         )
 
 
-# ── Argo Rollouts ──────────────────────────────────────────
-class ArgoRolloutsNotFoundError(HexawynError):
-    """Raised when Argo Rollouts is not installed in the cluster."""
-
-    def __init__(self) -> None:
-        super().__init__(
-            "Argo Rollouts is not installed in this cluster. "
-            "Install it first: https://argo-rollouts.readthedocs.io/en/stable/installation/"
-        )
-
-
 # ── Policy Engines ────────────────────────────────────────
 class PolicyEngineNotFoundError(HexawynError):
     """Raised when no policy engine (Kyverno or OPA/Gatekeeper) is detected."""
@@ -236,47 +216,7 @@ class PolicyEngineNotFoundError(HexawynError):
         )
 
 
-# ── Cert-Manager ───────────────────────────────────────────
-class CertManagerNotFoundError(HexawynError):
-    """Raised when Cert-Manager is not installed in the cluster."""
-
-    def __init__(self) -> None:
-        super().__init__(
-            "Cert-Manager is not installed in this cluster. "
-            "Install it first: https://cert-manager.io/docs/installation/"
-        )
-
-
-# ── KEDA ───────────────────────────────────────────────────
-class KedaNotFoundError(HexawynError):
-    """Raised when KEDA is not installed in the cluster."""
-
-    def __init__(self) -> None:
-        super().__init__(
-            "KEDA is not installed in this cluster. Install it first: https://keda.sh/docs/deploy/"
-        )
-
-
 # ── Configuration Drift Detection ───────────────────────────
-class HelmNotFoundError(HexawynError):
-    """Raised when the `helm` CLI binary is not installed/on PATH."""
-
-    def __init__(self) -> None:
-        super().__init__(
-            "helm is not installed or not on PATH. Install it first: https://helm.sh/docs/intro/install/"
-        )
-
-
-class KustomizeNotFoundError(HexawynError):
-    """Raised when the `kustomize` CLI binary is not installed/on PATH."""
-
-    def __init__(self) -> None:
-        super().__init__(
-            "kustomize is not installed or not on PATH. "
-            "Install it first: https://kubectl.docs.kubernetes.io/installation/kustomize/"
-        )
-
-
 class ManifestRenderError(HexawynError):
     """Raised when rendering a Helm release or Kustomize overlay genuinely
     fails (malformed chart/path/YAML, command error) — distinct from
