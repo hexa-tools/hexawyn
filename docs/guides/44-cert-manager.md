@@ -92,7 +92,7 @@ sequenceDiagram
     Adapter->>K8s: Check cert-manager.io CRDs
     K8s-->>Adapter: ❌ CRD not found
 
-    Note over Adapter: CertManagerNotFoundError
+    Note over Adapter: ComponentNotInstalledError
 
     Adapter-->>Tool: CertManagerDetectionResult(installed=False)
     Tool-->>AI: "Cert-Manager not detected. Install: https://cert-manager.io/docs/installation/"
@@ -118,7 +118,7 @@ sequenceDiagram
 ## Related Files
 
 - `src/hexawyn/domain/models/certificates.py` — Certificate, CertificateIssuer, AcmeChallenge, CertManagerDetectionResult
-- `src/hexawyn/domain/errors.py` — CertManagerNotFoundError
+- `src/hexawyn/domain/errors.py` — ComponentNotInstalledError
 - `src/hexawyn/application/ports/driven/cert_manager_port.py` — CertManagerPort ABC
 - `src/hexawyn/adapters/secondary/gitops/cert_manager_detector.py` — CertManagerDetector
 - `src/hexawyn/mcp/tools/certs_*.py` — 8 tools

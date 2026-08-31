@@ -65,9 +65,9 @@ sequenceDiagram
     Adapter->>KAAPI: GET /api/v1/resources
     KAAPI-->>Adapter: ❌ ConnectError (Connection refused)
 
-    Note over Adapter: catch httpx.ConnectError<br/>→ raise KubeArchiveUnavailableError<br/>"Install KubeArchive first: https://kubearchive.org/docs/installation"
+    Note over Adapter: catch httpx.ConnectError<br/>→ raise ComponentNotInstalledError<br/>"Install KubeArchive first: https://kubearchive.org/docs/installation"
 
-    Adapter-->>Tool: KubeArchiveUnavailableError propagates
+    Adapter-->>Tool: ComponentNotInstalledError propagates
     Tool-->>AI: {error: "KubeArchive not available. Install: https://..."}
 ```
 
@@ -137,7 +137,7 @@ sequenceDiagram
 - **Historical state query** — queries KubeArchive REST API for pod state at a specific ISO 8601 timestamp
 - **Restart detection** — flags pods with restart_count > 5 and pods in failing phases (CrashLoopBackOff, Error, ImagePullBackOff, Evicted)
 - **Comparison mode** — compares historical vs current state, shows delta (pods added/removed), marks pods that no longer exist as `currently_exists=False`
-- **Error translation** — HTTP errors (ConnectError, HTTPStatusError, TimeoutException) translated to `KubeArchiveUnavailableError`; expired timestamps handled gracefully
+- **Error translation** — HTTP errors (ConnectError, HTTPStatusError, TimeoutException) translated to `ComponentNotInstalledError`; expired timestamps handled gracefully
 - **KubeArchive not installed** — returns installation hint URL instead of crashing
 
 ## Test Coverage
@@ -168,7 +168,7 @@ sequenceDiagram
 ## Related Files
 
 - `src/hexawyn/domain/models/historical_pod.py` — HistoricalPod, HistoricalStateSnapshot, StateComparison, PodRestartStatus
-- `src/hexawyn/domain/errors.py` — KubeArchiveUnavailableError, HistoricalDataWindowExpiredError
+- `src/hexawyn/domain/errors.py` — ComponentNotInstalledError, HistoricalDataWindowExpiredError
 - `src/hexawyn/application/ports/driven/kubearchive_port.py` — KubeArchivePort ABC + TypedDicts
 - `src/hexawyn/application/ports/driving/query_kubearchive/` — Command, Response, ServicePort ABC
 - `src/hexawyn/application/service/historical_state_query_service.py` — service implementation

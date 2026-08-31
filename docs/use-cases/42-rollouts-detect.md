@@ -108,7 +108,7 @@ sequenceDiagram
     Detector->>K8s: Check argo-rollouts CRDs (argoproj.io/v1alpha1)
     K8s-->>Detector: ❌ CRD not found
 
-    Note over Detector: ArgoRolloutsNotFoundError<br/>"Argo Rollouts is not installed"
+    Note over Detector: ComponentNotInstalledError<br/>"Argo Rollouts is not installed"
 
     Detector-->>Tool: RolloutsDetectionResult(installed=False)
     Tool-->>AI: "Argo Rollouts not detected.<br/>Install: https://argo-rollouts.readthedocs.io/en/stable/installation/"
@@ -136,7 +136,7 @@ sequenceDiagram
 ## Related Files
 
 - `src/hexawyn/domain/models/rollouts.py` — Rollout, AnalysisRun, RolloutsDetectionResult, RolloutStepStatus
-- `src/hexawyn/domain/errors.py` — ArgoRolloutsNotFoundError
+- `src/hexawyn/domain/errors.py` — ComponentNotInstalledError
 - `src/hexawyn/application/ports/driven/rollouts_port.py` — RolloutsPort ABC
 - `src/hexawyn/adapters/secondary/gitops/argo_rollouts_detector.py` — ArgoRolloutsDetector
 - `src/hexawyn/mcp/tools/rollouts_detect.py` — detect tool

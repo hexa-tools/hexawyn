@@ -123,7 +123,7 @@ sequenceDiagram
     Adapter->>K8s: Check KEDA CRDs (keda.sh)
     K8s-->>Adapter: ❌ CRD not found
 
-    Note over Adapter: KedaNotFoundError<br/>"KEDA CRDs not found — no keda.sh API group"
+    Note over Adapter: ComponentNotInstalledError<br/>"KEDA CRDs not found — no keda.sh API group"
 
     Adapter-->>Tool: KedaDetectionResult(installed=False)
     Tool-->>AI: "KEDA is not installed in this cluster. Install via: https://keda.sh/docs/deploy/"
@@ -195,7 +195,7 @@ sequenceDiagram
 ## Related Files
 
 - `src/hexawyn/domain/models/keda.py` — KedaScaledObject, KedaTrigger, KedaTriggerAuth, KedaScaledJob, KedaDetectionResult
-- `src/hexawyn/domain/errors.py` — KedaNotFoundError
+- `src/hexawyn/domain/errors.py` — ComponentNotInstalledError
 - `src/hexawyn/application/ports/driven/keda_port.py` — KedaPort ABC
 - `src/hexawyn/adapters/secondary/keda/keda_adapter.py` — KedaAdapter (reads KEDA CRDs)
 - `src/hexawyn/adapters/secondary/keda/keda_detector.py` — KedaDetector (auto-detect CRDs)
