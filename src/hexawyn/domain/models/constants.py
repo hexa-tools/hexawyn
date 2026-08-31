@@ -7,7 +7,7 @@ consolidated into typed module-level constants and dataclasses.
 from dataclasses import dataclass
 
 # ── Version & URLs ──────────────────────────────────────────────
-VERSION: str = "0.1.0b19"
+VERSION: str = "0.1.0b20"
 PRICING_URL: str = "https://hexawyn.com/pricing"
 TELEMETRY_URL: str = "https://api.hexawyn.com/v1/telemetry"
 
@@ -44,7 +44,7 @@ HEALTH_SCORE_YELLOW_THRESHOLD: int = 50
 MAX_SUGGESTION_CHIPS: int = 4
 MAX_TOP_ISSUES: int = 2
 
-# ── Quota ───────────────────────────────────────────────────────
+# ── Quota (UI) ──────────────────────────────────────────────────
 QUOTA_LOW_WARNING_THRESHOLD: int = 5
 
 # ── VSS / DuckDB ────────────────────────────────────────────────
@@ -64,21 +64,6 @@ DEFAULT_MCP_HOST: str = "0.0.0.0"
 
 # ── Log Search ──────────────────────────────────────────────────
 DEFAULT_LOG_SEARCH_WINDOW_MINUTES: int = 15
-
-
-@dataclass(frozen=True)
-class QuotaConstants:
-    """Per-tier quota limits."""
-
-    free_monthly_investigations: int = 50
-    free_monthly_slack_alerts: int = 5
-    free_history_days: int = 7
-    dev_monthly_investigations: int = 200
-    dev_monthly_slack_alerts: int = 50
-    dev_history_days: int = 30
-    startup_monthly_investigations: int = 500
-    startup_history_days: int = 90
-    unlimited_sentinel: int = -1
 
 
 @dataclass(frozen=True)
@@ -221,18 +206,6 @@ class SemanticSearchConstants:
     default_vss_min_score: float = 0.80
     max_retries: int = 3
     max_suggestions: int = 4
-
-
-@dataclass(frozen=True)
-class LicenseConstants:
-    """Default license claim values and durations."""
-
-    default_clusters_max: int = 1
-    default_users_max: int = 1
-    default_investigations_monthly: int = 50
-    default_history_days: int = 7
-    default_providers: frozenset[str] = frozenset({"vanilla"})
-    jwt_leeway_seconds: int = 300
 
 
 @dataclass(frozen=True)

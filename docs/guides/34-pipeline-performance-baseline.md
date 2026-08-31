@@ -86,8 +86,8 @@ sequenceDiagram
         MCP->>Adapter: list_pipeline_runs("ci", limit=30)
         Adapter->>K8s: list_namespaced_custom_object()
         K8s-->>Adapter: ApiException(status=404)
-        Adapter->>Adapter: raise TektonNotInstalledError
-        Adapter-->>MCP: TektonNotInstalledError
+        Adapter->>Adapter: raise ComponentNotInstalledError
+        Adapter-->>MCP: ComponentNotInstalledError
         MCP-->>SRE: {error: "Tekton is not installed — no PipelineRun CRDs found"}
     else Cluster unreachable
         MCP->>Adapter: list_pipeline_runs("ci", limit=30)

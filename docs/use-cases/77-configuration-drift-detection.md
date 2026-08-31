@@ -186,14 +186,14 @@ port/service/use-case/tool/adapter stack:
 | `test_resource_without_helm_annotation_or_kustomize_match_is_excluded` (edge case) / `test_deleted_helm_release_marks_resource_orphaned` (edge case) / `test_live_resource_matching_kustomize_render_is_kustomize_managed` / `test_same_release_rendered_only_once_for_multiple_resources` (memoization) / `test_empty_cluster_produces_empty_report` | `tests/unit/test_configuration_drift_detection_service.py` | ✅ |
 | `test_execute_delegates_to_service` | `tests/unit/test_configuration_drift_detection_use_case.py` | ✅ |
 | `test_returns_drift_report` / `test_handles_error` / `test_has_register` | `tests/unit/test_configuration_drift_detection_tool.py` | ✅ |
-| Multi-doc YAML parse / binary-not-found → `HelmNotFoundError` / timeout / non-zero-exit → `ManifestRenderError` / "release not found" → `source_exists() == False` / other failure re-raises | `tests/unit/test_helm_drift_adapter.py` | ✅ |
-| YAML parse / binary-not-found → `KustomizeNotFoundError` / timeout / non-zero-exit / `source_exists` via real `Path.exists()` | `tests/unit/test_kustomize_drift_adapter.py` | ✅ |
+| Multi-doc YAML parse / binary-not-found → `ComponentNotInstalledError` / timeout / non-zero-exit → `ManifestRenderError` / "release not found" → `source_exists() == False` / other failure re-raises | `tests/unit/test_helm_drift_adapter.py` | ✅ |
+| YAML parse / binary-not-found → `ComponentNotInstalledError` / timeout / non-zero-exit / `source_exists` via real `Path.exists()` | `tests/unit/test_kustomize_drift_adapter.py` | ✅ |
 | Deployments+ConfigMaps with labels/annotations extracted / empty namespace / error translation (both API calls) | `tests/unit/test_kubernetes_live_resource_adapter.py` | ✅ |
 
 ## Related Files
 
 - `src/hexawyn/domain/models/constants.py` — `ConfigurationDriftConstants` (`helm_command_timeout_seconds=30.0`, `kustomize_command_timeout_seconds=15.0`, `helm_managed_by_label_key`, `helm_managed_by_label_value`, `helm_release_annotation_key`)
-- `src/hexawyn/domain/errors.py` — `HelmNotFoundError`, `KustomizeNotFoundError`, `ManifestRenderError`
+- `src/hexawyn/domain/errors.py` — `ComponentNotInstalledError`, `ComponentNotInstalledError`, `ManifestRenderError`
 - `src/hexawyn/domain/models/configuration_drift.py` — `DriftedField`, `ResourceManifest`, `DriftResult`, `ConfigurationDriftRequest`, `ConfigurationDriftReport`
 - `src/hexawyn/domain/services/configuration_drift/drift_severity.py` — `classify_severity`
 - `src/hexawyn/domain/services/configuration_drift/field_comparison.py` — field extractors + comparison helpers

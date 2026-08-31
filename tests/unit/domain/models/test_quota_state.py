@@ -1,4 +1,4 @@
-from hexawyn.domain.models.quota import UNLIMITED, LicenseTier, QuotaState, QuotaUsage
+from hexawyn.domain.models.quota import UNLIMITED, QuotaState, QuotaUsage
 
 
 class TestQuotaState:
@@ -90,71 +90,3 @@ class TestQuotaUsage:
     def test_available_from_tier_defaults_to_none(self) -> None:
         usage = QuotaUsage(resource="investigations", used=10, limit=50, state=QuotaState.NORMAL)
         assert usage.available_from_tier is None
-
-
-class TestPricingMatrixClusters:
-    def test_starter_has_one_cluster(self) -> None:
-        from hexawyn.domain.models.quota import get_cluster_limit
-
-        assert get_cluster_limit(LicenseTier.STARTER) == 1
-
-    def test_team_has_three_clusters(self) -> None:
-        from hexawyn.domain.models.quota import get_cluster_limit
-
-        assert get_cluster_limit(LicenseTier.TEAM) == 3  # noqa: PLR2004
-
-    def test_scale_up_unlimited_clusters(self) -> None:
-        from hexawyn.domain.models.quota import get_cluster_limit
-
-        assert get_cluster_limit(LicenseTier.SCALE_UP) == UNLIMITED
-
-
-class TestPricingMatrixUsers:
-    def test_starter_has_one_user(self) -> None:
-        from hexawyn.domain.models.quota import get_user_limit
-
-        assert get_user_limit(LicenseTier.STARTER) == 1
-
-    def test_team_has_five_users(self) -> None:
-        from hexawyn.domain.models.quota import get_user_limit
-
-        assert get_user_limit(LicenseTier.TEAM) == 5  # noqa: PLR2004
-
-    def test_scale_up_has_twenty_users(self) -> None:
-        from hexawyn.domain.models.quota import get_user_limit
-
-        assert get_user_limit(LicenseTier.SCALE_UP) == 20  # noqa: PLR2004
-
-
-class TestPricingMatrixSlackChannels:
-    def test_starter_has_one_channel(self) -> None:
-        from hexawyn.domain.models.quota import get_slack_channel_limit
-
-        assert get_slack_channel_limit(LicenseTier.STARTER) == 1
-
-    def test_team_has_three_channels(self) -> None:
-        from hexawyn.domain.models.quota import get_slack_channel_limit
-
-        assert get_slack_channel_limit(LicenseTier.TEAM) == 3  # noqa: PLR2004
-
-    def test_scale_up_unlimited_channels(self) -> None:
-        from hexawyn.domain.models.quota import get_slack_channel_limit
-
-        assert get_slack_channel_limit(LicenseTier.SCALE_UP) == UNLIMITED
-
-
-class TestPricingMatrixBillingApi:
-    def test_starter_has_two_calls(self) -> None:
-        from hexawyn.domain.models.quota import get_billing_api_limit
-
-        assert get_billing_api_limit(LicenseTier.STARTER) == 2  # noqa: PLR2004
-
-    def test_team_has_unlimited_billing_api(self) -> None:
-        from hexawyn.domain.models.quota import get_billing_api_limit
-
-        assert get_billing_api_limit(LicenseTier.TEAM) == UNLIMITED
-
-    def test_scale_up_unlimited_billing_api(self) -> None:
-        from hexawyn.domain.models.quota import get_billing_api_limit
-
-        assert get_billing_api_limit(LicenseTier.SCALE_UP) == UNLIMITED

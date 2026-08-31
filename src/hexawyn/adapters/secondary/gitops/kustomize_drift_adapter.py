@@ -8,7 +8,7 @@ from hexawyn.application.ports.driven.drift_detection_port import (
     DriftDetectionPort,
     ResourceManifestRaw,
 )
-from hexawyn.domain.errors import KustomizeNotFoundError, ManifestRenderError
+from hexawyn.domain.errors import ComponentNotInstalledError, ManifestRenderError
 
 _KUSTOMIZE_COMMAND_TIMEOUT_SECONDS = 15.0
 
@@ -38,7 +38,9 @@ class KustomizeDriftAdapter(DriftDetectionPort):
                 timeout=_KUSTOMIZE_COMMAND_TIMEOUT_SECONDS,
             )
         except FileNotFoundError as exc:
-            raise KustomizeNotFoundError() from exc
+            raise ComponentNotInstalledError(
+                "kustomize", "https://kubectl.docs.kubernetes.io/installation/kustomize/"
+            ) from exc
         except subprocess.TimeoutExpired as exc:
             raise ManifestRenderError(
                 source=" ".join(args), detail="kustomize command timed out"

@@ -6,7 +6,7 @@ from typing import TypedDict
 import duckdb
 
 from hexawyn.domain.errors import DuckDBUnavailableError, EncryptionError
-from hexawyn.domain.models.quota import FREE_HISTORY_DAYS, UNLIMITED
+from hexawyn.domain.models.quota import UNLIMITED
 from hexawyn.infrastructure.memory.encryption import (
     derive_key,
     is_encryption_disabled,
@@ -121,17 +121,17 @@ def search_similar(  # noqa: PLR0913
     conn: duckdb.DuckDBPyConnection,
     embedding: list[float],
     cluster_name: str,
-    history_days: int = FREE_HISTORY_DAYS,
+    history_days: int = UNLIMITED,
     namespace: str | None = None,
     resource_name: str | None = None,
     limit: int = 5,
     min_score: float = 0.80,
 ) -> list[SimilarInvestigationDict]:
     """
-    VSS search with tier-aware history window.
+    VSS search with a history window.
 
-    history_days: 7 (Free) / 30 (Dev) / 90 (Startup) / UNLIMITED=-1 (Scale-up+)
-    UNLIMITED → uses 36500 days proxy (no effective filter).
+    Neutral by design: no hardcoded tiered retention figure. ``UNLIMITED``
+    (``-1``) uses the 36500-days proxy (no effective filter).
 
     Uses HNSW index for fast approximate nearest neighbor search.
     Explicit columns only — no wildcard select (enforced by hexa_guard.py R8).

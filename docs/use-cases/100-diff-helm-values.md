@@ -72,7 +72,7 @@ sequenceDiagram
     alt helm binary missing
         Adapter->>Helm: helm get values ...
         Helm-->>Adapter: FileNotFoundError
-        Adapter-->>MCP: HelmNotFoundError
+        Adapter-->>MCP: ComponentNotInstalledError
     else release not found / helm non-zero exit
         Adapter->>Helm: helm get values ...
         Helm-->>Adapter: exit 1 "release: not found"

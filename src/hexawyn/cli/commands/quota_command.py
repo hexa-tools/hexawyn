@@ -14,8 +14,9 @@ from hexawyn.cli.presentation.quota_renderer import (
     QUOTA_STATE_ICONS,
     UPGRADE_URL,
     compute_bar_fill,
+    format_quota_exceeded,
 )
-from hexawyn.domain.models.quota import QuotaState
+from hexawyn.domain.models.quota import QuotaState, QuotaUsage
 
 TIER_LABELS: dict[str, str] = {
     "starter": "\U0001f1eb\U0001f1f7 Starter ($1/month)",
@@ -95,6 +96,7 @@ def quota() -> None:
 
     any_exhausted = False
     any_above_normal = False
+    exhausted_quota: QuotaUsage | None = None
 
     for quota_usage in response.quotas:
         if quota_usage.state == QuotaState.UNLIMITED:
@@ -103,6 +105,7 @@ def quota() -> None:
 
         if quota_usage.state == QuotaState.EXHAUSTED:
             any_exhausted = True
+            exhausted_quota = quota_usage
         if quota_usage.state in (QuotaState.WARNING, QuotaState.CRITICAL):
             any_above_normal = True
 
@@ -125,7 +128,14 @@ def quota() -> None:
 
     click.echo("Reset         : 1st of next month")
 
-    if any_exhausted:
-        click.echo(f"\n\u274c Quota exceeded! Upgrade: {UPGRADE_URL}")
+    if any_exhausted and exhausted_quota is not None:
+        click.echo(
+            "\n"
+            + format_quota_exceeded(
+                used=exhausted_quota.used,
+                limit=exhausted_quota.limit or 0,
+                resource=exhausted_quota.resource,
+            )
+        )
     elif any_above_normal:
         click.echo(f"\n\U0001f680 Running low on quota! Upgrade: {UPGRADE_URL}")

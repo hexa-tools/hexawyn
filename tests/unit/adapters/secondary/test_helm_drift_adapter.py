@@ -7,7 +7,7 @@ from hexawyn.adapters.secondary.gitops.helm_drift_adapter import (
     HelmDriftAdapter,
     _parse_multi_doc_yaml,
 )
-from hexawyn.domain.errors import HelmNotFoundError
+from hexawyn.domain.errors import ComponentNotInstalledError
 
 
 class TestHelmDriftAdapter:
@@ -37,7 +37,7 @@ spec:
     def test_render_desired_manifests_helm_not_found(self) -> None:
         with patch("subprocess.run", side_effect=FileNotFoundError):
             adapter = HelmDriftAdapter()
-            with pytest.raises(HelmNotFoundError):
+            with pytest.raises(ComponentNotInstalledError):
                 adapter.render_desired_manifests("my-release", "default")
 
     def test_source_exists_returns_true(self) -> None:

@@ -57,6 +57,6 @@ class TektonPort(ABC):
 
         Returns empty list when namespace has no PipelineRuns.
         Raises InsufficientPermissionsError on RBAC 403.
-        Raises TektonNotInstalledError when Tekton CRDs are absent (404).
+        Raises ComponentNotInstalledError when Tekton CRDs are absent (404).
         Raises ClusterUnreachableError on other API failures.
         """

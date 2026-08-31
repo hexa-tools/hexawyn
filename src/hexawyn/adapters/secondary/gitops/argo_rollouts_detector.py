@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
-from hexawyn.domain.errors import ArgoRolloutsNotFoundError
+from hexawyn.domain.errors import ComponentNotInstalledError
 from hexawyn.domain.models.rollouts import (
     AnalysisRun,
     Rollout,
@@ -28,12 +28,18 @@ class ArgoRolloutsDetector(RolloutsPort):
         )
 
     def list_rollouts(self, namespace: str | None = None) -> list[Rollout]:
-        raise ArgoRolloutsNotFoundError()
+        raise ComponentNotInstalledError(
+            "Argo Rollouts", "https://argo-rollouts.readthedocs.io/en/stable/installation/"
+        )
 
     def get_rollout(self, name: str, namespace: str) -> Rollout:
-        raise ArgoRolloutsNotFoundError()
+        raise ComponentNotInstalledError(
+            "Argo Rollouts", "https://argo-rollouts.readthedocs.io/en/stable/installation/"
+        )
 
     def list_analysis_runs(
         self, namespace: str | None = None, rollout_name: str | None = None
     ) -> list[AnalysisRun]:
-        raise ArgoRolloutsNotFoundError()
+        raise ComponentNotInstalledError(
+            "Argo Rollouts", "https://argo-rollouts.readthedocs.io/en/stable/installation/"
+        )

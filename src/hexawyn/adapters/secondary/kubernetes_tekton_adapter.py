@@ -9,8 +9,8 @@ from hexawyn.application.ports.driven.tekton_pipeline_status_port import (
 )
 from hexawyn.domain.errors import (
     ClusterUnreachableError,
+    ComponentNotInstalledError,
     InsufficientPermissionsError,
-    TektonNotInstalledError,
 )
 
 _TEKTON_GROUP = "tekton.dev"
@@ -43,7 +43,9 @@ class KubernetesTektonAdapter(TektonPipelineStatusPort):
                     context={"namespace": namespace},
                 ) from exc
             if status == _K8S_NOT_FOUND:
-                raise TektonNotInstalledError() from exc
+                raise ComponentNotInstalledError(
+                    "Tekton", "https://tekton.dev/docs/installation/"
+                ) from exc
             raise ClusterUnreachableError(
                 f"Tekton API unreachable in namespace {namespace!r}: {exc}"
             ) from exc

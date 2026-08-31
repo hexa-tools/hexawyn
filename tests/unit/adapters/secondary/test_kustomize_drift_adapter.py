@@ -7,7 +7,7 @@ import pytest
 from hexawyn.adapters.secondary.gitops.kustomize_drift_adapter import (
     KustomizeDriftAdapter,
 )
-from hexawyn.domain.errors import KustomizeNotFoundError
+from hexawyn.domain.errors import ComponentNotInstalledError
 
 
 class TestKustomizeDriftAdapter:
@@ -36,7 +36,7 @@ spec:
     def test_render_desired_manifests_kustomize_not_found(self) -> None:
         with patch("subprocess.run", side_effect=FileNotFoundError):
             adapter = KustomizeDriftAdapter()
-            with pytest.raises(KustomizeNotFoundError):
+            with pytest.raises(ComponentNotInstalledError):
                 adapter.render_desired_manifests("overlays/production", "default")
 
     def test_source_exists_when_directory_exists(self) -> None:

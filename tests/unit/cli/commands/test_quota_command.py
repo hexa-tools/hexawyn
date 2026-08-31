@@ -7,7 +7,7 @@ from hexawyn.cli.commands.quota_command import (
     _render_line,
     quota,
 )
-from hexawyn.domain.models.quota import LicenseTier, QuotaState, SlackQuota, UsageQuota
+from hexawyn.domain.models.quota import LicenseTier, QuotaState
 
 
 class TestRenderBar:
@@ -136,7 +136,7 @@ class TestQuotaCommandHelp:
         assert "hexawyn Usage" in result.output
         assert "42/500" in result.output
 
-    def test_quota_falls_back_to_local_when_cp_unavailable(self) -> None:
+    def test_quota_shows_neutral_when_cp_unavailable_and_no_cache(self) -> None:
         from unittest.mock import MagicMock, patch
 
         mock_runtime = MagicMock()
@@ -153,12 +153,12 @@ class TestQuotaCommandHelp:
                 return_value=mock_runtime,
             ),
             patch(
-                "hexawyn.infrastructure.config.quota_manager._get_current_investigation_quota",
-                return_value=UsageQuota(month="2026-08", count=7, limit=200),
+                "hexawyn.adapters.secondary.runtime_quota_source._get_current_slack_quota",
+                return_value=MagicMock(count=0, limit=-1),
             ),
             patch(
-                "hexawyn.infrastructure.config.quota_manager._get_current_slack_quota",
-                return_value=SlackQuota(month="2026-08", count=0, limit=50),
+                "hexawyn.adapters.secondary.runtime_quota_source.quota_cache.load_quota",
+                return_value=None,
             ),
             patch(
                 "hexawyn.infrastructure.config.license_manager.get_license_tier",
@@ -169,7 +169,8 @@ class TestQuotaCommandHelp:
             result = runner.invoke(quota, [])
 
         assert result.exit_code == 0  # noqa: PLR2004
-        assert "7/200" in result.output
+        # Neutral (Option A): never fabricate a local figure like "7/200".
+        assert "7/200" not in result.output
 
     def test_quota_shows_exhausted_warning(self) -> None:
         from unittest.mock import MagicMock, patch

@@ -81,8 +81,8 @@ sequenceDiagram
         MCP->>Adapter: list_task_runs_for_pipeline("ci", "pr-1")
         Adapter->>K8s: list_namespaced_custom_object(taskruns)
         K8s-->>Adapter: ApiException(status=404)
-        Adapter->>Adapter: raise TektonNotInstalledError
-        Adapter-->>MCP: TektonNotInstalledError
+        Adapter->>Adapter: raise ComponentNotInstalledError
+        Adapter-->>MCP: ComponentNotInstalledError
         MCP-->>SRE: {error: "Tekton is not installed..."}
     else Cluster unreachable
         MCP->>Adapter: get_pipeline_run("ci", "pr-1")
@@ -176,7 +176,7 @@ sequenceDiagram
 | `test_skip_duration_zero_marked` | `test_trace_pipeline_run_dag.py` | Duration 0s (skipped condition) |
 | `test_large_pipeline_over_50_taskruns` | `test_trace_pipeline_run_dag.py` | 55 TaskRuns handled |
 | `test_get_pipeline_run_404_raises_pipeline_not_found` | `test_trace_pipeline_run_dag.py` | 404 → PipelineNotFoundError |
-| `test_list_task_runs_404_raises_tekton_not_installed` | `test_trace_pipeline_run_dag.py` | 404 → TektonNotInstalledError |
+| `test_list_task_runs_404_raises_tekton_not_installed` | `test_trace_pipeline_run_dag.py` | 404 → ComponentNotInstalledError |
 | `test_happy_path_returns_expected_keys` | `test_trace_pipeline_run_dag.py` | MCP tool JSON structure |
 | `test_pipeline_not_found_propagates` | `test_trace_pipeline_run_dag.py` | Error propagates through service |
 

@@ -10,13 +10,11 @@ class TestQuotaExceededError:
         err = QuotaExceededError(used=50, limit=50)
         assert "50" in str(err)
 
-    def test_includes_upgrade_url(self):
+    def test_message_is_neutral_with_usage(self):
         err = QuotaExceededError(used=50, limit=50)
-        assert "hexawyn.com/pricing" in str(err)
-
-    def test_includes_reset_info(self):
-        err = QuotaExceededError(used=50, limit=50)
-        assert "reset" in str(err).lower()
+        assert "50/50" in str(err)
+        assert "hexawyn.com/pricing" not in str(err)
+        assert "reset" not in str(err).lower()
 
     def test_stores_used_and_limit(self):
         err = QuotaExceededError(used=23, limit=50)
@@ -37,10 +35,10 @@ class TestSlackQuotaExceededError:
         assert err.used == 3  # noqa: PLR2004
         assert err.limit == 5  # noqa: PLR2004
 
-    def test_includes_slack_context(self):
+    def test_message_is_neutral_with_slack_context(self):
         err = SlackQuotaExceededError(used=5, limit=5)
-        assert "5" in str(err)
-        assert "hexawyn.com" in str(err)
+        assert "5/5" in str(err)
+        assert "hexawyn.com" not in str(err)
 
     def test_can_be_caught_as_hexawyn_error(self):
         with pytest.raises(HexawynError):

@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
 from hexawyn.domain.models.license import LicenseKey
-from hexawyn.domain.models.quota import LicenseTier
+from hexawyn.domain.models.quota import UNLIMITED, LicenseTier
 
 
 class TestLicenseKey:
@@ -78,15 +78,15 @@ class TestLicenseClaims:
         claims = LicenseClaims.free()
         assert claims.plan == "starter"
 
-    def test_free_has_correct_defaults(self) -> None:
+    def test_free_has_neutral_defaults(self) -> None:
         from hexawyn.domain.models.license import LicenseClaims
 
         claims = LicenseClaims.free()
         assert claims.sub == "anonymous"
-        assert claims.clusters_max == 1
-        assert claims.users_max == 1
-        assert claims.investigations_monthly == 50  # noqa: PLR2004
-        assert claims.history_days == 7  # noqa: PLR2004
+        assert claims.clusters_max == UNLIMITED
+        assert claims.users_max == UNLIMITED
+        assert claims.investigations_monthly == UNLIMITED
+        assert claims.history_days == UNLIMITED
         assert claims.providers == ["vanilla"]
         assert claims.exp == 9999999999  # noqa: PLR2004
         assert claims.iat == 0
