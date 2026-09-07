@@ -13,7 +13,17 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 GUARD = Path(__file__).resolve().parents[2] / "hexa_guard.py"
+
+# hexa_guard.py is a gitignored local agent hook (.gitignore), not part of the
+# repo — CI checkouts never contain it, so the layer-boundary semantics can only
+# be exercised on a developer machine that has the file.
+pytestmark = pytest.mark.skipif(
+    not GUARD.is_file(),
+    reason="hexa_guard.py is a gitignored local hook — absent in CI",
+)
 
 
 def _run_guard(file_path: str, content: str) -> str:
@@ -28,7 +38,15 @@ def _run_guard(file_path: str, content: str) -> str:
         text=True,
         check=False,
     )
-    result = json.loads(proc.stdout)
+    try:
+        result = json.loads(proc.stdout)
+    except json.JSONDecodeError as exc:
+        raise AssertionError(
+            "hexa_guard.py returned no valid JSON "
+            f"(rc={proc.returncode}).\n"
+            f"stdout: {proc.stdout!r}\n"
+            f"stderr: {proc.stderr!r}"
+        ) from exc
     return result["decision"]
 
 
