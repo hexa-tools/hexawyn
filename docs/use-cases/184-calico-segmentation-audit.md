@@ -46,6 +46,6 @@ sequenceDiagram
 - `src/hexawyn/domain/services/calico/segmentation_service.py`
 - `src/hexawyn/application/ports/driven/calico_port.py`
 - `src/hexawyn/application/use_case/calico/calico_segmentation_audit/calico_segmentation_audit_use_case.py`
-- `src/hexawyn/adapters/secondary/calico/calico_k8s_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/calico/calico_k8s_adapter.py`
 - `src/hexawyn/mcp/adapters/calico_adapters.py`
 - `src/hexawyn/mcp/tools/calico_segmentation_audit.py`

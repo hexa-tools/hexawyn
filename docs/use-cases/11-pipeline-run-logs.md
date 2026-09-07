@@ -108,5 +108,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/pipeline_run_logs.py` — StepLog, PipelineRunLogsResult
 - `src/hexawyn/application/ports/driven/pipeline_run_logs_port.py` — PipelineRunLogsPort ABC
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_pipeline_run_logs_adapter.py` — adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_pipeline_run_logs_adapter.py` — adapter
 - `src/hexawyn/mcp/tools/pipeline_run_logs.py` — MCP tool

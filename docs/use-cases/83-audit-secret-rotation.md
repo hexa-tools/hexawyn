@@ -221,7 +221,7 @@ full port/service/use-case/tool/adapter stack:
 - `src/hexawyn/application/ports/driving/audit_secret_rotation/` — command, response, service_port
 - `src/hexawyn/application/service/secret_rotation_audit_service.py` — `SecretRotationAuditService`
 - `src/hexawyn/application/use_case/audit_secret_rotation/audit_secret_rotation_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_secret_audit_adapter.py` — `KubernetesSecretAuditAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_secret_audit_adapter.py` — `KubernetesSecretAuditAdapter`
 - `src/hexawyn/mcp/tools/audit_secret_rotation.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_secret_rotation_audit_adapter`
 - `src/hexawyn/application/ports/driven/gitops_drift_audit_port.py` — `GitOpsDriftAuditPort` (ECA-69, the shape this port deliberately mirrors, documented above)

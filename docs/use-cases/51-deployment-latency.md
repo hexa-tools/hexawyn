@@ -117,5 +117,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/deployment_latency.py` — WindowLatency, DeploymentComparisonResult
 - `src/hexawyn/application/ports/driven/deployment_latency_comparison_port.py` — DeploymentLatencyComparisonPort ABC
-- `src/hexawyn/adapters/secondary/gitops/otel_deployment_comparison_adapter.py` — adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_deployment_comparison_adapter.py` — adapter
 - `src/hexawyn/mcp/tools/deployment_latency.py` — MCP tool

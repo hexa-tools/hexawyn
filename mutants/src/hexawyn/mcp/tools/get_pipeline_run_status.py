@@ -1,0 +1,169 @@
+"""MCP tool: get_pipeline_run_status."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from hexawyn.application.use_case.pipelines.get_pipeline_run_status.command import (
+    GetPipelineRunStatusCommand,
+)
+from hexawyn.application.use_case.pipelines.get_pipeline_run_status.get_pipeline_run_status_use_case import (  # noqa: E501
+    GetPipelineRunStatusUseCase,
+)
+
+if TYPE_CHECKING:
+    from fastmcp import FastMCP
+
+
+from mutmut.mutation.trampoline import wrap_in_trampoline as _mutmut_mutated, MutantDict
+mutants_x_get_pipeline_run_status__mutmut: MutantDict = {}  # type: ignore
+
+
+@_mutmut_mutated(mutants_x_get_pipeline_run_status__mutmut)
+def get_pipeline_run_status() -> dict[str, object]:
+    from hexawyn.mcp.server import build_k8s_adapter
+
+    try:
+        use_case = GetPipelineRunStatusUseCase(port=build_k8s_adapter())  # type: ignore
+        _ = use_case.execute(GetPipelineRunStatusCommand())
+        return {"error": None}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+def x_get_pipeline_run_status__mutmut_orig() -> dict[str, object]:
+    from hexawyn.mcp.server import build_k8s_adapter
+
+    try:
+        use_case = GetPipelineRunStatusUseCase(port=build_k8s_adapter())  # type: ignore
+        _ = use_case.execute(GetPipelineRunStatusCommand())
+        return {"error": None}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+def x_get_pipeline_run_status__mutmut_1() -> dict[str, object]:
+    from hexawyn.mcp.server import build_k8s_adapter
+
+    try:
+        use_case = None  # type: ignore
+        _ = use_case.execute(GetPipelineRunStatusCommand())
+        return {"error": None}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+def x_get_pipeline_run_status__mutmut_2() -> dict[str, object]:
+    from hexawyn.mcp.server import build_k8s_adapter
+
+    try:
+        use_case = GetPipelineRunStatusUseCase(port=None)  # type: ignore
+        _ = use_case.execute(GetPipelineRunStatusCommand())
+        return {"error": None}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+def x_get_pipeline_run_status__mutmut_3() -> dict[str, object]:
+    from hexawyn.mcp.server import build_k8s_adapter
+
+    try:
+        use_case = GetPipelineRunStatusUseCase(port=build_k8s_adapter())  # type: ignore
+        _ = None
+        return {"error": None}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+def x_get_pipeline_run_status__mutmut_4() -> dict[str, object]:
+    from hexawyn.mcp.server import build_k8s_adapter
+
+    try:
+        use_case = GetPipelineRunStatusUseCase(port=build_k8s_adapter())  # type: ignore
+        _ = use_case.execute(None)
+        return {"error": None}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+def x_get_pipeline_run_status__mutmut_5() -> dict[str, object]:
+    from hexawyn.mcp.server import build_k8s_adapter
+
+    try:
+        use_case = GetPipelineRunStatusUseCase(port=build_k8s_adapter())  # type: ignore
+        _ = use_case.execute(GetPipelineRunStatusCommand())
+        return {"XXerrorXX": None}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+def x_get_pipeline_run_status__mutmut_6() -> dict[str, object]:
+    from hexawyn.mcp.server import build_k8s_adapter
+
+    try:
+        use_case = GetPipelineRunStatusUseCase(port=build_k8s_adapter())  # type: ignore
+        _ = use_case.execute(GetPipelineRunStatusCommand())
+        return {"ERROR": None}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+def x_get_pipeline_run_status__mutmut_7() -> dict[str, object]:
+    from hexawyn.mcp.server import build_k8s_adapter
+
+    try:
+        use_case = GetPipelineRunStatusUseCase(port=build_k8s_adapter())  # type: ignore
+        _ = use_case.execute(GetPipelineRunStatusCommand())
+        return {"error": None}
+    except Exception as exc:
+        return {"XXerrorXX": str(exc)}
+
+
+def x_get_pipeline_run_status__mutmut_8() -> dict[str, object]:
+    from hexawyn.mcp.server import build_k8s_adapter
+
+    try:
+        use_case = GetPipelineRunStatusUseCase(port=build_k8s_adapter())  # type: ignore
+        _ = use_case.execute(GetPipelineRunStatusCommand())
+        return {"error": None}
+    except Exception as exc:
+        return {"ERROR": str(exc)}
+
+
+def x_get_pipeline_run_status__mutmut_9() -> dict[str, object]:
+    from hexawyn.mcp.server import build_k8s_adapter
+
+    try:
+        use_case = GetPipelineRunStatusUseCase(port=build_k8s_adapter())  # type: ignore
+        _ = use_case.execute(GetPipelineRunStatusCommand())
+        return {"error": None}
+    except Exception as exc:
+        return {"error": str(None)}
+
+mutants_x_get_pipeline_run_status__mutmut['_mutmut_orig'] = x_get_pipeline_run_status__mutmut_orig # type: ignore # mutmut generated
+mutants_x_get_pipeline_run_status__mutmut['x_get_pipeline_run_status__mutmut_1'] = x_get_pipeline_run_status__mutmut_1 # type: ignore # mutmut generated
+mutants_x_get_pipeline_run_status__mutmut['x_get_pipeline_run_status__mutmut_2'] = x_get_pipeline_run_status__mutmut_2 # type: ignore # mutmut generated
+mutants_x_get_pipeline_run_status__mutmut['x_get_pipeline_run_status__mutmut_3'] = x_get_pipeline_run_status__mutmut_3 # type: ignore # mutmut generated
+mutants_x_get_pipeline_run_status__mutmut['x_get_pipeline_run_status__mutmut_4'] = x_get_pipeline_run_status__mutmut_4 # type: ignore # mutmut generated
+mutants_x_get_pipeline_run_status__mutmut['x_get_pipeline_run_status__mutmut_5'] = x_get_pipeline_run_status__mutmut_5 # type: ignore # mutmut generated
+mutants_x_get_pipeline_run_status__mutmut['x_get_pipeline_run_status__mutmut_6'] = x_get_pipeline_run_status__mutmut_6 # type: ignore # mutmut generated
+mutants_x_get_pipeline_run_status__mutmut['x_get_pipeline_run_status__mutmut_7'] = x_get_pipeline_run_status__mutmut_7 # type: ignore # mutmut generated
+mutants_x_get_pipeline_run_status__mutmut['x_get_pipeline_run_status__mutmut_8'] = x_get_pipeline_run_status__mutmut_8 # type: ignore # mutmut generated
+mutants_x_get_pipeline_run_status__mutmut['x_get_pipeline_run_status__mutmut_9'] = x_get_pipeline_run_status__mutmut_9 # type: ignore # mutmut generated
+mutants_x_register__mutmut: MutantDict = {}  # type: ignore
+
+
+@_mutmut_mutated(mutants_x_register__mutmut)
+def register(mcp: FastMCP) -> None:
+    mcp.tool()(get_pipeline_run_status)
+
+
+def x_register__mutmut_orig(mcp: FastMCP) -> None:
+    mcp.tool()(get_pipeline_run_status)
+
+
+def x_register__mutmut_1(mcp: FastMCP) -> None:
+    mcp.tool()(None)
+
+mutants_x_register__mutmut['_mutmut_orig'] = x_register__mutmut_orig # type: ignore # mutmut generated
+mutants_x_register__mutmut['x_register__mutmut_1'] = x_register__mutmut_1 # type: ignore # mutmut generated

@@ -174,6 +174,6 @@ port/service/use-case/tool/adapter stack:
 - `src/hexawyn/application/ports/driving/cluster_headroom_simulation/` — command, response, service_port
 - `src/hexawyn/application/service/cluster_headroom_simulation_service.py` — `ClusterHeadroomSimulationService`
 - `src/hexawyn/application/use_case/cluster_headroom_simulation/cluster_headroom_simulation_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_headroom_simulation_adapter.py` — `KubernetesHeadroomSimulationAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_headroom_simulation_adapter.py` — `KubernetesHeadroomSimulationAdapter`
 - `src/hexawyn/mcp/tools/cluster_headroom_simulation.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_headroom_simulation_adapter` (new)

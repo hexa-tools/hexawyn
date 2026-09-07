@@ -143,7 +143,7 @@ sequenceDiagram
 - `src/hexawyn/domain/models/policy.py` — Policy, PolicyViolation, PolicyDenialExplanation, PolicyDetectionResult
 - `src/hexawyn/domain/errors.py` — PolicyEngineNotFoundError
 - `src/hexawyn/application/ports/driven/policy_port.py` — PolicyPort ABC
-- `src/hexawyn/adapters/secondary/gitops/policy_detector.py` — PolicyDetector
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/policy_detector.py` — PolicyDetector
 - `src/hexawyn/mcp/tools/policy_detect.py` — detect tool
 - `src/hexawyn/mcp/tools/policy_list.py` — list tool
 - `src/hexawyn/mcp/tools/policy_get.py` — get tool

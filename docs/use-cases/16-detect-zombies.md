@@ -170,4 +170,4 @@ sequenceDiagram
 - `src/hexawyn/application/service/detect_zombies_service.py`
 - `src/hexawyn/application/use_case/detect_zombies/detect_zombies_use_case.py`
 - `src/hexawyn/mcp/tools/detect_zombies.py`
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py`

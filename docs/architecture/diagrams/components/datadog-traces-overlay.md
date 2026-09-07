@@ -50,6 +50,6 @@ flowchart TB
 
 ## Related Files
 
-- `src/hexawyn/adapters/secondary/datadog/datadog_traces_adapter.py` — Datadog traces adapter
-- `src/hexawyn/adapters/secondary/datadog/datadog_metrics_adapter.py` — metrics companion
+- `src/hexawyn/infrastructure/adapters/secondary/datadog/datadog_traces_adapter.py` — Datadog traces adapter
+- `src/hexawyn/infrastructure/adapters/secondary/datadog/datadog_metrics_adapter.py` — metrics companion
 - `src/hexawyn/mcp/server.py` — `build_trace_query_adapter()` Datadog-first

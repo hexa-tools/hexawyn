@@ -173,5 +173,5 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/query_kubearchive/` — Command, Response, ServicePort ABC
 - `src/hexawyn/application/service/historical_state_query_service.py` — service implementation
 - `src/hexawyn/application/use_case/query_kubearchive/` — QueryKubeArchiveUseCase
-- `src/hexawyn/adapters/secondary/kubearchive_http_adapter.py` — KubeArchiveHTTPAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/kubearchive_http_adapter.py` — KubeArchiveHTTPAdapter
 - `src/hexawyn/mcp/tools/query_kubearchive.py` — MCP tool

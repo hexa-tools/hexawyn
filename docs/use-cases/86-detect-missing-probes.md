@@ -178,6 +178,6 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/detect_missing_probes/` — command, response, service port
 - `src/hexawyn/application/service/detect_missing_probes_service.py` — application service
 - `src/hexawyn/application/use_case/detect_missing_probes/` — use case orchestrator
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py` — VanillaAdapter (get_probe_audit_data)
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py` — VanillaAdapter (get_probe_audit_data)
 - `src/hexawyn/mcp/server.py` — build_probe_audit_adapter()
 - `src/hexawyn/mcp/tools/detect_missing_probes.py` — MCP tool

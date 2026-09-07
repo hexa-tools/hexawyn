@@ -176,7 +176,7 @@ def test_summary_at_most_five_sentences():
 - `src/hexawyn/application/ports/driving/report_platform_reliability/`
 - `src/hexawyn/application/service/report_platform_reliability_service.py`
 - `src/hexawyn/application/use_case/report_platform_reliability/report_platform_reliability_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/platform_reliability_adapter.py`
-- `src/hexawyn/adapters/secondary/gitops/platform_reliability_source.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/platform_reliability_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/platform_reliability_source.py`
 - `src/hexawyn/mcp/tools/report_platform_reliability.py`
 - `src/hexawyn/mcp/server.py` (`build_platform_reliability_adapter`)

@@ -131,8 +131,8 @@ sequenceDiagram
 - `src/hexawyn/mcp/tools/list_ingresses.py` — MCP tool
 - `src/hexawyn/application/use_case/ingress/list_ingresses/` — command / use case / response
 - `src/hexawyn/application/ports/driven/ingress_port.py` — IngressInfo TypedDict + IngressPort ABC
-- `src/hexawyn/adapters/secondary/vanilla/adapters/k8s_adapter.py` — VanillaK8sAdapter.list_ingresses
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py` — IngressPort delegation
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/adapters/k8s_adapter.py` — VanillaK8sAdapter.list_ingresses
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py` — IngressPort delegation
 - `src/hexawyn/mcp/adapters/cluster_adapters.py` — build_ingress_adapter()
 - `src/hexawyn/mcp/server.py` — registration + `__all__`
 - `src/hexawyn/mcp/stdio.py` — stdio entrypoint spawned by coding agents

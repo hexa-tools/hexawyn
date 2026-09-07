@@ -1,0 +1,1 @@
+{"version": 1, "spans": {"x_build_cilium_adapter__mutmut_orig": [20, 26], "x_build_cilium_adapter__mutmut_1": [27, 33], "x_build_cilium_adapter__mutmut_2": [34, 40], "x_build_cilium_adapter__mutmut_3": [41, 47], "x_build_cilium_adapter__mutmut_4": [48, 54], "x_build_cilium_service_graph_adapter__mutmut_orig": [79, 86], "x_build_cilium_service_graph_adapter__mutmut_1": [87, 94]}}

@@ -42,7 +42,7 @@ def compute_incident_cost(data: IncidentCostData) -> IncidentCostReport:
         impacted_service_count=data["impacted_service_count"],
         resolved_at=data["resolved_at"],
         config_available=True,
-        calculation_basis=_build_basis(data, config, support_cost, sla_penalty),
+        calculation_basis=_build_basis(data, config),
     )
 
 
@@ -75,12 +75,7 @@ def _sla_penalty(sla_breached: bool, config: BusinessConfigRaw) -> float:
     return round(config["sla_penalty_per_hour"], 2)
 
 
-def _build_basis(
-    data: IncidentCostData,
-    config: BusinessConfigRaw,
-    support_cost: float,
-    sla_penalty: float,
-) -> CalculationBasis:
+def _build_basis(data: IncidentCostData, config: BusinessConfigRaw) -> CalculationBasis:
     config_used: dict[str, str] = {"revenue_per_minute": str(config["revenue_per_minute"])}
     if config["support_cost_per_hour"] is not None:
         config_used["support_cost_per_hour"] = str(config["support_cost_per_hour"])

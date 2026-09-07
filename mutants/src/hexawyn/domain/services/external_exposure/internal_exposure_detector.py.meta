@@ -1,0 +1,17 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.domain.services.external_exposure.internal_exposure_detector.x_is_internal_load_balancer__mutmut_1": 33,
+        "hexawyn.domain.services.external_exposure.internal_exposure_detector.x_is_internal_load_balancer__mutmut_2": 33,
+        "hexawyn.domain.services.external_exposure.internal_exposure_detector.x_is_internal_load_balancer__mutmut_3": 33
+    },
+    "hash_by_function_name": {
+        "x_is_internal_load_balancer": "51badd6a7ea9"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {
+        "hexawyn.domain.services.external_exposure.internal_exposure_detector.x_is_internal_load_balancer__mutmut_1": 0,
+        "hexawyn.domain.services.external_exposure.internal_exposure_detector.x_is_internal_load_balancer__mutmut_2": 0,
+        "hexawyn.domain.services.external_exposure.internal_exposure_detector.x_is_internal_load_balancer__mutmut_3": 0
+    }
+}

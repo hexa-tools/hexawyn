@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 def snapshots_list(namespace: str | None = None) -> dict[str, object]:
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     try:
         vanilla = VanillaAdapter(cluster_name="default")
@@ -59,7 +59,7 @@ def snapshots_list(namespace: str | None = None) -> dict[str, object]:
 
 
 def snapshot_get(name: str, namespace: str) -> dict[str, object]:
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     try:
         vanilla = VanillaAdapter(cluster_name="default")

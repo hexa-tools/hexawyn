@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: crashloop-test
+  namespace: hexawyn-test
+  labels:
+    hexawyn.io/fixture: "true"
+    test: crashloop
+spec:
+  containers:
+  - name: crashloop
+    image: busybox:1.36
+    command: ["sh", "-c", "echo Starting && sleep 2 && exit 1"]
+  restartPolicy: Always

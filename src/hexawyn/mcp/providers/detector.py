@@ -28,19 +28,19 @@ def _detect_provider(
 
 
 def _is_aws_eks_context(context: ClusterContext) -> bool:
-    from hexawyn.adapters.secondary.aws.aws_eks_provider import AWSEKSProvider
+    from hexawyn.infrastructure.adapters.secondary.aws.aws_eks_provider import AWSEKSProvider
 
     return _detect_provider(context, "aws", AWSEKSProvider.supports)
 
 
 def _is_gcp_gke_context(context: ClusterContext) -> bool:
-    from hexawyn.adapters.secondary.gcp.gcp_gke_provider import GCPGKEProvider
+    from hexawyn.infrastructure.adapters.secondary.gcp.gcp_gke_provider import GCPGKEProvider
 
     return _detect_provider(context, "gcp", GCPGKEProvider.supports)
 
 
 def _is_azure_aks_context(context: ClusterContext) -> bool:
-    from hexawyn.adapters.secondary.azure.azure_aks_provider import AzureAKSProvider
+    from hexawyn.infrastructure.adapters.secondary.azure.azure_aks_provider import AzureAKSProvider
 
     return _detect_provider(context, "azure", AzureAKSProvider.supports)
 

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pending-test
+  namespace: hexawyn-test
+  labels:
+    hexawyn.io/fixture: "true"
+    test: pending
+spec:
+  containers:
+  - name: pending
+    image: nginx:1.25
+    resources:
+      requests:
+        cpu: "100"
+        memory: "100Gi"
+  restartPolicy: Never

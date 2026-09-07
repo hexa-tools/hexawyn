@@ -1,0 +1,40 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.domain.services.schedule.cron_shortcut.x_shortcut_to_cron__mutmut_1": 1,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_shortcut_to_cron__mutmut_2": 1,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_shortcut_to_cron__mutmut_3": 1,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_shortcut_to_cron__mutmut_4": 1,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_1": 1,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_2": 1,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_3": 1,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_4": 1,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_5": 1
+    },
+    "hash_by_function_name": {
+        "x_shortcut_to_cron": "5728f3b8aaf1",
+        "x_cron_to_minutes": "c8c4fdca5eb9"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {
+        "hexawyn.domain.services.schedule.cron_shortcut.x_shortcut_to_cron__mutmut_1": 0.192402,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_shortcut_to_cron__mutmut_2": 0.195336,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_shortcut_to_cron__mutmut_3": 0.1933,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_shortcut_to_cron__mutmut_4": 0.168109,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_1": 0.18555,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_2": 0.176276,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_3": 0.161712,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_4": 0.159306,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_5": 0.159078
+    },
+    "estimated_durations_by_key": {
+        "hexawyn.domain.services.schedule.cron_shortcut.x_shortcut_to_cron__mutmut_1": 0.001307563972659409,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_shortcut_to_cron__mutmut_2": 0.001307563972659409,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_shortcut_to_cron__mutmut_3": 0.001307563972659409,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_shortcut_to_cron__mutmut_4": 0.001307563972659409,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_1": 0.0063771679851925,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_2": 0.0063771679851925,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_3": 0.0063771679851925,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_4": 0.0063771679851925,
+        "hexawyn.domain.services.schedule.cron_shortcut.x_cron_to_minutes__mutmut_5": 0.0063771679851925
+    }
+}

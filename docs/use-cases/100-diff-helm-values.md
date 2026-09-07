@@ -240,6 +240,6 @@ def test_critical_diff_older_than_seven_days_flagged():
 - `src/hexawyn/application/ports/driving/diff_helm_values/`
 - `src/hexawyn/application/service/diff_helm_values_service.py`
 - `src/hexawyn/application/use_case/diff_helm_values/diff_helm_values_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/helm_values_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/helm_values_adapter.py`
 - `src/hexawyn/mcp/tools/diff_helm_values.py`
 - `src/hexawyn/mcp/server.py` (`build_helm_values_diff_adapter`)

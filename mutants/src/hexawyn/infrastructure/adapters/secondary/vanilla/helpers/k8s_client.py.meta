@@ -1,0 +1,11 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.infrastructure.adapters.secondary.vanilla.helpers.k8s_client.x\u01c1KubernetesCRDApi\u01c1list_namespaced_custom_object__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x\u01c1KubernetesCRDApi\u01c1list_namespaced_custom_object": "d1f2f32a4303"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

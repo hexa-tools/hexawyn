@@ -1,0 +1,14 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: e2e-test-pipeline-run
+  namespace: hexawyn-test
+spec:
+  pipelineSpec:
+    tasks:
+    - name: hello
+      taskSpec:
+        steps:
+        - name: echo
+          image: busybox:1.36
+          command: ["echo", "hello-hexawyn"]

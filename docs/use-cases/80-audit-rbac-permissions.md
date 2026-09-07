@@ -195,6 +195,6 @@ port/service/use-case/tool/adapter stack:
 - `src/hexawyn/application/ports/driving/audit_rbac_permissions/` — command, response, service_port
 - `src/hexawyn/application/service/audit_rbac_permissions_service.py` — `ServiceAccountRBACAuditService`
 - `src/hexawyn/application/use_case/audit_rbac_permissions/audit_rbac_permissions_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_rbac_adapter.py` — `KubernetesRBACAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_rbac_adapter.py` — `KubernetesRBACAdapter`
 - `src/hexawyn/mcp/tools/rbac_permission_audit.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_rbac_audit_adapter`

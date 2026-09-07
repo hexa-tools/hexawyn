@@ -188,5 +188,5 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/trace_pipeline_run_dag/` — Command, Response, ServicePort
 - `src/hexawyn/application/use_case/trace_pipeline_run_dag/` — UseCase
 - `src/hexawyn/application/service/trace_pipeline_run_dag_service.py` — Application service
-- `src/hexawyn/adapters/secondary/tekton_pipeline_tracer_adapter.py` — K8s CRD adapter
+- `src/hexawyn/infrastructure/adapters/secondary/tekton_pipeline_tracer_adapter.py` — K8s CRD adapter
 - `src/hexawyn/mcp/tools/trace_pipeline_run_dag.py` — MCP entry point

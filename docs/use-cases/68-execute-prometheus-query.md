@@ -151,6 +151,6 @@ stack:
 - `src/hexawyn/application/ports/driving/execute_prometheus_query/` — command, response, service_port
 - `src/hexawyn/application/service/prometheus_query_service.py` — `PrometheusQueryService`
 - `src/hexawyn/application/use_case/execute_prometheus_query/execute_prometheus_query_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/prometheus_http_adapter.py` — `PrometheusHTTPAdapter` (real `httpx` calls; owns PromQL param construction as a hexagonal-boundary-correct adapter concern)
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/prometheus_http_adapter.py` — `PrometheusHTTPAdapter` (real `httpx` calls; owns PromQL param construction as a hexagonal-boundary-correct adapter concern)
 - `src/hexawyn/mcp/tools/prometheus_query.py` — MCP tool (replaces the former 0-byte stub; auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_metrics_query_adapter` (new; reads `PROMETHEUS_URL`/`PROMETHEUS_TOKEN`)

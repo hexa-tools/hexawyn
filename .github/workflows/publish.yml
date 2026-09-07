@@ -176,3 +176,36 @@ jobs:
             hexatools/hexawyn:${{ github.event.release.tag_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # Releases -> attach install.sh + its SHA256 as release assets.
+  publish-install-script:
+    name: Publish install.sh + SHA256
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate install.sh version matches release tag
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          embedded="$(sed -n 's/^VERSION="\([^"]*\)".*/\1/p' install.sh)"
+          if [ -z "$embedded" ]; then
+            echo "::error::could not read VERSION from install.sh"
+            exit 1
+          fi
+          if [ "$embedded" != "$tag" ]; then
+            echo "::error::install.sh VERSION='$embedded' != release tag '$tag'"
+            exit 1
+          fi
+          echo "version OK: $embedded"
+
+      - name: Generate SHA256 checksum
+        run: |
+          sha256sum install.sh > install.sh.sha256
+          cat install.sh.sha256
+
+      - name: Attach installer + checksum to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            install.sh
+            install.sh.sha256

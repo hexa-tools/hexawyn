@@ -46,6 +46,6 @@ sequenceDiagram
 - `src/hexawyn/domain/services/calico/network_policy_service.py`
 - `src/hexawyn/application/ports/driven/calico_port.py`
 - `src/hexawyn/application/use_case/calico/list_calico_network_policies/list_calico_network_policies_use_case.py`
-- `src/hexawyn/adapters/secondary/calico/calico_k8s_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/calico/calico_k8s_adapter.py`
 - `src/hexawyn/mcp/adapters/calico_adapters.py`
 - `src/hexawyn/mcp/tools/list_calico_network_policies.py`

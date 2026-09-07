@@ -1,0 +1,24 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.domain.services.network_policy.risk_classifier.x_classify_risk_level__mutmut_1": 1,
+        "hexawyn.domain.services.network_policy.risk_classifier.x_classify_risk_level__mutmut_2": 1,
+        "hexawyn.domain.services.network_policy.risk_classifier.x_classify_risk_level__mutmut_3": 0,
+        "hexawyn.domain.services.network_policy.risk_classifier.x_classify_risk_level__mutmut_4": 0
+    },
+    "hash_by_function_name": {
+        "x_classify_risk_level": "5b530a6dd9b4"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {
+        "hexawyn.domain.services.network_policy.risk_classifier.x_classify_risk_level__mutmut_1": 0.171067,
+        "hexawyn.domain.services.network_policy.risk_classifier.x_classify_risk_level__mutmut_2": 0.198866,
+        "hexawyn.domain.services.network_policy.risk_classifier.x_classify_risk_level__mutmut_3": 0.19311,
+        "hexawyn.domain.services.network_policy.risk_classifier.x_classify_risk_level__mutmut_4": 0.170864
+    },
+    "estimated_durations_by_key": {
+        "hexawyn.domain.services.network_policy.risk_classifier.x_classify_risk_level__mutmut_1": 0.004531699012659374,
+        "hexawyn.domain.services.network_policy.risk_classifier.x_classify_risk_level__mutmut_2": 0.004531699012659374,
+        "hexawyn.domain.services.network_policy.risk_classifier.x_classify_risk_level__mutmut_3": 0.004531699012659374,
+        "hexawyn.domain.services.network_policy.risk_classifier.x_classify_risk_level__mutmut_4": 0.004531699012659374
+    }
+}

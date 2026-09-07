@@ -66,4 +66,4 @@ sequenceDiagram
 - `src/hexawyn/mcp/tools/get_namespace_resource_allocation.py`
 - `src/hexawyn/application/use_case/cluster/get_namespace_resource_allocation/`
 - `src/hexawyn/application/ports/driven/k8s_port.py`
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py`

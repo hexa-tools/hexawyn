@@ -1,0 +1,30 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_1": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_2": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_3": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_4": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_5": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_6": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_7": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_8": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_9": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_10": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_11": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_12": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_13": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_14": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_15": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_16": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_17": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_list_openshift_projects__mutmut_18": null,
+        "hexawyn.mcp.tools.list_openshift_projects.x_register__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_list_openshift_projects": "eeb41e16bbfc",
+        "x_register": "25c53921da30"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

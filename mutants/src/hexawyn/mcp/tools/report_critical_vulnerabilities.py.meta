@@ -1,0 +1,23 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.tools.report_critical_vulnerabilities.x_report_critical_vulnerabilities__mutmut_1": null,
+        "hexawyn.mcp.tools.report_critical_vulnerabilities.x_report_critical_vulnerabilities__mutmut_2": null,
+        "hexawyn.mcp.tools.report_critical_vulnerabilities.x_report_critical_vulnerabilities__mutmut_3": null,
+        "hexawyn.mcp.tools.report_critical_vulnerabilities.x_report_critical_vulnerabilities__mutmut_4": null,
+        "hexawyn.mcp.tools.report_critical_vulnerabilities.x_report_critical_vulnerabilities__mutmut_5": null,
+        "hexawyn.mcp.tools.report_critical_vulnerabilities.x_report_critical_vulnerabilities__mutmut_6": null,
+        "hexawyn.mcp.tools.report_critical_vulnerabilities.x_report_critical_vulnerabilities__mutmut_7": null,
+        "hexawyn.mcp.tools.report_critical_vulnerabilities.x_report_critical_vulnerabilities__mutmut_8": null,
+        "hexawyn.mcp.tools.report_critical_vulnerabilities.x_report_critical_vulnerabilities__mutmut_9": null,
+        "hexawyn.mcp.tools.report_critical_vulnerabilities.x_report_critical_vulnerabilities__mutmut_10": null,
+        "hexawyn.mcp.tools.report_critical_vulnerabilities.x_report_critical_vulnerabilities__mutmut_11": null,
+        "hexawyn.mcp.tools.report_critical_vulnerabilities.x_register__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_report_critical_vulnerabilities": "ee5b536771e2",
+        "x_register": "ba76133d724a"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

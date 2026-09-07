@@ -139,5 +139,5 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driven/pod_logs_port.py` — PodLogsPort ABC
 - `src/hexawyn/application/service/analyze_pod_logs_service.py` — AnalyzePodLogsService
 - `src/hexawyn/application/use_case/analyze_pod_logs/analyze_pod_logs_use_case.py` — AnalyzePodLogsUseCase
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_pod_logs_adapter.py` — KubernetesPodLogsAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_pod_logs_adapter.py` — KubernetesPodLogsAdapter
 - `src/hexawyn/mcp/tools/analyze_pod_logs.py` — MCP tool

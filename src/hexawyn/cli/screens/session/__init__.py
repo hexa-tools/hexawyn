@@ -244,9 +244,6 @@ class SessionScreen(Screen[None]):
 
     def _refresh_quota_bar(self) -> None:
         try:
-            from hexawyn.adapters.secondary.runtime_quota_source import (
-                RuntimeQuotaSource,
-            )
             from hexawyn.application.service.runtime_adapter import get_runtime
             from hexawyn.application.use_case.cluster.get_quota_usage.command import (
                 GetQuotaUsageCommand,
@@ -255,6 +252,9 @@ class SessionScreen(Screen[None]):
                 GetQuotaUsageUseCase,
             )
             from hexawyn.cli.widgets.quota_bar import _quota_bar
+            from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+                RuntimeQuotaSource,
+            )
 
             quota_source = RuntimeQuotaSource(runtime=get_runtime())
             use_case = GetQuotaUsageUseCase(

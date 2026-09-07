@@ -69,4 +69,4 @@ sequenceDiagram
 - `src/hexawyn/mcp/tools/estimate_cost_saving.py`
 - `src/hexawyn/application/use_case/finops/estimate_cost_saving/`
 - `src/hexawyn/application/ports/driven/cost_saving_estimation_port.py`
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py`

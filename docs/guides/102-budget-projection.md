@@ -205,6 +205,6 @@ def test_budget_exceeded_flags_breach_month():
 - `src/hexawyn/application/ports/driving/project_budget/`
 - `src/hexawyn/application/service/project_budget_service.py`
 - `src/hexawyn/application/use_case/project_budget/project_budget_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/budget_projection_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/budget_projection_adapter.py`
 - `src/hexawyn/mcp/tools/project_budget.py`
 - `src/hexawyn/mcp/server.py` (`build_budget_projection_adapter`)

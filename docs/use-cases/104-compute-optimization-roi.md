@@ -193,8 +193,8 @@ def test_zero_savings_honest_report():
 - `src/hexawyn/application/ports/driving/compute_optimization_roi/`
 - `src/hexawyn/application/service/compute_optimization_roi_service.py`
 - `src/hexawyn/application/use_case/compute_optimization_roi/compute_optimization_roi_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/optimization_roi_adapter.py`
-- `src/hexawyn/adapters/secondary/gitops/optimization_roi_source.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/optimization_roi_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/optimization_roi_source.py`
 - `src/hexawyn/mcp/tools/compute_optimization_roi.py`
 - `src/hexawyn/mcp/server.py` (`build_optimization_roi_adapter`)
 

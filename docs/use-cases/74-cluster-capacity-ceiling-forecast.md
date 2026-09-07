@@ -188,6 +188,6 @@ port/service/use-case/tool/adapter stack:
 - `src/hexawyn/application/ports/driving/cluster_capacity_ceiling_forecast/` — command, response, service_port
 - `src/hexawyn/application/service/cluster_capacity_ceiling_forecast_service.py` — `ClusterCapacityCeilingForecastService`
 - `src/hexawyn/application/use_case/cluster_capacity_ceiling_forecast/cluster_capacity_ceiling_forecast_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_capacity_forecast_adapter.py` — `KubernetesCapacityForecastAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_capacity_forecast_adapter.py` — `KubernetesCapacityForecastAdapter`
 - `src/hexawyn/mcp/tools/cluster_capacity_ceiling_forecast.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_capacity_forecast_adapter` (new)

@@ -214,7 +214,7 @@ classification — plus the full port/service/use-case/tool/adapter stack:
 - `src/hexawyn/application/ports/driving/detect_network_segmentation_gaps/` — command, response, service_port
 - `src/hexawyn/application/service/east_west_network_segmentation_service.py` — `EastWestNetworkSegmentationService`
 - `src/hexawyn/application/use_case/detect_network_segmentation_gaps/detect_network_segmentation_gaps_use_case.py`
-- `src/hexawyn/adapters/secondary/kubernetes_network_policy_adapter.py` — `KubernetesNetworkPolicyAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/kubernetes_network_policy_adapter.py` — `KubernetesNetworkPolicyAdapter`
 - `src/hexawyn/mcp/tools/detect_network_segmentation_gaps.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_network_policy_audit_adapter`
-- `src/hexawyn/application/ports/driven/istio_topology_port.py` / `src/hexawyn/adapters/secondary/istio_topology_adapter.py` — the graceful-degradation precedent this ticket's Calico/Istio checks reuse
+- `src/hexawyn/application/ports/driven/istio_topology_port.py` / `src/hexawyn/infrastructure/adapters/secondary/istio_topology_adapter.py` — the graceful-degradation precedent this ticket's Calico/Istio checks reuse

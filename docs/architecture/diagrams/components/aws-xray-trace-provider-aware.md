@@ -22,11 +22,11 @@ flowchart TB
         BUILD --> ISAWS
     end
 
-    subgraph OTel["adapters/secondary/gitops"]
+    subgraph OTel["infrastructure/adapters/secondary/gitops"]
         STUB["OTelHTTPAdapter (stub)"]
     end
 
-    subgraph AWS["adapters/secondary/aws"]
+    subgraph AWS["infrastructure/adapters/secondary/aws"]
         XRAY["AWSXRayTraceAdapter<br/>get_trace_summaries +<br/>batch_get_traces"]
     end
 
@@ -74,7 +74,7 @@ flowchart TB
 ## Related Files
 
 - `src/hexawyn/application/ports/driven/trace_query_port.py` — the port (+ `__all__`)
-- `src/hexawyn/adapters/secondary/aws/xray_trace_adapter.py` — X-Ray impl
-- `src/hexawyn/adapters/secondary/gitops/otel_http_adapter.py` — OTel stub fallback
+- `src/hexawyn/infrastructure/adapters/secondary/aws/xray_trace_adapter.py` — X-Ray impl
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_http_adapter.py` — OTel stub fallback
 - `src/hexawyn/application/service/latency_diagnostic_service.py` — consumer
 - `src/hexawyn/mcp/server.py` — `build_trace_query_adapter()` provider-aware

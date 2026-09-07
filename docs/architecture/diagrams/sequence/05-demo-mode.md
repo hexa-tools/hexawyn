@@ -67,7 +67,7 @@ sequenceDiagram
 - Demo mode is activated by `HEXAWYN_DEMO_MODE=true` — checked at AdapterFactory AND in LangGraph nodes
 - 5 pre-built scenarios: aws_eks (76), azure_aks (98), gcp_gke (84), openshift (71), datadog (79)
 - Demo mode bypasses ALL quota operations — investigations never counted against monthly limit
-- No real K8s API calls — all data from scenario Python files in `adapters/secondary/mock/scenarios/`
+- No real K8s API calls — all data from scenario Python files in `infrastructure/adapters/secondary/mock/scenarios/`
 - LLM is still called with mock data — realistic responses with zero infrastructure cost
 
 ## Test Coverage
@@ -83,8 +83,8 @@ sequenceDiagram
 
 ## Related Files
 
-- `src/hexawyn/adapters/secondary/adapter_factory.py` — build_adapters() returns DemoAdapter
-- `src/hexawyn/adapters/secondary/mock/demo_adapter.py` — DemoAdapter implements all 4 ports
-- `src/hexawyn/adapters/secondary/mock/scenarios/` — 5 pre-built scenario files
+- `src/hexawyn/infrastructure/adapters/secondary/adapter_factory.py` — build_adapters() returns DemoAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/mock/demo_adapter.py` — DemoAdapter implements all 4 ports
+- `src/hexawyn/infrastructure/adapters/secondary/mock/scenarios/` — 5 pre-built scenario files
 - `src/hexawyn/lang_graph/nodes/parse_intent.py` — demo mode detection (quota skip)
 - `src/hexawyn/lang_graph/nodes/store_memory.py` — demo mode detection (quota + L1 skip)

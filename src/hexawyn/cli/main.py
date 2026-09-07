@@ -55,11 +55,11 @@ def _cloud_auth_ready() -> bool:
     """
     import httpx
 
-    from hexawyn.adapters.secondary.auth.cloud_auth_adapter import CloudAuthAdapter
-    from hexawyn.adapters.secondary.auth.config_token_store import ConfigTokenStore
-    from hexawyn.adapters.secondary.auth.token_validator import HttpTokenValidator
     from hexawyn.application.service.login_service import LoginService
     from hexawyn.domain.models.auth import LoginOutcome
+    from hexawyn.infrastructure.adapters.secondary.auth.cloud_auth_adapter import CloudAuthAdapter
+    from hexawyn.infrastructure.adapters.secondary.auth.config_token_store import ConfigTokenStore
+    from hexawyn.infrastructure.adapters.secondary.auth.token_validator import HttpTokenValidator
     from hexawyn.infrastructure.config.config_manager import get_runtime_endpoint
 
     adapter = CloudAuthAdapter(

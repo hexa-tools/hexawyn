@@ -109,5 +109,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/service_dependency_graph.py` — ServiceNode, ServiceEdge, DependencyGraph
 - `src/hexawyn/application/ports/driven/service_dependency_graph_port.py` — ServiceDependencyGraphPort ABC
-- `src/hexawyn/adapters/secondary/gitops/otel_dependency_graph_adapter.py` — OTelDependencyGraphAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_dependency_graph_adapter.py` — OTelDependencyGraphAdapter
 - `src/hexawyn/mcp/tools/service_dependency_graph.py` — MCP tool

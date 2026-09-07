@@ -205,6 +205,6 @@ port/service/use-case/tool/adapter stack:
 - `src/hexawyn/application/ports/driving/manual_change_outside_gitops/` — command, response, service_port
 - `src/hexawyn/application/service/manual_change_outside_gitops_service.py` — `ManualChangeOutsideGitOpsService`
 - `src/hexawyn/application/use_case/manual_change_outside_gitops/manual_change_outside_gitops_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_audit_log_adapter.py` — `KubernetesAuditLogAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_audit_log_adapter.py` — `KubernetesAuditLogAdapter`
 - `src/hexawyn/mcp/tools/manual_change_outside_gitops_detection.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_audit_log_adapter` (new)

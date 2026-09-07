@@ -1,0 +1,40 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_1": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_2": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_3": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_4": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_5": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_6": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_7": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_8": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_9": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_10": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_11": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_12": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_13": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_14": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_15": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_16": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_17": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_18": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_19": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_20": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_21": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_22": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_23": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_24": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_25": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_26": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_27": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_summarize_namespace_events__mutmut_28": null,
+        "hexawyn.mcp.tools.summarize_namespace_events.x_register__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_summarize_namespace_events": "5a48bd2e997f",
+        "x_register": "b2959d2bdeb4"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

@@ -1,0 +1,33 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_1": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_2": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_3": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_4": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_5": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_6": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_7": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_8": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_9": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_10": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_11": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_12": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_13": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_14": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_15": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_16": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_17": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_18": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_19": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_20": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_list_openshift_routes__mutmut_21": null,
+        "hexawyn.mcp.tools.list_openshift_routes.x_register__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_list_openshift_routes": "b77221dea1f2",
+        "x_register": "b6be69244539"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

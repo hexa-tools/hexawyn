@@ -61,6 +61,6 @@ flowchart TB
 
 ## Related Files
 
-- `src/hexawyn/adapters/secondary/datadog/datadog_metrics_adapter.py` — Datadog metrics adapter
+- `src/hexawyn/infrastructure/adapters/secondary/datadog/datadog_metrics_adapter.py` — Datadog metrics adapter
 - `src/hexawyn/infrastructure/config/datadog_config.py` — env config (secret-safe)
 - `src/hexawyn/mcp/server.py` — `build_cluster_resource_metrics_adapter()` + `_is_datadog_enabled()`

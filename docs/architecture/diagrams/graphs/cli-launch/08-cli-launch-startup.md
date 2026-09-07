@@ -134,5 +134,5 @@ sequenceDiagram
 - `src/hexawyn/lang_graph/services/llm_service.py` — OpenAI-compatible LLM client
 - `src/hexawyn/infrastructure/config/kubeconfig_reader.py` — kubeconfig loading (filters empty files)
 - `src/hexawyn/infrastructure/config/config_manager.py` — LLM config from ~/.hexawyn/
-- `src/hexawyn/adapters/secondary/adapter_factory.py` — cloud auto-detection
+- `src/hexawyn/infrastructure/adapters/secondary/adapter_factory.py` — cloud auto-detection
 - `src/hexawyn/cli/tui.py` — SessionScreen._render_startup_result() displays scan output

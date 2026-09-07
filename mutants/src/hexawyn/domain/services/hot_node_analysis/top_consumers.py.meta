@@ -1,0 +1,27 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_1": 33,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_2": 33,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_3": 33,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_4": 33,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_5": 33,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_6": 33,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_7": 33,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_8": 33
+    },
+    "hash_by_function_name": {
+        "x_select_top_consumers": "4f12f5ef0983"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_1": 0,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_2": 0,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_3": 0,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_4": 0,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_5": 0,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_6": 0,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_7": 0,
+        "hexawyn.domain.services.hot_node_analysis.top_consumers.x_select_top_consumers__mutmut_8": 0
+    }
+}

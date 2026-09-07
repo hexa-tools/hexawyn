@@ -109,5 +109,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/p99_latency.py` — LatencyPercentiles, P99Result
 - `src/hexawyn/application/ports/driven/latency_percentile_port.py` — LatencyPercentilePort ABC
-- `src/hexawyn/adapters/secondary/gitops/otel_latency_adapter.py` — OTel adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_latency_adapter.py` — OTel adapter
 - `src/hexawyn/mcp/tools/p99_latency.py` — MCP tool

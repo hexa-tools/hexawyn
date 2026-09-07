@@ -143,7 +143,7 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/cilium.py` — `CiliumDenialsQuery`, `CiliumDenialGroup`, `CiliumDenialsResult`
 - `src/hexawyn/domain/services/cilium/denial_builder.py` — pure dropped-flow aggregation
-- `src/hexawyn/adapters/secondary/cilium/cilium_hubble_adapter.py` — `CiliumHubbleAdapter.detect_denials()`
+- `src/hexawyn/infrastructure/adapters/secondary/cilium/cilium_hubble_adapter.py` — `CiliumHubbleAdapter.detect_denials()`
 - `src/hexawyn/application/ports/driven/cilium_hubble_port.py` — `CiliumHubblePort.detect_denials()`
 - `src/hexawyn/application/use_case/cilium/detect_cilium_denials/` — Command, Response, UseCase
 - `src/hexawyn/mcp/tools/detect_cilium_denials.py` — MCP tool

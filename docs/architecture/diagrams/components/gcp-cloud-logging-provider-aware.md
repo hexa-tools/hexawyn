@@ -63,7 +63,7 @@ flowchart TB
 
 ## Related Files
 
-- `src/hexawyn/adapters/secondary/gcp/cloud_logging_adapter.py` — Cloud Logging adapter
-- `src/hexawyn/adapters/secondary/aws/cloudwatch_logs_adapter.py` — AWS peer
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_pod_log_search_adapter.py` — vanilla fallback
+- `src/hexawyn/infrastructure/adapters/secondary/gcp/cloud_logging_adapter.py` — Cloud Logging adapter
+- `src/hexawyn/infrastructure/adapters/secondary/aws/cloudwatch_logs_adapter.py` — AWS peer
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_pod_log_search_adapter.py` — vanilla fallback
 - `src/hexawyn/mcp/server.py` — `build_log_search_adapter()` multi-provider

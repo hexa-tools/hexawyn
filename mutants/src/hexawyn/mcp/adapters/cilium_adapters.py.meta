@@ -1,0 +1,16 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.adapters.cilium_adapters.x_build_cilium_adapter__mutmut_1": null,
+        "hexawyn.mcp.adapters.cilium_adapters.x_build_cilium_adapter__mutmut_2": null,
+        "hexawyn.mcp.adapters.cilium_adapters.x_build_cilium_adapter__mutmut_3": null,
+        "hexawyn.mcp.adapters.cilium_adapters.x_build_cilium_adapter__mutmut_4": null,
+        "hexawyn.mcp.adapters.cilium_adapters.x_build_cilium_service_graph_adapter__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_build_cilium_adapter": "207fe376cd93",
+        "x_build_cilium_service_graph_adapter": "9f8428a2cc2b"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

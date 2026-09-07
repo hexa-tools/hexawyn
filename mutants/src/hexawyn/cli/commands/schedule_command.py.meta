@@ -1,0 +1,32 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_1": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_2": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_3": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_4": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_5": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_6": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_7": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_8": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_9": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_10": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_11": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_12": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_13": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_14": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_15": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_16": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_17": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_18": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_19": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_20": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_21": null,
+        "hexawyn.cli.commands.schedule_command.x__toggle__mutmut_22": null
+    },
+    "hash_by_function_name": {
+        "x__toggle": "41125ca80764"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

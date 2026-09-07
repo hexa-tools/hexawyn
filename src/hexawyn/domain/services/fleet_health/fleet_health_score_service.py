@@ -66,11 +66,10 @@ def _node_category(metrics: ClusterRawMetrics) -> CategoryReport:
 def _pod_category(metrics: ClusterRawMetrics) -> CategoryReport:
     crash = metrics.pods_crashloop
     total = metrics.pods_total
-    crash_ratio = crash / max(total, 1)
     key_metric = f"{metrics.pods_running}/{total} pods running, {crash} CrashLoop"
     if crash == 0:
         return CategoryReport(status="OK", key_metric=key_metric, top_issue=None)
-    if crash_ratio < 0.15:  # noqa: PLR2004
+    if crash < total * 0.15:  # noqa: PLR2004
         return CategoryReport(
             status="WARNING", key_metric=key_metric, top_issue=f"{crash} CrashLoopBackOff pods"
         )
@@ -230,9 +229,7 @@ def aggregate_fleet(reports: list[ClusterHealthReport]) -> FleetHealthReport:
         if scores:
             fleet_score = round(sum(scores) / len(scores))
 
-        statuses = [r.health_status for r in reachable]
-        worst = max(statuses, key=lambda s: {"healthy": 0, "degraded": 1, "critical": 2}.get(s, -1))
-        fleet_status = worst
+        fleet_status = _worst_status([r.health_status for r in reachable])
     elif reports:
         fleet_status = "no_cluster_reachable"
 
@@ -243,3 +240,11 @@ def aggregate_fleet(reports: list[ClusterHealthReport]) -> FleetHealthReport:
         reachable_count=len(reachable),
         unreachable_count=len(unreachable),
     )
+
+
+def _worst_status(statuses: list[str]) -> str:
+    """Pick the most severe status: critical > degraded > healthy > anything else."""
+    for status in ("critical", "degraded", "healthy"):
+        if status in statuses:
+            return status
+    return statuses[0] if statuses else "unknown"

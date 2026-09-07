@@ -1,0 +1,33 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_1": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_2": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_3": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_4": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_5": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_6": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_7": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_8": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_9": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_10": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_11": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_12": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_13": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_14": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_15": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_16": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_17": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_18": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_19": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_20": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_list_openshift_imagestreams__mutmut_21": null,
+        "hexawyn.mcp.tools.list_openshift_imagestreams.x_register__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_list_openshift_imagestreams": "c7945a4fa0fa",
+        "x_register": "d34ccb9b1857"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

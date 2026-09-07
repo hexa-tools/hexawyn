@@ -136,6 +136,6 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/list_pods/` — Command, Response
 - `src/hexawyn/application/use_case/list_pods/` — ListPodsUseCase (ABC)
 - `src/hexawyn/application/service/list_pods_service.py` — ListPodsService (sorting)
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py` — VanillaAdapter
-- `src/hexawyn/adapters/secondary/mock/demo_adapter.py` — DemoAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py` — VanillaAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/mock/demo_adapter.py` — DemoAdapter
 - `src/hexawyn/mcp/tools/list_pods.py` — MCP tool

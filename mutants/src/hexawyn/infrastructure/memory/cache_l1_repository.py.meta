@@ -1,0 +1,28 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.infrastructure.memory.cache_l1_repository.x\u01c1CacheL1Repository\u01c1__init____mutmut_1": null,
+        "hexawyn.infrastructure.memory.cache_l1_repository.x\u01c1CacheL1Repository\u01c1get__mutmut_1": null,
+        "hexawyn.infrastructure.memory.cache_l1_repository.x\u01c1CacheL1Repository\u01c1get__mutmut_2": null,
+        "hexawyn.infrastructure.memory.cache_l1_repository.x\u01c1CacheL1Repository\u01c1get__mutmut_3": null,
+        "hexawyn.infrastructure.memory.cache_l1_repository.x\u01c1CacheL1Repository\u01c1get__mutmut_4": null,
+        "hexawyn.infrastructure.memory.cache_l1_repository.x\u01c1CacheL1Repository\u01c1set__mutmut_1": null,
+        "hexawyn.infrastructure.memory.cache_l1_repository.x\u01c1CacheL1Repository\u01c1invalidate__mutmut_1": null,
+        "hexawyn.infrastructure.memory.cache_l1_repository.x\u01c1CacheL1Repository\u01c1invalidate__mutmut_2": null,
+        "hexawyn.infrastructure.memory.cache_l1_repository.x\u01c1CacheL1Repository\u01c1invalidate__mutmut_3": null,
+        "hexawyn.infrastructure.memory.cache_l1_repository.x\u01c1CacheL1Repository\u01c1size__mutmut_1": null,
+        "hexawyn.infrastructure.memory.cache_l1_repository.x\u01c1CacheL1Repository\u01c1size__mutmut_2": null,
+        "hexawyn.infrastructure.memory.cache_l1_repository.x\u01c1CacheL1Repository\u01c1evict_expired__mutmut_1": null,
+        "hexawyn.infrastructure.memory.cache_l1_repository.x\u01c1CacheL1Repository\u01c1evict_expired__mutmut_2": null
+    },
+    "hash_by_function_name": {
+        "x\u01c1CacheL1Repository\u01c1__init__": "94fff714c0c9",
+        "x\u01c1CacheL1Repository\u01c1get": "0b2400419bfe",
+        "x\u01c1CacheL1Repository\u01c1set": "3c275d7de596",
+        "x\u01c1CacheL1Repository\u01c1invalidate": "f83e5a7ba58a",
+        "x\u01c1CacheL1Repository\u01c1size": "1f0faeeb5583",
+        "x\u01c1CacheL1Repository\u01c1evict_expired": "cb3141581a48"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

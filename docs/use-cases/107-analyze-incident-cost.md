@@ -161,7 +161,7 @@ def test_basis_records_formula_and_config():
 - `src/hexawyn/application/ports/driving/analyze_incident_cost/`
 - `src/hexawyn/application/service/analyze_incident_cost_service.py`
 - `src/hexawyn/application/use_case/analyze_incident_cost/analyze_incident_cost_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/incident_cost_adapter.py`
-- `src/hexawyn/adapters/secondary/gitops/incident_cost_source.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/incident_cost_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/incident_cost_source.py`
 - `src/hexawyn/mcp/tools/analyze_incident_cost.py`
 - `src/hexawyn/mcp/server.py` (`build_incident_cost_adapter`)

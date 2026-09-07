@@ -111,5 +111,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/redundant_calls.py` — SpanInfo, RedundancyPattern, RedundantCallResult
 - `src/hexawyn/application/ports/driven/redundant_call_detection_port.py` — RedundantCallDetectionPort ABC
-- `src/hexawyn/adapters/secondary/gitops/otel_redundant_call_adapter.py` — adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_redundant_call_adapter.py` — adapter
 - `src/hexawyn/mcp/tools/redundant_calls.py` — MCP tool

@@ -1,0 +1,16 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.infrastructure.adapters.secondary.auth.cloud_auth_adapter.x\u01c1CloudAuthAdapter\u01c1__init____mutmut_1": null,
+        "hexawyn.infrastructure.adapters.secondary.auth.cloud_auth_adapter.x\u01c1CloudAuthAdapter\u01c1__init____mutmut_2": null,
+        "hexawyn.infrastructure.adapters.secondary.auth.cloud_auth_adapter.x\u01c1CloudAuthAdapter\u01c1validate_token__mutmut_1": null,
+        "hexawyn.infrastructure.adapters.secondary.auth.cloud_auth_adapter.x\u01c1CloudAuthAdapter\u01c1save_token__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x\u01c1CloudAuthAdapter\u01c1__init__": "208e79dfe21f",
+        "x\u01c1CloudAuthAdapter\u01c1validate_token": "867aac1a7d42",
+        "x\u01c1CloudAuthAdapter\u01c1save_token": "3707a4ea6cbb"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

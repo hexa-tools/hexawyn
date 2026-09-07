@@ -154,5 +154,5 @@ sequenceDiagram
 - `src/hexawyn/domain/services/cilium/policy_detail_builder.py` — pure detail builder (L3/L4/L7)
 - `src/hexawyn/application/ports/driven/cilium_port.py` — `CiliumPort.get_network_policy()`
 - `src/hexawyn/application/use_case/cilium/get_cilium_network_policy/` — Command, Response, UseCase
-- `src/hexawyn/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.get_network_policy()`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.get_network_policy()`
 - `src/hexawyn/mcp/tools/get_cilium_network_policy.py` — MCP tool

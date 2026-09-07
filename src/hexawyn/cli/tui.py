@@ -4,13 +4,13 @@ from typing import Any, Protocol
 from textual.app import App
 from textual.binding import Binding
 
-from hexawyn.adapters.secondary.adapter_factory import build_adapters
 from hexawyn.cli.presentation.asides import (
     failed_pod_count,
     pending_pod_count,
     running_pod_count,
     safe_pods,
 )
+from hexawyn.infrastructure.adapters.secondary.adapter_factory import build_adapters
 from hexawyn.infrastructure.config.kubernetes_context import (
     ClusterContext as KubernetesClusterContext,
 )

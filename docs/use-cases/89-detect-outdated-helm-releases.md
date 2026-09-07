@@ -121,6 +121,6 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/detect_outdated_helm_releases/`
 - `src/hexawyn/application/service/detect_outdated_helm_releases_service.py`
 - `src/hexawyn/application/use_case/detect_outdated_helm_releases/`
-- `src/hexawyn/adapters/secondary/gitops/helm_release_version_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/helm_release_version_adapter.py`
 - `src/hexawyn/mcp/tools/detect_outdated_helm_releases.py`
 - `src/hexawyn/mcp/server.py`

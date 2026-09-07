@@ -110,5 +110,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/error_attribution.py` — ServiceErrorCount, ErrorAttributionResult
 - `src/hexawyn/application/ports/driven/error_attribution_port.py` — ErrorAttributionPort ABC
-- `src/hexawyn/adapters/secondary/gitops/otel_error_attribution_adapter.py` — adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_error_attribution_adapter.py` — adapter
 - `src/hexawyn/mcp/tools/error_attribution.py` — MCP tool

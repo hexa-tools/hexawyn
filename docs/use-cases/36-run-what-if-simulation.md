@@ -231,5 +231,5 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/run_what_if_simulation/` — Command, Response, ServicePort
 - `src/hexawyn/application/service/run_what_if_simulation_service.py` — Application service (orchestrates port + engine)
 - `src/hexawyn/application/use_case/run_what_if_simulation/` — UseCase (thin delegation)
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py` — VanillaAdapter implements WhatIfSimulationPort
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py` — VanillaAdapter implements WhatIfSimulationPort
 - `src/hexawyn/mcp/tools/run_what_if_simulation.py` — MCP entry point

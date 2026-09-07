@@ -139,7 +139,7 @@ sequenceDiagram
 ## Related Files
 
 - `src/hexawyn/domain/services/cilium/graph_builder.py` — pure flow→edge aggregation
-- `src/hexawyn/adapters/secondary/cilium/cilium_hubble_graph_adapter.py` — `HubbleDependencyGraphAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/cilium/cilium_hubble_graph_adapter.py` — `HubbleDependencyGraphAdapter`
 - `src/hexawyn/application/ports/driven/service_dependency_graph_port.py` — `ServiceDependencyGraphPort` (reused)
 - `src/hexawyn/domain/models/service_dependency_graph.py` — `DependencyGraph.compute` (reused)
 - `src/hexawyn/application/use_case/cilium/cilium_service_graph/` — Command, Response, UseCase

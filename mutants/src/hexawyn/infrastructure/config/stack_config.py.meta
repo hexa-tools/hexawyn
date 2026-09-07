@@ -1,0 +1,39 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.infrastructure.config.stack_config.x_get_stack_override__mutmut_1": null,
+        "hexawyn.infrastructure.config.stack_config.x_get_stack_override__mutmut_2": null,
+        "hexawyn.infrastructure.config.stack_config.x_get_stack_override__mutmut_3": null,
+        "hexawyn.infrastructure.config.stack_config.x_set_stack_override__mutmut_1": null,
+        "hexawyn.infrastructure.config.stack_config.x_set_stack_override__mutmut_2": null,
+        "hexawyn.infrastructure.config.stack_config.x_set_stack_override__mutmut_3": null,
+        "hexawyn.infrastructure.config.stack_config.x_set_stack_override__mutmut_4": null,
+        "hexawyn.infrastructure.config.stack_config.x_set_stack_override__mutmut_5": null,
+        "hexawyn.infrastructure.config.stack_config.x_set_stack_override__mutmut_6": null,
+        "hexawyn.infrastructure.config.stack_config.x_set_stack_override__mutmut_7": null,
+        "hexawyn.infrastructure.config.stack_config.x_set_stack_override__mutmut_8": null,
+        "hexawyn.infrastructure.config.stack_config.x_clear_stack_override__mutmut_1": null,
+        "hexawyn.infrastructure.config.stack_config.x_clear_stack_override__mutmut_2": null,
+        "hexawyn.infrastructure.config.stack_config.x_clear_stack_override__mutmut_3": null,
+        "hexawyn.infrastructure.config.stack_config.x_clear_stack_override__mutmut_4": null,
+        "hexawyn.infrastructure.config.stack_config.x_clear_stack_override__mutmut_5": null,
+        "hexawyn.infrastructure.config.stack_config.x_clear_stack_override__mutmut_6": null,
+        "hexawyn.infrastructure.config.stack_config.x__load_overrides__mutmut_1": null,
+        "hexawyn.infrastructure.config.stack_config.x__overrides_from__mutmut_1": null,
+        "hexawyn.infrastructure.config.stack_config.x__overrides_from__mutmut_2": null,
+        "hexawyn.infrastructure.config.stack_config.x__overrides_from__mutmut_3": null,
+        "hexawyn.infrastructure.config.stack_config.x__overrides_from__mutmut_4": null,
+        "hexawyn.infrastructure.config.stack_config.x__overrides_from__mutmut_5": null,
+        "hexawyn.infrastructure.config.stack_config.x__overrides_from__mutmut_6": null,
+        "hexawyn.infrastructure.config.stack_config.x__overrides_from__mutmut_7": null
+    },
+    "hash_by_function_name": {
+        "x_get_stack_override": "053439d15117",
+        "x_set_stack_override": "a90d441811d8",
+        "x_clear_stack_override": "169fa22dc265",
+        "x__load_overrides": "5a54b8b1a780",
+        "x__overrides_from": "2fa85c9f6530"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

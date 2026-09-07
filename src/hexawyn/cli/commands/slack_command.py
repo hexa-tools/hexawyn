@@ -3,12 +3,12 @@ import os
 
 import click
 
-from hexawyn.adapters.primary.slack.slack_chat_adapter import SlackChatAdapter
-from hexawyn.adapters.primary.slack.slack_event_server import SlackEventServer
-from hexawyn.adapters.primary.slack.slack_socket_client import SlackSocketClient
-from hexawyn.adapters.secondary.slack.slack_alert_adapter import SlackAlertAdapter
-from hexawyn.adapters.secondary.slack.slack_http_client import SlackHttpClient
-from hexawyn.adapters.secondary.slack.slack_http_publisher import SlackHttpPublisher
+from hexawyn.infrastructure.adapters.primary.slack.slack_chat_adapter import SlackChatAdapter
+from hexawyn.infrastructure.adapters.primary.slack.slack_event_server import SlackEventServer
+from hexawyn.infrastructure.adapters.primary.slack.slack_socket_client import SlackSocketClient
+from hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter import SlackAlertAdapter
+from hexawyn.infrastructure.adapters.secondary.slack.slack_http_client import SlackHttpClient
+from hexawyn.infrastructure.adapters.secondary.slack.slack_http_publisher import SlackHttpPublisher
 from hexawyn.infrastructure.config.quota_manager import _get_current_slack_quota
 
 

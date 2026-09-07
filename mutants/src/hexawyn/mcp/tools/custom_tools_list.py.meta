@@ -1,0 +1,41 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_1": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_2": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_3": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_4": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_5": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_6": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_7": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_8": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_9": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_10": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_11": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_12": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_13": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_14": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_15": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_16": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_17": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_18": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_19": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_20": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_21": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_22": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_23": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_24": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_25": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_26": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_27": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_28": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_custom_tools_list__mutmut_29": null,
+        "hexawyn.mcp.tools.custom_tools_list.x_register__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_custom_tools_list": "0c0524f1fd11",
+        "x_register": "94b26420eb77"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

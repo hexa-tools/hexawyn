@@ -1,5 +1,5 @@
-from hexawyn.adapters.secondary.adapter_factory import list_installed_providers
 from hexawyn.application.ports.driven.k8s_port import ClusterContext
+from hexawyn.infrastructure.adapters.secondary.adapter_factory import list_installed_providers
 from hexawyn.infrastructure.config.datadog_config import is_datadog_configured
 from hexawyn.infrastructure.config.provider_detector import detect_installed_providers
 from hexawyn.infrastructure.config.stack_config import (
@@ -87,19 +87,19 @@ def _cluster_context(context_name: str) -> ClusterContext:
 
 
 def _aws_supported(context_name: str) -> bool:
-    from hexawyn.adapters.secondary.aws.aws_eks_provider import AWSEKSProvider
+    from hexawyn.infrastructure.adapters.secondary.aws.aws_eks_provider import AWSEKSProvider
 
     return AWSEKSProvider.supports(_cluster_context(context_name))
 
 
 def _gcp_supported(context_name: str) -> bool:
-    from hexawyn.adapters.secondary.gcp.gcp_gke_provider import GCPGKEProvider
+    from hexawyn.infrastructure.adapters.secondary.gcp.gcp_gke_provider import GCPGKEProvider
 
     return GCPGKEProvider.supports(_cluster_context(context_name))
 
 
 def _azure_supported(context_name: str) -> bool:
-    from hexawyn.adapters.secondary.azure.azure_aks_provider import AzureAKSProvider
+    from hexawyn.infrastructure.adapters.secondary.azure.azure_aks_provider import AzureAKSProvider
 
     return AzureAKSProvider.supports(_cluster_context(context_name))
 

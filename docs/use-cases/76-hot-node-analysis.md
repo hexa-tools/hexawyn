@@ -186,6 +186,6 @@ port/service/use-case/tool/adapter stack:
 - `src/hexawyn/application/ports/driving/hot_node_analysis/` — command, response, service_port
 - `src/hexawyn/application/service/hot_node_analysis_service.py` — `HotNodeAnalysisService`
 - `src/hexawyn/application/use_case/hot_node_analysis/hot_node_analysis_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_node_analysis_adapter.py` — `KubernetesNodeAnalysisAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_node_analysis_adapter.py` — `KubernetesNodeAnalysisAdapter`
 - `src/hexawyn/mcp/tools/hot_node_analysis.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_node_analysis_adapter` (new)

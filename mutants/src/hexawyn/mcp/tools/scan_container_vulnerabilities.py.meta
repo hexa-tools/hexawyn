@@ -1,0 +1,21 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.tools.scan_container_vulnerabilities.x_scan_container_vulnerabilities__mutmut_1": null,
+        "hexawyn.mcp.tools.scan_container_vulnerabilities.x_scan_container_vulnerabilities__mutmut_2": null,
+        "hexawyn.mcp.tools.scan_container_vulnerabilities.x_scan_container_vulnerabilities__mutmut_3": null,
+        "hexawyn.mcp.tools.scan_container_vulnerabilities.x_scan_container_vulnerabilities__mutmut_4": null,
+        "hexawyn.mcp.tools.scan_container_vulnerabilities.x_scan_container_vulnerabilities__mutmut_5": null,
+        "hexawyn.mcp.tools.scan_container_vulnerabilities.x_scan_container_vulnerabilities__mutmut_6": null,
+        "hexawyn.mcp.tools.scan_container_vulnerabilities.x_scan_container_vulnerabilities__mutmut_7": null,
+        "hexawyn.mcp.tools.scan_container_vulnerabilities.x_scan_container_vulnerabilities__mutmut_8": null,
+        "hexawyn.mcp.tools.scan_container_vulnerabilities.x_scan_container_vulnerabilities__mutmut_9": null,
+        "hexawyn.mcp.tools.scan_container_vulnerabilities.x_register__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_scan_container_vulnerabilities": "15d4631cb056",
+        "x_register": "4c3e9f245b57"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

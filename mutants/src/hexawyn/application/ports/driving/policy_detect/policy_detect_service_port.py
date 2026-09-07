@@ -1,0 +1,18 @@
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+
+from hexawyn.application.use_case.governance.policy_detect.command import (
+    PolicyDetectCommand,
+)
+from hexawyn.application.use_case.governance.policy_detect.response import (
+    PolicyDetectResponse,
+)
+
+
+from mutmut.mutation.trampoline import wrap_in_trampoline as _mutmut_mutated, MutantDict
+
+
+class PolicyDetectServicePort(ABC):
+    @abstractmethod
+    def detect(self, command: PolicyDetectCommand) -> PolicyDetectResponse: ...

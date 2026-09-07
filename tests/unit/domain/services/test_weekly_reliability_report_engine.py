@@ -1,5 +1,9 @@
 """RED → GREEN — Weekly Reliability Report domain logic."""
 
+from hexawyn.domain.models.weekly_reliability_report import (
+    ServiceReliability,
+    TopIncident,
+)
 from hexawyn.domain.services.reliability_report.weekly_reliability_report_engine import (
     WeeklyReliabilityReportEngine,
     _as_bool,
@@ -235,3 +239,198 @@ class TestHelperFunctions:
 
     def test_as_bool_non_empty_string_true(self) -> None:
         assert _as_bool("yes") is True
+
+
+def _exact_service() -> ServiceReliability:
+    return ServiceReliability(
+        service_name="payment-service",
+        uptime_pct=99.92,
+        error_rate=0.08,
+        p99_latency_ms=245.0,
+        slo_target=99.9,
+        slo_status="pass",
+        downtime_minutes=0,
+        data_gap_minutes=0,
+        created_mid_week=False,
+    )
+
+
+def _exact_incident() -> TopIncident:
+    return TopIncident(
+        service_name="auth-service",
+        timestamp="2026-06-13T14:30:00Z",
+        duration_minutes=18,
+        error_rate=2.0,
+        impact_score=36.0,
+        description="503 errors",
+    )
+
+
+class TestServiceReliabilityEquality:
+    def test_service_equality_full_dataclass(self) -> None:
+        engine = WeeklyReliabilityReportEngine()
+
+        result = engine.compute([_service()], [])
+
+        assert result.services == [_exact_service()]
+
+    def test_missing_keys_use_defaults(self) -> None:
+        engine = WeeklyReliabilityReportEngine()
+        raw: dict[str, object] = {}
+
+        result = engine.compute([raw], [])
+
+        assert result.services == [
+            ServiceReliability(
+                service_name="",
+                uptime_pct=0.0,
+                error_rate=0.0,
+                p99_latency_ms=0.0,
+                slo_target=0.0,
+                slo_status="pass",
+                downtime_minutes=0,
+                data_gap_minutes=0,
+                created_mid_week=False,
+            )
+        ]
+
+    def test_uptime_equal_to_target_is_pass(self) -> None:
+        engine = WeeklyReliabilityReportEngine()
+        services = [_service(uptime_pct=99.9, slo_target=99.9)]
+
+        result = engine.compute(services, [])
+
+        assert result.services[0].slo_status == "pass"
+
+
+class TestIncidentEquality:
+    def test_ranked_incident_full_equality(self) -> None:
+        engine = WeeklyReliabilityReportEngine()
+
+        result = engine.compute([], [_incident()])
+
+        assert result.top_incidents == [_exact_incident()]
+
+    def test_incident_missing_keys_use_defaults(self) -> None:
+        engine = WeeklyReliabilityReportEngine()
+        raw: dict[str, object] = {"service_name": "svc"}
+
+        result = engine.compute([], [raw])
+
+        assert result.top_incidents == [
+            TopIncident(
+                service_name="svc",
+                timestamp="",
+                duration_minutes=0,
+                error_rate=0.0,
+                impact_score=0.0,
+                description="",
+            )
+        ]
+
+    def test_impact_rounded_to_two_decimals(self) -> None:
+        engine = WeeklyReliabilityReportEngine()
+        incidents = [_incident(duration_minutes=3, error_rate=0.123, description="tiny")]
+
+        result = engine.compute([], incidents)
+
+        assert result.top_incidents[0].impact_score == 0.37  # noqa: PLR2004
+
+
+class TestHealthScoreFraction:
+    def test_one_of_three_pass_health_rounded_to_one_decimal(self) -> None:
+        engine = WeeklyReliabilityReportEngine()
+        services = [
+            _service(name="a", uptime_pct=99.95, slo_target=99.9),
+            _service(name="b", uptime_pct=99.72, slo_target=99.9),
+            _service(name="c", uptime_pct=99.72, slo_target=99.9),
+        ]
+
+        result = engine.compute(services, [])
+
+        assert result.health_score == 33.3  # noqa: PLR2004
+        assert result.slo_pass_count == 1
+        assert result.slo_fail_count == 2  # noqa: PLR2004
+
+    def test_single_service_health_uses_length_guard(self) -> None:
+        engine = WeeklyReliabilityReportEngine()
+        services = [_service(uptime_pct=99.95, slo_target=99.9)]
+
+        result = engine.compute(services, [])
+
+        assert result.health_score == 100.0  # noqa: PLR2004
+
+
+class TestReportPeriodFields:
+    def test_period_fields_empty_by_default(self) -> None:
+        engine = WeeklyReliabilityReportEngine()
+
+        result = engine.compute([], [])
+
+        assert result.report_period_start == ""
+        assert result.report_period_end == ""
+
+
+class TestRankedOrdering:
+    def test_full_ranked_order_equality(self) -> None:
+        engine = WeeklyReliabilityReportEngine()
+        incidents = [
+            _incident(service_name="low", duration_minutes=10, error_rate=1.0, description="d-low"),
+            _incident(
+                service_name="high", duration_minutes=20, error_rate=3.0, description="d-high"
+            ),
+            _incident(service_name="mid", duration_minutes=15, error_rate=2.0, description="d-mid"),
+        ]
+
+        result = engine.compute([], incidents)
+
+        assert result.top_incidents == [
+            TopIncident("high", "2026-06-13T14:30:00Z", 20, 3.0, 60.0, "d-high"),
+            TopIncident("mid", "2026-06-13T14:30:00Z", 15, 2.0, 30.0, "d-mid"),
+            TopIncident("low", "2026-06-13T14:30:00Z", 10, 1.0, 10.0, "d-low"),
+        ]
+
+
+class TestServiceDowntimeValue:
+    def test_non_zero_downtime_forwarded_exactly(self) -> None:
+        engine = WeeklyReliabilityReportEngine()
+        services = [_service(downtime_minutes=35, data_gap_minutes=20)]
+
+        result = engine.compute(services, [])
+
+        assert result.services == [
+            ServiceReliability(
+                service_name="payment-service",
+                uptime_pct=99.92,
+                error_rate=0.08,
+                p99_latency_ms=245.0,
+                slo_target=99.9,
+                slo_status="pass",
+                downtime_minutes=35,
+                data_gap_minutes=20,
+                created_mid_week=False,
+            )
+        ]
+
+
+class TestIncidentMissingServiceName:
+    def test_missing_service_name_defaults_to_empty(self) -> None:
+        engine = WeeklyReliabilityReportEngine()
+        raw: dict[str, object] = {
+            "duration_minutes": 10,
+            "error_rate": 2.0,
+            "description": "orphan incident",
+        }
+
+        result = engine.compute([], [raw])
+
+        assert result.top_incidents == [
+            TopIncident(
+                service_name="",
+                timestamp="",
+                duration_minutes=10,
+                error_rate=2.0,
+                impact_score=20.0,
+                description="orphan incident",
+            )
+        ]

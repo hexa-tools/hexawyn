@@ -1,0 +1,39 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_1": 1,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_2": 1,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_3": 0,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_4": 1,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_5": 0,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_6": 1,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_7": 1,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_8": 0,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_9": 1
+    },
+    "hash_by_function_name": {
+        "x__get_int": "fd32280529ea"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_1": 0.167892,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_2": 0.164578,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_3": 0.170947,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_4": 0.175992,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_5": 0.171051,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_6": 0.171763,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_7": 0.175965,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_8": 0.163311,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_9": 0.161083
+    },
+    "estimated_durations_by_key": {
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_1": 0.0036171860119793564,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_2": 0.0036171860119793564,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_3": 0.0036171860119793564,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_4": 0.0036171860119793564,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_5": 0.0036171860119793564,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_6": 0.0036171860119793564,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_7": 0.0036171860119793564,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_8": 0.0036171860119793564,
+        "hexawyn.domain.models.topology_snapshot.x__get_int__mutmut_9": 0.0036171860119793564
+    }
+}

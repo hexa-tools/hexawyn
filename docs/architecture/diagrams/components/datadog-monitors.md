@@ -11,7 +11,7 @@ flowchart LR
         MP["MonitoringPort (ABC)<br/>get_triggered_monitors"]
     end
 
-    subgraph Adapter["adapters/secondary/datadog"]
+    subgraph Adapter["infrastructure/adapters/secondary/datadog"]
         DMA["DatadogMonitorAdapter<br/>list_monitors →<br/>filter Alert/Warn/No Data"]
     end
 
@@ -51,6 +51,6 @@ flowchart LR
 
 ## Related Files
 
-- `src/hexawyn/adapters/secondary/datadog/datadog_monitor_adapter.py` — Monitors adapter
+- `src/hexawyn/infrastructure/adapters/secondary/datadog/datadog_monitor_adapter.py` — Monitors adapter
 - `src/hexawyn/application/ports/driven/monitoring_port.py` — the port
-- `src/hexawyn/adapters/secondary/datadog/datadog_metrics_adapter.py` — same auth pattern
+- `src/hexawyn/infrastructure/adapters/secondary/datadog/datadog_metrics_adapter.py` — same auth pattern

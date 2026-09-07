@@ -1,0 +1,23 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.tools.detect_cross_cluster_incident.x_detect_cross_cluster_incident__mutmut_1": null,
+        "hexawyn.mcp.tools.detect_cross_cluster_incident.x_detect_cross_cluster_incident__mutmut_2": null,
+        "hexawyn.mcp.tools.detect_cross_cluster_incident.x_detect_cross_cluster_incident__mutmut_3": null,
+        "hexawyn.mcp.tools.detect_cross_cluster_incident.x_detect_cross_cluster_incident__mutmut_4": null,
+        "hexawyn.mcp.tools.detect_cross_cluster_incident.x_detect_cross_cluster_incident__mutmut_5": null,
+        "hexawyn.mcp.tools.detect_cross_cluster_incident.x_detect_cross_cluster_incident__mutmut_6": null,
+        "hexawyn.mcp.tools.detect_cross_cluster_incident.x_detect_cross_cluster_incident__mutmut_7": null,
+        "hexawyn.mcp.tools.detect_cross_cluster_incident.x_detect_cross_cluster_incident__mutmut_8": null,
+        "hexawyn.mcp.tools.detect_cross_cluster_incident.x_detect_cross_cluster_incident__mutmut_9": null,
+        "hexawyn.mcp.tools.detect_cross_cluster_incident.x_detect_cross_cluster_incident__mutmut_10": null,
+        "hexawyn.mcp.tools.detect_cross_cluster_incident.x_detect_cross_cluster_incident__mutmut_11": null,
+        "hexawyn.mcp.tools.detect_cross_cluster_incident.x_register__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_detect_cross_cluster_incident": "48562649b04c",
+        "x_register": "9b29937cc0e9"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

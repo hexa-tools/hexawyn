@@ -165,6 +165,6 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driven/alert_notification_port.py` — AlertNotificationPort (reused, first production wiring)
 - `src/hexawyn/application/service/watch_pod_logs_service.py` — WatchPodLogsService
 - `src/hexawyn/application/use_case/watch_pod_logs/watch_pod_logs_use_case.py` — WatchPodLogsUseCase
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_pod_log_watch_adapter.py` — KubernetesPodLogWatchAdapter
-- `src/hexawyn/adapters/secondary/slack/slack_alert_adapter.py` — SlackAlertAdapter (reused)
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_pod_log_watch_adapter.py` — KubernetesPodLogWatchAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/slack/slack_alert_adapter.py` — SlackAlertAdapter (reused)
 - `src/hexawyn/mcp/tools/watch_pod_logs.py` — MCP tool
