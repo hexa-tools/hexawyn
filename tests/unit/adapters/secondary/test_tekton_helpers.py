@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.kubernetes_tekton_adapter import (
+from hexawyn.infrastructure.adapters.secondary.kubernetes_tekton_adapter import (
     _compute_duration_seconds,
     _extract_pipeline_ref,
     _extract_status,

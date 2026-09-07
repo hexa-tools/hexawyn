@@ -1,9 +1,9 @@
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.primary.slack.slack_chat_adapter import SlackChatAdapter
-from hexawyn.adapters.primary.slack.slack_webhook import handle_slack_event
 from hexawyn.domain.errors import QuotaExceededError
+from hexawyn.infrastructure.adapters.primary.slack.slack_chat_adapter import SlackChatAdapter
+from hexawyn.infrastructure.adapters.primary.slack.slack_webhook import handle_slack_event
 
 
 class TestSlackChatIntegration:

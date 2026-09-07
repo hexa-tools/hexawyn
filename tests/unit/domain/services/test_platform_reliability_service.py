@@ -286,3 +286,118 @@ class TestPlatformReliabilityService:
         assert hasattr(report, "uptime_pct")
         assert hasattr(report, "total_incidents")
         assert hasattr(report, "executive_summary")
+
+
+class TestFullReportFields:
+    def test_all_report_fields_and_executive_summary_exact(self) -> None:
+        from hexawyn.domain.models.platform_reliability import IncidentSummary
+        from hexawyn.domain.services.platform_reliability.platform_reliability_service import (
+            PlatformReliabilityService,
+        )
+
+        service = PlatformReliabilityService()
+        incidents = [
+            _incident(
+                date="2026-06-10",
+                severity="minor",
+                downtime_minutes=60,
+                resolution_minutes=60,
+                root_cause="deploiement",
+            ),
+            _incident(
+                date="2026-06-12",
+                severity="major",
+                downtime_minutes=120,
+                resolution_minutes=60,
+                root_cause="reseau",
+            ),
+        ]
+        data = _data(
+            incidents=incidents,
+            period_minutes=10080,
+            previous_avg_resolution_minutes=60,
+            cost_per_downtime_minute_eur=10.0,
+        )
+
+        report = service.generate(data=data, period="2026-06")
+
+        assert report.period_label == "2026-06"
+        assert report.uptime_pct == 98.21  # noqa: PLR2004
+        assert report.total_incidents == 2  # noqa: PLR2004
+        assert report.major_count == 1
+        assert report.minor_count == 1
+        assert report.avg_resolution_minutes == 60  # noqa: PLR2004
+        assert report.resolution_trend == "stable"
+        assert report.resolution_delta_pct == 0.0
+        assert report.previous_avg_resolution_minutes == 60  # noqa: PLR2004
+        assert report.financial_impact_eur == 1800.0  # noqa: PLR2004
+        assert report.pricing_configured is True
+        assert report.has_major_incident is True
+        assert report.incidents == [
+            IncidentSummary(
+                date="2026-06-10",
+                severity="minor",
+                downtime_minutes=60,
+                root_cause="deploiement",
+                resolved=True,
+            ),
+            IncidentSummary(
+                date="2026-06-12",
+                severity="major",
+                downtime_minutes=120,
+                root_cause="reseau",
+                resolved=True,
+            ),
+        ]
+        assert report.executive_summary == (
+            "98,21% de disponibilite, avec 2 incidents majeurs resolus. "
+            "Incident critique le 2026-06-12 : 2,0h d'indisponibilite. "
+            "Cause racine : reseau. Corrige. "
+            "Temps de resolution moyen : 60 min. "
+            "Cout estime des interventions : 1800\u20ac."
+        )
+
+    def test_report_without_pricing_and_without_history(self) -> None:
+        from hexawyn.domain.services.platform_reliability.platform_reliability_service import (
+            PlatformReliabilityService,
+        )
+
+        service = PlatformReliabilityService()
+        incidents = [_incident(severity="minor", downtime_minutes=30, resolution_minutes=45)]
+        data = _data(
+            incidents=incidents,
+            period_minutes=10080,
+            previous_avg_resolution_minutes=None,
+            cost_per_downtime_minute_eur=None,
+        )
+
+        report = service.generate(data=data, period="2026-06")
+
+        assert report.previous_avg_resolution_minutes is None
+        assert report.financial_impact_eur is None
+        assert report.pricing_configured is False
+        assert report.has_major_incident is False
+        assert report.resolution_delta_pct == 0.0
+        assert report.executive_summary.startswith("99,70% de disponibilite")
+        assert "\u20ac" not in report.executive_summary
+
+
+class TestResolutionTrendField:
+    def test_report_resolution_trend_degrading_when_delta_positive(self) -> None:
+        from hexawyn.domain.services.platform_reliability.platform_reliability_service import (
+            PlatformReliabilityService,
+        )
+
+        service = PlatformReliabilityService()
+        incidents = [_incident(severity="minor", downtime_minutes=5, resolution_minutes=103)]
+        data = _data(
+            incidents=incidents,
+            period_minutes=10080,
+            previous_avg_resolution_minutes=100,
+            cost_per_downtime_minute_eur=None,
+        )
+
+        report = service.generate(data=data, period="2026-06")
+
+        assert report.resolution_trend == "degrading"
+        assert report.resolution_delta_pct == 3.0  # noqa: PLR2004

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.kubernetes_image_drift_adapter import (
+from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_image_drift_adapter import (
     _match_labels,
     _matches_selector,
     _translate_error,
 )
-from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
 
 
 def _mk(**attrs: object) -> Mock:

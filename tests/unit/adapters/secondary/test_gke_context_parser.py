@@ -1,4 +1,4 @@
-from hexawyn.adapters.secondary.gcp.gke_context_parser import parse_gke_context
+from hexawyn.infrastructure.adapters.secondary.gcp.gke_context_parser import parse_gke_context
 
 
 class TestParseGKEContext:

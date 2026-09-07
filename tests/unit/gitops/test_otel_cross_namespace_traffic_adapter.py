@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 class TestOtelCrossNamespaceTrafficAdapterUnit:
     def test_returns_list(self) -> None:
-        from hexawyn.adapters.secondary.gitops.otel_cross_namespace_traffic_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.gitops.otel_cross_namespace_traffic_adapter import (  # noqa: E501
             OTelCrossNamespaceTrafficAdapter,
         )
 
@@ -14,12 +14,12 @@ class TestOtelCrossNamespaceTrafficAdapterUnit:
         assert isinstance(result, list)
 
     def test_flows_populated_with_mocked_services(self) -> None:
-        from hexawyn.adapters.secondary.gitops.otel_cross_namespace_traffic_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.gitops.otel_cross_namespace_traffic_adapter import (  # noqa: E501
             OTelCrossNamespaceTrafficAdapter,
         )
 
         with patch(
-            "hexawyn.adapters.secondary.gitops.otel_cross_namespace_traffic_adapter.list_jaeger_services",
+            "hexawyn.infrastructure.adapters.secondary.gitops.otel_cross_namespace_traffic_adapter.list_jaeger_services",
             return_value=["hotrod", "jaeger"],
         ):
             adapter = OTelCrossNamespaceTrafficAdapter()

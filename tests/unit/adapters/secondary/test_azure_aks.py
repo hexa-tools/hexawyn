@@ -1,4 +1,4 @@
-from hexawyn.adapters.secondary.mock.scenarios.azure_aks import AZURE_AKS_SCENARIO
+from hexawyn.infrastructure.adapters.secondary.mock.scenarios.azure_aks import AZURE_AKS_SCENARIO
 
 REQUIRED_KEYS = {"context", "health", "pods", "metrics", "findings", "chips", "slack_message"}
 

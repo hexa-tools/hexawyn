@@ -5,14 +5,14 @@ import os
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.gitops.kubernetes_rbac_adapter import (
-    KubernetesRBACAdapter,
-    _parse_audit_line,
-)
 from hexawyn.application.ports.driven.rbac_security_audit_port import (
     RBACSecurityAuditPort,
 )
 from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_rbac_adapter import (
+    KubernetesRBACAdapter,
+    _parse_audit_line,
+)
 
 
 def _make_sa(name: str, namespace: str) -> MagicMock:

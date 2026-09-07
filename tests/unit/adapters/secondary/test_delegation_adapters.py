@@ -1,12 +1,16 @@
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.cluster_diff_adapter import ClusterDiffAdapter
-from hexawyn.adapters.secondary.gitops.critical_cve_adapter import CriticalCveAdapter
-from hexawyn.adapters.secondary.gitops.cross_cluster_incident_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.cluster_diff_adapter import ClusterDiffAdapter
+from hexawyn.infrastructure.adapters.secondary.gitops.critical_cve_adapter import CriticalCveAdapter
+from hexawyn.infrastructure.adapters.secondary.gitops.cross_cluster_incident_adapter import (
     CrossClusterIncidentAdapter,
 )
-from hexawyn.adapters.secondary.gitops.disruption_risk_adapter import DisruptionRiskAdapter
-from hexawyn.adapters.secondary.gitops.incident_cost_adapter import IncidentCostAdapter
+from hexawyn.infrastructure.adapters.secondary.gitops.disruption_risk_adapter import (
+    DisruptionRiskAdapter,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.incident_cost_adapter import (
+    IncidentCostAdapter,
+)
 
 
 class TestDisruptionRiskAdapter:

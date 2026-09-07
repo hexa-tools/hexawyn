@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from hexawyn.adapters.secondary.gitops.prometheus_pod_metrics_baseline_adapter import (
+from hexawyn.application.ports.driven.pod_metrics_baseline_port import PodMetricsBaselinePort
+from hexawyn.infrastructure.adapters.secondary.gitops.prometheus_pod_metrics_baseline_adapter import (  # noqa: E501
     PrometheusPodMetricsBaselineAdapter,
 )
-from hexawyn.application.ports.driven.pod_metrics_baseline_port import PodMetricsBaselinePort
 
 
 def _pod_info(name: str, age: str) -> dict:

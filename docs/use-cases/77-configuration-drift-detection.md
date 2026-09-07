@@ -204,9 +204,9 @@ port/service/use-case/tool/adapter stack:
 - `src/hexawyn/application/ports/driving/configuration_drift_detection/` — command, response, service_port
 - `src/hexawyn/application/service/configuration_drift_detection_service.py` — `ConfigurationDriftDetectionService`
 - `src/hexawyn/application/use_case/configuration_drift_detection/configuration_drift_detection_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/helm_drift_adapter.py` — `HelmDriftAdapter`
-- `src/hexawyn/adapters/secondary/gitops/kustomize_drift_adapter.py` — `KustomizeDriftAdapter`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_live_resource_adapter.py` — `KubernetesLiveResourceAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/helm_drift_adapter.py` — `HelmDriftAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kustomize_drift_adapter.py` — `KustomizeDriftAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_live_resource_adapter.py` — `KubernetesLiveResourceAdapter`
 - `src/hexawyn/mcp/tools/configuration_drift_detection.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_helm_drift_adapter`, `build_kustomize_drift_adapter`, `build_live_resource_adapter` (new)
 - `pyproject.toml` — `pyyaml` added as an explicit direct dependency

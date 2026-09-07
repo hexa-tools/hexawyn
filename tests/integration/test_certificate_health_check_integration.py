@@ -111,11 +111,11 @@ def _execute_check(
     ingresses: list[object] | None = None,
     namespaces: list[str] | None = None,
 ) -> object:
-    from hexawyn.adapters.secondary.kubernetes_cluster_certificate_adapter import (
-        KubernetesClusterCertificateAdapter,
-    )
     from hexawyn.application.use_case.cert_manager.cluster_certificate_health.cluster_certificate_health_use_case import (  # noqa: E501
         ClusterCertificateHealthUseCase,
+    )
+    from hexawyn.infrastructure.adapters.secondary.kubernetes_cluster_certificate_adapter import (
+        KubernetesClusterCertificateAdapter,
     )
 
     api = _fake_k8s_api(secrets, namespaces)

@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from hexawyn.adapters.secondary.mcp.mcp_discovery_adapter import MCPDiscoveryAdapter
 from hexawyn.application.ports.driven.mcp_discovery_port import MCPDiscoveryPort
+from hexawyn.infrastructure.adapters.secondary.mcp.mcp_discovery_adapter import MCPDiscoveryAdapter
 
 
 class TestMCPDiscoveryAdapter:
@@ -16,7 +16,7 @@ class TestMCPDiscoveryAdapter:
         mock_tool.inputSchema = {"type": "object"}
 
         with patch(
-            "hexawyn.adapters.secondary.mcp.mcp_discovery_adapter.mcp",
+            "hexawyn.infrastructure.adapters.secondary.mcp.mcp_discovery_adapter.mcp",
             autospec=False,
         ) as mock_mcp:
             mock_mcp.list_tools = AsyncMock(return_value=[mock_tool])
@@ -34,7 +34,7 @@ class TestMCPDiscoveryAdapter:
         mock_tool.inputSchema = {}
 
         with patch(
-            "hexawyn.adapters.secondary.mcp.mcp_discovery_adapter.mcp",
+            "hexawyn.infrastructure.adapters.secondary.mcp.mcp_discovery_adapter.mcp",
             autospec=False,
         ) as mock_mcp:
             mock_mcp.list_tools = AsyncMock(return_value=[mock_tool])
@@ -48,7 +48,7 @@ class TestMCPDiscoveryAdapter:
 
     def test_discover_handles_mcp_unavailable(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.mcp.mcp_discovery_adapter.mcp",
+            "hexawyn.infrastructure.adapters.secondary.mcp.mcp_discovery_adapter.mcp",
             autospec=False,
         ) as mock_mcp:
             mock_mcp.list_tools = AsyncMock(side_effect=Exception("down"))
@@ -59,7 +59,7 @@ class TestMCPDiscoveryAdapter:
 
     def test_discover_empty_tools_list(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.mcp.mcp_discovery_adapter.mcp",
+            "hexawyn.infrastructure.adapters.secondary.mcp.mcp_discovery_adapter.mcp",
             autospec=False,
         ) as mock_mcp:
             mock_mcp.list_tools = AsyncMock(return_value=[])

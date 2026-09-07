@@ -77,4 +77,4 @@ sequenceDiagram
 - `src/hexawyn/mcp/tools/list_openshift_sccs.py`
 - `src/hexawyn/application/use_case/openshift/list_openshift_sccs/`
 - `src/hexawyn/application/ports/driven/openshift_resource_port.py`
-- `src/hexawyn/adapters/secondary/openshift/openshift_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/openshift/openshift_adapter.py`

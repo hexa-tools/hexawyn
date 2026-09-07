@@ -147,8 +147,8 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/cilium.py` — `CiliumFlowQuery`, `CiliumFlowEntry`, `CiliumFlowsResult`
 - `src/hexawyn/domain/services/cilium/flow_builder.py` — pure flow mapping/filtering
-- `src/hexawyn/adapters/secondary/cilium/hubble_client.py` — Hubble HTTP client (`HUBBLE_URL`)
-- `src/hexawyn/adapters/secondary/cilium/cilium_hubble_adapter.py` — `CiliumHubbleAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/cilium/hubble_client.py` — Hubble HTTP client (`HUBBLE_URL`)
+- `src/hexawyn/infrastructure/adapters/secondary/cilium/cilium_hubble_adapter.py` — `CiliumHubbleAdapter`
 - `src/hexawyn/application/ports/driven/cilium_hubble_port.py` — `CiliumHubblePort`
 - `src/hexawyn/application/use_case/cilium/get_cilium_flows/` — Command, Response, UseCase
 - `src/hexawyn/mcp/tools/get_cilium_flows.py` — MCP tool

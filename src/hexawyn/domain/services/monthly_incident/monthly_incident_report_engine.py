@@ -1,10 +1,22 @@
 from __future__ import annotations
 
+from collections import defaultdict
+from datetime import datetime
+from typing import TypedDict
+
 from hexawyn.domain.models.monthly_incident_report import (
     ImpactedService,
     MonthlyIncidentReport,
     SeverityBreakdown,
 )
+
+
+class IncidentAggregate(TypedDict):
+    month: str
+    total_count: int
+    total_downtime_minutes: int
+    per_severity: dict[str, dict[str, int]]
+    most_impacted_services: list[ImpactedService]
 
 
 class MonthlyIncidentReportEngine:
@@ -51,7 +63,7 @@ def _process_incidents(
         if _as_bool(inc.get("is_planned_maintenance")):
             continue
 
-        sev = str(inc.get("severity", "P3"))
+        sev = str(inc.get("severity"))
         if sev not in severity_map:
             sev = "P3"
 
@@ -111,8 +123,6 @@ SEVERITY_ORDER = ["P1", "P2", "P3"]
 
 
 def default_month_str() -> str:
-    from datetime import datetime
-
     now = datetime.now()
     return f"{now.year}-{now.month:02d}"
 
@@ -128,11 +138,7 @@ def previous_month_name(month: str) -> str:
 
 def aggregate_incidents(
     incidents: list[dict[str, object]],
-) -> dict[str, object]:
-    from collections import defaultdict
-
-    from hexawyn.domain.models.monthly_incident_report import ImpactedService
-
+) -> IncidentAggregate:
     sev_keys = ["P1", "P2", "P3"]
     per_sev: dict[str, dict[str, int]] = {k: {"count": 0, "downtime_minutes": 0} for k in sev_keys}
     svc_downtime: dict[str, int] = defaultdict(int)
@@ -142,7 +148,7 @@ def aggregate_incidents(
     for inc in incidents:
         if inc.get("is_planned_maintenance") or inc.get("reopened"):
             continue
-        sev = str(inc.get("severity", "P3"))
+        sev = str(inc.get("severity"))
         if sev not in per_sev:
             sev = "P3"
         dt = _as_int(inc.get("downtime_minutes"))

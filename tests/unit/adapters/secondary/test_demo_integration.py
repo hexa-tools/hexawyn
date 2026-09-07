@@ -23,8 +23,8 @@ class TestDemoIntegration:
                 "HEXAWYN_DEMO_SCENARIO": scenario,
             },
         ):
-            from hexawyn.adapters.secondary.adapter_factory import build_adapters
-            from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+            from hexawyn.infrastructure.adapters.secondary.adapter_factory import build_adapters
+            from hexawyn.infrastructure.adapters.secondary.mock.demo_adapter import DemoAdapter
 
             adapter = build_adapters("test-cluster")
             assert isinstance(adapter, DemoAdapter)
@@ -32,14 +32,14 @@ class TestDemoIntegration:
 
     @pytest.mark.parametrize("scenario,expected_score", EXPECTED_SCORES.items())
     def test_each_scenario_health_score(self, scenario: str, expected_score: int):
-        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+        from hexawyn.infrastructure.adapters.secondary.mock.demo_adapter import DemoAdapter
 
         adapter = DemoAdapter(scenario=scenario)
         assert adapter.get_health_score() == expected_score
 
     @pytest.mark.parametrize("scenario", SCENARIOS)
     def test_each_scenario_has_findings(self, scenario: str):
-        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+        from hexawyn.infrastructure.adapters.secondary.mock.demo_adapter import DemoAdapter
 
         adapter = DemoAdapter(scenario=scenario)
         findings = adapter.get_findings()
@@ -50,7 +50,7 @@ class TestDemoIntegration:
 
     @pytest.mark.parametrize("scenario", SCENARIOS)
     def test_each_scenario_has_chips(self, scenario: str):
-        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+        from hexawyn.infrastructure.adapters.secondary.mock.demo_adapter import DemoAdapter
 
         adapter = DemoAdapter(scenario=scenario)
         chips = adapter.get_suggestion_chips()
@@ -58,7 +58,7 @@ class TestDemoIntegration:
 
     @pytest.mark.parametrize("scenario", SCENARIOS)
     def test_each_scenario_slack_message_not_empty(self, scenario: str):
-        from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+        from hexawyn.infrastructure.adapters.secondary.mock.demo_adapter import DemoAdapter
 
         adapter = DemoAdapter(scenario=scenario)
         msg = adapter.get_slack_message()
@@ -66,8 +66,8 @@ class TestDemoIntegration:
 
     def test_demo_mode_false_does_not_use_demo_adapter(self):
         with patch.dict(os.environ, {"HEXAWYN_DEMO_MODE": "false"}, clear=False):
-            from hexawyn.adapters.secondary.adapter_factory import build_adapters
-            from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+            from hexawyn.infrastructure.adapters.secondary.adapter_factory import build_adapters
+            from hexawyn.infrastructure.adapters.secondary.mock.demo_adapter import DemoAdapter
 
             adapter = build_adapters("vanilla-cluster")
             assert not isinstance(adapter, DemoAdapter)

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.kubernetes_label_search_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_label_search_adapter import (
     _pod_ready,
     _to_non_pod_raw,
     _to_pod_raw,

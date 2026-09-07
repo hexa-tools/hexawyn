@@ -4,15 +4,15 @@ from unittest.mock import MagicMock
 
 import pytest
 from botocore.exceptions import ClientError, NoCredentialsError
-from hexawyn.adapters.secondary.aws.xray_trace_adapter import (
+from hexawyn.domain.errors import TracesUnavailableError
+from hexawyn.domain.models.latency_diagnostic import LatencyDiagnosticRequest, TraceSpan
+from hexawyn.infrastructure.adapters.secondary.aws.xray_trace_adapter import (
     AWSXRayTraceAdapter,
     _chunked,
     _duration_ms,
     _trace_to_spans,
     _walk_document,
 )
-from hexawyn.domain.errors import TracesUnavailableError
-from hexawyn.domain.models.latency_diagnostic import LatencyDiagnosticRequest, TraceSpan
 
 
 class TestAWSXRayTraceAdapter:

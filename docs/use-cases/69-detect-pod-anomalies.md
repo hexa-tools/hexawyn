@@ -152,6 +152,6 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/detect_pod_anomalies/` — command, response, service_port
 - `src/hexawyn/application/service/detect_pod_anomalies_service.py` — `DetectPodAnomaliesService`
 - `src/hexawyn/application/use_case/detect_pod_anomalies/detect_pod_anomalies_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/prometheus_pod_metrics_baseline_adapter.py` — `PrometheusPodMetricsBaselineAdapter` (real Prometheus wiring via `MetricsQueryPort`)
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/prometheus_pod_metrics_baseline_adapter.py` — `PrometheusPodMetricsBaselineAdapter` (real Prometheus wiring via `MetricsQueryPort`)
 - `src/hexawyn/mcp/tools/detect_pod_anomalies.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_pod_metrics_baseline_adapter` (new; composes `build_metrics_query_adapter` + `build_k8s_adapter`)

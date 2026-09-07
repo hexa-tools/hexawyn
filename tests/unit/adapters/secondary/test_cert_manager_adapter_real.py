@@ -5,12 +5,12 @@ from __future__ import annotations
 from unittest.mock import Mock
 
 import pytest
-from hexawyn.adapters.secondary.gitops.cert_manager_adapter import CertManagerAdapter
 from hexawyn.domain.models.certificates import (
     Certificate,
     CertificateStatus,
     IssuerType,
 )
+from hexawyn.infrastructure.adapters.secondary.gitops.cert_manager_adapter import CertManagerAdapter
 
 
 def _mock_vanilla_with_crds(*item_lists: list[dict]) -> Mock:

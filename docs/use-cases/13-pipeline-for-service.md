@@ -109,5 +109,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/pipeline_for_service.py` — ServicePipeline, PipelineForServiceResult
 - `src/hexawyn/application/ports/driven/pipeline_for_service_port.py` — PipelineForServicePort ABC
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_pipeline_for_service_adapter.py` — adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_pipeline_for_service_adapter.py` — adapter
 - `src/hexawyn/mcp/tools/pipeline_for_service.py` — MCP tool

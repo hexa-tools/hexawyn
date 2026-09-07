@@ -5,10 +5,10 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.adapters.what_if_simulation_adapter import (
+from hexawyn.domain.errors import ClusterUnreachableError
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.what_if_simulation_adapter import (
     VanillaWhatIfSimulationAdapter,
 )
-from hexawyn.domain.errors import ClusterUnreachableError
 from kubernetes import client
 
 

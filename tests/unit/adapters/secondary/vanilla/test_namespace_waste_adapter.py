@@ -5,11 +5,11 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.adapters.namespace_waste_adapter import (
-    VanillaNamespaceWasteAdapter,
-)
 from hexawyn.domain.errors import (
     ClusterUnreachableError,
+)
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.namespace_waste_adapter import (
+    VanillaNamespaceWasteAdapter,
 )
 
 

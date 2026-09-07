@@ -56,7 +56,7 @@ flowchart TB
 
 ## Related Files
 
-- `src/hexawyn/adapters/secondary/azure/log_analytics_adapter.py` — Azure logs adapter
-- `src/hexawyn/adapters/secondary/aws/cloudwatch_logs_adapter.py` — AWS peer
-- `src/hexawyn/adapters/secondary/gcp/cloud_logging_adapter.py` — GCP peer
+- `src/hexawyn/infrastructure/adapters/secondary/azure/log_analytics_adapter.py` — Azure logs adapter
+- `src/hexawyn/infrastructure/adapters/secondary/aws/cloudwatch_logs_adapter.py` — AWS peer
+- `src/hexawyn/infrastructure/adapters/secondary/gcp/cloud_logging_adapter.py` — GCP peer
 - `src/hexawyn/mcp/server.py` — `build_log_search_adapter()` multi-provider

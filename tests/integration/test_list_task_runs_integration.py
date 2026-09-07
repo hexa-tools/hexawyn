@@ -3,13 +3,13 @@
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.ports.driven.tekton_port import TektonPort
 from hexawyn.application.use_case.pipelines.list_task_runs.command import ListTaskRunsCommand
 from hexawyn.application.use_case.pipelines.list_task_runs.list_task_runs_use_case import (
     ListTaskRunsUseCase,
 )
 from hexawyn.domain.errors import PipelineNotFoundError
+from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
 
 class TestListTaskRunsUseCaseIntegration:

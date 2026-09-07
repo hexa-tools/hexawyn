@@ -58,5 +58,5 @@ sequenceDiagram
 ## Related Files
 
 - `src/hexawyn/mcp/tools/custom_tool_describe.py`
-- `src/hexawyn/adapters/secondary/runtime_client.py`
+- `src/hexawyn/infrastructure/adapters/secondary/runtime_client.py`
 - `src/hexawyn/infrastructure/config/config_manager.py` — get_runtime_endpoint()

@@ -70,4 +70,4 @@ sequenceDiagram
 - `src/hexawyn/mcp/tools/tls_certificate_diagnosis.py`
 - `src/hexawyn/application/use_case/cert_manager/tls_certificate_diagnosis/`
 - `src/hexawyn/application/ports/driven/cluster_certificate_health_port.py`
-- `src/hexawyn/adapters/secondary/kubernetes_cluster_certificate_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/kubernetes_cluster_certificate_adapter.py`

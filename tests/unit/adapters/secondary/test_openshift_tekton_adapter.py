@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.openshift.tekton_adapter import OpenShiftTektonAdapter
+from hexawyn.infrastructure.adapters.secondary.openshift.tekton_adapter import (
+    OpenShiftTektonAdapter,
+)
 
 
 class TestOpenShiftTektonAdapter:
@@ -44,7 +46,7 @@ class TestOpenShiftTektonAdapter:
         from unittest.mock import patch
 
         with patch(
-            "hexawyn.adapters.secondary.kubernetes_tekton_adapter.KubernetesTektonAdapter"
+            "hexawyn.infrastructure.adapters.secondary.kubernetes_tekton_adapter.KubernetesTektonAdapter"
         ) as mock_k8s:
             mock_k8s.return_value.list_pipeline_runs.return_value = []
             adapter = OpenShiftTektonAdapter(delegate=None)

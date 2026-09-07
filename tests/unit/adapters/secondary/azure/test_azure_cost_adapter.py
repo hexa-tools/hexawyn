@@ -3,11 +3,11 @@ from __future__ import annotations
 from sys import modules as sys_modules
 from unittest.mock import Mock, patch
 
-from hexawyn.adapters.secondary.azure.azure_cost_adapter import (
+from hexawyn.domain.errors import ClusterUnreachableError
+from hexawyn.infrastructure.adapters.secondary.azure.azure_cost_adapter import (
     AzureCostAdapter,
     _parse_azure_rows,
 )
-from hexawyn.domain.errors import ClusterUnreachableError
 
 
 class TestAzureCostAdapter:

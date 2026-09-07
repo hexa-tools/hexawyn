@@ -1,4 +1,4 @@
-from hexawyn.adapters.secondary.mock.scenarios.aws_eks import AWS_EKS_SCENARIO
+from hexawyn.infrastructure.adapters.secondary.mock.scenarios.aws_eks import AWS_EKS_SCENARIO
 
 REQUIRED_KEYS = {"context", "health", "pods", "metrics", "findings", "chips", "slack_message"}
 

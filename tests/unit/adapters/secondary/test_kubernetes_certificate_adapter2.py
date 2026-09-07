@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.gitops.kubernetes_certificate_adapter import (
-    KubernetesCertificateAdapter,
-)
 from hexawyn.application.ports.driven.certificate_investigation_port import (
     CertificateInvestigationPort,
 )
 from hexawyn.domain.models.tls_certificate_diagnosis import (
     TLSCertificateDiagnosticRequest,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_certificate_adapter import (
+    KubernetesCertificateAdapter,
 )
 
 

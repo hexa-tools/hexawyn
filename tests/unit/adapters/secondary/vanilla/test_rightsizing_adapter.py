@@ -5,10 +5,10 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.adapters.rightsizing_adapter import (
+from hexawyn.domain.errors import ClusterUnreachableError
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.rightsizing_adapter import (
     VanillaRightsizingAdapter,
 )
-from hexawyn.domain.errors import ClusterUnreachableError
 
 
 class TestVanillaRightsizingAdapter:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gcp.gcp_cost_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gcp.gcp_cost_adapter import (
     GCPCostAdapter,
     _parse_gcp_rows,
 )

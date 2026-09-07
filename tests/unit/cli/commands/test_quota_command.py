@@ -121,7 +121,7 @@ class TestQuotaCommandHelp:
                 return_value=mock_runtime,
             ),
             patch(
-                "hexawyn.adapters.secondary.runtime_quota_source._get_current_slack_quota",
+                "hexawyn.infrastructure.adapters.secondary.runtime_quota_source._get_current_slack_quota",
                 return_value=MagicMock(count=0, limit=50),
             ),
             patch(
@@ -153,11 +153,11 @@ class TestQuotaCommandHelp:
                 return_value=mock_runtime,
             ),
             patch(
-                "hexawyn.adapters.secondary.runtime_quota_source._get_current_slack_quota",
+                "hexawyn.infrastructure.adapters.secondary.runtime_quota_source._get_current_slack_quota",
                 return_value=MagicMock(count=0, limit=-1),
             ),
             patch(
-                "hexawyn.adapters.secondary.runtime_quota_source.quota_cache.load_quota",
+                "hexawyn.infrastructure.adapters.secondary.runtime_quota_source.quota_cache.load_quota",
                 return_value=None,
             ),
             patch(
@@ -189,7 +189,7 @@ class TestQuotaCommandHelp:
                 return_value=mock_runtime,
             ),
             patch(
-                "hexawyn.adapters.secondary.runtime_quota_source._get_current_slack_quota",
+                "hexawyn.infrastructure.adapters.secondary.runtime_quota_source._get_current_slack_quota",
                 return_value=MagicMock(count=0, limit=50),
             ),
             patch(
@@ -221,7 +221,7 @@ class TestQuotaCommandHelp:
                 return_value=mock_runtime,
             ),
             patch(
-                "hexawyn.adapters.secondary.runtime_quota_source._get_current_slack_quota",
+                "hexawyn.infrastructure.adapters.secondary.runtime_quota_source._get_current_slack_quota",
                 return_value=MagicMock(count=0, limit=-1),
             ),
             patch(

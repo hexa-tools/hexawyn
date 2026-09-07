@@ -4,13 +4,13 @@ from unittest.mock import Mock, patch
 
 import httpx
 import pytest
-from hexawyn.adapters.secondary.gcp.managed_prometheus_adapter import (
-    GCPManagedPrometheusAdapter,
-)
 from hexawyn.domain.errors import (
     AdapterTimeoutError,
     PrometheusQueryError,
     PrometheusUnavailableError,
+)
+from hexawyn.infrastructure.adapters.secondary.gcp.managed_prometheus_adapter import (
+    GCPManagedPrometheusAdapter,
 )
 
 
@@ -181,7 +181,7 @@ class TestGCPManagedPrometheusAdapter:
         adapter = self._adapter(http_client=mock_client, token_provider=None)
 
         with patch(
-            "hexawyn.adapters.secondary.gcp.managed_prometheus_adapter._acquire_google_token",
+            "hexawyn.infrastructure.adapters.secondary.gcp.managed_prometheus_adapter._acquire_google_token",
             side_effect=DefaultCredentialsError("no creds"),
         ):
             with pytest.raises(PrometheusUnavailableError):

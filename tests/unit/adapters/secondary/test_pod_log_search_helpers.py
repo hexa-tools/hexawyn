@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.kubernetes_pod_log_search_adapter import (
-    _translate_pod_error,
-)
 from hexawyn.domain.errors import (
     ClusterUnreachableError,
     InsufficientPermissionsError,
     ResourceNotFoundError,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pod_log_search_adapter import (
+    _translate_pod_error,
 )
 
 

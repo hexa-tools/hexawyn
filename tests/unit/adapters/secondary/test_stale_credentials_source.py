@@ -1,4 +1,6 @@
-from hexawyn.adapters.secondary.gitops.stale_credentials_source import EmptyStaleCredentialsSource
+from hexawyn.infrastructure.adapters.secondary.gitops.stale_credentials_source import (
+    EmptyStaleCredentialsSource,
+)
 
 
 class TestEmptyStaleCredentialsSource:

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (
-    KubernetesPipelineForServiceAdapter,
-)
 from hexawyn.application.ports.driven.pipeline_for_service_port import (
     PipelineForServicePort,
 )
 from hexawyn.domain.models.pipeline_for_service import PipelineForServiceRequest
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (  # noqa: E501
+    KubernetesPipelineForServiceAdapter,
+)
 
 
 class TestKubernetesPipelineForServiceAdapter:

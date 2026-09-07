@@ -193,6 +193,6 @@ port/service/use-case/tool/adapter stack:
 - `src/hexawyn/application/ports/driving/adaptive_namespace_investigation/` — command, response, service_port
 - `src/hexawyn/application/service/adaptive_namespace_investigation_service.py` — `AdaptiveNamespaceInvestigationService`
 - `src/hexawyn/application/use_case/adaptive_namespace_investigation/adaptive_namespace_investigation_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_adaptive_investigation_adapter.py` — `KubernetesAdaptiveInvestigationAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_adaptive_investigation_adapter.py` — `KubernetesAdaptiveInvestigationAdapter`
 - `src/hexawyn/mcp/tools/adaptive_namespace_investigation.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_adaptive_investigation_adapter` (new)

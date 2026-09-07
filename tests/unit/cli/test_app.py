@@ -92,7 +92,7 @@ class TestHexawynApp:
             patch("hexawyn.cli.app.os.environ", {"HEXAWYN_DEMO_MODE": "false"}),
             patch("hexawyn.cli.app._load_api_key_to_env"),
             patch("hexawyn.cli.tui.HexawynTUI") as mock_tui,
-            patch("hexawyn.adapters.secondary.adapter_factory.build_adapters"),
+            patch("hexawyn.infrastructure.adapters.secondary.adapter_factory.build_adapters"),
             patch("hexawyn.application.service.runtime_adapter.get_runtime") as mock_runtime,
             patch(
                 "hexawyn.infrastructure.config.kubernetes_context.FileKubernetesDiscoveryService"
@@ -112,7 +112,7 @@ class TestHexawynApp:
         with (
             patch("hexawyn.cli.app.os.environ", {"HEXAWYN_DEMO_MODE": "false"}),
             patch("hexawyn.cli.tui.HexawynTUI") as mock_tui,
-            patch("hexawyn.adapters.secondary.adapter_factory.build_adapters"),
+            patch("hexawyn.infrastructure.adapters.secondary.adapter_factory.build_adapters"),
             patch("hexawyn.application.service.runtime_adapter.get_runtime") as mock_runtime,
             patch(
                 "hexawyn.infrastructure.config.kubernetes_context.FileKubernetesDiscoveryService"
@@ -129,7 +129,7 @@ class TestHexawynApp:
         with (
             patch("hexawyn.cli.app.os.environ", {"HEXAWYN_DEMO_MODE": "false"}),
             patch("hexawyn.cli.tui.HexawynTUI") as mock_tui,
-            patch("hexawyn.adapters.secondary.adapter_factory.build_adapters"),
+            patch("hexawyn.infrastructure.adapters.secondary.adapter_factory.build_adapters"),
             patch("hexawyn.application.service.runtime_adapter.get_runtime") as mock_runtime,
             patch(
                 "hexawyn.infrastructure.config.kubernetes_context.FileKubernetesDiscoveryService"
@@ -151,7 +151,7 @@ class TestHexawynApp:
         with (
             patch("hexawyn.cli.app.os.environ", {"HEXAWYN_DEMO_MODE": "false"}),
             patch("hexawyn.cli.tui.HexawynTUI") as mock_tui,
-            patch("hexawyn.adapters.secondary.adapter_factory.build_adapters"),
+            patch("hexawyn.infrastructure.adapters.secondary.adapter_factory.build_adapters"),
             patch("hexawyn.application.service.runtime_adapter.get_runtime") as mock_runtime,
             patch(
                 "hexawyn.infrastructure.config.kubernetes_context.FileKubernetesDiscoveryService"

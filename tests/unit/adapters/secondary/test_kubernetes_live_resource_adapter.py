@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.gitops.kubernetes_live_resource_adapter import (
+from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_live_resource_adapter import (
     _to_live_resource,
     _translate_error,
 )
-from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
 
 
 class MockObj:

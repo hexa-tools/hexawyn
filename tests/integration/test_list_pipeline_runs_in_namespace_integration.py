@@ -9,7 +9,6 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.use_case.pipelines.list_pipeline_runs_in_namespace.command import (
     ListPipelineRunsInNamespaceCommand,
 )
@@ -20,6 +19,7 @@ from hexawyn.domain.errors import (
     ComponentNotInstalledError,
     InsufficientPermissionsError,
 )
+from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from kubernetes.client.exceptions import ApiException
 
 

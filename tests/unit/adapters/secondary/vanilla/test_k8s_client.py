@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.vanilla.helpers.k8s_client import (
+from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.k8s_client import (
     KubernetesAppsApi,
     KubernetesCoreApi,
     KubernetesCRDApi,

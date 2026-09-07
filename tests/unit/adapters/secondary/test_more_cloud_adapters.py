@@ -9,20 +9,20 @@ class TestAzureMonitorTracesAdapter:
     """Cover AzureMonitorTracesAdapter."""
 
     def test_instantiation(self) -> None:
-        from hexawyn.adapters.secondary.azure.monitor_traces_adapter import (
+        from hexawyn.application.ports.driven.trace_query_port import TraceQueryPort
+        from hexawyn.infrastructure.adapters.secondary.azure.monitor_traces_adapter import (
             AzureMonitorTracesAdapter,
         )
-        from hexawyn.application.ports.driven.trace_query_port import TraceQueryPort
 
         adapter = AzureMonitorTracesAdapter(workspace_id="ws-123")
         assert isinstance(adapter, TraceQueryPort)
 
     def test_fetch_slow_spans_empty(self) -> None:
-        from hexawyn.adapters.secondary.azure.monitor_traces_adapter import (
-            AzureMonitorTracesAdapter,
-        )
         from hexawyn.application.ports.driven.trace_query_port import (
             LatencyDiagnosticRequest,
+        )
+        from hexawyn.infrastructure.adapters.secondary.azure.monitor_traces_adapter import (
+            AzureMonitorTracesAdapter,
         )
 
         adapter = AzureMonitorTracesAdapter(workspace_id="ws-123")
@@ -35,11 +35,11 @@ class TestAzureMonitorTracesAdapter:
             assert result == []
 
     def test_fetch_slow_spans_with_data(self) -> None:
-        from hexawyn.adapters.secondary.azure.monitor_traces_adapter import (
-            AzureMonitorTracesAdapter,
-        )
         from hexawyn.application.ports.driven.trace_query_port import (
             LatencyDiagnosticRequest,
+        )
+        from hexawyn.infrastructure.adapters.secondary.azure.monitor_traces_adapter import (
+            AzureMonitorTracesAdapter,
         )
 
         mock_table = MagicMock()
@@ -65,16 +65,16 @@ class TestAzureLogAnalyticsAdapter:
     """Cover AzureLogAnalyticsAdapter."""
 
     def test_instantiation(self) -> None:
-        from hexawyn.adapters.secondary.azure.log_analytics_adapter import (
+        from hexawyn.application.ports.driven.log_search_port import LogSearchPort
+        from hexawyn.infrastructure.adapters.secondary.azure.log_analytics_adapter import (
             AzureLogAnalyticsAdapter,
         )
-        from hexawyn.application.ports.driven.log_search_port import LogSearchPort
 
         adapter = AzureLogAnalyticsAdapter(workspace_id="ws-123")
         assert isinstance(adapter, LogSearchPort)
 
     def test_fetch_pod_container_logs_empty(self) -> None:
-        from hexawyn.adapters.secondary.azure.log_analytics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.azure.log_analytics_adapter import (
             AzureLogAnalyticsAdapter,
         )
 
@@ -84,7 +84,7 @@ class TestAzureLogAnalyticsAdapter:
             assert result == []
 
     def test_fetch_pod_container_logs_with_data(self) -> None:
-        from hexawyn.adapters.secondary.azure.log_analytics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.azure.log_analytics_adapter import (
             AzureLogAnalyticsAdapter,
         )
 
@@ -98,7 +98,7 @@ class TestAzureLogAnalyticsAdapter:
             assert isinstance(result, list)
 
     def test_query_with_injected_client(self) -> None:
-        from hexawyn.adapters.secondary.azure.log_analytics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.azure.log_analytics_adapter import (
             AzureLogAnalyticsAdapter,
         )
 
@@ -116,20 +116,20 @@ class TestGCPCloudTraceAdapter:
     """Cover GCPCloudTraceAdapter."""
 
     def test_instantiation(self) -> None:
-        from hexawyn.adapters.secondary.gcp.cloud_trace_adapter import (
+        from hexawyn.application.ports.driven.trace_query_port import TraceQueryPort
+        from hexawyn.infrastructure.adapters.secondary.gcp.cloud_trace_adapter import (
             GCPCloudTraceAdapter,
         )
-        from hexawyn.application.ports.driven.trace_query_port import TraceQueryPort
 
         adapter = GCPCloudTraceAdapter(project_id="myproj")
         assert isinstance(adapter, TraceQueryPort)
 
     def test_fetch_slow_spans(self) -> None:
-        from hexawyn.adapters.secondary.gcp.cloud_trace_adapter import (
-            GCPCloudTraceAdapter,
-        )
         from hexawyn.application.ports.driven.trace_query_port import (
             LatencyDiagnosticRequest,
+        )
+        from hexawyn.infrastructure.adapters.secondary.gcp.cloud_trace_adapter import (
+            GCPCloudTraceAdapter,
         )
 
         adapter = GCPCloudTraceAdapter(project_id="myproj")
@@ -146,18 +146,18 @@ class TestAzureCostAdapter:
     """Cover AzureCostAdapter."""
 
     def test_instantiation(self) -> None:
-        from hexawyn.adapters.secondary.azure.azure_cost_adapter import (
-            AzureCostAdapter,
-        )
         from hexawyn.application.ports.driven.cost_estimation_port import (
             CostEstimationPort,
+        )
+        from hexawyn.infrastructure.adapters.secondary.azure.azure_cost_adapter import (
+            AzureCostAdapter,
         )
 
         adapter = AzureCostAdapter(subscription_id="sub-123")
         assert isinstance(adapter, CostEstimationPort)
 
     def test_estimate_cluster_cost_with_injected_client(self) -> None:
-        from hexawyn.adapters.secondary.azure.azure_cost_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.azure.azure_cost_adapter import (
             AzureCostAdapter,
         )
 

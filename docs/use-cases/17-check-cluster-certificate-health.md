@@ -178,6 +178,6 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/check_cluster_certificate_health/` — command, response, service port ABC
 - `src/hexawyn/application/service/cluster_certificate_health_service.py` — full service with PEM parsing + report building
 - `src/hexawyn/application/use_case/check_cluster_certificate_health/check_cluster_certificate_health_use_case.py` — thin use case
-- `src/hexawyn/adapters/secondary/kubernetes_cluster_certificate_adapter.py` — K8s adapter (secrets, ingresses, cert-manager CR)
+- `src/hexawyn/infrastructure/adapters/secondary/kubernetes_cluster_certificate_adapter.py` — K8s adapter (secrets, ingresses, cert-manager CR)
 - `src/hexawyn/mcp/tools/check_cluster_certificate_health.py` — MCP tool registration + serialization
 - `tests/unit/test_check_cluster_certificate_health_use_case.py` — 69 unit tests

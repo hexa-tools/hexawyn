@@ -123,5 +123,5 @@ sequenceDiagram
 - `src/hexawyn/domain/models/keda.py` — KedaScaledObject, KedaTrigger, KedaTriggerAuth, KedaScaledJob, KedaDetectionResult
 - `src/hexawyn/domain/errors.py` — ComponentNotInstalledError
 - `src/hexawyn/application/ports/driven/keda_port.py` — KedaPort ABC
-- `src/hexawyn/adapters/secondary/gitops/keda_detector.py` — KedaDetector
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/keda_detector.py` — KedaDetector
 - `src/hexawyn/mcp/tools/keda_*.py` — 9 tools

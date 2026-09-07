@@ -120,5 +120,5 @@ sequenceDiagram
 - `src/hexawyn/domain/models/certificates.py` — Certificate, CertificateIssuer, AcmeChallenge, CertManagerDetectionResult
 - `src/hexawyn/domain/errors.py` — ComponentNotInstalledError
 - `src/hexawyn/application/ports/driven/cert_manager_port.py` — CertManagerPort ABC
-- `src/hexawyn/adapters/secondary/gitops/cert_manager_detector.py` — CertManagerDetector
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/cert_manager_detector.py` — CertManagerDetector
 - `src/hexawyn/mcp/tools/certs_*.py` — 8 tools

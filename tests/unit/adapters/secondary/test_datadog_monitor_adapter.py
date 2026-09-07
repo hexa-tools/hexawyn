@@ -3,10 +3,10 @@ from __future__ import annotations
 from unittest.mock import Mock
 
 import pytest
-from hexawyn.adapters.secondary.datadog.datadog_monitor_adapter import (
+from hexawyn.domain.errors import MetricsUnavailableError
+from hexawyn.infrastructure.adapters.secondary.datadog.datadog_monitor_adapter import (
     DatadogMonitorAdapter,
 )
-from hexawyn.domain.errors import MetricsUnavailableError
 
 
 class MockMonitor:

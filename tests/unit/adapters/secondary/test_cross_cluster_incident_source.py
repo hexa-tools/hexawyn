@@ -1,4 +1,4 @@
-from hexawyn.adapters.secondary.gitops.cross_cluster_incident_source import (
+from hexawyn.infrastructure.adapters.secondary.gitops.cross_cluster_incident_source import (
     EmptyFailureSignatureSource,
 )
 

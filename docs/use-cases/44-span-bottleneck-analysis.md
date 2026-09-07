@@ -114,5 +114,5 @@ sequenceDiagram
 - `src/hexawyn/domain/models/span_bottleneck.py` — SpanBreakdown, BottleneckResult
 - `src/hexawyn/application/ports/driven/span_bottleneck_port.py` — SpanBottleneckPort ABC
 - `src/hexawyn/application/service/span_bottleneck_analysis_service.py` — service
-- `src/hexawyn/adapters/secondary/gitops/otel_span_breakdown_adapter.py` — OTel adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_span_breakdown_adapter.py` — OTel adapter
 - `src/hexawyn/mcp/tools/span_bottleneck_analysis.py` — MCP tool

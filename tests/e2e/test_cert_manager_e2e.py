@@ -9,8 +9,8 @@ Usage:
 from __future__ import annotations
 
 import pytest
-from hexawyn.adapters.secondary.gitops.cert_manager_adapter import CertManagerAdapter
-from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+from hexawyn.infrastructure.adapters.secondary.gitops.cert_manager_adapter import CertManagerAdapter
+from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
 NAMESPACE = "hexawyn-test"
 

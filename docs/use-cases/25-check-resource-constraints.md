@@ -211,5 +211,5 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/check_resource_constraints/` — Command, Response, ServicePort
 - `src/hexawyn/application/use_case/check_resource_constraints/check_resource_constraints_use_case.py`
 - `src/hexawyn/application/service/resource_constraint_service.py` — `ResourceConstraintService`
-- `src/hexawyn/adapters/secondary/kubernetes_pod_resource_adapter.py` — K8s + Metrics API adapter
+- `src/hexawyn/infrastructure/adapters/secondary/kubernetes_pod_resource_adapter.py` — K8s + Metrics API adapter
 - `src/hexawyn/mcp/tools/check_resource_constraints.py` — MCP entry point

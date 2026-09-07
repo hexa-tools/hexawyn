@@ -127,3 +127,48 @@ class TestSchedulerLoop:
 
         assert results[0].check_name == "daily"
         assert results[0].changed is True
+
+    def test_tick_continues_past_disabled_check_to_due_check(self) -> None:
+        start = datetime(2026, 8, 20, 9, 0, tzinfo=UTC)
+        clock = {"now": start}
+        runner = _runner(return_values=[_success_result("daily")])
+        loop = SchedulerLoop(runner=runner, now=lambda: clock["now"])
+        disabled = _disabled_check("off")
+        daily = _enabled_check("daily")
+        loop.prime([disabled, daily])
+
+        clock["now"] = start + timedelta(hours=24)
+        results = loop.tick([disabled, daily])
+
+        assert len(results) == 1  # noqa: PLR2004
+        runner.execute.assert_called_once_with(daily)
+
+    def test_tick_continues_past_unknown_schedule_to_due_check(self) -> None:
+        start = datetime(2026, 8, 20, 9, 0, tzinfo=UTC)
+        clock = {"now": start}
+        runner = _runner(return_values=[_success_result("daily")])
+        loop = SchedulerLoop(runner=runner, now=lambda: clock["now"])
+        unknown = _enabled_check("custom", schedule="30 2 * * *")
+        daily = _enabled_check("daily")
+        loop.prime([unknown, daily])
+
+        clock["now"] = start + timedelta(days=2)
+        results = loop.tick([unknown, daily])
+
+        assert len(results) == 1  # noqa: PLR2004
+        runner.execute.assert_called_once_with(daily)
+
+    def test_tick_continues_past_not_due_check_to_due_check(self) -> None:
+        start = datetime(2026, 8, 20, 9, 0, tzinfo=UTC)
+        clock = {"now": start}
+        runner = _runner(return_values=[_success_result("frequent")])
+        loop = SchedulerLoop(runner=runner, now=lambda: clock["now"])
+        daily = _enabled_check("daily")
+        frequent = _enabled_check("frequent", schedule="*/15 * * * *")
+        loop.prime([daily, frequent])
+
+        clock["now"] = start + timedelta(minutes=30)
+        results = loop.tick([daily, frequent])
+
+        assert len(results) == 1  # noqa: PLR2004
+        runner.execute.assert_called_once_with(frequent)

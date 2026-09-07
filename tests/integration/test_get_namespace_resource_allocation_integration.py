@@ -4,13 +4,13 @@
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.use_case.cluster.get_namespace_resource_allocation.command import (
     GetNamespaceResourceAllocationCommand,
 )
 from hexawyn.application.use_case.cluster.get_namespace_resource_allocation.get_namespace_resource_allocation_use_case import (  # noqa: E501
     GetNamespaceResourceAllocationUseCase,
 )
+from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
 
 def _container(cpu: str | None = "500m", memory: str | None = "1Gi") -> MagicMock:

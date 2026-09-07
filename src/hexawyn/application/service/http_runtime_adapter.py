@@ -1,7 +1,6 @@
 from collections.abc import Callable
 from typing import Any
 
-from hexawyn.adapters.secondary.runtime_client import RuntimeClient
 from hexawyn.application.ports.driven.runtime_port import (
     InvestigationOutput,
     QuotaCheckResult,
@@ -9,6 +8,7 @@ from hexawyn.application.ports.driven.runtime_port import (
     StartupScanResult,
 )
 from hexawyn.domain.models.cluster import ClusterContext
+from hexawyn.infrastructure.adapters.secondary.runtime_client import RuntimeClient
 
 
 class HttpRuntimeAdapter(RuntimePort):

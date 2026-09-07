@@ -6,8 +6,8 @@ from collections.abc import Callable
 from unittest.mock import patch
 
 import httpx
-from hexawyn.adapters.secondary.auth.token_validator import HttpTokenValidator
 from hexawyn.domain.models.auth import TokenValidationState
+from hexawyn.infrastructure.adapters.secondary.auth.token_validator import HttpTokenValidator
 
 BASE_URL = "http://control-plane.test"
 VALIDATE_PATH = "/api/v1/auth/validate"

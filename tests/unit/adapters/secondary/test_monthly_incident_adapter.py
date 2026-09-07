@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from hexawyn.adapters.secondary.gitops.monthly_incident_adapter import (
+from hexawyn.application.ports.driven.monthly_incident_port import MonthlyIncidentPort
+from hexawyn.infrastructure.adapters.secondary.gitops.monthly_incident_adapter import (
     MonthlyIncidentAdapter,
 )
-from hexawyn.application.ports.driven.monthly_incident_port import MonthlyIncidentPort
 
 _CFG = "kubernetes.config.load_kube_config"
 _API = "kubernetes.client.CoreV1Api"

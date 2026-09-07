@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from hexawyn.adapters.secondary.gitops.helm_release_version_adapter import (
-    HelmReleaseVersionAdapter,
-)
 from hexawyn.application.ports.driven.helm_release_version_port import (
     HelmReleaseVersionPort,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.helm_release_version_adapter import (
+    HelmReleaseVersionAdapter,
 )
 
 

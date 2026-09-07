@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import pytest
-from hexawyn.adapters.secondary.gitops.keda_detector import KedaDetector
 from hexawyn.application.ports.driven.keda_port import KedaPort
 from hexawyn.domain.errors import ComponentNotInstalledError
+from hexawyn.infrastructure.adapters.secondary.gitops.keda_detector import KedaDetector
 
 
 class TestKedaDetector:

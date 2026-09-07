@@ -15,17 +15,17 @@ class TestEKSAdapter:
     """Cover all remaining AWSEKSAdapter branches."""
 
     def test_region_lazy_resolution(self) -> None:
-        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
 
         adapter = AWSEKSAdapter(context=_ctx("arn:aws:eks:eu-west-1:123:cluster/prod"))
         with patch(
-            "hexawyn.adapters.secondary.aws.eks_adapter.resolve_region",
+            "hexawyn.infrastructure.adapters.secondary.aws.eks_adapter.resolve_region",
             return_value="eu-west-1",
         ):
             assert adapter.region == "eu-west-1"
 
     def test_describe_cluster_status(self) -> None:
-        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
 
         mock_client = MagicMock()
         mock_client.describe_cluster.return_value = {
@@ -49,8 +49,8 @@ class TestEKSAdapter:
 
     def test_describe_cluster_status_no_credentials(self) -> None:
         from botocore.exceptions import NoCredentialsError
-        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
         from hexawyn.domain.errors import ClusterUnreachableError
+        from hexawyn.infrastructure.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
 
         mock_client = MagicMock()
         mock_client.describe_cluster.side_effect = NoCredentialsError()
@@ -61,8 +61,8 @@ class TestEKSAdapter:
 
     def test_describe_cluster_status_client_error(self) -> None:
         from botocore.exceptions import ClientError
-        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
         from hexawyn.domain.errors import ClusterUnreachableError
+        from hexawyn.infrastructure.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
 
         mock_client = MagicMock()
         mock_client.describe_cluster.side_effect = ClientError(
@@ -74,17 +74,19 @@ class TestEKSAdapter:
             adapter.describe_cluster_status()
 
     def test_delegate_lazy_creation(self) -> None:
-        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
 
         adapter = AWSEKSAdapter(context=_ctx("prod-eu"))
         assert adapter._k8s_delegate is None
-        with patch("hexawyn.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter") as mock_va:
+        with patch(
+            "hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter"
+        ) as mock_va:
             mock_va.return_value = MagicMock()
             adapter._delegate()
             mock_va.assert_called_once_with("prod-eu")
 
     def test_eks_client_or_create_lazy(self) -> None:
-        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
 
         adapter = AWSEKSAdapter(context=_ctx("prod-eu"), region="us-east-1")
         assert adapter._eks_client is None
@@ -93,13 +95,13 @@ class TestEKSAdapter:
             mock_boto3.assert_called_once_with("eks", region_name="us-east-1")
 
     def test_cluster_short_name_without_arn(self) -> None:
-        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
 
         adapter = AWSEKSAdapter(context=_ctx("simple-name"))
         assert adapter._cluster_short_name() == "simple-name"
 
     def test_get_cluster_context(self) -> None:
-        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
 
         mock_k8s = MagicMock()
         adapter = AWSEKSAdapter(
@@ -116,19 +118,19 @@ class TestGKEAdapter:
     """Cover all remaining GCPGKEAdapter branches."""
 
     def test_project_id_from_parsed(self) -> None:
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         adapter = GCPGKEAdapter(context=_ctx("gke_myproj_us-central1-a_mycluster"))
         assert adapter.project_id == "myproj"
 
     def test_project_id_manual_override(self) -> None:
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         adapter = GCPGKEAdapter(context=_ctx("gke_x_y_z"), project_id="override-id")
         assert adapter.project_id == "override-id"
 
     def test_describe_cluster_status(self) -> None:
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         mock_client = MagicMock()
         mock_cluster = MagicMock()
@@ -149,8 +151,8 @@ class TestGKEAdapter:
         assert result["location"] == "us-central1-a"
 
     def test_describe_cluster_status_no_parsed_context(self) -> None:
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
         from hexawyn.domain.errors import ClusterUnreachableError
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         adapter = GCPGKEAdapter(context=_ctx("not-a-gke-context"))
         with pytest.raises(ClusterUnreachableError, match="Cannot determine GKE cluster"):
@@ -158,8 +160,8 @@ class TestGKEAdapter:
 
     def test_describe_cluster_status_credentials_error(self) -> None:
         from google.auth.exceptions import DefaultCredentialsError
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
         from hexawyn.domain.errors import ClusterUnreachableError
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         mock_client = MagicMock()
         mock_client.get_cluster.side_effect = DefaultCredentialsError()
@@ -173,8 +175,8 @@ class TestGKEAdapter:
 
     def test_describe_cluster_status_api_error(self) -> None:
         from google.api_core.exceptions import GoogleAPICallError
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
         from hexawyn.domain.errors import ClusterUnreachableError
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         mock_client = MagicMock()
         mock_client.get_cluster.side_effect = GoogleAPICallError("api error")
@@ -187,7 +189,7 @@ class TestGKEAdapter:
             adapter.describe_cluster_status()
 
     def test_list_namespaces_delegates(self) -> None:
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         mock_k8s = MagicMock()
         mock_k8s.list_namespaces.return_value = [MagicMock()]
@@ -196,17 +198,19 @@ class TestGKEAdapter:
         assert len(result) == 1
 
     def test_gke_delegate_lazy_creation(self) -> None:
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         adapter = GCPGKEAdapter(context=_ctx("gke_p_z_c"))
         assert adapter._k8s_delegate is None
-        with patch("hexawyn.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter") as mock_va:
+        with patch(
+            "hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter"
+        ) as mock_va:
             mock_va.return_value = MagicMock()
             adapter._delegate()
             mock_va.assert_called_once_with("gke_p_z_c")
 
     def test_client_or_create_lazy(self) -> None:
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         adapter = GCPGKEAdapter(context=_ctx("gke_p_z_c"))
         assert adapter._gke_client is None
@@ -215,13 +219,13 @@ class TestGKEAdapter:
             mock_cm.assert_called_once()
 
     def test_cluster_short_name_with_parsed(self) -> None:
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         adapter = GCPGKEAdapter(context=_ctx("gke_myproj_us-central1-a_mycluster"))
         assert adapter._cluster_short_name() == "mycluster"
 
     def test_cluster_short_name_without_parsed(self) -> None:
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         adapter = GCPGKEAdapter(context=_ctx("simple-name"))
         assert adapter._cluster_short_name() == "simple-name"
@@ -231,22 +235,22 @@ class TestAKSAdapter:
     """Cover all remaining AzureAKSAdapter branches."""
 
     def test_subscription_id_from_env(self) -> None:
-        from hexawyn.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
 
         with patch.dict("os.environ", {"AZURE_SUBSCRIPTION_ID": "env-sub-id"}, clear=True):
             adapter = AzureAKSAdapter(context=_ctx("aks-prod"))
             assert adapter.subscription_id == "env-sub-id"
 
     def test_resource_group_from_env(self) -> None:
-        from hexawyn.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
 
         with patch.dict("os.environ", {"AZURE_RESOURCE_GROUP": "env-rg"}, clear=True):
             adapter = AzureAKSAdapter(context=_ctx("aks-prod"))
             assert adapter.resource_group == "env-rg"
 
     def test_describe_cluster_status_missing_config(self) -> None:
-        from hexawyn.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
         from hexawyn.domain.errors import ClusterUnreachableError
+        from hexawyn.infrastructure.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
 
         with patch.dict("os.environ", {}, clear=True):
             adapter = AzureAKSAdapter(context=_ctx("aks-prod"))
@@ -254,7 +258,7 @@ class TestAKSAdapter:
                 adapter.describe_cluster_status()
 
     def test_describe_cluster_status(self) -> None:
-        from hexawyn.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
 
         mock_cluster = MagicMock()
         mock_cluster.name = "aks-prod"
@@ -279,8 +283,8 @@ class TestAKSAdapter:
 
     def test_describe_cluster_status_auth_error(self) -> None:
         from azure.core.exceptions import ClientAuthenticationError
-        from hexawyn.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
         from hexawyn.domain.errors import ClusterUnreachableError
+        from hexawyn.infrastructure.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
 
         mock_client = MagicMock()
         mock_client.managed_clusters.get.side_effect = ClientAuthenticationError()
@@ -296,8 +300,8 @@ class TestAKSAdapter:
 
     def test_describe_cluster_status_http_error(self) -> None:
         from azure.core.exceptions import HttpResponseError
-        from hexawyn.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
         from hexawyn.domain.errors import ClusterUnreachableError
+        from hexawyn.infrastructure.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
 
         mock_client = MagicMock()
         mock_client.managed_clusters.get.side_effect = HttpResponseError(
@@ -314,17 +318,19 @@ class TestAKSAdapter:
             adapter.describe_cluster_status()
 
     def test_delegate_lazy_creation(self) -> None:
-        from hexawyn.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
 
         adapter = AzureAKSAdapter(context=_ctx("aks-prod"))
         assert adapter._k8s_delegate is None
-        with patch("hexawyn.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter") as mock_va:
+        with patch(
+            "hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter"
+        ) as mock_va:
             mock_va.return_value = MagicMock()
             adapter._delegate()
             mock_va.assert_called_once_with("aks-prod")
 
     def test_client_or_create_lazy(self) -> None:
-        from hexawyn.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
 
         adapter = AzureAKSAdapter(context=_ctx("aks-prod"))
         assert adapter._aks_client is None
@@ -340,13 +346,13 @@ class TestAKSAdapter:
                 assert client is not None
 
     def test_cluster_short_name(self) -> None:
-        from hexawyn.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
 
         adapter = AzureAKSAdapter(context=_ctx("aks-prod"))
         assert adapter._cluster_short_name() == "aks-prod"
 
     def test_get_cluster_context(self) -> None:
-        from hexawyn.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.azure.aks_adapter import AzureAKSAdapter
 
         mock_k8s = MagicMock()
         adapter = AzureAKSAdapter(

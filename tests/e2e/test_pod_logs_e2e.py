@@ -11,10 +11,10 @@ Usage:
 from __future__ import annotations
 
 import pytest
-from hexawyn.adapters.secondary.gitops.kubernetes_pod_logs_adapter import (
+from hexawyn.domain.models.analyze_pod_logs import AnalyzePodLogsRequest
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pod_logs_adapter import (
     KubernetesPodLogsAdapter,
 )
-from hexawyn.domain.models.analyze_pod_logs import AnalyzePodLogsRequest
 
 NAMESPACE = "hexawyn-test"
 

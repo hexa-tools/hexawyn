@@ -204,6 +204,6 @@ def test_generic_fallback_flags_warning():
 - `src/hexawyn/application/ports/driving/plan_spike_provisioning/`
 - `src/hexawyn/application/service/plan_spike_provisioning_service.py`
 - `src/hexawyn/application/use_case/plan_spike_provisioning/plan_spike_provisioning_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/spike_provisioning_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/spike_provisioning_adapter.py`
 - `src/hexawyn/mcp/tools/plan_spike_provisioning.py`
 - `src/hexawyn/mcp/server.py` (`build_spike_provisioning_adapter`)

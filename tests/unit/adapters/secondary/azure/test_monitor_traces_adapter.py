@@ -3,13 +3,13 @@ from __future__ import annotations
 from sys import modules as sys_modules
 from unittest.mock import Mock, patch
 
-from hexawyn.adapters.secondary.azure.monitor_traces_adapter import (
+from hexawyn.domain.errors import TracesUnavailableError
+from hexawyn.domain.models.latency_diagnostic import LatencyDiagnosticRequest
+from hexawyn.infrastructure.adapters.secondary.azure.monitor_traces_adapter import (
     AzureMonitorTracesAdapter,
     _as_float,
     _rows_as_dicts,
 )
-from hexawyn.domain.errors import TracesUnavailableError
-from hexawyn.domain.models.latency_diagnostic import LatencyDiagnosticRequest
 
 
 class TestAzureMonitorTracesAdapter:

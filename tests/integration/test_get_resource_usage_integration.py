@@ -4,13 +4,13 @@
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.use_case.cluster.get_resource_usage.command import (
     GetResourceUsageCommand,
 )
 from hexawyn.application.use_case.cluster.get_resource_usage.get_resource_usage_use_case import (
     GetResourceUsageUseCase,
 )
+from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
 
 def _container(cpu: str | None = "500m", memory: str | None = "1Gi") -> MagicMock:

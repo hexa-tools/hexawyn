@@ -174,6 +174,6 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/compute_slo_error_budget/` — command, response, service port
 - `src/hexawyn/application/service/compute_slo_error_budget_service.py` — application service
 - `src/hexawyn/application/use_case/compute_slo_error_budget/` — use case orchestrator
-- `src/hexawyn/adapters/secondary/gitops/prometheus_error_budget_adapter.py` — Prometheus adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/prometheus_error_budget_adapter.py` — Prometheus adapter
 - `src/hexawyn/mcp/server.py` — build_error_budget_adapter()
 - `src/hexawyn/mcp/tools/compute_slo_error_budget.py` — MCP tool

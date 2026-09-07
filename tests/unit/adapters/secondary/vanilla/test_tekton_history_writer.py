@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from hexawyn.adapters.secondary.vanilla.adapters.tekton_history_writer import (
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.tekton_history_writer import (
     TektonHistoryWriter,
 )
 

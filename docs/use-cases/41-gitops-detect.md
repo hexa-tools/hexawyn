@@ -144,9 +144,9 @@ sequenceDiagram
 - `src/hexawyn/domain/models/gitops.py` — GitOpsApp, GitOpsSource, GitOpsDetectionResult
 - `src/hexawyn/domain/errors.py` — GitOpsEngineNotFoundError
 - `src/hexawyn/application/ports/driven/gitops_port.py` — GitOpsPort ABC
-- `src/hexawyn/adapters/secondary/gitops/gitops_detector.py` — GitOpsDetector
-- `src/hexawyn/adapters/secondary/gitops/flux_adapter.py` — FluxAdapter
-- `src/hexawyn/adapters/secondary/gitops/argocd_adapter.py` — ArgoCDAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/gitops_detector.py` — GitOpsDetector
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/flux_adapter.py` — FluxAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/argocd_adapter.py` — ArgoCDAdapter
 - `src/hexawyn/mcp/tools/gitops_detect.py` — detect tool
 - `src/hexawyn/mcp/tools/gitops_apps_list.py` — list tool
 - `src/hexawyn/mcp/tools/gitops_app_get.py` — get tool

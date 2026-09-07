@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.gitops.otel_security_audit_adapter import (
-    OTelSecurityAuditAdapter,
-)
 from hexawyn.application.ports.driven.security_audit_port import SecurityAuditPort
 from hexawyn.domain.models.admin_endpoint_audit import AdminAuditRequest
+from hexawyn.infrastructure.adapters.secondary.gitops.otel_security_audit_adapter import (
+    OTelSecurityAuditAdapter,
+)
 
 
 class TestOTelSecurityAuditAdapter:

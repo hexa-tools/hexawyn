@@ -4,7 +4,15 @@ from collections.abc import Mapping
 from unittest.mock import Mock, patch
 
 import pytest
-from hexawyn.adapters.secondary.openshift.openshift_cluster_operator_adapter import (
+from hexawyn.application.ports.driven.cluster_operator_status_port import (
+    ClusterOperatorStatusPort,
+)
+from hexawyn.domain.errors import (
+    ClusterOperatorCRDNotFoundError,
+    ClusterUnreachableError,
+    InsufficientPermissionsError,
+)
+from hexawyn.infrastructure.adapters.secondary.openshift.openshift_cluster_operator_adapter import (
     OpenShiftClusterOperatorAdapter,
     _condition_status,
     _conditions,
@@ -14,14 +22,6 @@ from hexawyn.adapters.secondary.openshift.openshift_cluster_operator_adapter imp
     _root_cause_message,
     _to_raw,
     _translate_error,
-)
-from hexawyn.application.ports.driven.cluster_operator_status_port import (
-    ClusterOperatorStatusPort,
-)
-from hexawyn.domain.errors import (
-    ClusterOperatorCRDNotFoundError,
-    ClusterUnreachableError,
-    InsufficientPermissionsError,
 )
 
 

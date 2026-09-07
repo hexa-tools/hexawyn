@@ -1,4 +1,4 @@
-from hexawyn.adapters.secondary.mock.scenarios.datadog import DATADOG_SCENARIO
+from hexawyn.infrastructure.adapters.secondary.mock.scenarios.datadog import DATADOG_SCENARIO
 
 REQUIRED_KEYS = {"context", "health", "pods", "metrics", "findings", "chips", "slack_message"}
 

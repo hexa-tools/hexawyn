@@ -36,9 +36,9 @@ class MTTRTrendEngine:
                 sev_data[sev]["count"] += 1
 
             for sev in _BENCHMARKS:
-                if sev in sev_data and sev_data[sev]["count"] > 0:
+                if sev in sev_data:
                     mttr = round(sev_data[sev]["total"] / sev_data[sev]["count"], 1)
-                    meets = mttr <= _BENCHMARKS.get(sev, 0)
+                    meets = mttr <= _BENCHMARKS[sev]
                     per_month[month][sev] = MTTRPerSeverity(
                         severity=sev,
                         mttr_minutes=mttr,

@@ -109,5 +109,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/slowest_traces.py` — SlowTrace, SlowestTracesResult
 - `src/hexawyn/application/ports/driven/slow_trace_search_port.py` — SlowTraceSearchPort ABC
-- `src/hexawyn/adapters/secondary/gitops/otel_pod_trace_adapter.py` — OTelPodTraceAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_pod_trace_adapter.py` — OTelPodTraceAdapter
 - `src/hexawyn/mcp/tools/slowest_traces.py` — MCP tool

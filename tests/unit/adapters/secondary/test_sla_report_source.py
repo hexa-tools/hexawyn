@@ -3,7 +3,7 @@ from __future__ import annotations
 
 class TestEmptyQuarterSlaSource:
     def test_returns_no_data_by_default(self) -> None:
-        from hexawyn.adapters.secondary.gitops.sla_report_source import (
+        from hexawyn.infrastructure.adapters.secondary.gitops.sla_report_source import (
             EmptyQuarterSlaSource,
         )
 
@@ -14,7 +14,7 @@ class TestEmptyQuarterSlaSource:
         assert data["breaches"] == []
 
     def test_previous_avg_is_none(self) -> None:
-        from hexawyn.adapters.secondary.gitops.sla_report_source import (
+        from hexawyn.infrastructure.adapters.secondary.gitops.sla_report_source import (
             EmptyQuarterSlaSource,
         )
 

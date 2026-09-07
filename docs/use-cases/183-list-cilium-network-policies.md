@@ -149,5 +149,5 @@ sequenceDiagram
 - `src/hexawyn/domain/services/cilium/network_policy_summary.py` — L3/L4/L7 pure rule summary
 - `src/hexawyn/application/ports/driven/cilium_port.py` — `CiliumPort.list_network_policies()`
 - `src/hexawyn/application/use_case/cilium/list_cilium_network_policies/` — Command, Response, UseCase
-- `src/hexawyn/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.list_network_policies()`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.list_network_policies()`
 - `src/hexawyn/mcp/tools/list_cilium_network_policies.py` — MCP tool

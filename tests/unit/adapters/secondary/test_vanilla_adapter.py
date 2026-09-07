@@ -1,10 +1,10 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.ports.driven.k8s_port import K8sPort
 from hexawyn.application.ports.driven.tekton_port import TektonPort
 from hexawyn.domain.errors import ClusterUnreachableError, PipelineNotFoundError
+from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
 
 class _ContainerStateWaiting:
@@ -1384,7 +1384,9 @@ class TestVanillaAdapterNamespaceWastePort:
 
 class TestContainerRequest:
     def _call(self, container: object, resource: str) -> object:
-        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import _container_request
+        from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
+            _container_request,
+        )
 
         return _container_request(container, resource)
 
@@ -1396,7 +1398,9 @@ class TestContainerRequest:
 
 class TestParseMemory:
     def _call(self, value: str) -> float:
-        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import _parse_memory
+        from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
+            _parse_memory,
+        )
 
         return _parse_memory(value)
 
@@ -1407,7 +1411,7 @@ class TestParseMemory:
 
 class TestParsePrometheusVector:
     def _call(self, payload: object) -> dict[str, float]:
-        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
             _parse_prometheus_vector,
         )
 
@@ -1653,10 +1657,10 @@ class TestVanillaAdapterRightsizingPort:
     def test_apps_api_client_loads_kubeconfig_when_no_injected_api(self) -> None:
         with (
             patch(
-                "hexawyn.adapters.secondary.vanilla.vanilla_adapter.load_kubeconfig"
+                "hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter.load_kubeconfig"
             ) as mock_load,
             patch(
-                "hexawyn.adapters.secondary.vanilla.vanilla_adapter.client.AppsV1Api"
+                "hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter.client.AppsV1Api"
             ) as mock_apps,
         ):
             adapter = VanillaAdapter("test")
@@ -1666,14 +1670,14 @@ class TestVanillaAdapterRightsizingPort:
         mock_apps.assert_called_once()
 
     def test_sum_container_metrics_non_list_returns_zero(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
             _sum_container_metrics,
         )
 
         assert _sum_container_metrics("not-a-list") == (0.0, 0.0)
 
     def test_sum_container_metrics_non_dict_container_skipped(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
             _sum_container_metrics,
         )
 
@@ -1682,7 +1686,7 @@ class TestVanillaAdapterRightsizingPort:
         assert result == (0.0, 0.0)
 
     def test_sum_container_metrics_non_dict_usage_skipped(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
             _sum_container_metrics,
         )
 
@@ -1691,22 +1695,28 @@ class TestVanillaAdapterRightsizingPort:
         assert result == (0.0, 0.0)
 
     def test_parse_nanocores_with_n_suffix(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import _parse_nanocores
+        from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
+            _parse_nanocores,
+        )
 
         assert _parse_nanocores("400000000n") == pytest.approx(0.4, abs=0.001)
 
     def test_parse_memory_to_mi_ki_suffix(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import _parse_memory_to_mi
+        from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
+            _parse_memory_to_mi,
+        )
 
         assert _parse_memory_to_mi("1048576Ki") == pytest.approx(1024.0, abs=0.1)
 
     def test_parse_memory_to_mi_gi_suffix(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import _parse_memory_to_mi
+        from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
+            _parse_memory_to_mi,
+        )
 
         assert _parse_memory_to_mi("2Gi") == pytest.approx(2048.0, abs=0.1)
 
     def test_workload_key_from_pod_name_two_parts_returns_prefix(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
             _workload_key_from_pod_name,
         )
 
@@ -1716,7 +1726,7 @@ class TestVanillaAdapterRightsizingPort:
         assert result == "ns/svc"
 
     def test_workload_key_from_pod_name_no_dash_returns_none(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
             _workload_key_from_pod_name,
         )
 

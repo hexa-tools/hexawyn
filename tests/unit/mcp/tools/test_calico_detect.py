@@ -85,7 +85,9 @@ class TestCalicoDetectTool:
         assert result["ready"] is True
 
     def test_calico_detect_end_to_end_via_real_adapter(self) -> None:
-        from hexawyn.adapters.secondary.calico.calico_k8s_adapter import CalicoK8sAdapter
+        from hexawyn.infrastructure.adapters.secondary.calico.calico_k8s_adapter import (
+            CalicoK8sAdapter,
+        )
         from hexawyn.mcp.tools.calico_detect import calico_detect
 
         pool_item = {

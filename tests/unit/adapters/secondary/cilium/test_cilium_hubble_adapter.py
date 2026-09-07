@@ -3,13 +3,15 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
-from hexawyn.adapters.secondary.cilium.cilium_hubble_adapter import CiliumHubbleAdapter
 from hexawyn.domain.errors import AdapterTimeoutError, ClusterUnreachableError
 from hexawyn.domain.models.cilium import (
     CiliumDenialsQuery,
     CiliumFlowEntry,
     CiliumFlowQuery,
     CiliumFlowsResult,
+)
+from hexawyn.infrastructure.adapters.secondary.cilium.cilium_hubble_adapter import (
+    CiliumHubbleAdapter,
 )
 
 
@@ -35,7 +37,7 @@ def _dropped_flow(source: str = "web-0", destination: str = "db-0") -> CiliumFlo
 class TestCiliumHubbleAdapter:
     def test_not_installed_when_no_hubble_url(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.cilium.cilium_hubble_adapter.hubble_available",
+            "hexawyn.infrastructure.adapters.secondary.cilium.cilium_hubble_adapter.hubble_available",
             return_value=False,
         ):
             result = CiliumHubbleAdapter().get_flows(CiliumFlowQuery())
@@ -47,11 +49,11 @@ class TestCiliumHubbleAdapter:
     def test_timeout_raises_adapter_timeout(self) -> None:
         with (
             patch(
-                "hexawyn.adapters.secondary.cilium.cilium_hubble_adapter.hubble_available",
+                "hexawyn.infrastructure.adapters.secondary.cilium.cilium_hubble_adapter.hubble_available",
                 return_value=True,
             ),
             patch(
-                "hexawyn.adapters.secondary.cilium.cilium_hubble_adapter.fetch_hubble_flows",
+                "hexawyn.infrastructure.adapters.secondary.cilium.cilium_hubble_adapter.fetch_hubble_flows",
                 side_effect=TimeoutError("timed out"),
             ),
         ):
@@ -61,11 +63,11 @@ class TestCiliumHubbleAdapter:
     def test_unreachable_raises_cluster_unreachable(self) -> None:
         with (
             patch(
-                "hexawyn.adapters.secondary.cilium.cilium_hubble_adapter.hubble_available",
+                "hexawyn.infrastructure.adapters.secondary.cilium.cilium_hubble_adapter.hubble_available",
                 return_value=True,
             ),
             patch(
-                "hexawyn.adapters.secondary.cilium.cilium_hubble_adapter.fetch_hubble_flows",
+                "hexawyn.infrastructure.adapters.secondary.cilium.cilium_hubble_adapter.fetch_hubble_flows",
                 side_effect=RuntimeError("connection refused"),
             ),
         ):
@@ -85,11 +87,11 @@ class TestCiliumHubbleAdapter:
         ]
         with (
             patch(
-                "hexawyn.adapters.secondary.cilium.cilium_hubble_adapter.hubble_available",
+                "hexawyn.infrastructure.adapters.secondary.cilium.cilium_hubble_adapter.hubble_available",
                 return_value=True,
             ),
             patch(
-                "hexawyn.adapters.secondary.cilium.cilium_hubble_adapter.fetch_hubble_flows",
+                "hexawyn.infrastructure.adapters.secondary.cilium.cilium_hubble_adapter.fetch_hubble_flows",
                 return_value=raw,
             ),
         ):
@@ -135,11 +137,11 @@ class TestCiliumHubbleAdapter:
     def test_detect_denials_timeout_raises_adapter_timeout(self) -> None:
         with (
             patch(
-                "hexawyn.adapters.secondary.cilium.cilium_hubble_adapter.hubble_available",
+                "hexawyn.infrastructure.adapters.secondary.cilium.cilium_hubble_adapter.hubble_available",
                 return_value=True,
             ),
             patch(
-                "hexawyn.adapters.secondary.cilium.cilium_hubble_adapter.fetch_hubble_flows",
+                "hexawyn.infrastructure.adapters.secondary.cilium.cilium_hubble_adapter.fetch_hubble_flows",
                 side_effect=TimeoutError("timed out"),
             ),
         ):

@@ -3,9 +3,9 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter import VanillaK8sAdapter
 from hexawyn.application.ports.driven.k8s_port import K8sPort
 from hexawyn.domain.errors import ClusterUnreachableError
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.k8s_adapter import VanillaK8sAdapter
 
 
 def _fake_pod(name: str, namespace: str, phase: str = "Running") -> MagicMock:
@@ -110,7 +110,7 @@ class TestVanillaK8sAdapter:
         gracefully instead of taking the tool down.
         """
         with patch(
-            "hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter.load_kubeconfig",
+            "hexawyn.infrastructure.adapters.secondary.vanilla.adapters.k8s_adapter.load_kubeconfig",
             side_effect=ClusterUnreachableError("Unable to load kubeconfig."),
         ):
             adapter = VanillaK8sAdapter(
@@ -205,7 +205,7 @@ class TestVanillaK8sAdapter:
 
     def test_api_client_lazy_initialization(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter.load_kubeconfig",
+            "hexawyn.infrastructure.adapters.secondary.vanilla.adapters.k8s_adapter.load_kubeconfig",
             return_value=MagicMock(),
         ) as mock_load:
             adapter = VanillaK8sAdapter(api=None, metrics_api=MagicMock(), cluster_name="test")
@@ -219,11 +219,11 @@ class TestVanillaK8sAdapter:
         fake_core.api_client = MagicMock()
         with (
             patch(
-                "hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter.load_kubeconfig",
+                "hexawyn.infrastructure.adapters.secondary.vanilla.adapters.k8s_adapter.load_kubeconfig",
                 return_value=fake_core,
             ) as mock_load,
             patch(
-                "hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter.client.CustomObjectsApi"
+                "hexawyn.infrastructure.adapters.secondary.vanilla.adapters.k8s_adapter.client.CustomObjectsApi"
             ) as mock_custom,
         ):
             adapter = VanillaK8sAdapter(api=None, metrics_api=None, cluster_name="test")

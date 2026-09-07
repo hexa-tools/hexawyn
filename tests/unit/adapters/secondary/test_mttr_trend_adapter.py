@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from hexawyn.adapters.secondary.gitops.mttr_trend_adapter import MTTRTrendAdapter
 from hexawyn.application.ports.driven.mttr_trend_port import MTTRTrendPort
+from hexawyn.infrastructure.adapters.secondary.gitops.mttr_trend_adapter import MTTRTrendAdapter
 
 _CFG = "kubernetes.config.load_kube_config"
 _API = "kubernetes.client.CoreV1Api"

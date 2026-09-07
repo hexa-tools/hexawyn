@@ -5,12 +5,12 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.azure.monitor_traces_adapter import (
+from hexawyn.domain.models.latency_diagnostic import LatencyDiagnosticRequest
+from hexawyn.infrastructure.adapters.secondary.azure.monitor_traces_adapter import (
     AzureMonitorTracesAdapter,
     _as_float,
     _rows_as_dicts,
 )
-from hexawyn.domain.models.latency_diagnostic import LatencyDiagnosticRequest
 
 
 def _make_request(**kwargs: object) -> LatencyDiagnosticRequest:

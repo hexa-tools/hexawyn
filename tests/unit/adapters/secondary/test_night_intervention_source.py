@@ -1,4 +1,4 @@
-from hexawyn.adapters.secondary.gitops.night_intervention_source import (
+from hexawyn.infrastructure.adapters.secondary.gitops.night_intervention_source import (
     EmptyNightInterventionSource,
 )
 

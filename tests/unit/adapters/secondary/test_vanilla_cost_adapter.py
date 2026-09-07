@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.vanilla.vanilla_cost_adapter import VanillaCostAdapter
 from hexawyn.application.ports.driven.cost_estimation_port import CostEstimationPort
+from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_cost_adapter import (
+    VanillaCostAdapter,
+)
 
 
 class TestVanillaCostAdapter:

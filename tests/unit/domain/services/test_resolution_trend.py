@@ -183,3 +183,65 @@ class TestComputeResolution:
         assert hasattr(result, "avg_resolution_minutes")
         assert hasattr(result, "resolution_delta_pct")
         assert hasattr(result, "resolution_trend")
+
+
+class TestTrendBoundaries:
+    def test_exactly_minus_two_is_stable(self) -> None:
+        from hexawyn.domain.services.platform_reliability.resolution_trend import (
+            compute_resolution,
+        )
+
+        result = compute_resolution([_make_incident(98)], previous_avg=100)
+
+        assert result.resolution_delta_pct == -2.0  # noqa: PLR2004
+        assert result.resolution_trend == "stable"
+
+    def test_exactly_plus_two_is_stable(self) -> None:
+        from hexawyn.domain.services.platform_reliability.resolution_trend import (
+            compute_resolution,
+        )
+
+        result = compute_resolution([_make_incident(102)], previous_avg=100)
+
+        assert result.resolution_delta_pct == 2.0  # noqa: PLR2004
+        assert result.resolution_trend == "stable"
+
+    def test_below_minus_two_is_improving(self) -> None:
+        from hexawyn.domain.services.platform_reliability.resolution_trend import (
+            compute_resolution,
+        )
+
+        result = compute_resolution([_make_incident(97)], previous_avg=100)
+
+        assert result.resolution_delta_pct == -3.0  # noqa: PLR2004
+        assert result.resolution_trend == "improving"
+
+    def test_above_plus_two_is_degrading(self) -> None:
+        from hexawyn.domain.services.platform_reliability.resolution_trend import (
+            compute_resolution,
+        )
+
+        result = compute_resolution([_make_incident(103)], previous_avg=100)
+
+        assert result.resolution_delta_pct == 3.0  # noqa: PLR2004
+        assert result.resolution_trend == "degrading"
+
+
+class TestDeltaBoundaries:
+    def test_previous_of_one_still_computes_delta(self) -> None:
+        from hexawyn.domain.services.platform_reliability.resolution_trend import (
+            compute_resolution,
+        )
+
+        result = compute_resolution([_make_incident(2)], previous_avg=1)
+
+        assert result.resolution_delta_pct == 100.0  # noqa: PLR2004
+
+    def test_delta_rounded_to_one_decimal_on_third_decimal(self) -> None:
+        from hexawyn.domain.services.platform_reliability.resolution_trend import (
+            compute_resolution,
+        )
+
+        result = compute_resolution([_make_incident(55)], previous_avg=120)
+
+        assert result.resolution_delta_pct == -54.2  # noqa: PLR2004

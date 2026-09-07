@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.fleet_health_adapter import (
+from hexawyn.infrastructure.adapters.secondary.fleet_health_adapter import (
     _get_failing_pipelines,
     _get_node_counts,
     _get_pod_counts,

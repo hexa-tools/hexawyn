@@ -4,12 +4,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError
-from hexawyn.adapters.secondary.aws.cloudwatch_logs_adapter import (
+from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
+from hexawyn.infrastructure.adapters.secondary.aws.cloudwatch_logs_adapter import (
     CloudWatchLogsAdapter,
     _error_code,
     _parse_message,
 )
-from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
 
 
 class TestCloudWatchLogsAdapter:

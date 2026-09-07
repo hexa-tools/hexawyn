@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from hexawyn.adapters.secondary.tekton_pipeline_baseline_adapter import (
+from hexawyn.infrastructure.adapters.secondary.tekton_pipeline_baseline_adapter import (
     TektonPipelineBaselineAdapter,
 )
 

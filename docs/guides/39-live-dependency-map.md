@@ -236,7 +236,7 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/live_topology_mapper/` — Command, Response, ServicePort
 - `src/hexawyn/application/service/live_topology_mapper_service.py` — Application service (orchestrates both ports + engine)
 - `src/hexawyn/application/use_case/live_topology_mapper/live_topology_mapper_use_case.py` — UseCase (thin delegation)
-- `src/hexawyn/adapters/secondary/kubernetes_topology_adapter.py` — `KubernetesTopologyAdapter`
-- `src/hexawyn/adapters/secondary/istio_topology_adapter.py` — `IstioTopologyAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/kubernetes_topology_adapter.py` — `KubernetesTopologyAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/istio_topology_adapter.py` — `IstioTopologyAdapter`
 - `src/hexawyn/infrastructure/memory/topology_snapshot_repository.py` — `TopologySnapshotRepository`
 - `src/hexawyn/mcp/tools/live_topology_mapper.py` — MCP entry point

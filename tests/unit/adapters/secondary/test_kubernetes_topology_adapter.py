@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from hexawyn.adapters.secondary.kubernetes_topology_adapter import KubernetesTopologyAdapter
+from hexawyn.infrastructure.adapters.secondary.kubernetes_topology_adapter import (
+    KubernetesTopologyAdapter,
+)
 
 
 def _fake_service(
@@ -196,7 +198,7 @@ class TestApiClientLazyConstruction:
         from unittest.mock import patch
 
         with patch(
-            "hexawyn.adapters.secondary.kubernetes_topology_adapter.load_kubeconfig"
+            "hexawyn.infrastructure.adapters.secondary.kubernetes_topology_adapter.load_kubeconfig"
         ) as mock_load:
             mock_load.return_value = MagicMock(
                 list_service_for_all_namespaces=MagicMock(return_value=MagicMock(items=[]))
@@ -212,7 +214,7 @@ class TestApiClientLazyConstruction:
         from unittest.mock import patch
 
         with patch(
-            "hexawyn.adapters.secondary.kubernetes_topology_adapter.load_kubeconfig"
+            "hexawyn.infrastructure.adapters.secondary.kubernetes_topology_adapter.load_kubeconfig"
         ) as mock_load:
             mock_load.return_value = MagicMock(
                 list_service_for_all_namespaces=MagicMock(return_value=MagicMock(items=[]))
@@ -258,6 +260,8 @@ class TestApiClientLazyConstruction:
 
 class TestMatchServices:
     def test_returns_empty_when_no_app_label(self) -> None:
-        from hexawyn.adapters.secondary.kubernetes_topology_adapter import _match_services
+        from hexawyn.infrastructure.adapters.secondary.kubernetes_topology_adapter import (
+            _match_services,
+        )
 
         assert _match_services(pod_selector=None, namespace="production", selectors=[]) == []

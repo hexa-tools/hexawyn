@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from hexawyn.adapters.primary.slack.slack_webhook import (
+from hexawyn.infrastructure.adapters.primary.slack.slack_webhook import (
     _get_active_cluster_name,
     _handle_app_mention,
     handle_slack_event,
@@ -31,7 +31,7 @@ class TestHandleSlackEvent:
             },
         }
         with patch(
-            "hexawyn.adapters.primary.slack.slack_webhook._handle_app_mention"
+            "hexawyn.infrastructure.adapters.primary.slack.slack_webhook._handle_app_mention"
         ) as mock_handler:
             mock_handler.return_value = {"response": "hi there", "channel": "C123"}
             result = handle_slack_event(event)
@@ -66,10 +66,10 @@ class TestHandleAppMention:
             "ts": "123.456",
         }
         with patch(
-            "hexawyn.adapters.primary.slack.slack_webhook.SlackChatAdapter"
+            "hexawyn.infrastructure.adapters.primary.slack.slack_webhook.SlackChatAdapter"
         ) as mock_adapter_cls:
             with patch(
-                "hexawyn.adapters.primary.slack.slack_webhook._get_active_cluster_name"
+                "hexawyn.infrastructure.adapters.primary.slack.slack_webhook._get_active_cluster_name"
             ) as mock_cluster:
                 mock_cluster.return_value = "prod"
                 mock_instance = MagicMock()
@@ -89,10 +89,10 @@ class TestHandleAppMention:
             "ts": "111.222",
         }
         with patch(
-            "hexawyn.adapters.primary.slack.slack_webhook.SlackChatAdapter"
+            "hexawyn.infrastructure.adapters.primary.slack.slack_webhook.SlackChatAdapter"
         ) as mock_adapter_cls:
             with patch(
-                "hexawyn.adapters.primary.slack.slack_webhook._get_active_cluster_name"
+                "hexawyn.infrastructure.adapters.primary.slack.slack_webhook._get_active_cluster_name"
             ) as mock_cluster:
                 mock_cluster.return_value = "staging"
                 mock_instance = MagicMock()
@@ -115,10 +115,10 @@ class TestHandleAppMention:
             "ts": "555.555",
         }
         with patch(
-            "hexawyn.adapters.primary.slack.slack_webhook.SlackChatAdapter"
+            "hexawyn.infrastructure.adapters.primary.slack.slack_webhook.SlackChatAdapter"
         ) as mock_adapter_cls:
             with patch(
-                "hexawyn.adapters.primary.slack.slack_webhook._get_active_cluster_name"
+                "hexawyn.infrastructure.adapters.primary.slack.slack_webhook._get_active_cluster_name"
             ) as mock_cluster:
                 mock_cluster.return_value = "dev"
                 mock_instance = MagicMock()
@@ -141,10 +141,10 @@ class TestHandleAppMention:
             "ts": "000.000",
         }
         with patch(
-            "hexawyn.adapters.primary.slack.slack_webhook.SlackChatAdapter"
+            "hexawyn.infrastructure.adapters.primary.slack.slack_webhook.SlackChatAdapter"
         ) as mock_adapter_cls:
             with patch(
-                "hexawyn.adapters.primary.slack.slack_webhook._get_active_cluster_name"
+                "hexawyn.infrastructure.adapters.primary.slack.slack_webhook._get_active_cluster_name"
             ) as mock_cluster:
                 mock_cluster.return_value = "prod"
                 mock_instance = MagicMock()

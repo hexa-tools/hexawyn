@@ -3,13 +3,13 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.gitops.kubernetes_node_analysis_adapter import (
-    KubernetesNodeAnalysisAdapter,
-)
 from hexawyn.application.ports.driven.hot_node_analysis_port import (
     HotNodeAnalysisPort,
 )
 from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_node_analysis_adapter import (
+    KubernetesNodeAnalysisAdapter,
+)
 
 
 def _make_node(name: str, cpu: str = "4", memory: str = "16Gi") -> MagicMock:

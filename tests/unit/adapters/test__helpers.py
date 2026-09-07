@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from hexawyn.adapters.secondary.vanilla.adapters._helpers import (
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters._helpers import (
     conditions,
     container_statuses,
     cpu_to_cores,

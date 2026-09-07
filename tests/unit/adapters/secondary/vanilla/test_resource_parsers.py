@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
     _BYTES_TO_MI,
     _CPU_COST_PER_CORE_DAY,
     _CPU_MILLI_FACTOR,

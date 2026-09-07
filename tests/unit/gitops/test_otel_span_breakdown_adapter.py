@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from hexawyn.adapters.secondary.gitops.otel_http_client import PrometheusMetricDict
+from hexawyn.infrastructure.adapters.secondary.gitops.otel_http_client import PrometheusMetricDict
 
 
 def _metric(value: float, labels: dict[str, str] | None = None) -> list[PrometheusMetricDict]:
@@ -23,33 +23,33 @@ def _fake_db_query(query: str) -> list[PrometheusMetricDict]:
 
 class TestOtelSpanBreakdownAdapterUnit:
     def test_returns_breakdown(self) -> None:
-        from hexawyn.adapters.secondary.gitops.otel_span_breakdown_adapter import (
+        from hexawyn.domain.models.span_bottleneck import BottleneckRequest
+        from hexawyn.infrastructure.adapters.secondary.gitops.otel_span_breakdown_adapter import (
             OTelSpanBreakdownAdapter,
         )
-        from hexawyn.domain.models.span_bottleneck import BottleneckRequest
 
         adapter = OTelSpanBreakdownAdapter()
         result = adapter.fetch_db_spans(BottleneckRequest())
         assert result.category == "db"
 
     def test_fetch_redis_spans_returns_none(self) -> None:
-        from hexawyn.adapters.secondary.gitops.otel_span_breakdown_adapter import (
+        from hexawyn.domain.models.span_bottleneck import BottleneckRequest
+        from hexawyn.infrastructure.adapters.secondary.gitops.otel_span_breakdown_adapter import (
             OTelSpanBreakdownAdapter,
         )
-        from hexawyn.domain.models.span_bottleneck import BottleneckRequest
 
         adapter = OTelSpanBreakdownAdapter()
         result = adapter.fetch_redis_spans(BottleneckRequest())
         assert result is None
 
     def test_fetch_db_spans_parses_real_metrics(self) -> None:
-        from hexawyn.adapters.secondary.gitops.otel_span_breakdown_adapter import (
+        from hexawyn.domain.models.span_bottleneck import BottleneckRequest
+        from hexawyn.infrastructure.adapters.secondary.gitops.otel_span_breakdown_adapter import (
             OTelSpanBreakdownAdapter,
         )
-        from hexawyn.domain.models.span_bottleneck import BottleneckRequest
 
         with patch(
-            "hexawyn.adapters.secondary.gitops.otel_span_breakdown_adapter"
+            "hexawyn.infrastructure.adapters.secondary.gitops.otel_span_breakdown_adapter"
             ".query_prometheus_instant",
             side_effect=_fake_db_query,
         ):
@@ -63,13 +63,13 @@ class TestOtelSpanBreakdownAdapterUnit:
         assert result.slowest_operation == "SELECT users"
 
     def test_fetch_redis_spans_returns_data_when_present(self) -> None:
-        from hexawyn.adapters.secondary.gitops.otel_span_breakdown_adapter import (
+        from hexawyn.domain.models.span_bottleneck import BottleneckRequest
+        from hexawyn.infrastructure.adapters.secondary.gitops.otel_span_breakdown_adapter import (
             OTelSpanBreakdownAdapter,
         )
-        from hexawyn.domain.models.span_bottleneck import BottleneckRequest
 
         with patch(
-            "hexawyn.adapters.secondary.gitops.otel_span_breakdown_adapter"
+            "hexawyn.infrastructure.adapters.secondary.gitops.otel_span_breakdown_adapter"
             ".query_prometheus_instant",
             side_effect=_fake_db_query,
         ):
@@ -81,13 +81,13 @@ class TestOtelSpanBreakdownAdapterUnit:
         assert result.avg_ms == 80.0  # noqa: PLR2004
 
     def test_fetch_db_spans_exception_returns_zeros(self) -> None:
-        from hexawyn.adapters.secondary.gitops.otel_span_breakdown_adapter import (
+        from hexawyn.domain.models.span_bottleneck import BottleneckRequest
+        from hexawyn.infrastructure.adapters.secondary.gitops.otel_span_breakdown_adapter import (
             OTelSpanBreakdownAdapter,
         )
-        from hexawyn.domain.models.span_bottleneck import BottleneckRequest
 
         with patch(
-            "hexawyn.adapters.secondary.gitops.otel_span_breakdown_adapter"
+            "hexawyn.infrastructure.adapters.secondary.gitops.otel_span_breakdown_adapter"
             ".query_prometheus_instant",
             side_effect=RuntimeError("prometheus unreachable"),
         ):
@@ -100,10 +100,10 @@ class TestOtelSpanBreakdownAdapterUnit:
         assert result.slowest_operation is None
 
     def test_max_ms_falls_back_when_infinite(self) -> None:
-        from hexawyn.adapters.secondary.gitops.otel_span_breakdown_adapter import (
+        from hexawyn.domain.models.span_bottleneck import BottleneckRequest
+        from hexawyn.infrastructure.adapters.secondary.gitops.otel_span_breakdown_adapter import (
             OTelSpanBreakdownAdapter,
         )
-        from hexawyn.domain.models.span_bottleneck import BottleneckRequest
 
         def fake_query(query: str) -> list[PrometheusMetricDict]:
             if query.startswith("histogram_quantile(0.95"):
@@ -117,7 +117,7 @@ class TestOtelSpanBreakdownAdapterUnit:
             return _metric(0.06)
 
         with patch(
-            "hexawyn.adapters.secondary.gitops.otel_span_breakdown_adapter"
+            "hexawyn.infrastructure.adapters.secondary.gitops.otel_span_breakdown_adapter"
             ".query_prometheus_instant",
             side_effect=fake_query,
         ):

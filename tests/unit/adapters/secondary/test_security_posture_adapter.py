@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.security_posture.security_posture_adapter import (
+from hexawyn.infrastructure.adapters.secondary.security_posture.security_posture_adapter import (
     SecurityPostureAdapter,
 )
 

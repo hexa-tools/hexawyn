@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from hexawyn.adapters.secondary.vanilla.adapters.health_adapter import VanillaHealthAdapter
 from hexawyn.application.ports.driven.k8s_port import ClusterHealthPort, K8sPort, PodInfo
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.health_adapter import (
+    VanillaHealthAdapter,
+)
 
 
 def _healthy_pod(name: str) -> PodInfo:

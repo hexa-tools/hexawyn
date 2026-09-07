@@ -1,9 +1,9 @@
 import os
 import threading
 
-from hexawyn.adapters.secondary.adapter_factory import build_adapters
 from hexawyn.application.service.runtime_adapter import get_runtime
 from hexawyn.cli.presentation.formatting import format_size
+from hexawyn.infrastructure.adapters.secondary.adapter_factory import build_adapters
 from hexawyn.infrastructure.config.config_manager import get_llm_config
 from hexawyn.infrastructure.config.kubernetes_context import FileKubernetesDiscoveryService
 from hexawyn.infrastructure.config.llm_providers import LLM_PROVIDERS

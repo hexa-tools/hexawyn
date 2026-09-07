@@ -3,11 +3,6 @@ from __future__ import annotations
 from unittest.mock import Mock, patch
 
 import pytest
-from hexawyn.adapters.secondary.datadog.datadog_traces_adapter import (
-    DatadogTracesAdapter,
-    _as_float,
-    _translate_error,
-)
 from hexawyn.application.ports.driven.trace_query_port import TraceQueryPort
 from hexawyn.domain.errors import (
     AdapterTimeoutError,
@@ -15,6 +10,11 @@ from hexawyn.domain.errors import (
     TracesUnavailableError,
 )
 from hexawyn.domain.models.latency_diagnostic import LatencyDiagnosticRequest
+from hexawyn.infrastructure.adapters.secondary.datadog.datadog_traces_adapter import (
+    DatadogTracesAdapter,
+    _as_float,
+    _translate_error,
+)
 
 
 def _span_mock(trace_id: str, operation_name: str, duration: float) -> Mock:
@@ -208,7 +208,7 @@ class TestDatadogTracesAdapter:
 
     def test_lazy_api_construction_when_spans_api_is_none(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.datadog.datadog_traces_adapter._build_spans_api"
+            "hexawyn.infrastructure.adapters.secondary.datadog.datadog_traces_adapter._build_spans_api"
         ) as mock_build:
             mock_build.return_value = _spans_api_mock([_span_mock("t1", "op", 100.0)])
             adapter = DatadogTracesAdapter(key="k", app_key="a", site="s")

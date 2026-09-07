@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 
 class TestTLSComplianceProvider:
     def test_category_is_tls(self) -> None:
-        from hexawyn.adapters.secondary.security_posture.category_providers import (
+        from hexawyn.infrastructure.adapters.secondary.security_posture.category_providers import (
             TLSComplianceProvider,
         )
 
@@ -14,7 +14,7 @@ class TestTLSComplianceProvider:
         assert provider.category() == "tls"
 
     def test_fetch_normalizes_services(self) -> None:
-        from hexawyn.adapters.secondary.security_posture.category_providers import (
+        from hexawyn.infrastructure.adapters.secondary.security_posture.category_providers import (
             TLSComplianceProvider,
         )
 
@@ -39,7 +39,7 @@ class TestTLSComplianceProvider:
 
 class TestPodSecurityProvider:
     def test_category_is_pod_security(self) -> None:
-        from hexawyn.adapters.secondary.security_posture.category_providers import (
+        from hexawyn.infrastructure.adapters.secondary.security_posture.category_providers import (
             PodSecurityProvider,
         )
 
@@ -48,7 +48,7 @@ class TestPodSecurityProvider:
         assert provider.category() == "pod_security"
 
     def test_fetch_marks_findings_non_compliant(self) -> None:
-        from hexawyn.adapters.secondary.security_posture.category_providers import (
+        from hexawyn.infrastructure.adapters.secondary.security_posture.category_providers import (
             PodSecurityProvider,
         )
 

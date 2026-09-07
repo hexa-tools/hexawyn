@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gcp.cloud_logging_adapter import GCPCloudLoggingAdapter
+from hexawyn.infrastructure.adapters.secondary.gcp.cloud_logging_adapter import (
+    GCPCloudLoggingAdapter,
+)
 
 
 class TestGCPCloudLoggingAdapter:

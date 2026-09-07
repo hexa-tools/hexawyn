@@ -93,8 +93,8 @@ def _analyze_pod(
     rec_cpu = _recommended(eff_cpu, cpu_p95)
     rec_mem = _recommended(eff_mem, mem_p95)
 
-    delta_cores = round(max(0.0, (eff_cpu or 0.0) - (rec_cpu or eff_cpu or 0.0)), 3)
-    delta_mi = round(max(0.0, (eff_mem or 0.0) - (rec_mem or eff_mem or 0.0)), 1)
+    delta_cores = _delta(eff_cpu, rec_cpu, 3)
+    delta_mi = _delta(eff_mem, rec_mem, 1)
 
     monthly_usd: float | None = None
     if cpu_price is not None or mem_price is not None:
@@ -154,6 +154,12 @@ def _recommended(request: float | None, p95: float | None) -> float | None:
     if request > 0.1:  # CPU vs memory threshold  # noqa: PLR2004
         return round(max(rec, _MIN_CPU_CORES), 3)
     return round(max(rec, _MIN_MEM_MI), 1)
+
+
+def _delta(eff: float | None, rec: float | None, digits: int) -> float:
+    if eff is None:
+        return 0.0
+    return round(max(0.0, eff - (rec if rec is not None else eff)), digits)
 
 
 def _bursty(cpu_p95: float | None, cpu_max: float | None) -> bool:

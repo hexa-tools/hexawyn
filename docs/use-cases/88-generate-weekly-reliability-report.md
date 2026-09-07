@@ -123,6 +123,6 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/generate_weekly_reliability_report/`
 - `src/hexawyn/application/service/generate_weekly_reliability_report_service.py`
 - `src/hexawyn/application/use_case/generate_weekly_reliability_report/`
-- `src/hexawyn/adapters/secondary/gitops/prometheus_reliability_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/prometheus_reliability_adapter.py`
 - `src/hexawyn/mcp/tools/generate_weekly_reliability_report.py`
 - `src/hexawyn/mcp/server.py`

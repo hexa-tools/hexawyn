@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.tekton_pipeline_tracer_adapter import (
+from hexawyn.infrastructure.adapters.secondary.tekton_pipeline_tracer_adapter import (
     _extract_failure_reason,
     _extract_pipeline_ref,
     _extract_run_after,

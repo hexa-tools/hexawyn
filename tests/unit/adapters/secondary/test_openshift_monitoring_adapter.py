@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.openshift.openshift_monitoring_adapter import (
+from hexawyn.application.ports.driven.metrics_query_port import MetricsQueryPort
+from hexawyn.infrastructure.adapters.secondary.openshift.openshift_monitoring_adapter import (
     OpenShiftMonitoringAdapter,
 )
-from hexawyn.application.ports.driven.metrics_query_port import MetricsQueryPort
 
 
 class TestOpenShiftMonitoringAdapter:

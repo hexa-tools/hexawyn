@@ -156,5 +156,5 @@ sequenceDiagram
 - `src/hexawyn/domain/services/namespace_waste/namespace_over_provisioning_service.py` — pure waste computation
 - `src/hexawyn/application/ports/driven/namespace_waste_port.py` — `NamespaceRawData`, `NamespaceWasteAnalysisPort`
 - `src/hexawyn/application/service/detect_over_provisioned_namespaces_service.py` — orchestration
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py` — K8s + Prometheus data fetch
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py` — K8s + Prometheus data fetch
 - `src/hexawyn/mcp/tools/detect_over_provisioned_namespaces.py` — MCP entry point

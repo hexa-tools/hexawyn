@@ -3,11 +3,11 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.prometheus_cluster_resource_metrics_adapter import (
-    PrometheusClusterResourceMetricsAdapter,
-)
 from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
     ClusterResourceMetricsPort,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.prometheus_cluster_resource_metrics_adapter import (  # noqa: E501
+    PrometheusClusterResourceMetricsAdapter,
 )
 
 

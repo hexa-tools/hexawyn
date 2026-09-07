@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import pytest
-from hexawyn.adapters.secondary.gitops.cert_manager_detector import (
-    CertManagerDetector,
-)
 from hexawyn.application.ports.driven.cert_manager_port import CertManagerPort
 from hexawyn.domain.errors import ComponentNotInstalledError
+from hexawyn.infrastructure.adapters.secondary.gitops.cert_manager_detector import (
+    CertManagerDetector,
+)
 
 
 class TestCertManagerDetector:

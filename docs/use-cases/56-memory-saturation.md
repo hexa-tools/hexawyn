@@ -81,5 +81,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/memory_saturation.py` — MemoryPrediction, MemorySaturationResult
 - `src/hexawyn/application/ports/driven/memory_saturation_port.py` — MemorySaturationPort ABC
-- `src/hexawyn/adapters/secondary/gitops/prometheus_memory_adapter.py` — Prometheus adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/prometheus_memory_adapter.py` — Prometheus adapter
 - `src/hexawyn/mcp/tools/memory_saturation.py` — MCP tool

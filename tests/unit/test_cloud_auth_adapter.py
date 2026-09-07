@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.auth.cloud_auth_adapter import CloudAuthAdapter
-from hexawyn.adapters.secondary.auth.config_token_store import ConfigTokenStore
-from hexawyn.adapters.secondary.auth.token_validator import HttpTokenValidator
 from hexawyn.domain.models.auth import TokenValidationResult, TokenValidationState
+from hexawyn.infrastructure.adapters.secondary.auth.cloud_auth_adapter import CloudAuthAdapter
+from hexawyn.infrastructure.adapters.secondary.auth.config_token_store import ConfigTokenStore
+from hexawyn.infrastructure.adapters.secondary.auth.token_validator import HttpTokenValidator
 
 
 class _FakeValidator:

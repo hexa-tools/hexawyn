@@ -204,6 +204,6 @@ port/service/use-case/tool/adapter stack:
 - `src/hexawyn/application/ports/driving/container_image_drift/` — command, response, service_port
 - `src/hexawyn/application/service/container_image_drift_service.py` — `ContainerImageDriftService`
 - `src/hexawyn/application/use_case/container_image_drift/container_image_drift_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_image_drift_adapter.py` — `KubernetesImageDriftAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_image_drift_adapter.py` — `KubernetesImageDriftAdapter`
 - `src/hexawyn/mcp/tools/container_image_drift_detection.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_image_drift_adapter` (new; `build_live_resource_adapter`/`build_helm_drift_adapter`/`build_kustomize_drift_adapter` reused as-is)

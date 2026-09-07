@@ -1,8 +1,8 @@
 from unittest.mock import patch
 
 import pytest
-from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
-from hexawyn.adapters.secondary.slack.slack_alert_adapter import SlackAlertAdapter
+from hexawyn.infrastructure.adapters.secondary.mock.demo_adapter import DemoAdapter
+from hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter import SlackAlertAdapter
 
 
 class TestSlackAlertIntegration:
@@ -26,9 +26,11 @@ class TestSlackAlertIntegration:
 
         with patch("httpx.post") as mock_post:
             mock_post.return_value.status_code = 200
-            with patch("hexawyn.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"):
+            with patch(
+                "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"
+            ):
                 with patch(
-                    "hexawyn.adapters.secondary.slack.slack_alert_adapter.increment_slack_quota"
+                    "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.increment_slack_quota"
                 ):
                     result = adapter.send_alert(msg)
         assert result is True

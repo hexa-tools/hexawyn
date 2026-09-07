@@ -145,7 +145,7 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/list_task_runs/` — Command, Response, ServicePort
 - `src/hexawyn/application/service/list_task_runs_service.py` — `ListTaskRunsService` (sorting)
 - `src/hexawyn/application/use_case/list_task_runs/list_task_runs_use_case.py` — `ListTaskRunsUseCase`
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py` — Tekton CRD parsing + error translation
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py` — Tekton CRD parsing + error translation
 - `src/hexawyn/domain/errors.py` — `PipelineNotFoundError`
 - `src/hexawyn/mcp/tools/list_task_runs.py` — MCP tool (primary adapter, final catch)
 - `src/hexawyn/mcp/server.py` — `build_tekton_adapter()`

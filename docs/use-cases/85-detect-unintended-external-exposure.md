@@ -193,5 +193,5 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driven/external_exposure_audit_port.py` — ExternalExposureAuditPort
 - `src/hexawyn/application/service/unintended_external_exposure_service.py` — UnintendedExternalExposureService
 - `src/hexawyn/application/use_case/detect_unintended_external_exposure/` — UseCase
-- `src/hexawyn/adapters/secondary/kubernetes_external_exposure_adapter.py` — K8s adapter
+- `src/hexawyn/infrastructure/adapters/secondary/kubernetes_external_exposure_adapter.py` — K8s adapter
 - `src/hexawyn/mcp/tools/detect_unintended_external_exposure.py` — MCP tool

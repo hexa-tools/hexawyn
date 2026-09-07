@@ -78,8 +78,8 @@ def _get_tier_label() -> str:
 @click.command()
 def quota() -> None:
     """Show your monthly usage quota per resource with progress bars."""
-    from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
     from hexawyn.application.service.runtime_adapter import get_runtime
+    from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
     from hexawyn.infrastructure.config.quota_manager import _get_current_month
 
     quota_source = RuntimeQuotaSource(runtime=get_runtime())

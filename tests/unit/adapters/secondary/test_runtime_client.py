@@ -2,7 +2,7 @@ import json
 from unittest.mock import MagicMock, patch
 
 import httpx
-from hexawyn.adapters.secondary.runtime_client import RuntimeClient
+from hexawyn.infrastructure.adapters.secondary.runtime_client import RuntimeClient
 
 
 def _mock_response_raw(status_code: int) -> MagicMock:

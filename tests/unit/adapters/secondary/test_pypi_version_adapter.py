@@ -9,7 +9,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import httpx
-from hexawyn.adapters.secondary.pypi.pypi_version_adapter import PyPIVersionAdapter
+from hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter import PyPIVersionAdapter
 
 
 class TestPyPIVersionAdapter:
@@ -32,7 +32,7 @@ class TestPyPIVersionAdapter:
 
         with patch.dict("os.environ", {}, clear=True):
             with patch(
-                "hexawyn.adapters.secondary.pypi.pypi_version_adapter.load_config",
+                "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.load_config",
                 return_value={},
             ):
                 with patch("httpx.get", return_value=response) as mock_get:
@@ -49,7 +49,7 @@ class TestPyPIVersionAdapter:
 
         with patch.dict("os.environ", {"HEXAWYN_PYPI_INDEX_URL": "https://test.pypi.org"}):
             with patch(
-                "hexawyn.adapters.secondary.pypi.pypi_version_adapter.load_config",
+                "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.load_config",
                 return_value={},
             ):
                 with patch("httpx.get", return_value=response) as mock_get:
@@ -65,7 +65,7 @@ class TestPyPIVersionAdapter:
 
         with patch.dict("os.environ", {"HEXAWYN_PYPI_INDEX_URL": "https://test.pypi.org/"}):
             with patch(
-                "hexawyn.adapters.secondary.pypi.pypi_version_adapter.load_config",
+                "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.load_config",
                 return_value={},
             ):
                 with patch("httpx.get", return_value=response) as mock_get:
@@ -82,7 +82,7 @@ class TestPyPIVersionAdapter:
 
         with patch.dict("os.environ", {}, clear=True):
             with patch(
-                "hexawyn.adapters.secondary.pypi.pypi_version_adapter.load_config",
+                "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.load_config",
                 return_value={"pypi_index_url": "https://test.pypi.org"},
             ):
                 with patch("httpx.get", return_value=response) as mock_get:
@@ -98,7 +98,7 @@ class TestPyPIVersionAdapter:
 
         with patch.dict("os.environ", {"HEXAWYN_PYPI_INDEX_URL": "https://pypi.org"}):
             with patch(
-                "hexawyn.adapters.secondary.pypi.pypi_version_adapter.load_config",
+                "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.load_config",
                 return_value={"pypi_index_url": "https://test.pypi.org"},
             ):
                 with patch("httpx.get", return_value=response) as mock_get:
@@ -117,11 +117,11 @@ class TestPyPIVersionAdapter:
 
         with patch.dict("os.environ", {}, clear=True):
             with patch(
-                "hexawyn.adapters.secondary.pypi.pypi_version_adapter.load_config",
+                "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.load_config",
                 return_value={},
             ):
                 with patch(
-                    "hexawyn.adapters.secondary.pypi.pypi_version_adapter.save_config"
+                    "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.save_config"
                 ) as mock_save:
                     with patch(
                         "httpx.get",
@@ -145,11 +145,11 @@ class TestPyPIVersionAdapter:
 
         with patch.dict("os.environ", {}, clear=True):
             with patch(
-                "hexawyn.adapters.secondary.pypi.pypi_version_adapter.load_config",
+                "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.load_config",
                 return_value={},
             ):
                 with patch(
-                    "hexawyn.adapters.secondary.pypi.pypi_version_adapter.save_config"
+                    "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.save_config"
                 ) as mock_save:
                     with patch("httpx.get", return_value=response_ok) as mock_get:
                         result = PyPIVersionAdapter().fetch_latest_version()
@@ -200,11 +200,11 @@ class TestPyPIVersionAdapter:
 
         with patch.dict("os.environ", {"HEXAWYN_PYPI_INDEX_URL": "https://custom.example"}):
             with patch(
-                "hexawyn.adapters.secondary.pypi.pypi_version_adapter.load_config",
+                "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.load_config",
                 return_value={},
             ):
                 with patch(
-                    "hexawyn.adapters.secondary.pypi.pypi_version_adapter.save_config"
+                    "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.save_config"
                 ) as mock_save:
                     with patch("httpx.get", return_value=response_404) as mock_get:
                         result = PyPIVersionAdapter().fetch_latest_version()
@@ -221,11 +221,11 @@ class TestPyPIVersionAdapter:
 
         with patch.dict("os.environ", {}, clear=True):
             with patch(
-                "hexawyn.adapters.secondary.pypi.pypi_version_adapter.load_config",
+                "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.load_config",
                 return_value={},
             ):
                 with patch(
-                    "hexawyn.adapters.secondary.pypi.pypi_version_adapter.save_config"
+                    "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.save_config"
                 ) as mock_save:
                     with patch(
                         "httpx.get",
@@ -247,20 +247,20 @@ class TestPyPIVersionAdapter:
         assert result == ""
 
     def test_persist_index_swallows_save_error(self) -> None:
-        from hexawyn.adapters.secondary.pypi.pypi_version_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter import (
             PyPIVersionAdapter,
         )
 
         with patch(
-            "hexawyn.adapters.secondary.pypi.pypi_version_adapter.load_config",
+            "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.load_config",
             return_value={},
         ):
             with patch(
-                "hexawyn.adapters.secondary.pypi.pypi_version_adapter.save_config",
+                "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.save_config",
                 side_effect=OSError("read-only fs"),
             ):
                 with patch(
-                    "hexawyn.adapters.secondary.pypi.pypi_version_adapter.logger.warning"
+                    "hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter.logger.warning"
                 ) as mock_warn:
                     PyPIVersionAdapter._persist_index("https://test.pypi.org")
 

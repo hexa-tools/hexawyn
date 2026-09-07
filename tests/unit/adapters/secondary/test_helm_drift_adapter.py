@@ -3,11 +3,11 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
-from hexawyn.adapters.secondary.gitops.helm_drift_adapter import (
+from hexawyn.domain.errors import ComponentNotInstalledError
+from hexawyn.infrastructure.adapters.secondary.gitops.helm_drift_adapter import (
     HelmDriftAdapter,
     _parse_multi_doc_yaml,
 )
-from hexawyn.domain.errors import ComponentNotInstalledError
 
 
 class TestHelmDriftAdapter:

@@ -196,7 +196,7 @@ class TestOverrideCommands:
 class TestHelpers:
     def test_aws_supported_delegates_to_provider(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.aws.aws_eks_provider.AWSEKSProvider.supports",
+            "hexawyn.infrastructure.adapters.secondary.aws.aws_eks_provider.AWSEKSProvider.supports",
             return_value=True,
         ) as supports:
             assert stack_view._aws_supported("prod-eks") is True
@@ -204,7 +204,7 @@ class TestHelpers:
 
     def test_gcp_supported_delegates_to_provider(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.gcp.gcp_gke_provider.GCPGKEProvider.supports",
+            "hexawyn.infrastructure.adapters.secondary.gcp.gcp_gke_provider.GCPGKEProvider.supports",
             return_value=True,
         ) as supports:
             assert stack_view._gcp_supported("gke_p_r_c") is True
@@ -212,7 +212,7 @@ class TestHelpers:
 
     def test_azure_supported_delegates_to_provider(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.azure.azure_aks_provider.AzureAKSProvider.supports",
+            "hexawyn.infrastructure.adapters.secondary.azure.azure_aks_provider.AzureAKSProvider.supports",
             return_value=True,
         ) as supports:
             assert stack_view._azure_supported("aks-prod") is True

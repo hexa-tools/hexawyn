@@ -1,4 +1,4 @@
-from hexawyn.adapters.secondary.mock.scenarios.openshift import OPENSHIFT_SCENARIO
+from hexawyn.infrastructure.adapters.secondary.mock.scenarios.openshift import OPENSHIFT_SCENARIO
 
 REQUIRED_KEYS = {"context", "health", "pods", "metrics", "findings", "chips", "slack_message"}
 

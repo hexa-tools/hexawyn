@@ -4,16 +4,16 @@ from unittest.mock import MagicMock, patch
 
 import httpx
 import pytest
-from hexawyn.adapters.secondary.gitops.prometheus_http_adapter import (
-    PrometheusHTTPAdapter,
-    _instant_query_params,
-    _range_query_params,
-)
 from hexawyn.application.ports.driven.metrics_query_port import MetricsQueryPort
 from hexawyn.domain.errors import (
     AdapterTimeoutError,
     PrometheusQueryError,
     PrometheusUnavailableError,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.prometheus_http_adapter import (
+    PrometheusHTTPAdapter,
+    _instant_query_params,
+    _range_query_params,
 )
 
 

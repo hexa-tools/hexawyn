@@ -3,11 +3,11 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.adapters.cost_forecast_adapter import (
-    VanillaCostForecastAdapter,
-)
 from hexawyn.application.ports.driven.cost_forecast_port import CostForecastPort
 from hexawyn.domain.errors import ClusterUnreachableError
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.cost_forecast_adapter import (
+    VanillaCostForecastAdapter,
+)
 
 
 class _FakeDeployment:

@@ -3,7 +3,6 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.gitops.keda_adapter import KedaAdapter
 from hexawyn.application.ports.driven.keda_port import KedaPort
 from hexawyn.domain.models.keda import (
     AuthType,
@@ -11,6 +10,7 @@ from hexawyn.domain.models.keda import (
     ScaledJobPhase,
     TriggerType,
 )
+from hexawyn.infrastructure.adapters.secondary.gitops.keda_adapter import KedaAdapter
 
 
 def _make_crd_mock() -> MagicMock:

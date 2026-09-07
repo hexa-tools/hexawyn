@@ -3,7 +3,6 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.gitops.gitops_detector import GitOpsDetector
 from hexawyn.application.ports.driven.gitops_port import GitOpsPort
 from hexawyn.domain.models.gitops import (
     GitOpsApp,
@@ -13,6 +12,7 @@ from hexawyn.domain.models.gitops import (
     HealthStatus,
     SyncStatus,
 )
+from hexawyn.infrastructure.adapters.secondary.gitops.gitops_detector import GitOpsDetector
 
 
 class TestGitOpsDetector:

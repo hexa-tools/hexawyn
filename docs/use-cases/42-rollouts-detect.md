@@ -138,7 +138,7 @@ sequenceDiagram
 - `src/hexawyn/domain/models/rollouts.py` — Rollout, AnalysisRun, RolloutsDetectionResult, RolloutStepStatus
 - `src/hexawyn/domain/errors.py` — ComponentNotInstalledError
 - `src/hexawyn/application/ports/driven/rollouts_port.py` — RolloutsPort ABC
-- `src/hexawyn/adapters/secondary/gitops/argo_rollouts_detector.py` — ArgoRolloutsDetector
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/argo_rollouts_detector.py` — ArgoRolloutsDetector
 - `src/hexawyn/mcp/tools/rollouts_detect.py` — detect tool
 - `src/hexawyn/mcp/tools/rollouts_list.py` — list tool
 - `src/hexawyn/mcp/tools/rollout_get.py` — get tool

@@ -158,18 +158,24 @@ def _waste_percentage(
     mem_actual: float | None,
 ) -> float:
     if rtype == RightsizingType.OVER_PROVISIONED:
-        cpu_waste = (
-            (1.0 - cpu_actual / cpu_req) * 100.0 if cpu_req > 0 and cpu_actual is not None else 0.0
-        )
-        mem_waste = (
-            (1.0 - mem_actual / mem_req) * 100.0 if mem_req > 0 and mem_actual is not None else 0.0
-        )
+        cpu_waste = _over_waste(cpu_actual, cpu_req)
+        mem_waste = _over_waste(mem_actual, mem_req)
         return round(max(cpu_waste, mem_waste), 1)
     if rtype == RightsizingType.UNDER_PROVISIONED:
-        return round(
-            mem_actual / mem_req * 100.0 if mem_req > 0 and mem_actual is not None else 0.0, 1
-        )
+        return round(_under_waste(mem_actual, mem_req), 1)
     return 0.0
+
+
+def _over_waste(actual: float | None, request: float) -> float:
+    if request <= 0 or actual is None:
+        return 0.0
+    return (1.0 - actual / request) * 100.0
+
+
+def _under_waste(actual: float | None, request: float) -> float:
+    if request <= 0 or actual is None:
+        return 0.0
+    return actual / request * 100.0
 
 
 def _priority(savings: float) -> str:

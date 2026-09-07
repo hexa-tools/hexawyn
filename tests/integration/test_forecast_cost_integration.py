@@ -8,7 +8,6 @@ from datetime import date
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.use_case.finops.forecast_cost.command import (
     ForecastCostCommand,
 )
@@ -16,6 +15,7 @@ from hexawyn.application.use_case.finops.forecast_cost.forecast_cost_use_case im
     ForecastCostUseCase,
 )
 from hexawyn.domain.errors import ClusterUnreachableError
+from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
 
 def _deployment(name: str, namespace: str, cpu: str = "2000m", memory: str = "4Gi") -> MagicMock:

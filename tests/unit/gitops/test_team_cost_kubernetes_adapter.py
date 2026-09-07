@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from hexawyn.adapters.secondary.gitops.team_cost_kubernetes_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.team_cost_kubernetes_adapter import (
     TeamCostKubernetesAdapter,
 )
 
@@ -81,7 +81,7 @@ class TestTeamCostKubernetesAdapter:
             assert result == []
 
     def test_parse_cpu_values(self) -> None:
-        from hexawyn.adapters.secondary.gitops.team_cost_kubernetes_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.gitops.team_cost_kubernetes_adapter import (
             _parse_cpu,
         )
 
@@ -92,7 +92,7 @@ class TestTeamCostKubernetesAdapter:
         assert _parse_cpu("") == 0
 
     def test_parse_memory_values(self) -> None:
-        from hexawyn.adapters.secondary.gitops.team_cost_kubernetes_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.gitops.team_cost_kubernetes_adapter import (
             _parse_memory,
         )
 

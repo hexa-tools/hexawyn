@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.kubernetes_node_analysis_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_node_analysis_adapter import (
     _is_daemonset,
     _node_allocatable,
 )
-from hexawyn.adapters.secondary.gitops.kubernetes_pod_log_watch_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pod_log_watch_adapter import (
     _detect_level,
 )
-from hexawyn.adapters.secondary.gitops.kubernetes_pod_logs_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pod_logs_adapter import (
     _parse_message,
     _split_timestamp,
 )

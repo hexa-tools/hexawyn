@@ -3,10 +3,10 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.gitops.policy_detector import PolicyDetector
 from hexawyn.application.ports.driven.policy_port import PolicyPort
 from hexawyn.domain.errors import InsufficientPermissionsError
 from hexawyn.domain.models.policy import PolicyAction, PolicyEngine
+from hexawyn.infrastructure.adapters.secondary.gitops.policy_detector import PolicyDetector
 
 
 def _kyverno_policy_item(name: str, action: str, message: str) -> dict:

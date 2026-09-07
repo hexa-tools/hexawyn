@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from hexawyn.adapters.secondary.gitops.trivy_cve_scan_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.trivy_cve_scan_adapter import (
     TrivyCVEScanAdapter,
     _detect_base_image,
     _parse_trivy_payload,

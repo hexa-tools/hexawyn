@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.spike_provisioning_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.spike_provisioning_adapter import (
     SpikeProvisioningAdapter,
 )
 

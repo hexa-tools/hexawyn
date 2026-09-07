@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (
-    KubernetesResourceYAMLAdapter,
-)
 from hexawyn.application.ports.driven.resource_yaml_port import ResourceYAMLPort
 from hexawyn.domain.models.resource_yaml import ResourceYAMLRequest
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (
+    KubernetesResourceYAMLAdapter,
+)
 
 
 class TestKubernetesResourceYAMLAdapter:

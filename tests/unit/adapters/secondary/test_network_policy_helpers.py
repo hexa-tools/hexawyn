@@ -2,17 +2,17 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.kubernetes_network_policy_adapter import (
+from hexawyn.application.ports.driven.network_policy_audit_port import (
+    NetworkPolicyAuditPort,
+)
+from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
+from hexawyn.infrastructure.adapters.secondary.kubernetes_network_policy_adapter import (
     KubernetesNetworkPolicyAdapter,
     _is_strict_mtls,
     _items,
     _to_network_policy_raw,
     _translate_error,
 )
-from hexawyn.application.ports.driven.network_policy_audit_port import (
-    NetworkPolicyAuditPort,
-)
-from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
 
 
 def _mk(**attrs: object) -> Mock:

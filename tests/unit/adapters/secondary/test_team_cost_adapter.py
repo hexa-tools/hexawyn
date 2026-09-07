@@ -1,9 +1,9 @@
 """RED → GREEN — TeamCostKubernetesAdapter unit tests."""
 
-from hexawyn.adapters.secondary.gitops.team_cost_kubernetes_adapter import (
+from hexawyn.application.ports.driven.team_cost_port import TeamCostPort
+from hexawyn.infrastructure.adapters.secondary.gitops.team_cost_kubernetes_adapter import (
     TeamCostKubernetesAdapter,
 )
-from hexawyn.application.ports.driven.team_cost_port import TeamCostPort
 
 
 class TestTeamCostKubernetesAdapter:

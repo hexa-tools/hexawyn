@@ -1,4 +1,4 @@
-from hexawyn.adapters.secondary.mock.scenarios.gcp_gke import GCP_GKE_SCENARIO
+from hexawyn.infrastructure.adapters.secondary.mock.scenarios.gcp_gke import GCP_GKE_SCENARIO
 
 REQUIRED_KEYS = {"context", "health", "pods", "metrics", "findings", "chips", "slack_message"}
 

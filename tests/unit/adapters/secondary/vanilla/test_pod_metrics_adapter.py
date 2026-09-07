@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 
 class TestVanillaPodMetricsAdapter:
     def test_get_pod_metrics_empty_cluster(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
             VanillaPodMetricsAdapter,
         )
 
@@ -20,7 +20,7 @@ class TestVanillaPodMetricsAdapter:
         assert len(result) == 0
 
     def test_get_pod_metrics_parses_single_pod(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
             VanillaPodMetricsAdapter,
         )
 
@@ -48,7 +48,7 @@ class TestVanillaPodMetricsAdapter:
         assert snapshot["memory_gb"] == 1.0
 
     def test_get_pod_metrics_namespace_filter(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
             VanillaPodMetricsAdapter,
         )
 
@@ -63,10 +63,10 @@ class TestVanillaPodMetricsAdapter:
 
     def test_get_pod_metrics_api_error_raises(self) -> None:
         import pytest
-        from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+        from hexawyn.domain.errors import MetricsUnavailableError
+        from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
             VanillaPodMetricsAdapter,
         )
-        from hexawyn.domain.errors import MetricsUnavailableError
 
         metrics_api = MagicMock()
         metrics_api.list_cluster_custom_object.side_effect = RuntimeError("timeout")
@@ -76,7 +76,7 @@ class TestVanillaPodMetricsAdapter:
             adapter.get_pod_metrics()
 
     def test_get_pod_metrics_handles_missing_metadata(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
             VanillaPodMetricsAdapter,
         )
 
@@ -100,7 +100,7 @@ class TestVanillaPodMetricsAdapter:
         assert result[0]["namespace"] == "unknown"
 
     def test_get_pod_metrics_missing_usage_handled(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
             VanillaPodMetricsAdapter,
         )
 
@@ -122,7 +122,7 @@ class TestVanillaPodMetricsAdapter:
         assert result[0]["memory_gb"] == 0.0
 
     def test_get_pod_metrics_multiple_containers_summed(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
             VanillaPodMetricsAdapter,
         )
 
@@ -148,17 +148,17 @@ class TestVanillaPodMetricsAdapter:
 
     def test_get_pod_metrics_without_metrics_api_raises(self) -> None:
         import pytest
-        from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+        from hexawyn.domain.errors import MetricsUnavailableError
+        from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
             VanillaPodMetricsAdapter,
         )
-        from hexawyn.domain.errors import MetricsUnavailableError
 
         adapter = VanillaPodMetricsAdapter(metrics_api=None, cluster_name="test")
         with pytest.raises(MetricsUnavailableError):
             adapter.get_pod_metrics()
 
     def test_get_pod_metrics_non_list_containers_ignored(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
             VanillaPodMetricsAdapter,
         )
 
@@ -180,7 +180,7 @@ class TestVanillaPodMetricsAdapter:
         assert result[0]["memory_gb"] == 0.0
 
     def test_get_pod_metrics_non_dict_container_skipped(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.pod_metrics_adapter import (
             VanillaPodMetricsAdapter,
         )
 

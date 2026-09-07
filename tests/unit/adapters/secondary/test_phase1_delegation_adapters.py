@@ -4,13 +4,19 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.night_intervention_adapter import NightInterventionAdapter
-from hexawyn.adapters.secondary.gitops.optimization_roi_adapter import OptimizationRoiAdapter
-from hexawyn.adapters.secondary.gitops.platform_reliability_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.night_intervention_adapter import (
+    NightInterventionAdapter,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.optimization_roi_adapter import (
+    OptimizationRoiAdapter,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.platform_reliability_adapter import (
     PlatformReliabilityAdapter,
 )
-from hexawyn.adapters.secondary.gitops.sla_report_adapter import SlaReportAdapter
-from hexawyn.adapters.secondary.gitops.team_cost_kubernetes_adapter import TeamCostKubernetesAdapter
+from hexawyn.infrastructure.adapters.secondary.gitops.sla_report_adapter import SlaReportAdapter
+from hexawyn.infrastructure.adapters.secondary.gitops.team_cost_kubernetes_adapter import (
+    TeamCostKubernetesAdapter,
+)
 
 
 class TestNightInterventionAdapter:
@@ -65,17 +71,17 @@ class TestSlaReportAdapter:
         assert result == 99.9  # noqa: PLR2004
 
 
-from hexawyn.adapters.secondary.gitops.kubernetes_certificate_adapter import (  # noqa: E402
-    KubernetesCertificateAdapter,
-)
-from hexawyn.adapters.secondary.gitops.kubernetes_event_adapter import (  # noqa: E402
-    KubernetesEventAdapter,  # noqa: E402
-)
-from hexawyn.adapters.secondary.gitops.recurring_incident_adapter import (  # noqa: E402
-    RecurringIncidentAdapter,  # noqa: E402
-)
 from hexawyn.domain.models.tls_certificate_diagnosis import (  # noqa: E402
     TLSCertificateDiagnosticRequest,  # noqa: E402
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_certificate_adapter import (  # noqa: E402
+    KubernetesCertificateAdapter,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_event_adapter import (  # noqa: E402
+    KubernetesEventAdapter,  # noqa: E402
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.recurring_incident_adapter import (  # noqa: E402
+    RecurringIncidentAdapter,  # noqa: E402
 )
 
 
@@ -102,19 +108,19 @@ class TestKubernetesEventAdapter:
         assert adapter.fetch_slowest_span(Mock()) is None
 
 
-from hexawyn.adapters.secondary.gitops.kubernetes_etcd_logs_adapter import (  # noqa: E402
+from hexawyn.domain.models.resource_yaml import ResourceYAMLRequest  # noqa: E402
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_etcd_logs_adapter import (  # noqa: E402
     KubernetesETCDLogsAdapter,  # noqa: E402
 )
-from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (  # noqa: E402
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (  # noqa: E402,E501
     KubernetesPipelineForServiceAdapter,
 )
-from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_run_logs_adapter import (  # noqa: E402
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pipeline_run_logs_adapter import (  # noqa: E402
     KubernetesPipelineRunLogsAdapter,
 )
-from hexawyn.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (  # noqa: E402
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (  # noqa: E402
     KubernetesResourceYAMLAdapter,
 )
-from hexawyn.domain.models.resource_yaml import ResourceYAMLRequest  # noqa: E402
 
 
 class TestKubernetesResourceYAMLAdapter:

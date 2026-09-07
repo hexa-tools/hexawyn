@@ -4,13 +4,13 @@ from unittest.mock import Mock, patch
 
 import httpx
 import pytest
-from hexawyn.adapters.secondary.azure.monitor_metrics_adapter import (
-    AzureMonitorMetricsAdapter,
-)
 from hexawyn.domain.errors import (
     AdapterTimeoutError,
     PrometheusQueryError,
     PrometheusUnavailableError,
+)
+from hexawyn.infrastructure.adapters.secondary.azure.monitor_metrics_adapter import (
+    AzureMonitorMetricsAdapter,
 )
 
 
@@ -180,7 +180,7 @@ class TestAzureMonitorMetricsAdapter:
         adapter = self._adapter(http_client=mock_client, token_provider=None)
 
         with patch(
-            "hexawyn.adapters.secondary.azure.monitor_metrics_adapter._acquire_azure_token",
+            "hexawyn.infrastructure.adapters.secondary.azure.monitor_metrics_adapter._acquire_azure_token",
             side_effect=ClientAuthenticationError("auth failed"),
         ):
             with pytest.raises(PrometheusUnavailableError):

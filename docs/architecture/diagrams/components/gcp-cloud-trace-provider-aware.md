@@ -26,15 +26,15 @@ flowchart TB
         ISGKE -->|"yes"| GCT
     end
 
-    subgraph AWS["adapters/secondary/aws"]
+    subgraph AWS["infrastructure/adapters/secondary/aws"]
         XRAY["AWSXRayTraceAdapter"]
     end
 
-    subgraph GCP["adapters/secondary/gcp"]
+    subgraph GCP["infrastructure/adapters/secondary/gcp"]
         GCT["GCPCloudTraceAdapter<br/>list_traces(filter, view=COMPLETE)"]
     end
 
-    subgraph OTel["adapters/secondary/gitops"]
+    subgraph OTel["infrastructure/adapters/secondary/gitops"]
         OTEL2["OTelHTTPAdapter"]
     end
 
@@ -73,6 +73,6 @@ flowchart TB
 
 ## Related Files
 
-- `src/hexawyn/adapters/secondary/gcp/cloud_trace_adapter.py` — Cloud Trace adapter
-- `src/hexawyn/adapters/secondary/aws/xray_trace_adapter.py` — AWS peer
+- `src/hexawyn/infrastructure/adapters/secondary/gcp/cloud_trace_adapter.py` — Cloud Trace adapter
+- `src/hexawyn/infrastructure/adapters/secondary/aws/xray_trace_adapter.py` — AWS peer
 - `src/hexawyn/mcp/server.py` — `build_trace_query_adapter()` multi-provider

@@ -10,7 +10,7 @@ Usage:
 from __future__ import annotations
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
 _MAX_USAGE_PCT = 100.0
 

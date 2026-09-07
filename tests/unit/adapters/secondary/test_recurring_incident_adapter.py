@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from hexawyn.adapters.secondary.gitops.recurring_incident_adapter import (
-    RecurringIncidentAdapter,
-)
 from hexawyn.application.ports.driven.recurring_incident_port import (
     RecurringIncidentPort,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.recurring_incident_adapter import (
+    RecurringIncidentAdapter,
 )
 
 _CFG = "kubernetes.config.load_kube_config"

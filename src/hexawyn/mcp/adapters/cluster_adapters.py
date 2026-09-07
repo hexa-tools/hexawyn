@@ -46,24 +46,24 @@ from hexawyn.mcp.providers.detector import (
 
 
 def build_k8s_adapter() -> K8sPort:
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     context = context_name if context_name != "unknown" else None
     return VanillaAdapter(cluster_name=context or "default")
 
 
 def build_ingress_adapter() -> IngressPort:
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     context = context_name if context_name != "unknown" else None
     return VanillaAdapter(cluster_name=context or "default")
 
 
 def build_tekton_adapter() -> TektonPort:
-    from hexawyn.adapters.secondary.vanilla.adapters.tekton_history_writer import (
+    from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.tekton_history_writer import (
         TektonHistoryWriter,
     )
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
     from hexawyn.infrastructure.memory.pipeline_run_history_repository import (
         PipelineRunHistoryRepository,
     )
@@ -75,21 +75,21 @@ def build_tekton_adapter() -> TektonPort:
 
 
 def build_rightsizing_adapter() -> RightsizingPort:
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     context = context_name if context_name != "unknown" else None
     return VanillaAdapter(cluster_name=context or "default")
 
 
 def build_what_if_simulation_adapter() -> WhatIfSimulationPort:
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     context = context_name if context_name != "unknown" else None
     return VanillaAdapter(cluster_name=context or "default")
 
 
 def build_waste_adapter() -> NamespaceWasteAnalysisPort:
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     context = context_name if context_name != "unknown" else None
     prometheus_url = os.environ.get("PROMETHEUS_URL", "")
@@ -97,21 +97,21 @@ def build_waste_adapter() -> NamespaceWasteAnalysisPort:
 
 
 def build_zombie_detection_adapter() -> ZombieDetectionPort:
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     context = context_name if context_name != "unknown" else None
     return VanillaAdapter(cluster_name=context or "default")
 
 
 def build_fleet_health_adapter() -> FleetHealthPort:
-    from hexawyn.adapters.secondary.fleet_health_adapter import FleetHealthAdapter
+    from hexawyn.infrastructure.adapters.secondary.fleet_health_adapter import FleetHealthAdapter
 
     prometheus_url = os.environ.get("PROMETHEUS_URL", "")
     return FleetHealthAdapter(prometheus_url=prometheus_url)
 
 
 def build_cluster_certificate_health_adapter() -> ClusterCertificateHealthPort:
-    from hexawyn.adapters.secondary.kubernetes_cluster_certificate_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.kubernetes_cluster_certificate_adapter import (
         KubernetesClusterCertificateAdapter,
     )
 
@@ -120,7 +120,7 @@ def build_cluster_certificate_health_adapter() -> ClusterCertificateHealthPort:
 
 
 def build_kubernetes_topology_adapter() -> KubernetesTopologyPort:
-    from hexawyn.adapters.secondary.kubernetes_topology_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.kubernetes_topology_adapter import (
         KubernetesTopologyAdapter,
     )
 
@@ -129,7 +129,9 @@ def build_kubernetes_topology_adapter() -> KubernetesTopologyPort:
 
 
 def build_istio_topology_adapter() -> IstioTopologyPort:
-    from hexawyn.adapters.secondary.istio_topology_adapter import IstioTopologyAdapter
+    from hexawyn.infrastructure.adapters.secondary.istio_topology_adapter import (
+        IstioTopologyAdapter,
+    )
 
     return IstioTopologyAdapter()
 
@@ -143,7 +145,7 @@ def build_topology_snapshot_adapter() -> TopologySnapshotPort:
 
 
 def build_rollouts_adapter() -> RolloutsPort:
-    from hexawyn.adapters.secondary.gitops.argo_rollouts_detector import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.argo_rollouts_detector import (
         ArgoRolloutsDetector,
     )
 
@@ -151,29 +153,29 @@ def build_rollouts_adapter() -> RolloutsPort:
 
 
 def build_policy_adapter() -> PolicyPort:
-    from hexawyn.adapters.secondary.gitops.policy_detector import PolicyDetector
+    from hexawyn.infrastructure.adapters.secondary.gitops.policy_detector import PolicyDetector
 
     return PolicyDetector()
 
 
 def build_cert_manager_adapter() -> CertManagerPort:
-    from hexawyn.adapters.secondary.gitops.cert_manager_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.cert_manager_adapter import (
         CertManagerAdapter,
     )
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     return CertManagerAdapter(VanillaAdapter(cluster_name="default"))
 
 
 def build_keda_adapter() -> KedaPort:
-    from hexawyn.adapters.secondary.gitops.keda_adapter import KedaAdapter
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.gitops.keda_adapter import KedaAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     return KedaAdapter(VanillaAdapter(cluster_name="default"))
 
 
 def build_canary_comparison_adapter() -> CanaryComparisonPort:
-    from hexawyn.adapters.secondary.gitops.otel_canary_comparison_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.otel_canary_comparison_adapter import (
         OTelCanaryComparisonAdapter,
     )
 
@@ -181,7 +183,7 @@ def build_canary_comparison_adapter() -> CanaryComparisonPort:
 
 
 def build_memory_saturation_adapter() -> MemorySaturationPort:
-    from hexawyn.adapters.secondary.gitops.prometheus_memory_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.prometheus_memory_adapter import (
         PrometheusMemoryAdapter,
     )
 
@@ -189,7 +191,7 @@ def build_memory_saturation_adapter() -> MemorySaturationPort:
 
 
 def build_capacity_forecast_adapter() -> CapacityForecastPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_capacity_forecast_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_capacity_forecast_adapter import (  # noqa: E501
         KubernetesCapacityForecastAdapter,
     )
 
@@ -197,7 +199,7 @@ def build_capacity_forecast_adapter() -> CapacityForecastPort:
 
 
 def build_headroom_simulation_adapter() -> HeadroomSimulationPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_headroom_simulation_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_headroom_simulation_adapter import (  # noqa: E501
         KubernetesHeadroomSimulationAdapter,
     )
 
@@ -205,7 +207,7 @@ def build_headroom_simulation_adapter() -> HeadroomSimulationPort:
 
 
 def build_spike_provisioning_adapter() -> SpikeProvisioningPort:
-    from hexawyn.adapters.secondary.gitops.spike_provisioning_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.spike_provisioning_adapter import (
         SpikeProvisioningAdapter,
     )
 
@@ -217,7 +219,7 @@ def build_spike_provisioning_adapter() -> SpikeProvisioningPort:
 
 
 def build_node_analysis_adapter() -> HotNodeAnalysisPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_node_analysis_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_node_analysis_adapter import (
         KubernetesNodeAnalysisAdapter,
     )
 
@@ -227,7 +229,7 @@ def build_node_analysis_adapter() -> HotNodeAnalysisPort:
 def build_cluster_resource_metrics_adapter() -> ClusterResourceMetricsPort:
     context = _current_cluster_context()
     if _is_datadog_enabled(context):
-        from hexawyn.adapters.secondary.datadog.datadog_metrics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.datadog.datadog_metrics_adapter import (
             DatadogClusterResourceMetricsAdapter,
         )
         from hexawyn.infrastructure.config.datadog_config import get_datadog_config
@@ -238,16 +240,16 @@ def build_cluster_resource_metrics_adapter() -> ClusterResourceMetricsPort:
         )
 
     if _is_aws_eks_context(context):
-        from hexawyn.adapters.secondary.aws.cloudwatch_metrics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.aws.cloudwatch_metrics_adapter import (
             CloudWatchClusterResourceMetricsAdapter,
         )
-        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
 
         return CloudWatchClusterResourceMetricsAdapter(
             cluster_name=context["name"], region=AWSEKSAdapter(context).region
         )
 
-    from hexawyn.adapters.secondary.gitops.prometheus_cluster_resource_metrics_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.prometheus_cluster_resource_metrics_adapter import (  # noqa: E501
         PrometheusClusterResourceMetricsAdapter,
     )
     from hexawyn.mcp.server import build_metrics_query_adapter
@@ -256,10 +258,10 @@ def build_cluster_resource_metrics_adapter() -> ClusterResourceMetricsPort:
 
 
 def build_cluster_diff_adapter() -> ClusterDiffPort:
-    from hexawyn.adapters.secondary.gitops.cluster_diff_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.cluster_diff_adapter import (
         ClusterDiffAdapter,
     )
-    from hexawyn.adapters.secondary.gitops.cluster_diff_source import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.cluster_diff_source import (
         EmptyClusterInventorySource,
     )
 
@@ -267,7 +269,7 @@ def build_cluster_diff_adapter() -> ClusterDiffPort:
 
 
 def build_pod_metrics_adapter() -> PodMetricsPort:
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     context = context_name if context_name != "unknown" else None
     return VanillaAdapter(cluster_name=context or "default")

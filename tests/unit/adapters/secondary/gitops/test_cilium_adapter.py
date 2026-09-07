@@ -4,8 +4,6 @@ import types
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.gitops import cilium_adapter as ca
-from hexawyn.adapters.secondary.gitops.cilium_adapter import CiliumAdapter
 from hexawyn.application.ports.driven.cilium_port import CiliumPort
 from hexawyn.domain.errors import (
     AdapterTimeoutError,
@@ -13,6 +11,8 @@ from hexawyn.domain.errors import (
     InsufficientPermissionsError,
     ResourceNotFoundError,
 )
+from hexawyn.infrastructure.adapters.secondary.gitops import cilium_adapter as ca
+from hexawyn.infrastructure.adapters.secondary.gitops.cilium_adapter import CiliumAdapter
 from kubernetes.client.exceptions import ApiException
 
 

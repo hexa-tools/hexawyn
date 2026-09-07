@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import pytest
-from hexawyn.adapters.secondary.gitops.argo_rollouts_detector import ArgoRolloutsDetector
 from hexawyn.application.ports.driven.rollouts_port import RolloutsPort
 from hexawyn.domain.errors import ComponentNotInstalledError
+from hexawyn.infrastructure.adapters.secondary.gitops.argo_rollouts_detector import (
+    ArgoRolloutsDetector,
+)
 
 
 class TestArgoRolloutsDetector:

@@ -10,10 +10,10 @@ class TestKubernetesResourceYAMLAdapter:
     def test_fetch_resource_returns_dict(self) -> None:
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(returncode=0, stdout="kind: Pod\n  name: test\n")
-            from hexawyn.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (
+            from hexawyn.domain.models.resource_yaml import ResourceYAMLRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (  # noqa: E501
                 KubernetesResourceYAMLAdapter,
             )
-            from hexawyn.domain.models.resource_yaml import ResourceYAMLRequest
 
             adapter = KubernetesResourceYAMLAdapter()
             result = adapter.fetch_resource(
@@ -24,10 +24,10 @@ class TestKubernetesResourceYAMLAdapter:
 
     def test_fetch_resource_empty_on_error(self) -> None:
         with patch("subprocess.run", side_effect=Exception("kubectl not found")):
-            from hexawyn.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (
+            from hexawyn.domain.models.resource_yaml import ResourceYAMLRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (  # noqa: E501
                 KubernetesResourceYAMLAdapter,
             )
-            from hexawyn.domain.models.resource_yaml import ResourceYAMLRequest
 
             adapter = KubernetesResourceYAMLAdapter()
             result = adapter.fetch_resource(
@@ -38,10 +38,10 @@ class TestKubernetesResourceYAMLAdapter:
     def test_fetch_resource_empty_on_non_zero(self) -> None:
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(returncode=1, stdout="")
-            from hexawyn.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (
+            from hexawyn.domain.models.resource_yaml import ResourceYAMLRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (  # noqa: E501
                 KubernetesResourceYAMLAdapter,
             )
-            from hexawyn.domain.models.resource_yaml import ResourceYAMLRequest
 
             adapter = KubernetesResourceYAMLAdapter()
             result = adapter.fetch_resource(
@@ -52,10 +52,10 @@ class TestKubernetesResourceYAMLAdapter:
     def test_resource_exists_true(self) -> None:
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(returncode=0)
-            from hexawyn.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (
+            from hexawyn.domain.models.resource_yaml import ResourceYAMLRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (  # noqa: E501
                 KubernetesResourceYAMLAdapter,
             )
-            from hexawyn.domain.models.resource_yaml import ResourceYAMLRequest
 
             adapter = KubernetesResourceYAMLAdapter()
             result = adapter.resource_exists(
@@ -65,10 +65,10 @@ class TestKubernetesResourceYAMLAdapter:
 
     def test_resource_exists_false_on_error(self) -> None:
         with patch("subprocess.run", side_effect=Exception("kubectl not found")):
-            from hexawyn.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (
+            from hexawyn.domain.models.resource_yaml import ResourceYAMLRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (  # noqa: E501
                 KubernetesResourceYAMLAdapter,
             )
-            from hexawyn.domain.models.resource_yaml import ResourceYAMLRequest
 
             adapter = KubernetesResourceYAMLAdapter()
             result = adapter.resource_exists(
@@ -91,10 +91,10 @@ class TestKubernetesETCDLogsAdapter:
             )
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.kubernetes_etcd_logs_adapter import (
+            from hexawyn.domain.models.etcd_logs import ETCDLogsRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_etcd_logs_adapter import (  # noqa: E501
                 KubernetesETCDLogsAdapter,
             )
-            from hexawyn.domain.models.etcd_logs import ETCDLogsRequest
 
             adapter = KubernetesETCDLogsAdapter()
             result = adapter.fetch_logs(ETCDLogsRequest(time_window_minutes=30))
@@ -104,10 +104,10 @@ class TestKubernetesETCDLogsAdapter:
 
     def test_fetch_logs_empty_on_error(self) -> None:
         with patch(_CFG), patch(_API, side_effect=Exception("no cluster")):
-            from hexawyn.adapters.secondary.gitops.kubernetes_etcd_logs_adapter import (
+            from hexawyn.domain.models.etcd_logs import ETCDLogsRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_etcd_logs_adapter import (  # noqa: E501
                 KubernetesETCDLogsAdapter,
             )
-            from hexawyn.domain.models.etcd_logs import ETCDLogsRequest
 
             adapter = KubernetesETCDLogsAdapter()
             result = adapter.fetch_logs(ETCDLogsRequest(time_window_minutes=30))
@@ -119,10 +119,10 @@ class TestKubernetesETCDLogsAdapter:
             mock_v1.list_pod_for_all_namespaces.return_value = MagicMock(items=[])
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.kubernetes_etcd_logs_adapter import (
+            from hexawyn.domain.models.etcd_logs import ETCDLogsRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_etcd_logs_adapter import (  # noqa: E501
                 KubernetesETCDLogsAdapter,
             )
-            from hexawyn.domain.models.etcd_logs import ETCDLogsRequest
 
             adapter = KubernetesETCDLogsAdapter()
             result = adapter.fetch_logs(ETCDLogsRequest(time_window_minutes=30))
@@ -145,10 +145,10 @@ class TestKubernetesEventAdapter:
             mock_v1.list_event_for_all_namespaces.return_value = MagicMock(items=[event])
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.kubernetes_event_adapter import (
+            from hexawyn.domain.models.trace_k8s_events import TraceEventCorrelationRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_event_adapter import (
                 KubernetesEventAdapter,
             )
-            from hexawyn.domain.models.trace_k8s_events import TraceEventCorrelationRequest
 
             adapter = KubernetesEventAdapter()
             result = adapter.fetch_k8s_events(TraceEventCorrelationRequest(trace_id="abc"))
@@ -158,10 +158,10 @@ class TestKubernetesEventAdapter:
 
     def test_fetch_k8s_events_empty_on_error(self) -> None:
         with patch(_CFG), patch(_API, side_effect=Exception("no cluster")):
-            from hexawyn.adapters.secondary.gitops.kubernetes_event_adapter import (
+            from hexawyn.domain.models.trace_k8s_events import TraceEventCorrelationRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_event_adapter import (
                 KubernetesEventAdapter,
             )
-            from hexawyn.domain.models.trace_k8s_events import TraceEventCorrelationRequest
 
             adapter = KubernetesEventAdapter()
             result = adapter.fetch_k8s_events(TraceEventCorrelationRequest(trace_id="abc"))
@@ -179,10 +179,10 @@ class TestKubernetesEventAdapter:
             mock_v1.list_event_for_all_namespaces.return_value = MagicMock(items=[event])
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.kubernetes_event_adapter import (
+            from hexawyn.domain.models.trace_k8s_events import TraceEventCorrelationRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_event_adapter import (
                 KubernetesEventAdapter,
             )
-            from hexawyn.domain.models.trace_k8s_events import TraceEventCorrelationRequest
 
             adapter = KubernetesEventAdapter()
             result = adapter.fetch_slowest_span(TraceEventCorrelationRequest(trace_id="abc"))
@@ -200,10 +200,10 @@ class TestKubernetesEventAdapter:
             mock_v1.list_event_for_all_namespaces.return_value = MagicMock(items=[event])
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.kubernetes_event_adapter import (
+            from hexawyn.domain.models.trace_k8s_events import TraceEventCorrelationRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_event_adapter import (
                 KubernetesEventAdapter,
             )
-            from hexawyn.domain.models.trace_k8s_events import TraceEventCorrelationRequest
 
             adapter = KubernetesEventAdapter()
             result = adapter.fetch_slowest_span(TraceEventCorrelationRequest(trace_id="abc"))
@@ -220,10 +220,10 @@ class TestKubernetesEventAdapter:
             mock_v1.list_event_for_all_namespaces.return_value = MagicMock(items=[event])
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.kubernetes_event_adapter import (
+            from hexawyn.domain.models.trace_k8s_events import TraceEventCorrelationRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_event_adapter import (
                 KubernetesEventAdapter,
             )
-            from hexawyn.domain.models.trace_k8s_events import TraceEventCorrelationRequest
 
             adapter = KubernetesEventAdapter()
             result = adapter.fetch_k8s_events(TraceEventCorrelationRequest(trace_id="abc"))
@@ -251,10 +251,10 @@ class TestKubernetesPipelineForServiceAdapter:
             }
             mock_api.return_value = mock_crd
 
-            from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (
+            from hexawyn.domain.models.pipeline_for_service import PipelineForServiceRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (  # noqa: E501
                 KubernetesPipelineForServiceAdapter,
             )
-            from hexawyn.domain.models.pipeline_for_service import PipelineForServiceRequest
 
             adapter = KubernetesPipelineForServiceAdapter()
             result = adapter.find_pipelines(PipelineForServiceRequest(service_name="myapp"))
@@ -267,10 +267,10 @@ class TestKubernetesPipelineForServiceAdapter:
             patch(_CFG),
             patch("kubernetes.client.CustomObjectsApi", side_effect=Exception("no cluster")),
         ):  # noqa: E501
-            from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (
+            from hexawyn.domain.models.pipeline_for_service import PipelineForServiceRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (  # noqa: E501
                 KubernetesPipelineForServiceAdapter,
             )
-            from hexawyn.domain.models.pipeline_for_service import PipelineForServiceRequest
 
             adapter = KubernetesPipelineForServiceAdapter()
             result = adapter.find_pipelines(PipelineForServiceRequest(service_name="test"))
@@ -282,10 +282,10 @@ class TestKubernetesPipelineForServiceAdapter:
             mock_crd.list_namespaced_custom_object.side_effect = Exception("CRD not found")
             mock_api.return_value = mock_crd
 
-            from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (
+            from hexawyn.domain.models.pipeline_for_service import PipelineForServiceRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (  # noqa: E501
                 KubernetesPipelineForServiceAdapter,
             )
-            from hexawyn.domain.models.pipeline_for_service import PipelineForServiceRequest
 
             adapter = KubernetesPipelineForServiceAdapter()
             result = adapter.find_pipelines(PipelineForServiceRequest(service_name="test"))
@@ -307,10 +307,10 @@ class TestKubernetesPipelineRunLogsAdapter:
             mock_v1.read_namespaced_pod_log.return_value = "Cloning repo...\nBuilding...\n"
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_run_logs_adapter import (
+            from hexawyn.domain.models.pipeline_run_logs import PipelineRunLogsRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pipeline_run_logs_adapter import (  # noqa: E501
                 KubernetesPipelineRunLogsAdapter,
             )
-            from hexawyn.domain.models.pipeline_run_logs import PipelineRunLogsRequest
 
             adapter = KubernetesPipelineRunLogsAdapter()
             result = adapter.fetch_step_logs(
@@ -323,10 +323,10 @@ class TestKubernetesPipelineRunLogsAdapter:
 
     def test_fetch_step_logs_empty_on_error(self) -> None:
         with patch(_CFG), patch(_API, side_effect=Exception("no cluster")):
-            from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_run_logs_adapter import (
+            from hexawyn.domain.models.pipeline_run_logs import PipelineRunLogsRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pipeline_run_logs_adapter import (  # noqa: E501
                 KubernetesPipelineRunLogsAdapter,
             )
-            from hexawyn.domain.models.pipeline_run_logs import PipelineRunLogsRequest
 
             adapter = KubernetesPipelineRunLogsAdapter()
             result = adapter.fetch_step_logs(
@@ -340,10 +340,10 @@ class TestKubernetesPipelineRunLogsAdapter:
             mock_v1.list_namespaced_pod.return_value = MagicMock(items=[])
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_run_logs_adapter import (
+            from hexawyn.domain.models.pipeline_run_logs import PipelineRunLogsRequest
+            from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pipeline_run_logs_adapter import (  # noqa: E501
                 KubernetesPipelineRunLogsAdapter,
             )
-            from hexawyn.domain.models.pipeline_run_logs import PipelineRunLogsRequest
 
             adapter = KubernetesPipelineRunLogsAdapter()
             result = adapter.fetch_step_logs(
@@ -377,7 +377,7 @@ class TestRecurringIncidentAdapter:
             mock_v1.list_event_for_all_namespaces.return_value = MagicMock(items=[event1, event2])
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.recurring_incident_adapter import (
+            from hexawyn.infrastructure.adapters.secondary.gitops.recurring_incident_adapter import (  # noqa: E501
                 RecurringIncidentAdapter,
             )
 
@@ -389,7 +389,7 @@ class TestRecurringIncidentAdapter:
 
     def test_fetch_incidents_empty_on_error(self) -> None:
         with patch(_CFG), patch(_API, side_effect=Exception("no cluster")):
-            from hexawyn.adapters.secondary.gitops.recurring_incident_adapter import (
+            from hexawyn.infrastructure.adapters.secondary.gitops.recurring_incident_adapter import (  # noqa: E501
                 RecurringIncidentAdapter,
             )
 
@@ -403,7 +403,7 @@ class TestRecurringIncidentAdapter:
             mock_v1.list_event_for_all_namespaces.return_value = MagicMock(items=[])
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.recurring_incident_adapter import (
+            from hexawyn.infrastructure.adapters.secondary.gitops.recurring_incident_adapter import (  # noqa: E501
                 RecurringIncidentAdapter,
             )
 
@@ -430,7 +430,7 @@ class TestMonthlyIncidentAdapter:
             mock_v1.list_event_for_all_namespaces.return_value = MagicMock(items=[event])
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.monthly_incident_adapter import (
+            from hexawyn.infrastructure.adapters.secondary.gitops.monthly_incident_adapter import (
                 MonthlyIncidentAdapter,
             )
 
@@ -442,7 +442,7 @@ class TestMonthlyIncidentAdapter:
 
     def test_fetch_incidents_empty_on_error(self) -> None:
         with patch(_CFG), patch(_API, side_effect=Exception("no cluster")):
-            from hexawyn.adapters.secondary.gitops.monthly_incident_adapter import (
+            from hexawyn.infrastructure.adapters.secondary.gitops.monthly_incident_adapter import (
                 MonthlyIncidentAdapter,
             )
 
@@ -456,7 +456,7 @@ class TestMonthlyIncidentAdapter:
             mock_v1.list_event_for_all_namespaces.return_value = MagicMock(items=[])
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.monthly_incident_adapter import (
+            from hexawyn.infrastructure.adapters.secondary.gitops.monthly_incident_adapter import (
                 MonthlyIncidentAdapter,
             )
 
@@ -482,7 +482,9 @@ class TestMTTRTrendAdapter:
             mock_v1.list_event_for_all_namespaces.return_value = MagicMock(items=[event])
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.mttr_trend_adapter import MTTRTrendAdapter
+            from hexawyn.infrastructure.adapters.secondary.gitops.mttr_trend_adapter import (
+                MTTRTrendAdapter,
+            )
 
             adapter = MTTRTrendAdapter()
             result = adapter.fetch_incidents_by_month("2026-07")
@@ -492,7 +494,9 @@ class TestMTTRTrendAdapter:
 
     def test_fetch_incidents_empty_on_error(self) -> None:
         with patch(_CFG), patch(_API, side_effect=Exception("no cluster")):
-            from hexawyn.adapters.secondary.gitops.mttr_trend_adapter import MTTRTrendAdapter
+            from hexawyn.infrastructure.adapters.secondary.gitops.mttr_trend_adapter import (
+                MTTRTrendAdapter,
+            )
 
             adapter = MTTRTrendAdapter()
             result = adapter.fetch_incidents_by_month("2026-07")
@@ -504,7 +508,9 @@ class TestMTTRTrendAdapter:
             mock_v1.list_event_for_all_namespaces.return_value = MagicMock(items=[])
             mock_api.return_value = mock_v1
 
-            from hexawyn.adapters.secondary.gitops.mttr_trend_adapter import MTTRTrendAdapter
+            from hexawyn.infrastructure.adapters.secondary.gitops.mttr_trend_adapter import (
+                MTTRTrendAdapter,
+            )
 
             adapter = MTTRTrendAdapter()
             result = adapter.fetch_incidents_by_month("2026-07")

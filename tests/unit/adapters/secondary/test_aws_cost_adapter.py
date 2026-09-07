@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.aws.aws_cost_adapter import (
+from hexawyn.infrastructure.adapters.secondary.aws.aws_cost_adapter import (
     AWSCostAdapter,
     _parse_namespace_costs,
 )

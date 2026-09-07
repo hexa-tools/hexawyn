@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.pricing_plan_adapter import PricingPlanAdapter
+from hexawyn.infrastructure.adapters.secondary.pricing_plan_adapter import PricingPlanAdapter
 
 
 class TestPricingPlanAdapterNeutral:

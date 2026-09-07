@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 def custom_tools_list() -> dict[str, object]:
     """List all registered custom tools with transport, endpoint, and description."""
-    from hexawyn.adapters.secondary.runtime_client import RuntimeClient
+    from hexawyn.infrastructure.adapters.secondary.runtime_client import RuntimeClient
     from hexawyn.infrastructure.config.config_manager import get_runtime_endpoint
 
     try:

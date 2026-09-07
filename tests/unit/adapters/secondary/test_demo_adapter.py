@@ -1,10 +1,10 @@
-from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
 from hexawyn.application.ports.driven.extended_cluster_port import ExtendedClusterPort
 from hexawyn.application.ports.driven.k8s_port import ClusterHealthPort, K8sPort
 from hexawyn.application.ports.driven.logs_port import LogsPort
 from hexawyn.application.ports.driven.metrics_port import MetricsPort
 from hexawyn.application.ports.driven.monitoring_port import MonitoringPort
 from hexawyn.application.ports.driven.traces_port import TracesPort
+from hexawyn.infrastructure.adapters.secondary.mock.demo_adapter import DemoAdapter
 
 
 class TestDemoAdapterInit:

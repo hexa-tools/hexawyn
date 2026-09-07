@@ -3,11 +3,11 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.adapters.zombie_detection_adapter import (
-    VanillaZombieDetectionAdapter,
-)
 from hexawyn.application.ports.driven.zombie_detection_port import ZombieDetectionPort
 from hexawyn.domain.errors import ClusterUnreachableError
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.zombie_detection_adapter import (
+    VanillaZombieDetectionAdapter,
+)
 
 
 def _fake_pod(  # noqa: PLR0913

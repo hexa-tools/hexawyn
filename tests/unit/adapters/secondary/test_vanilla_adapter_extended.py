@@ -5,13 +5,13 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
     _compute_pod_resources,
     _parse_cpu,
     _parse_memory,
     _parse_memory_to_mi,
 )
-from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
 
 def _make_container(cpu: str = "100m", mem: str = "128Mi") -> MagicMock:

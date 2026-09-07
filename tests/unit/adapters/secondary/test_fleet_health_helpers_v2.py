@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from unittest.mock import Mock, patch
 
-from hexawyn.adapters.secondary.fleet_health_adapter import (
+from hexawyn.infrastructure.adapters.secondary.fleet_health_adapter import (
     _get_cert_counts,
     _get_resource_utilization,
 )
@@ -55,7 +55,7 @@ class TestGetCertCounts:
         api = Mock()
         api.list_secret_for_all_namespaces.return_value = Mock()
         with patch(
-            "hexawyn.adapters.secondary.fleet_health_adapter._items",
+            "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._items",
             return_value=[],
         ):
             critical, warning = _get_cert_counts(api)
@@ -68,7 +68,7 @@ class TestGetCertCounts:
         secret = Mock()
         secret.type = "Opaque"
         with patch(
-            "hexawyn.adapters.secondary.fleet_health_adapter._items",
+            "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._items",
             return_value=[secret],
         ):
             critical, warning = _get_cert_counts(api)
@@ -82,7 +82,7 @@ class TestGetCertCounts:
         secret.type = "kubernetes.io/tls"
         secret.data = {}
         with patch(
-            "hexawyn.adapters.secondary.fleet_health_adapter._items",
+            "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._items",
             return_value=[secret],
         ):
             critical, warning = _get_cert_counts(api)
@@ -141,7 +141,7 @@ class TestGetCertCounts:
         api = Mock()
         api.list_secret_for_all_namespaces.return_value = Mock()
         with patch(
-            "hexawyn.adapters.secondary.fleet_health_adapter._items",
+            "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._items",
             return_value=[critical_secret, warning_secret],
         ):
             critical, warning = _get_cert_counts(api)

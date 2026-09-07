@@ -6,13 +6,13 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.gcp.cloud_trace_adapter import (
+from hexawyn.domain.models.latency_diagnostic import LatencyDiagnosticRequest
+from hexawyn.infrastructure.adapters.secondary.gcp.cloud_trace_adapter import (
     GCPCloudTraceAdapter,
     _as_trace_client,
     _duration_ms,
     _trace_to_spans,
 )
-from hexawyn.domain.models.latency_diagnostic import LatencyDiagnosticRequest
 
 
 def _make_request(**kwargs: object) -> LatencyDiagnosticRequest:

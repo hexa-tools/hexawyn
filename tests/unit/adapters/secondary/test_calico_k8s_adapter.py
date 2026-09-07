@@ -6,7 +6,6 @@ from typing import cast
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.calico.calico_k8s_adapter import CalicoK8sAdapter
 from hexawyn.domain.errors import (
     ClusterUnreachableError,
     HexawynError,
@@ -14,6 +13,7 @@ from hexawyn.domain.errors import (
     ResourceNotFoundError,
 )
 from hexawyn.domain.models.calico import CalicoDetectionStatus, DataplaneMode
+from hexawyn.infrastructure.adapters.secondary.calico.calico_k8s_adapter import CalicoK8sAdapter
 from kubernetes.client.rest import ApiException
 
 

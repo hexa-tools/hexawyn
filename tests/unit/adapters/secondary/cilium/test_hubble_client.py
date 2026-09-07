@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import pytest
-from hexawyn.adapters.secondary.cilium import hubble_client as hc
+from hexawyn.infrastructure.adapters.secondary.cilium import hubble_client as hc
 
 
 class _FakeResponse:

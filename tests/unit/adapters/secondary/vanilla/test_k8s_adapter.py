@@ -3,8 +3,8 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter import VanillaK8sAdapter
 from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.k8s_adapter import VanillaK8sAdapter
 
 
 def _rule(host: str, services: list[str]) -> MagicMock:

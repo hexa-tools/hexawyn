@@ -5,10 +5,10 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.adapters.cost_saving_estimation_adapter import (
+from hexawyn.domain.errors import ClusterUnreachableError
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.cost_saving_estimation_adapter import (  # noqa: E501
     VanillaCostSavingAdapter,
 )
-from hexawyn.domain.errors import ClusterUnreachableError
 
 
 class _PodMetadata:
@@ -39,7 +39,7 @@ class TestVanillaCostSavingAdapter:
         api.list_pod_for_all_namespaces.return_value = _PodList([])
 
         with patch(
-            "hexawyn.adapters.secondary.vanilla.adapters.cost_saving_estimation_adapter.client",
+            "hexawyn.infrastructure.adapters.secondary.vanilla.adapters.cost_saving_estimation_adapter.client",
             create=True,
         ) as mock_client:
             mock_auto_api = MagicMock()
@@ -58,7 +58,7 @@ class TestVanillaCostSavingAdapter:
         api.list_pod_for_all_namespaces.return_value = _PodList([_Pod("pod-1", "default", [])])
 
         with patch(
-            "hexawyn.adapters.secondary.vanilla.adapters.cost_saving_estimation_adapter.client",
+            "hexawyn.infrastructure.adapters.secondary.vanilla.adapters.cost_saving_estimation_adapter.client",
             create=True,
         ) as mock_client:
             mock_auto_api = MagicMock()

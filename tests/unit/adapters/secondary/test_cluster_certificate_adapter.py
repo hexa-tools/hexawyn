@@ -3,12 +3,12 @@ from __future__ import annotations
 from unittest.mock import Mock
 
 import pytest
-from hexawyn.adapters.secondary.kubernetes_cluster_certificate_adapter import (
+from hexawyn.domain.errors import InsufficientPermissionsError
+from hexawyn.infrastructure.adapters.secondary.kubernetes_cluster_certificate_adapter import (
     _extract_cert_pem,
     _get_annotations,
     _raise_on_rbac,
 )
-from hexawyn.domain.errors import InsufficientPermissionsError
 
 
 class TestExtractCertPem:

@@ -1,5 +1,6 @@
 """RED → GREEN — Layer 2: ZombieDetectionEngine pure domain logic."""
 
+from hexawyn.domain.models.zombie_detection import ZombieCandidate
 from hexawyn.domain.services.zombie_detection.zombie_detection_engine import (
     ZombieDetectionEngine,
     _as_bool,
@@ -89,6 +90,7 @@ class TestRiskClassification:
 
         assert len(result.zombie_candidates) == 1
         assert result.zombie_candidates[0].risk == "review_needed"
+        assert result.zombie_candidates[0].reason == "No traffic but has service pointing to it"
 
     def test_batch_processor_cronjob_not_zombie_when_7d_traffic(self) -> None:
         engine = ZombieDetectionEngine()
@@ -122,6 +124,46 @@ class TestRiskClassification:
 
         assert len(result.zombie_candidates) == 1
         assert result.zombie_candidates[0].pod_name == "stale-cronjob"
+        assert result.zombie_candidates[0].risk == "safe_to_remove"
+        assert result.zombie_candidates[0].reason == "No traffic for 24h, no deps"
+
+    def test_legacy_zombie_without_service_reason_exact(self) -> None:
+        engine = ZombieDetectionEngine()
+        pods = [_pod("legacy-api", has_service=False, is_cronjob=False)]
+
+        result = engine.detect(pods, analysis_window_hours=24)
+
+        assert result.zombie_candidates[0].reason == "No traffic for 24h, no deps"
+
+    def test_cronjob_seven_day_at_threshold_is_zombie(self) -> None:
+        engine = ZombieDetectionEngine()
+        pods = [
+            _pod(
+                "stale-cronjob",
+                traffic_rps=0.0,
+                is_cronjob=True,
+                seven_day_traffic_rps=0.005,
+            ),
+        ]
+
+        result = engine.detect(pods, analysis_window_hours=24)
+
+        assert len(result.zombie_candidates) == 1
+
+    def test_cronjob_seven_day_just_above_threshold_not_zombie(self) -> None:
+        engine = ZombieDetectionEngine()
+        pods = [
+            _pod(
+                "active-cronjob",
+                traffic_rps=0.0,
+                is_cronjob=True,
+                seven_day_traffic_rps=0.006,
+            ),
+        ]
+
+        result = engine.detect(pods, analysis_window_hours=24)
+
+        assert len(result.zombie_candidates) == 0
 
 
 class TestEdgeCases:
@@ -363,3 +405,103 @@ class TestZombieDetectionEdgeCases:
         pods = [_pod("active", traffic_rps=0.006)]
         result = engine.detect(pods, analysis_window_hours=24)
         assert len(result.zombie_candidates) == 0
+
+    def test_full_candidate_payload_exact(self) -> None:
+        engine = ZombieDetectionEngine()
+        pods = [
+            _pod(
+                "legacy-api-pod-abc",
+                namespace="production",
+                traffic_rps=0.0,
+                cpu_cores=0.5,
+                memory_gb=1.25,
+                age_days=180,
+                has_service=True,
+            ),
+        ]
+        result = engine.detect(pods, analysis_window_hours=24)
+        assert result.zombie_candidates == [
+            ZombieCandidate(
+                pod_name="legacy-api-pod-abc",
+                namespace="production",
+                age_days=180,
+                traffic_rps=0.0,
+                cpu_cores=0.5,
+                memory_gb=1.25,
+                risk="review_needed",
+                reason="No traffic but has service pointing to it",
+            )
+        ]
+
+    def test_below_threshold_traffic_still_zombie_full_fields(self) -> None:
+        engine = ZombieDetectionEngine()
+        pods = [
+            _pod(
+                "probe-traffic",
+                namespace="staging",
+                traffic_rps=0.003,
+                cpu_cores=0.25,
+                memory_gb=0.5,
+                age_days=10,
+            ),
+        ]
+        result = engine.detect(pods, analysis_window_hours=24)
+        assert result.zombie_candidates == [
+            ZombieCandidate(
+                pod_name="probe-traffic",
+                namespace="staging",
+                age_days=10,
+                traffic_rps=0.003,
+                cpu_cores=0.25,
+                memory_gb=0.5,
+                risk="safe_to_remove",
+                reason="No traffic for 24h, no deps",
+            )
+        ]
+        assert result.total_wasted_cores == 0.25  # noqa: PLR2004
+        assert result.total_wasted_gb == 0.5  # noqa: PLR2004
+
+    def test_default_analysis_window_is_24(self) -> None:
+        engine = ZombieDetectionEngine()
+        result = engine.detect([_pod("p")])
+        assert result.analysis_window_hours == 24  # noqa: PLR2004
+
+    def test_waste_rounding_to_two_decimals(self) -> None:
+        engine = ZombieDetectionEngine()
+        pods = [
+            _pod("z-a", cpu_cores=0.333, memory_gb=1.001),
+            _pod("z-b", cpu_cores=0.333, memory_gb=1.001),
+        ]
+        result = engine.detect(pods, analysis_window_hours=24)
+        assert result.total_wasted_cores == 0.67  # noqa: PLR2004
+        assert result.total_wasted_gb == 2.0  # noqa: PLR2004
+
+    def test_terminating_then_zero_traffic_break_does_not_skip(self) -> None:
+        engine = ZombieDetectionEngine()
+        pods = [
+            _pod("dying", is_terminating=True, cpu_cores=1.0),
+            _pod("active-then-zombie", cpu_cores=0.5, memory_gb=2.0),
+        ]
+        result = engine.detect(pods, analysis_window_hours=24)
+        assert len(result.zombie_candidates) == 1
+        assert result.zombie_candidates[0].pod_name == "active-then-zombie"
+
+    def test_active_then_zero_traffic_break_does_not_skip(self) -> None:
+        engine = ZombieDetectionEngine()
+        pods = [
+            _pod("busy", traffic_rps=50.0, cpu_cores=4.0),
+            _pod("later-zombie", cpu_cores=0.5, memory_gb=1.0),
+        ]
+        result = engine.detect(pods, analysis_window_hours=24)
+        assert len(result.zombie_candidates) == 1
+        assert result.zombie_candidates[0].pod_name == "later-zombie"
+
+    def test_pod_without_name_namespace_defaults_to_empty(self) -> None:
+        engine = ZombieDetectionEngine()
+        pods = [
+            {"traffic_rps": 0.0, "cpu_cores": 0.5, "memory_gb": 1.0, "age_days": 30},
+        ]
+        result = engine.detect(pods, analysis_window_hours=24)
+        assert len(result.zombie_candidates) == 1
+        assert result.zombie_candidates[0].pod_name == ""
+        assert result.zombie_candidates[0].namespace == ""

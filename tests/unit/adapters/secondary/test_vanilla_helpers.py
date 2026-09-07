@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from hexawyn.adapters.secondary.vanilla.helpers.resource_parsers import (
+from hexawyn.infrastructure.adapters.secondary.vanilla.helpers.resource_parsers import (
     _deployment_key_from_pod,
     _get_workload_type,
     _parse_prometheus_pod_vector,

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 class TestEmptySprintRoiSource:
     def test_returns_no_baseline_by_default(self) -> None:
-        from hexawyn.adapters.secondary.gitops.optimization_roi_source import (
+        from hexawyn.infrastructure.adapters.secondary.gitops.optimization_roi_source import (
             EmptySprintRoiSource,
         )
 

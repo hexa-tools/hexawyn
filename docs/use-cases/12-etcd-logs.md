@@ -109,5 +109,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/etcd_logs.py` — ETCDLogLine, ETCDLogsResult
 - `src/hexawyn/application/ports/driven/etcd_logs_port.py` — ETCDLogsPort ABC
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_etcd_logs_adapter.py` — adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_etcd_logs_adapter.py` — adapter
 - `src/hexawyn/mcp/tools/etcd_logs.py` — MCP tool

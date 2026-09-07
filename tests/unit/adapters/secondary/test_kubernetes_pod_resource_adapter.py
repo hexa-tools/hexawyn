@@ -3,9 +3,6 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.kubernetes_pod_resource_adapter import (
-    KubernetesPodResourceAdapter,
-)
 from hexawyn.application.ports.driven.pod_resource_metrics_port import (
     PodResourceMetricsPort,
 )
@@ -13,6 +10,9 @@ from hexawyn.domain.errors import (
     ClusterUnreachableError,
     InsufficientPermissionsError,
     MetricsUnavailableError,
+)
+from hexawyn.infrastructure.adapters.secondary.kubernetes_pod_resource_adapter import (
+    KubernetesPodResourceAdapter,
 )
 
 

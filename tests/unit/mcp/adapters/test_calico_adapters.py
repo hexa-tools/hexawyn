@@ -20,7 +20,7 @@ class TestCalicoAdapterBuilders:
         assert isinstance(result, CalicoPort)
 
     def test_build_calico_metrics_adapter(self) -> None:
-        from hexawyn.adapters.secondary.calico.calico_prometheus_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.calico.calico_prometheus_adapter import (
             CalicoPrometheusAdapter,
         )
         from hexawyn.mcp.adapters.calico_adapters import build_calico_metrics_adapter

@@ -126,4 +126,4 @@ sequenceDiagram
 - `src/hexawyn/application/service/forecast_cost_service.py`
 - `src/hexawyn/application/use_case/forecast_cost/forecast_cost_use_case.py`
 - `src/hexawyn/mcp/tools/forecast_cost.py`
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py`

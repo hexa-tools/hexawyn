@@ -3,10 +3,10 @@ from __future__ import annotations
 from sys import modules as sys_modules
 from unittest.mock import Mock, patch
 
-from hexawyn.adapters.secondary.azure.log_analytics_adapter import (
+from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
+from hexawyn.infrastructure.adapters.secondary.azure.log_analytics_adapter import (
     AzureLogAnalyticsAdapter,
 )
-from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
 
 
 class TestAzureLogAnalyticsAdapter:

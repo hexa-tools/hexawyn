@@ -11,7 +11,7 @@ Usage:
 from __future__ import annotations
 
 import pytest
-from hexawyn.adapters.secondary.gitops.kubernetes_pod_security_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pod_security_adapter import (
     KubernetesPodSecurityAdapter,
 )
 

@@ -4,10 +4,10 @@ import tempfile
 from unittest.mock import patch
 
 import pytest
-from hexawyn.adapters.secondary.gitops.kustomize_drift_adapter import (
+from hexawyn.domain.errors import ComponentNotInstalledError
+from hexawyn.infrastructure.adapters.secondary.gitops.kustomize_drift_adapter import (
     KustomizeDriftAdapter,
 )
-from hexawyn.domain.errors import ComponentNotInstalledError
 
 
 class TestKustomizeDriftAdapter:

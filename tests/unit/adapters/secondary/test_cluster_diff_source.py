@@ -1,4 +1,6 @@
-from hexawyn.adapters.secondary.gitops.cluster_diff_source import EmptyClusterInventorySource
+from hexawyn.infrastructure.adapters.secondary.gitops.cluster_diff_source import (
+    EmptyClusterInventorySource,
+)
 
 
 class TestEmptyClusterInventorySource:

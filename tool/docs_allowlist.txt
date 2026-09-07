@@ -22,6 +22,7 @@ KeyError
 TimeoutError
 OSError
 ImportError
+ModuleNotFoundError
 FileNotFoundError
 AssertionError
 PermissionError

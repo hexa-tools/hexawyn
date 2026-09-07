@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from unittest.mock import Mock, patch
 
-from hexawyn.adapters.secondary.openshift.openshift_logs_adapter import OpenShiftLogsAdapter
 from hexawyn.application.ports.driven.log_search_port import LogSearchPort
+from hexawyn.infrastructure.adapters.secondary.openshift.openshift_logs_adapter import (
+    OpenShiftLogsAdapter,
+)
 
 
 class TestOpenShiftLogsAdapter:
@@ -27,7 +29,7 @@ class TestOpenShiftLogsAdapter:
         mock_kubernetes_adapter.fetch_pod_container_logs.return_value = []
 
         with patch(
-            "hexawyn.adapters.secondary.gitops.kubernetes_pod_log_search_adapter"
+            "hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pod_log_search_adapter"
             ".KubernetesPodLogSearchAdapter",
             return_value=mock_kubernetes_adapter,
         ):

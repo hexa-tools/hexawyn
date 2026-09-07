@@ -7,7 +7,6 @@ Uses a real VanillaAdapter wired with fake K8s clients — no cluster needed.
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.use_case.finops.estimate_rightsizing_savings.command import (
     EstimateRightsizingSavingsCommand,
 )
@@ -16,6 +15,7 @@ from hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_r
 )
 from hexawyn.domain.errors import ClusterUnreachableError
 from hexawyn.domain.models.rightsizing import RightsizingType
+from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
 
 def _container(cpu: str | None = "2000m", memory: str | None = "4Gi") -> MagicMock:

@@ -3,16 +3,16 @@ import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.slack.slack_http_client import SlackHttpClient
 from hexawyn.application.ports.driven.message_publisher_port import MessagePublisherPort
 from hexawyn.application.ports.primary.chat_port import ChatPort
+from hexawyn.infrastructure.adapters.secondary.slack.slack_http_client import SlackHttpClient
 
 
 def _make_client(
     chat_response: str = "OOM detected in payments-api",
     app_token: str = "xapp-test-token",
 ) -> tuple[MagicMock, MagicMock, MagicMock, MagicMock]:
-    from hexawyn.adapters.primary.slack.slack_socket_client import SlackSocketClient
+    from hexawyn.infrastructure.adapters.primary.slack.slack_socket_client import SlackSocketClient
 
     chat_adapter = MagicMock(spec=ChatPort)
     chat_adapter.handle_message.return_value = chat_response
@@ -35,7 +35,9 @@ def _make_client(
 
 class TestSlackSocketClientContract:
     def test_accepts_chat_adapter_publisher_http_client_and_token(self) -> None:
-        from hexawyn.adapters.primary.slack.slack_socket_client import SlackSocketClient
+        from hexawyn.infrastructure.adapters.primary.slack.slack_socket_client import (
+            SlackSocketClient,
+        )
 
         chat = MagicMock(spec=ChatPort)
         pub = MagicMock(spec=MessagePublisherPort)
@@ -49,7 +51,9 @@ class TestSlackSocketClientContract:
         assert client is not None
 
     def test_stores_app_token(self) -> None:
-        from hexawyn.adapters.primary.slack.slack_socket_client import SlackSocketClient
+        from hexawyn.infrastructure.adapters.primary.slack.slack_socket_client import (
+            SlackSocketClient,
+        )
 
         chat = MagicMock(spec=ChatPort)
         pub = MagicMock(spec=MessagePublisherPort)
@@ -63,7 +67,9 @@ class TestSlackSocketClientContract:
         assert client._app_token == "xapp-secret-123"
 
     def test_stores_injected_dependencies(self) -> None:
-        from hexawyn.adapters.primary.slack.slack_socket_client import SlackSocketClient
+        from hexawyn.infrastructure.adapters.primary.slack.slack_socket_client import (
+            SlackSocketClient,
+        )
 
         chat = MagicMock(spec=ChatPort)
         pub = MagicMock(spec=MessagePublisherPort)
@@ -172,7 +178,7 @@ class TestHandleSocketMessage:
         mock_ws.send = AsyncMock()
 
         with patch(
-            "hexawyn.adapters.primary.slack.slack_socket_client._get_active_cluster_name",
+            "hexawyn.infrastructure.adapters.primary.slack.slack_socket_client._get_active_cluster_name",
             return_value="prod-eu",
         ):
             await client._handle_socket_message(mock_ws, json.dumps(msg))
@@ -220,7 +226,7 @@ class TestHandleSocketMessage:
         mock_ws.send = AsyncMock()
 
         with patch(
-            "hexawyn.adapters.primary.slack.slack_socket_client._get_active_cluster_name",
+            "hexawyn.infrastructure.adapters.primary.slack.slack_socket_client._get_active_cluster_name",
             return_value="prod-eu",
         ):
             await client._handle_socket_message(mock_ws, json.dumps(msg))
@@ -249,7 +255,7 @@ class TestHandleSocketMessage:
         mock_ws.send = AsyncMock()
 
         with patch(
-            "hexawyn.adapters.primary.slack.slack_socket_client._get_active_cluster_name",
+            "hexawyn.infrastructure.adapters.primary.slack.slack_socket_client._get_active_cluster_name",
             return_value="prod-eu",
         ):
             await client._handle_socket_message(mock_ws, json.dumps(inner))
@@ -265,7 +271,7 @@ class TestHandleSocketMessage:
         mock_ws.send = AsyncMock()
 
         with patch(
-            "hexawyn.adapters.primary.slack.slack_socket_client._get_active_cluster_name",
+            "hexawyn.infrastructure.adapters.primary.slack.slack_socket_client._get_active_cluster_name",
             return_value="prod-eu",
         ):
             await client._handle_socket_message(mock_ws, json.dumps(msg))
@@ -281,7 +287,7 @@ class TestHandleSocketMessage:
         mock_ws.send = AsyncMock()
 
         with patch(
-            "hexawyn.adapters.primary.slack.slack_socket_client._get_active_cluster_name",
+            "hexawyn.infrastructure.adapters.primary.slack.slack_socket_client._get_active_cluster_name",
             return_value="prod-eu",
         ):
             await client._handle_socket_message(mock_ws, json.dumps(msg))

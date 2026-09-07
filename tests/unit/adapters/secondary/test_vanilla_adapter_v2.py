@@ -5,9 +5,11 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import duckdb
-from hexawyn.adapters.secondary.vanilla.adapters.health_adapter import VanillaHealthAdapter
-from hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter import VanillaK8sAdapter
-from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.health_adapter import (
+    VanillaHealthAdapter,
+)
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.k8s_adapter import VanillaK8sAdapter
+from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
 
 def _fake_conn() -> MagicMock:
@@ -92,7 +94,7 @@ class TestInternalHelpers:
     """Cover uncovered internal helpers."""
 
     def test_seconds_to_human_all_formats(self) -> None:
-        from hexawyn.adapters.secondary.vanilla.adapters.tekton_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.tekton_adapter import (
             VanillaTektonAdapter,
         )
 
@@ -105,7 +107,9 @@ class TestInternalHelpers:
     def test_namespace_age(self) -> None:
         from datetime import UTC, datetime, timedelta
 
-        from hexawyn.adapters.secondary.vanilla.adapters._helpers import namespace_age
+        from hexawyn.infrastructure.adapters.secondary.vanilla.adapters._helpers import (
+            namespace_age,
+        )
 
         meta = MagicMock()
         meta.creation_timestamp = datetime.now(UTC) - timedelta(days=10)
@@ -324,7 +328,7 @@ class TestDelegationMethods:
         adapter._api = fake_core
 
         with patch(
-            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.client.CustomObjectsApi"
+            "hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter.client.CustomObjectsApi"
         ) as mock_custom:
             crd = adapter._crd_api_client()
 
@@ -338,7 +342,7 @@ class TestDelegationMethods:
         adapter._api = fake_core
 
         with patch(
-            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.client.CustomObjectsApi"
+            "hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter.client.CustomObjectsApi"
         ) as mock_custom:
             metrics = adapter._metrics_api_client()
 

@@ -1,9 +1,9 @@
 import pytest
-from hexawyn.adapters.secondary.mock.scenarios.aws_eks import AWS_EKS_SCENARIO
-from hexawyn.adapters.secondary.mock.scenarios.azure_aks import AZURE_AKS_SCENARIO
-from hexawyn.adapters.secondary.mock.scenarios.datadog import DATADOG_SCENARIO
-from hexawyn.adapters.secondary.mock.scenarios.gcp_gke import GCP_GKE_SCENARIO
-from hexawyn.adapters.secondary.mock.scenarios.openshift import OPENSHIFT_SCENARIO
+from hexawyn.infrastructure.adapters.secondary.mock.scenarios.aws_eks import AWS_EKS_SCENARIO
+from hexawyn.infrastructure.adapters.secondary.mock.scenarios.azure_aks import AZURE_AKS_SCENARIO
+from hexawyn.infrastructure.adapters.secondary.mock.scenarios.datadog import DATADOG_SCENARIO
+from hexawyn.infrastructure.adapters.secondary.mock.scenarios.gcp_gke import GCP_GKE_SCENARIO
+from hexawyn.infrastructure.adapters.secondary.mock.scenarios.openshift import OPENSHIFT_SCENARIO
 
 REQUIRED_KEYS = {"context", "health", "pods", "metrics", "findings", "chips", "slack_message"}
 

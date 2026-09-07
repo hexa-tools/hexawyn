@@ -149,5 +149,5 @@ sequenceDiagram
 - `src/hexawyn/domain/services/cilium/identity_builder.py` — pure identity listing
 - `src/hexawyn/application/ports/driven/cilium_port.py` — `CiliumPort.list_identities()`
 - `src/hexawyn/application/use_case/cilium/list_cilium_identities/` — Command, Response, UseCase
-- `src/hexawyn/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.list_identities()`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.list_identities()`
 - `src/hexawyn/mcp/tools/list_cilium_identities.py` — MCP tool

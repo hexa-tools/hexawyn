@@ -26,21 +26,21 @@ def in_memory_db() -> duckdb.DuckDBPyConnection:
 
 @pytest.fixture
 def demo_adapter_aws():
-    from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+    from hexawyn.infrastructure.adapters.secondary.mock.demo_adapter import DemoAdapter
 
     return DemoAdapter(scenario="aws_eks")
 
 
 @pytest.fixture
 def demo_adapter_gcp():
-    from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+    from hexawyn.infrastructure.adapters.secondary.mock.demo_adapter import DemoAdapter
 
     return DemoAdapter(scenario="gcp_gke")
 
 
 @pytest.fixture
 def demo_adapter_openshift():
-    from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+    from hexawyn.infrastructure.adapters.secondary.mock.demo_adapter import DemoAdapter
 
     return DemoAdapter(scenario="openshift")
 

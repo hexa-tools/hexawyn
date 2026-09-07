@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from hexawyn.adapters.secondary.gitops.kustomize_patch_adapter import (
-    KustomizeCLIPatchAdapter,
-)
 from hexawyn.application.ports.driven.kustomize_patch_analysis_port import (
     KustomizePatchAnalysisPort,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.kustomize_patch_adapter import (
+    KustomizeCLIPatchAdapter,
 )
 
 

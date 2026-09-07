@@ -3,10 +3,10 @@ from __future__ import annotations
 import json
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.kubernetes_audit_log_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_audit_log_adapter import (
     _parse_audit_line,
 )
-from hexawyn.adapters.secondary.gitops.kubernetes_capacity_forecast_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_capacity_forecast_adapter import (
     _node_allocatable,
     _node_allocatable_cpu,
     _node_allocatable_memory_gb,

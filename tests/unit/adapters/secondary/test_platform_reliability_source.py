@@ -3,7 +3,7 @@ from __future__ import annotations
 
 class TestEmptyReliabilityDataSource:
     def test_returns_healthy_period_by_default(self) -> None:
-        from hexawyn.adapters.secondary.gitops.platform_reliability_source import (
+        from hexawyn.infrastructure.adapters.secondary.gitops.platform_reliability_source import (
             EmptyReliabilityDataSource,
         )
 

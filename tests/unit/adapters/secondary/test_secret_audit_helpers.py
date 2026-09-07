@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.kubernetes_secret_audit_adapter import (
+from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_secret_audit_adapter import (
     _extract_secret_names,
     _to_managed_fields_entry,
     _to_secret_raw,
     _translate_error,
 )
-from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
 
 
 def _mk(**attrs: object) -> Mock:

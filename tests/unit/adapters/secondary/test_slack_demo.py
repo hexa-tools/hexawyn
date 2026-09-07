@@ -1,8 +1,8 @@
 from unittest.mock import patch
 
 import pytest
-from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
-from hexawyn.adapters.secondary.slack.slack_alert_adapter import SlackAlertAdapter
+from hexawyn.infrastructure.adapters.secondary.mock.demo_adapter import DemoAdapter
+from hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter import SlackAlertAdapter
 
 
 class TestSlackDemoMode:
@@ -29,9 +29,11 @@ class TestSlackDemoMode:
         with patch("httpx.post") as mock_post:
             mock_post.return_value.status_code = 200
             mock_post.return_value.text = "ok"
-            with patch("hexawyn.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"):
+            with patch(
+                "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"
+            ):
                 with patch(
-                    "hexawyn.adapters.secondary.slack.slack_alert_adapter.increment_slack_quota"
+                    "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.increment_slack_quota"
                 ):
                     findings = demo.get_findings()
                     critical = [f for f in findings if f["severity"] == "critical"]

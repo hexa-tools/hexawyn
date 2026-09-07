@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.kubernetes_pod_resource_adapter import (
+from hexawyn.infrastructure.adapters.secondary.kubernetes_pod_resource_adapter import (
     _merge,
     _parse_cpu,
     _parse_memory,

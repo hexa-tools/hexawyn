@@ -4,14 +4,14 @@ from unittest.mock import MagicMock, patch
 
 import httpx
 import pytest
-from hexawyn.adapters.secondary.kubearchive_http_adapter import (
-    KubeArchiveHTTPAdapter,
-)
 from hexawyn.application.ports.driven.kubearchive_port import (
     KubeArchivePort,
     KubeArchiveQuery,
 )
 from hexawyn.domain.errors import ComponentNotInstalledError
+from hexawyn.infrastructure.adapters.secondary.kubearchive_http_adapter import (
+    KubeArchiveHTTPAdapter,
+)
 
 
 class TestKubeArchiveHTTPAdapter:

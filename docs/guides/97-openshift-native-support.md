@@ -158,8 +158,8 @@ sequenceDiagram
 ## Related Files
 
 - `src/hexawyn/application/ports/driven/openshift_resource_port.py`
-- `src/hexawyn/adapters/secondary/openshift/openshift_adapter.py`
-- `src/hexawyn/adapters/secondary/openshift/openshift_provider.py`
-- `src/hexawyn/adapters/secondary/openshift/tekton_adapter.py`
-- `src/hexawyn/adapters/secondary/openshift/openshift_monitoring_adapter.py`
-- `src/hexawyn/adapters/secondary/openshift/openshift_logs_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/openshift/openshift_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/openshift/openshift_provider.py`
+- `src/hexawyn/infrastructure/adapters/secondary/openshift/tekton_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/openshift/openshift_monitoring_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/openshift/openshift_logs_adapter.py`

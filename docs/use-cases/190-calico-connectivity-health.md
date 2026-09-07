@@ -45,7 +45,7 @@ sequenceDiagram
 - `src/hexawyn/domain/services/calico/connectivity_health_service.py`
 - `src/hexawyn/application/ports/driven/calico_port.py`
 - `src/hexawyn/application/use_case/calico/calico_connectivity_health/calico_connectivity_health_use_case.py`
-- `src/hexawyn/adapters/secondary/calico/calico_k8s_adapter.py`
-- `src/hexawyn/adapters/secondary/calico/calico_prometheus_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/calico/calico_k8s_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/calico/calico_prometheus_adapter.py`
 - `src/hexawyn/mcp/adapters/calico_adapters.py`
 - `src/hexawyn/mcp/tools/calico_connectivity_health.py`

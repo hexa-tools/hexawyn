@@ -50,7 +50,7 @@ def _mock_service_item(  # noqa: PLR0913
 
 class TestKubernetesExternalExposureAdapter:
     def test_list_services_maps_loadbalancer_with_external_ip(self) -> None:
-        from hexawyn.adapters.secondary.kubernetes_external_exposure_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.kubernetes_external_exposure_adapter import (
             KubernetesExternalExposureAdapter,
         )
 
@@ -83,7 +83,7 @@ class TestKubernetesExternalExposureAdapter:
         }
 
     def test_list_services_maps_nodeport(self) -> None:
-        from hexawyn.adapters.secondary.kubernetes_external_exposure_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.kubernetes_external_exposure_adapter import (
             KubernetesExternalExposureAdapter,
         )
 
@@ -110,7 +110,7 @@ class TestKubernetesExternalExposureAdapter:
         assert svc["external_ip"] is None
 
     def test_list_services_detects_source_ranges(self) -> None:
-        from hexawyn.adapters.secondary.kubernetes_external_exposure_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.kubernetes_external_exposure_adapter import (
             KubernetesExternalExposureAdapter,
         )
 
@@ -133,7 +133,7 @@ class TestKubernetesExternalExposureAdapter:
         assert result[0]["has_source_ranges"] is True
 
     def test_list_services_maps_multiple_services(self) -> None:
-        from hexawyn.adapters.secondary.kubernetes_external_exposure_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.kubernetes_external_exposure_adapter import (
             KubernetesExternalExposureAdapter,
         )
 
@@ -153,7 +153,7 @@ class TestKubernetesExternalExposureAdapter:
         assert {s["name"] for s in result} == {"svc-0", "svc-1", "svc-2"}
 
     def test_list_services_returns_empty_list_when_no_services(self) -> None:
-        from hexawyn.adapters.secondary.kubernetes_external_exposure_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.kubernetes_external_exposure_adapter import (
             KubernetesExternalExposureAdapter,
         )
 
@@ -167,7 +167,7 @@ class TestKubernetesExternalExposureAdapter:
         assert result == []
 
     def test_list_services_with_external_hostname(self) -> None:
-        from hexawyn.adapters.secondary.kubernetes_external_exposure_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.kubernetes_external_exposure_adapter import (
             KubernetesExternalExposureAdapter,
         )
 
@@ -189,7 +189,7 @@ class TestKubernetesExternalExposureAdapter:
         assert result[0]["external_hostname"] == "abc123.elb.amazonaws.com"
 
     def test_list_services_pending_loadbalancer_has_no_ip(self) -> None:
-        from hexawyn.adapters.secondary.kubernetes_external_exposure_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.kubernetes_external_exposure_adapter import (
             KubernetesExternalExposureAdapter,
         )
 
@@ -213,7 +213,7 @@ class TestKubernetesExternalExposureAdapter:
         assert result[0]["external_hostname"] is None
 
     def test_list_services_defaults_service_type_to_cluster_ip(self) -> None:
-        from hexawyn.adapters.secondary.kubernetes_external_exposure_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.kubernetes_external_exposure_adapter import (
             KubernetesExternalExposureAdapter,
         )
 
@@ -230,10 +230,10 @@ class TestKubernetesExternalExposureAdapter:
         assert result[0]["service_type"] == "ClusterIP"
 
     def test_403_error_translates_to_insufficient_permissions(self) -> None:
-        from hexawyn.adapters.secondary.kubernetes_external_exposure_adapter import (
+        from hexawyn.domain.errors import InsufficientPermissionsError
+        from hexawyn.infrastructure.adapters.secondary.kubernetes_external_exposure_adapter import (
             KubernetesExternalExposureAdapter,
         )
-        from hexawyn.domain.errors import InsufficientPermissionsError
 
         core_api = MagicMock()
         forbidden = Exception("Forbidden")
@@ -247,10 +247,10 @@ class TestKubernetesExternalExposureAdapter:
                 adapter.list_external_services()
 
     def test_connection_error_translates_to_cluster_unreachable(self) -> None:
-        from hexawyn.adapters.secondary.kubernetes_external_exposure_adapter import (
+        from hexawyn.domain.errors import ClusterUnreachableError
+        from hexawyn.infrastructure.adapters.secondary.kubernetes_external_exposure_adapter import (
             KubernetesExternalExposureAdapter,
         )
-        from hexawyn.domain.errors import ClusterUnreachableError
 
         core_api = MagicMock()
         core_api.list_service_for_all_namespaces.side_effect = Exception("Connection refused")

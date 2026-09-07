@@ -195,7 +195,7 @@ def test_missing_data_warns():
 - `src/hexawyn/application/ports/driving/generate_sla_report/`
 - `src/hexawyn/application/service/generate_sla_report_service.py`
 - `src/hexawyn/application/use_case/generate_sla_report/generate_sla_report_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/sla_report_adapter.py`
-- `src/hexawyn/adapters/secondary/gitops/sla_report_source.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/sla_report_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/sla_report_source.py`
 - `src/hexawyn/mcp/tools/generate_sla_report.py`
 - `src/hexawyn/mcp/server.py` (`build_sla_report_adapter`)

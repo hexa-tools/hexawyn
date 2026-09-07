@@ -2,12 +2,12 @@
 
 from unittest.mock import MagicMock
 
-from hexawyn.adapters.secondary.gitops.prometheus_error_budget_adapter import (
+from hexawyn.application.ports.driven.error_budget_port import ErrorBudgetPort
+from hexawyn.application.ports.driven.metrics_query_port import PrometheusInstantSample
+from hexawyn.infrastructure.adapters.secondary.gitops.prometheus_error_budget_adapter import (
     PrometheusErrorBudgetAdapter,
     _build_success_rate_query,
 )
-from hexawyn.application.ports.driven.error_budget_port import ErrorBudgetPort
-from hexawyn.application.ports.driven.metrics_query_port import PrometheusInstantSample
 
 
 def _instant_sample(value: float, total_requests: int = 0) -> PrometheusInstantSample:

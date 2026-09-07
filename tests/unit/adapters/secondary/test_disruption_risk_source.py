@@ -1,4 +1,6 @@
-from hexawyn.adapters.secondary.gitops.disruption_risk_source import EmptyDisruptionRiskSource
+from hexawyn.infrastructure.adapters.secondary.gitops.disruption_risk_source import (
+    EmptyDisruptionRiskSource,
+)
 
 
 class TestEmptyDisruptionRiskSource:

@@ -20,7 +20,7 @@ class TestGetQuotaUsageMCPTool:
                 return_value=mock_runtime,
             ),
             patch(
-                "hexawyn.adapters.secondary.runtime_quota_source._get_current_slack_quota",
+                "hexawyn.infrastructure.adapters.secondary.runtime_quota_source._get_current_slack_quota",
                 return_value=MagicMock(count=0, limit=50),
             ),
         ):

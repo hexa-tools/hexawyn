@@ -131,3 +131,24 @@ class TestComputeUptimePct:
 
         assert result == round((1 - 1 / 1440) * 100, 2)
         assert result < 100.0  # noqa: PLR2004
+
+
+class TestPeriodBoundary:
+    def test_period_of_one_with_full_downtime_yields_zero(self) -> None:
+        from hexawyn.domain.services.platform_reliability.uptime_calculator import (
+            compute_uptime_pct,
+        )
+
+        incidents = [
+            {
+                "date": "2026-06-10",
+                "severity": "major",
+                "downtime_minutes": 1,
+                "resolution_minutes": 5,
+                "root_cause": "x",
+                "resolved": True,
+                "planned_maintenance": False,
+            }
+        ]
+
+        assert compute_uptime_pct(incidents, period_minutes=1) == 0.0

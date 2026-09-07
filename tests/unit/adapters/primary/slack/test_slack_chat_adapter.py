@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from hexawyn.adapters.primary.slack.slack_chat_adapter import SlackChatAdapter
 from hexawyn.application.use_case.troubleshooting.chat_slack.chat_slack_response import (
     ChatSlackResponse,
 )
 from hexawyn.domain.errors import QuotaExceededError
+from hexawyn.infrastructure.adapters.primary.slack.slack_chat_adapter import SlackChatAdapter
 
 
 class TestSlackChatAdapter:

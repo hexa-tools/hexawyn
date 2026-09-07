@@ -3,13 +3,13 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
-from hexawyn.adapters.secondary.gitops.gitops_adapter import GitOpsAdapter
 from hexawyn.application.ports.driven.gitops_port import GitOpsPort
 from hexawyn.domain.models.gitops import (
     GitOpsEngine,
     HealthStatus,
     SyncStatus,
 )
+from hexawyn.infrastructure.adapters.secondary.gitops.gitops_adapter import GitOpsAdapter
 
 
 def _make_crd_mock() -> MagicMock:

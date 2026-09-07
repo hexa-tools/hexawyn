@@ -1,4 +1,6 @@
-from hexawyn.adapters.secondary.gitops.critical_cve_source import EmptyCriticalCveSource
+from hexawyn.infrastructure.adapters.secondary.gitops.critical_cve_source import (
+    EmptyCriticalCveSource,
+)
 
 
 class TestEmptyCriticalCveSource:

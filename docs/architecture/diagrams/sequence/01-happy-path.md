@@ -104,7 +104,7 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driven/runtime_port.py` — RuntimePort ABC + types (InvestigationOutput carries `embedding`)
 - `src/hexawyn/application/service/runtime_adapter.py` — get_runtime() + StubRuntimeAdapter
 - `src/hexawyn/application/service/http_runtime_adapter.py` — HttpRuntimeAdapter (extracts embedding from the report)
-- `src/hexawyn/adapters/secondary/runtime_client.py` — RuntimeClient (HTTP + polling)
+- `src/hexawyn/infrastructure/adapters/secondary/runtime_client.py` — RuntimeClient (HTTP + polling)
 - `src/hexawyn/application/service/chat_cli_service.py` — stores the incident after a successful investigation
 - `src/hexawyn/application/ports/driven/incident_memory_port.py` — IncidentMemoryPort ABC
 - `src/hexawyn/infrastructure/memory/incident_memory_repository.py` — IncidentMemoryRepository (INSERT, best-effort)

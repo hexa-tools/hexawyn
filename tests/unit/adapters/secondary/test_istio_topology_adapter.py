@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from hexawyn.adapters.secondary.istio_topology_adapter import IstioTopologyAdapter
+from hexawyn.infrastructure.adapters.secondary.istio_topology_adapter import IstioTopologyAdapter
 
 
 def _virtual_service(
@@ -162,7 +162,7 @@ class TestGetVirtualServiceEdges:
         assert adapter.get_virtual_service_edges(None) == []
 
     def test_source_apps_returns_empty_for_non_dict_spec(self) -> None:
-        from hexawyn.adapters.secondary.istio_topology_adapter import _source_apps
+        from hexawyn.infrastructure.adapters.secondary.istio_topology_adapter import _source_apps
 
         assert _source_apps({"spec": "not-a-dict"}) == []
 

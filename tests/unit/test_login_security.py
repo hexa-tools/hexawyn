@@ -11,8 +11,6 @@ import logging
 from unittest.mock import patch
 
 import httpx
-from hexawyn.adapters.secondary.auth.config_token_store import ConfigTokenStore
-from hexawyn.adapters.secondary.auth.token_validator import HttpTokenValidator
 from hexawyn.application.ports.driven.cloud_auth_port import CloudAuthPort
 from hexawyn.application.service.login_service import LoginService
 from hexawyn.domain.models.auth import (
@@ -20,6 +18,8 @@ from hexawyn.domain.models.auth import (
     TokenValidationResult,
     TokenValidationState,
 )
+from hexawyn.infrastructure.adapters.secondary.auth.config_token_store import ConfigTokenStore
+from hexawyn.infrastructure.adapters.secondary.auth.token_validator import HttpTokenValidator
 
 SECRET = "hxw_s3cr3t_12345"
 
@@ -101,7 +101,7 @@ class TestTokenNeverPrinted:
 class TestTokenNeverInException:
     def test_store_failure_exception_never_contains_token(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.auth.config_token_store.save_config",
+            "hexawyn.infrastructure.adapters.secondary.auth.config_token_store.save_config",
             side_effect=OSError("disk full"),
         ):
             try:

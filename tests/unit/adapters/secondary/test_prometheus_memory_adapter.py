@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from hexawyn.adapters.secondary.gitops.prometheus_memory_adapter import (
+from hexawyn.application.ports.driven.memory_saturation_port import MemorySaturationPort
+from hexawyn.infrastructure.adapters.secondary.gitops.prometheus_memory_adapter import (
     PrometheusMemoryAdapter,
 )
-from hexawyn.application.ports.driven.memory_saturation_port import MemorySaturationPort
 
 
 class TestPrometheusMemoryAdapter:
@@ -14,7 +14,7 @@ class TestPrometheusMemoryAdapter:
 
     def test_fetch_memory_metrics_with_data(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.gitops.prometheus_memory_adapter.query_prometheus_instant"
+            "hexawyn.infrastructure.adapters.secondary.gitops.prometheus_memory_adapter.query_prometheus_instant"
         ) as mock_query:
             mock_query.return_value = [
                 {
@@ -42,7 +42,7 @@ class TestPrometheusMemoryAdapter:
 
     def test_fetch_memory_metrics_empty_on_error(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.gitops.prometheus_memory_adapter.query_prometheus_instant",
+            "hexawyn.infrastructure.adapters.secondary.gitops.prometheus_memory_adapter.query_prometheus_instant",
             side_effect=Exception("timeout"),
         ):
             adapter = PrometheusMemoryAdapter()
@@ -55,7 +55,7 @@ class TestPrometheusMemoryAdapter:
 
     def test_fetch_memory_metrics_empty_pod_name(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.gitops.prometheus_memory_adapter.query_prometheus_instant"
+            "hexawyn.infrastructure.adapters.secondary.gitops.prometheus_memory_adapter.query_prometheus_instant"
         ) as mock_query:
             mock_query.return_value = []
             adapter = PrometheusMemoryAdapter()

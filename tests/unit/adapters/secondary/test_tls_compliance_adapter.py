@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from hexawyn.adapters.secondary.gitops.tls_compliance_adapter import TLSComplianceAdapter
 from hexawyn.application.ports.driven.tls_compliance_port import TLSCompliancePort
+from hexawyn.infrastructure.adapters.secondary.gitops.tls_compliance_adapter import (
+    TLSComplianceAdapter,
+)
 
 _CFG = "kubernetes.config.load_kube_config"
 _API = "kubernetes.client.CoreV1Api"

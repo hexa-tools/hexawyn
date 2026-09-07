@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.budget_projection_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.budget_projection_adapter import (
     BudgetProjectionAdapter,
     _month_of,
     _to_monthly_raw,

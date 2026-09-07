@@ -108,8 +108,8 @@ class TestGetLogger:
 
     def test_child_logger_inherits_handlers(self) -> None:
         get_logger("hexawyn")
-        child = get_logger("hexawyn.adapters.k8s")
-        assert child.name == "hexawyn.adapters.k8s"
+        child = get_logger("hexawyn.infrastructure.adapters.k8s")
+        assert child.name == "hexawyn.infrastructure.adapters.k8s"
         assert child.propagate is False
         assert len(child.handlers) >= 1
 

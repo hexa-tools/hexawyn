@@ -8,7 +8,6 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 from hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.command import (
     DetectOverProvisionedNamespacesCommand,
 )
@@ -16,6 +15,7 @@ from hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.dete
     DetectOverProvisionedNamespacesUseCase,
 )
 from hexawyn.domain.errors import ClusterUnreachableError, PrometheusUnavailableError
+from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
 
 def _container(cpu: str | None = "500m", memory: str | None = "1Gi") -> MagicMock:

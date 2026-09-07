@@ -10,7 +10,7 @@ Usage:
 from __future__ import annotations
 
 import pytest
-from hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter import VanillaK8sAdapter
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.k8s_adapter import VanillaK8sAdapter
 
 _INGRESS_FIXTURE = """
 apiVersion: networking.k8s.io/v1

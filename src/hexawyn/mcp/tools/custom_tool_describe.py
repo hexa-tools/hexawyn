@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 def custom_tool_describe(name: str) -> dict[str, object]:
     """Describe a custom tool: parameters, output schema, transport, endpoint."""
-    from hexawyn.adapters.secondary.runtime_client import RuntimeClient
+    from hexawyn.infrastructure.adapters.secondary.runtime_client import RuntimeClient
     from hexawyn.infrastructure.config.config_manager import get_runtime_endpoint
 
     try:

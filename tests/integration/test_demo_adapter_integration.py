@@ -2,8 +2,8 @@ import os
 from unittest.mock import patch
 
 import pytest
-from hexawyn.adapters.secondary.adapter_factory import build_adapters
-from hexawyn.adapters.secondary.mock.demo_adapter import DemoAdapter
+from hexawyn.infrastructure.adapters.secondary.adapter_factory import build_adapters
+from hexawyn.infrastructure.adapters.secondary.mock.demo_adapter import DemoAdapter
 
 
 class TestAdapterFactoryIntegration:
@@ -27,7 +27,9 @@ class TestAdapterFactoryIntegration:
     @pytest.mark.integration
     def test_demo_mode_false_returns_vanilla_adapter(self):
         with patch.dict(os.environ, {"HEXAWYN_DEMO_MODE": "false"}, clear=False):
-            from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+            from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import (
+                VanillaAdapter,
+            )
 
             adapter = build_adapters("minikube")
             assert isinstance(adapter, VanillaAdapter)

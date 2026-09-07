@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from hexawyn.adapters.secondary.slack.slack_http_client import SlackHttpClient
+from hexawyn.infrastructure.adapters.secondary.slack.slack_http_client import SlackHttpClient
 
 
 class TestSlackHttpClientInit:
@@ -16,7 +16,7 @@ class TestSlackHttpClientInit:
     def test_empty_token_when_no_env(self) -> None:
         with patch.dict("os.environ", {}, clear=True):
             with patch(
-                "hexawyn.adapters.secondary.slack.slack_http_client.os.environ.get",
+                "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.os.environ.get",
                 return_value="",
             ):
                 client = SlackHttpClient()

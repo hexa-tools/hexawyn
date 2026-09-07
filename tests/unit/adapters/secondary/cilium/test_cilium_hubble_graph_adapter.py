@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from hexawyn.adapters.secondary.cilium.cilium_hubble_graph_adapter import (
-    HubbleDependencyGraphAdapter,
-)
 from hexawyn.domain.models.cilium import CiliumFlowEntry, CiliumFlowsResult
 from hexawyn.domain.models.service_dependency_graph import DependencyGraphRequest
+from hexawyn.infrastructure.adapters.secondary.cilium.cilium_hubble_graph_adapter import (
+    HubbleDependencyGraphAdapter,
+)
 
 
 def _flow(source: str, destination: str, verdict: str = "FORWARDED") -> CiliumFlowEntry:

@@ -1,8 +1,8 @@
 from unittest.mock import MagicMock, patch
 
-from hexawyn.adapters.primary.slack.slack_event_server import SlackEventServer
 from hexawyn.application.ports.driven.message_publisher_port import MessagePublisherPort
 from hexawyn.application.ports.primary.chat_port import ChatPort
+from hexawyn.infrastructure.adapters.primary.slack.slack_event_server import SlackEventServer
 
 
 def _make_server(
@@ -84,7 +84,7 @@ class TestHandleEventAppMention:
 
     def _handle(self, **kwargs: object) -> dict[str, object]:
         with patch(
-            "hexawyn.adapters.primary.slack.slack_event_server._get_active_cluster_name",
+            "hexawyn.infrastructure.adapters.primary.slack.slack_event_server._get_active_cluster_name",
             return_value="prod-eu",
         ):
             return self.server.handle_event(_app_mention_event(**kwargs))

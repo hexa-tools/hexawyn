@@ -1,6 +1,8 @@
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.budget_intelligence_adapter import BudgetIntelligenceAdapter
+from hexawyn.infrastructure.adapters.secondary.gitops.budget_intelligence_adapter import (
+    BudgetIntelligenceAdapter,
+)
 
 
 class TestBudgetIntelligenceAdapter:

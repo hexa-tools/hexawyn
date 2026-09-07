@@ -50,7 +50,7 @@ from hexawyn.mcp.providers.detector import (
 
 
 def build_span_bottleneck_adapter() -> SpanBottleneckPort:
-    from hexawyn.adapters.secondary.gitops.otel_span_breakdown_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.otel_span_breakdown_adapter import (
         OTelSpanBreakdownAdapter,
     )
 
@@ -58,7 +58,7 @@ def build_span_bottleneck_adapter() -> SpanBottleneckPort:
 
 
 def build_latency_percentile_adapter() -> LatencyPercentilePort:
-    from hexawyn.adapters.secondary.gitops.otel_latency_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.otel_latency_adapter import (
         OTelPrometheusLatencyAdapter,
     )
 
@@ -66,7 +66,7 @@ def build_latency_percentile_adapter() -> LatencyPercentilePort:
 
 
 def build_metric_correlation_adapter() -> MetricCorrelationPort:
-    from hexawyn.adapters.secondary.gitops.otel_correlation_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.otel_correlation_adapter import (
         OTelPrometheusCorrelationAdapter,
     )
 
@@ -76,15 +76,15 @@ def build_metric_correlation_adapter() -> MetricCorrelationPort:
 def build_metrics_query_adapter() -> MetricsQueryPort:
     context = _current_cluster_context()
     if _is_gcp_gke_context(context):
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
-        from hexawyn.adapters.secondary.gcp.managed_prometheus_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+        from hexawyn.infrastructure.adapters.secondary.gcp.managed_prometheus_adapter import (
             GCPManagedPrometheusAdapter,
         )
 
         return GCPManagedPrometheusAdapter(project_id=GCPGKEAdapter(context).project_id or "")
 
     if _is_azure_aks_context(context):
-        from hexawyn.adapters.secondary.azure.monitor_metrics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.azure.monitor_metrics_adapter import (
             AzureMonitorMetricsAdapter,
         )
 
@@ -92,7 +92,7 @@ def build_metrics_query_adapter() -> MetricsQueryPort:
             endpoint=os.environ.get("AZURE_MONITOR_PROMETHEUS_URL", "")
         )
 
-    from hexawyn.adapters.secondary.gitops.prometheus_http_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.prometheus_http_adapter import (
         PrometheusHTTPAdapter,
     )
 
@@ -103,7 +103,7 @@ def build_metrics_query_adapter() -> MetricsQueryPort:
 
 
 def build_cross_namespace_traffic_adapter() -> CrossNamespaceTrafficPort:
-    from hexawyn.adapters.secondary.gitops.otel_cross_namespace_traffic_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.otel_cross_namespace_traffic_adapter import (  # noqa: E501
         OTelCrossNamespaceTrafficAdapter,
     )
 
@@ -111,7 +111,7 @@ def build_cross_namespace_traffic_adapter() -> CrossNamespaceTrafficPort:
 
 
 def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:
-    from hexawyn.adapters.secondary.gitops.otel_trace_log_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.otel_trace_log_adapter import (
         OTelTraceLogAdapter,
     )
 
@@ -119,7 +119,7 @@ def build_trace_log_correlation_adapter() -> TraceLogCorrelationPort:
 
 
 def build_service_dependency_graph_adapter() -> ServiceDependencyGraphPort:
-    from hexawyn.adapters.secondary.gitops.otel_dependency_graph_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.otel_dependency_graph_adapter import (
         OTelDependencyGraphAdapter,
     )
 
@@ -127,7 +127,7 @@ def build_service_dependency_graph_adapter() -> ServiceDependencyGraphPort:
 
 
 def build_trace_event_correlation_adapter() -> TraceEventCorrelationPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_event_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_event_adapter import (
         KubernetesEventAdapter,
     )
 
@@ -137,7 +137,7 @@ def build_trace_event_correlation_adapter() -> TraceEventCorrelationPort:
 def build_trace_query_adapter() -> TraceQueryPort:
     context = _current_cluster_context()
     if _is_datadog_enabled(context):
-        from hexawyn.adapters.secondary.datadog.datadog_traces_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.datadog.datadog_traces_adapter import (
             DatadogTracesAdapter,
         )
         from hexawyn.infrastructure.config.datadog_config import get_datadog_config
@@ -148,19 +148,23 @@ def build_trace_query_adapter() -> TraceQueryPort:
         )
 
     if _is_aws_eks_context(context):
-        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
-        from hexawyn.adapters.secondary.aws.xray_trace_adapter import AWSXRayTraceAdapter
+        from hexawyn.infrastructure.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.aws.xray_trace_adapter import (
+            AWSXRayTraceAdapter,
+        )
 
         return AWSXRayTraceAdapter(region=AWSEKSAdapter(context).region)
 
     if _is_gcp_gke_context(context):
-        from hexawyn.adapters.secondary.gcp.cloud_trace_adapter import GCPCloudTraceAdapter
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+        from hexawyn.infrastructure.adapters.secondary.gcp.cloud_trace_adapter import (
+            GCPCloudTraceAdapter,
+        )
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         return GCPCloudTraceAdapter(project_id=GCPGKEAdapter(context).project_id or "")
 
     if _is_azure_aks_context(context):
-        from hexawyn.adapters.secondary.azure.monitor_traces_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.azure.monitor_traces_adapter import (
             AzureMonitorTracesAdapter,
         )
 
@@ -168,13 +172,13 @@ def build_trace_query_adapter() -> TraceQueryPort:
             workspace_id=os.environ.get("AZURE_LOG_ANALYTICS_WORKSPACE_ID", "")
         )
 
-    from hexawyn.adapters.secondary.gitops.otel_http_adapter import OTelHTTPAdapter
+    from hexawyn.infrastructure.adapters.secondary.gitops.otel_http_adapter import OTelHTTPAdapter
 
     return OTelHTTPAdapter()
 
 
 def build_slow_trace_search_adapter() -> SlowTraceSearchPort:
-    from hexawyn.adapters.secondary.gitops.otel_pod_trace_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.otel_pod_trace_adapter import (
         OTelPodTraceAdapter,
     )
 
@@ -182,7 +186,7 @@ def build_slow_trace_search_adapter() -> SlowTraceSearchPort:
 
 
 def build_deployment_latency_comparison_adapter() -> DeploymentLatencyComparisonPort:
-    from hexawyn.adapters.secondary.gitops.otel_deployment_comparison_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.otel_deployment_comparison_adapter import (  # noqa: E501
         OTelDeploymentComparisonAdapter,
     )
 
@@ -190,7 +194,7 @@ def build_deployment_latency_comparison_adapter() -> DeploymentLatencyComparison
 
 
 def build_redundant_call_detection_adapter() -> RedundantCallDetectionPort:
-    from hexawyn.adapters.secondary.gitops.otel_redundant_call_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.otel_redundant_call_adapter import (
         OTelRedundantCallAdapter,
     )
 
@@ -198,7 +202,7 @@ def build_redundant_call_detection_adapter() -> RedundantCallDetectionPort:
 
 
 def build_error_attribution_adapter() -> ErrorAttributionPort:
-    from hexawyn.adapters.secondary.gitops.otel_error_attribution_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.otel_error_attribution_adapter import (
         OTelErrorAttributionAdapter,
     )
 
@@ -206,7 +210,7 @@ def build_error_attribution_adapter() -> ErrorAttributionPort:
 
 
 def build_slo_breach_prediction_adapter() -> SLOBreachPredictionPort:
-    from hexawyn.adapters.secondary.gitops.otel_slo_prediction_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.otel_slo_prediction_adapter import (
         OTelSLOPredictionAdapter,
     )
 
@@ -214,7 +218,7 @@ def build_slo_breach_prediction_adapter() -> SLOBreachPredictionPort:
 
 
 def build_pod_logs_adapter() -> PodLogsPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_pod_logs_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pod_logs_adapter import (
         KubernetesPodLogsAdapter,
     )
 
@@ -224,15 +228,19 @@ def build_pod_logs_adapter() -> PodLogsPort:
 def build_log_search_adapter() -> LogSearchPort:
     context = _current_cluster_context()
     if _is_datadog_enabled(context):
-        from hexawyn.adapters.secondary.datadog.datadog_logs_adapter import DatadogLogsAdapter
+        from hexawyn.infrastructure.adapters.secondary.datadog.datadog_logs_adapter import (
+            DatadogLogsAdapter,
+        )
         from hexawyn.infrastructure.config.datadog_config import get_datadog_config
 
         config = get_datadog_config()
         return DatadogLogsAdapter(key=config["key"], app_key=config["app_key"], site=config["site"])
 
     if _is_aws_eks_context(context):
-        from hexawyn.adapters.secondary.aws.cloudwatch_logs_adapter import CloudWatchLogsAdapter
-        from hexawyn.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
+        from hexawyn.infrastructure.adapters.secondary.aws.cloudwatch_logs_adapter import (
+            CloudWatchLogsAdapter,
+        )
+        from hexawyn.infrastructure.adapters.secondary.aws.eks_adapter import AWSEKSAdapter
 
         return CloudWatchLogsAdapter(
             cluster_name=context["cluster"] or context["name"],
@@ -240,13 +248,15 @@ def build_log_search_adapter() -> LogSearchPort:
         )
 
     if _is_gcp_gke_context(context):
-        from hexawyn.adapters.secondary.gcp.cloud_logging_adapter import GCPCloudLoggingAdapter
-        from hexawyn.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
+        from hexawyn.infrastructure.adapters.secondary.gcp.cloud_logging_adapter import (
+            GCPCloudLoggingAdapter,
+        )
+        from hexawyn.infrastructure.adapters.secondary.gcp.gke_adapter import GCPGKEAdapter
 
         return GCPCloudLoggingAdapter(project_id=GCPGKEAdapter(context).project_id or "")
 
     if _is_azure_aks_context(context):
-        from hexawyn.adapters.secondary.azure.log_analytics_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.azure.log_analytics_adapter import (
             AzureLogAnalyticsAdapter,
         )
 
@@ -254,7 +264,7 @@ def build_log_search_adapter() -> LogSearchPort:
             workspace_id=os.environ.get("AZURE_LOG_ANALYTICS_WORKSPACE_ID", "")
         )
 
-    from hexawyn.adapters.secondary.gitops.kubernetes_pod_log_search_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pod_log_search_adapter import (
         KubernetesPodLogSearchAdapter,
     )
 
@@ -262,7 +272,7 @@ def build_log_search_adapter() -> LogSearchPort:
 
 
 def build_pod_metrics_baseline_adapter() -> PodMetricsBaselinePort:
-    from hexawyn.adapters.secondary.gitops.prometheus_pod_metrics_baseline_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.prometheus_pod_metrics_baseline_adapter import (  # noqa: E501
         PrometheusPodMetricsBaselineAdapter,
     )
 
@@ -272,7 +282,7 @@ def build_pod_metrics_baseline_adapter() -> PodMetricsBaselinePort:
 
 
 def build_namespace_events_adapter() -> NamespaceEventsPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_namespace_events_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_namespace_events_adapter import (  # noqa: E501
         KubernetesNamespaceEventsAdapter,
     )
 
@@ -280,7 +290,7 @@ def build_namespace_events_adapter() -> NamespaceEventsPort:
 
 
 def build_namespace_overview_adapter() -> NamespaceOverviewPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_namespace_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_namespace_adapter import (
         KubernetesNamespaceAdapter,
     )
 
@@ -288,7 +298,7 @@ def build_namespace_overview_adapter() -> NamespaceOverviewPort:
 
 
 def build_pod_log_watch_adapter() -> PodLogWatchPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_pod_log_watch_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pod_log_watch_adapter import (
         KubernetesPodLogWatchAdapter,
     )
 
@@ -296,7 +306,7 @@ def build_pod_log_watch_adapter() -> PodLogWatchPort:
 
 
 def build_error_budget_adapter() -> ErrorBudgetPort:
-    from hexawyn.adapters.secondary.gitops.prometheus_error_budget_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.prometheus_error_budget_adapter import (
         PrometheusErrorBudgetAdapter,
     )
 

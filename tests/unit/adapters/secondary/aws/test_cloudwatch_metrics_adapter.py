@@ -5,14 +5,14 @@ from unittest.mock import MagicMock
 
 import pytest
 from botocore.exceptions import ClientError, NoCredentialsError
-from hexawyn.adapters.secondary.aws.cloudwatch_metrics_adapter import (
+from hexawyn.domain.errors import MetricsUnavailableError
+from hexawyn.infrastructure.adapters.secondary.aws.cloudwatch_metrics_adapter import (
     CloudWatchClusterResourceMetricsAdapter,
     _all_values,
     _find_result,
     _latest_value,
     _series_by_node,
 )
-from hexawyn.domain.errors import MetricsUnavailableError
 
 
 class TestCloudWatchClusterResourceMetricsAdapter:

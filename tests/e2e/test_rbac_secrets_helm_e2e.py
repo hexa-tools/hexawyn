@@ -8,7 +8,7 @@ import pytest
 @pytest.mark.e2e
 class TestRBACE2E:
     def test_rbac_audit_does_not_crash(self, k8s_cluster_ready: bool) -> None:
-        from hexawyn.adapters.secondary.gitops.kubernetes_rbac_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_rbac_adapter import (
             KubernetesRBACAdapter,
         )
 
@@ -20,7 +20,7 @@ class TestRBACE2E:
 @pytest.mark.e2e
 class TestSecretRotationE2E:
     def test_secret_audit_does_not_crash(self, k8s_cluster_ready: bool) -> None:
-        from hexawyn.adapters.secondary.gitops.kubernetes_secret_audit_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_secret_audit_adapter import (  # noqa: E501
             KubernetesSecretAuditAdapter,
         )
 
@@ -32,7 +32,7 @@ class TestSecretRotationE2E:
 @pytest.mark.e2e
 class TestHelmE2E:
     def test_helm_list_releases(self, k8s_cluster_ready: bool) -> None:
-        from hexawyn.adapters.secondary.gitops.helm_release_version_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.gitops.helm_release_version_adapter import (
             HelmReleaseVersionAdapter,
         )
 

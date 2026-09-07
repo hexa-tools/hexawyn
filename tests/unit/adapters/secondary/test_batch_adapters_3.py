@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.kubernetes_headroom_simulation_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_headroom_simulation_adapter import (  # noqa: E501
     _cpu_to_cores,
 )
-from hexawyn.adapters.secondary.gitops.kubernetes_image_drift_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_image_drift_adapter import (
     _match_labels,
     _matches_selector,
 )
-from hexawyn.adapters.secondary.openshift.openshift_logs_adapter import (
+from hexawyn.infrastructure.adapters.secondary.openshift.openshift_logs_adapter import (
     OpenShiftLogsAdapter,
 )
 

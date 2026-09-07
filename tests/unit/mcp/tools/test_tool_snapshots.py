@@ -30,7 +30,7 @@ class TestSnapshotsTool:
         mock_vanilla._crd_api_client.return_value = mock_crd
 
         with patch(
-            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter",
+            "hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter",
             return_value=mock_vanilla,
         ):
             result = snapshots_list()
@@ -43,7 +43,7 @@ class TestSnapshotsTool:
         from hexawyn.mcp.tools.snapshots import snapshots_list
 
         with patch(
-            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter",
+            "hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter",
             side_effect=RuntimeError("test error"),
         ):
             result = snapshots_list()
@@ -60,7 +60,7 @@ class TestSnapshotsTool:
         mock_vanilla._crd_api_client.return_value = mock_crd
 
         with patch(
-            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter",
+            "hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter",
             return_value=mock_vanilla,
         ):
             result = snapshots_list("test-ns")
@@ -84,7 +84,7 @@ class TestSnapshotsTool:
         mock_vanilla._crd_api_client.return_value = mock_crd
 
         with patch(
-            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter",
+            "hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter",
             return_value=mock_vanilla,
         ):
             result = snapshot_get("snap1", "ns1")
@@ -96,7 +96,7 @@ class TestSnapshotsTool:
         from hexawyn.mcp.tools.snapshots import snapshot_get
 
         with patch(
-            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter",
+            "hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter",
             side_effect=RuntimeError("test error"),
         ):
             result = snapshot_get("snap1", "ns1")
@@ -113,7 +113,7 @@ class TestSnapshotsTool:
         mock_vanilla._crd_api_client.return_value = mock_crd
 
         with patch(
-            "hexawyn.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter",
+            "hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter.VanillaAdapter",
             return_value=mock_vanilla,
         ):
             result = snapshot_get("snap1", "ns1")

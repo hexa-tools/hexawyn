@@ -117,5 +117,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/admin_endpoint_audit.py` — FailedAdminCall, CallerSummary, AdminAuditResult
 - `src/hexawyn/application/ports/driven/security_audit_port.py` — SecurityAuditPort ABC
-- `src/hexawyn/adapters/secondary/gitops/otel_security_audit_adapter.py` — OTelSecurityAuditAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_security_audit_adapter.py` — OTelSecurityAuditAdapter
 - `src/hexawyn/mcp/tools/admin_endpoint_audit.py` — MCP tool

@@ -112,5 +112,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/latency_diagnostic.py` — TraceSpan, SpanBreakdown, LatencyDiagnosticResult
 - `src/hexawyn/application/ports/driven/trace_query_port.py` — TraceQueryPort ABC
-- `src/hexawyn/adapters/secondary/gitops/otel_http_adapter.py` — OTelHTTPAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_http_adapter.py` — OTelHTTPAdapter
 - `src/hexawyn/mcp/tools/latency_diagnostic.py` — MCP tool

@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from hexawyn.domain.models.cilium import CiliumIdentitiesResult, CiliumIdentityInfo
 from hexawyn.domain.services.cilium.identity_builder import (
+    _count_endpoint_ids,
+    _endpoint_identity_id,
     build_identities_result,
     not_installed_identities_result,
 )
@@ -84,6 +87,57 @@ class TestBuildIdentitiesResult:
 
         assert result.identities[0].endpoint_count == 1  # noqa: PLR2004
 
+    def test_exact_present_result(self) -> None:
+        identities = [
+            _identity("100", spec_labels=["a", "b"]),
+            _identity("200", spec_labels=["c"]),
+        ]
+        endpoints = [_endpoint("100"), _endpoint("100"), _endpoint("200")]
+
+        result = build_identities_result(identities, endpoints)
+
+        assert isinstance(result, CiliumIdentitiesResult)
+        assert result == CiliumIdentitiesResult(
+            installed=True,
+            status="present",
+            total_identities=2,  # noqa: PLR2004
+            identities=[
+                CiliumIdentityInfo(
+                    id="100",
+                    labels=("a", "b"),
+                    endpoint_count=2,  # noqa: PLR2004
+                ),
+                CiliumIdentityInfo(
+                    id="200",
+                    labels=("c",),
+                    endpoint_count=1,  # noqa: PLR2004
+                ),
+            ],
+            note=None,
+        )
+
+    def test_missing_metadata_name_empty_id(self) -> None:
+        result = build_identities_result([{"spec": {}}], [])
+
+        assert result.identities[0].id == ""
+        assert result.identities[0].endpoint_count == 0
+
+    def test_identity_id_absent_from_endpoints_zero_count(self) -> None:
+        result = build_identities_result([_identity("900")], [_endpoint("100")])
+
+        assert result.identities[0].endpoint_count == 0
+
+    def test_empty_exact_result(self) -> None:
+        result = build_identities_result([], [])
+
+        assert result == CiliumIdentitiesResult(
+            installed=True,
+            status="empty",
+            total_identities=0,
+            identities=[],
+            note="No Cilium identities found",
+        )
+
 
 class TestNotInstalledIdentitiesResult:
     def test_returns_marker(self) -> None:
@@ -92,3 +146,47 @@ class TestNotInstalledIdentitiesResult:
         assert result.status == "not_installed"
         assert result.identities == []
         assert result.note is not None
+
+    def test_exact_dataclass(self) -> None:
+        result = not_installed_identities_result()
+
+        assert result == CiliumIdentitiesResult(
+            installed=False,
+            status="not_installed",
+            total_identities=0,
+            identities=[],
+            note="Cilium is not installed in this cluster",
+        )
+
+
+class TestCountEndpointIds:
+    def test_counts_valid_ids_and_skips_invalid(self) -> None:
+        endpoints = [
+            _endpoint("100"),
+            _endpoint("100"),
+            {"status": {}},
+            {"status": {"identity": "not-a-dict"}},
+            {"status": {"identity": {"id": None}}},
+            _endpoint("200"),
+        ]
+
+        counts = _count_endpoint_ids(endpoints)
+
+        assert counts == {"100": 2, "200": 1}  # noqa: PLR2004
+
+
+class TestEndpointIdentityId:
+    def test_returns_id_when_present(self) -> None:
+        assert _endpoint_identity_id(_endpoint("100")) == "100"
+
+    def test_none_when_no_status(self) -> None:
+        assert _endpoint_identity_id({}) is None
+
+    def test_none_when_identity_not_dict(self) -> None:
+        assert _endpoint_identity_id({"status": {"identity": "raw"}}) is None
+
+    def test_none_when_id_missing(self) -> None:
+        assert _endpoint_identity_id({"status": {"identity": {}}}) is None
+
+    def test_none_when_id_none(self) -> None:
+        assert _endpoint_identity_id({"status": {"identity": {"id": None}}}) is None

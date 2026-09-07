@@ -128,6 +128,33 @@ update-badge:
 	@echo "✅ Badge updated"
 
 # ─────────────────────────────────────
+#  Mutation testing (mutmut)
+# ─────────────────────────────────────
+
+.PHONY: mutmut-run mutmut-results mutmut-show mutmut-purge
+
+MUTMUT_MODULE ?= hexawyn.domain.services
+
+mutmut-run:
+	@echo "🧬 Running mutation testing on $(MUTMUT_MODULE)..."
+	$(POETRY) run mutmut run "$(MUTMUT_MODULE)"
+	@echo "✅ Mutation run done"
+
+mutmut-results:
+	@echo "🧬 Showing surviving mutants (filter: $(MUTMUT_MODULE))..."
+	@$(POETRY) run mutmut results | grep "$(MUTMUT_MODULE)" | grep survived || true
+	@echo "✅ Done"
+
+mutmut-show:
+	@test -n "$(MUTMUT_MUTANT)" || (echo "Usage: make mutmut-show MUTMUT_MUTANT=<full_mutant_id>"; exit 1)
+	$(POETRY) run mutmut show "$(MUTMUT_MUTANT)"
+
+mutmut-purge:
+	@echo "🧹 Purging mutmut sandbox (mutants/tests + mutants/src)..."
+	rm -rf mutants/tests mutants/src
+	@echo "✅ Purged — re-run make mutmut-run to rebuild"
+
+# ─────────────────────────────────────
 #  k3d E2E Cluster
 # ─────────────────────────────────────
 
@@ -392,6 +419,10 @@ help:
 	@echo "  make test-all              → Run unit + integration tests"
 	@echo "  make coverage              → Run tests with coverage (≥80%)"
 	@echo "  make update-badge          → Update test count badge in README.md"
+	@echo "  make mutmut-run MUTMUT_MODULE=hexawyn.domain.services.<pkg>.<mod> → Run mutation testing"
+	@echo "  make mutmut-results        → List surviving mutants (filter: MUTMUT_MODULE)"
+	@echo "  make mutmut-show MUTMUT_MUTANT=<id> → Show one mutant diff"
+	@echo "  make mutmut-purge          → Purge mutmut sandbox"
 	@echo ""
 	@echo "🚀 K3D CLUSTER (E2E)"
 	@echo "  make cluster-up            → Create k3d test cluster"

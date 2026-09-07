@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from hexawyn.adapters.secondary.gitops.service_cost_prometheus_adapter import (
+from hexawyn.application.ports.driven.service_cost_port import ServiceCostPort
+from hexawyn.infrastructure.adapters.secondary.gitops.service_cost_prometheus_adapter import (
     ServiceCostPrometheusAdapter,
 )
-from hexawyn.application.ports.driven.service_cost_port import ServiceCostPort
 
 
 class TestServiceCostPrometheusAdapter:
@@ -15,7 +15,7 @@ class TestServiceCostPrometheusAdapter:
 
     def test_fetch_pod_resources_with_data(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.gitops.service_cost_prometheus_adapter.query_prometheus_instant"
+            "hexawyn.infrastructure.adapters.secondary.gitops.service_cost_prometheus_adapter.query_prometheus_instant"
         ) as mock_query:
             mock_query.side_effect = [
                 [
@@ -44,7 +44,7 @@ class TestServiceCostPrometheusAdapter:
 
     def test_fetch_pod_resources_empty_on_error(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.gitops.service_cost_prometheus_adapter.query_prometheus_instant",
+            "hexawyn.infrastructure.adapters.secondary.gitops.service_cost_prometheus_adapter.query_prometheus_instant",
             side_effect=Exception("timeout"),
         ):
             adapter = ServiceCostPrometheusAdapter()
@@ -53,7 +53,7 @@ class TestServiceCostPrometheusAdapter:
 
     def test_fetch_pod_resources_empty_service_name(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.gitops.service_cost_prometheus_adapter.query_prometheus_instant"
+            "hexawyn.infrastructure.adapters.secondary.gitops.service_cost_prometheus_adapter.query_prometheus_instant"
         ) as mock_query:
             mock_query.return_value = []
             adapter = ServiceCostPrometheusAdapter()
@@ -62,7 +62,7 @@ class TestServiceCostPrometheusAdapter:
 
     def test_fetch_pod_resources_no_pods(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.gitops.service_cost_prometheus_adapter.query_prometheus_instant"
+            "hexawyn.infrastructure.adapters.secondary.gitops.service_cost_prometheus_adapter.query_prometheus_instant"
         ) as mock_query:
             mock_query.return_value = []
             adapter = ServiceCostPrometheusAdapter()

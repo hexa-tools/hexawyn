@@ -3,17 +3,17 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.gitops.kubernetes_namespace_events_adapter import (
-    KubernetesNamespaceEventsAdapter,
-    _object_exists,
-    _translate_error,
-)
 from hexawyn.domain.errors import (
     ClusterUnreachableError,
     InsufficientPermissionsError,
     ResourceNotFoundError,
 )
 from hexawyn.domain.models.namespace_event import GetNamespaceEventsRequest, NamespaceEvent
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_namespace_events_adapter import (
+    KubernetesNamespaceEventsAdapter,
+    _object_exists,
+    _translate_error,
+)
 
 
 class TestKubernetesNamespaceEventsAdapter:

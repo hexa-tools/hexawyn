@@ -99,10 +99,10 @@ sequenceDiagram
 
 | File | Role |
 |---|---|
-| `src/hexawyn/adapters/primary/slack/slack_socket_client.py` | Socket Mode WebSocket client + ack |
-| `src/hexawyn/adapters/primary/slack/slack_chat_adapter.py` | Primary adapter, final catch |
+| `src/hexawyn/infrastructure/adapters/primary/slack/slack_socket_client.py` | Socket Mode WebSocket client + ack |
+| `src/hexawyn/infrastructure/adapters/primary/slack/slack_chat_adapter.py` | Primary adapter, final catch |
 | `src/hexawyn/application/service/chat_slack_service.py` | Orchestrates quota + runtime |
-| `src/hexawyn/adapters/secondary/slack/slack_http_publisher.py` | post_message + update_message |
+| `src/hexawyn/infrastructure/adapters/secondary/slack/slack_http_publisher.py` | post_message + update_message |
 | `src/hexawyn/application/ports/driven/runtime_port.py` | check_quota + run_investigation |
 | `src/hexawyn/application/service/http_runtime_adapter.py` | HTTP calls to control-plane |
 | `src/hexawyn/cli/commands/slack_command.py` | CLI: `hexa slack listen [--cluster]` |

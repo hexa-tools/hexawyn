@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
-from hexawyn.adapters.secondary.slack.slack_http_publisher import SlackHttpPublisher
 from hexawyn.application.ports.driven.message_publisher_port import MessagePublisherPort
+from hexawyn.infrastructure.adapters.secondary.slack.slack_http_publisher import SlackHttpPublisher
 
 
 def _make_client(ok: bool = True, ts: str | None = "1234.0001") -> MagicMock:

@@ -4,17 +4,6 @@ from collections.abc import Mapping
 from unittest.mock import Mock
 
 import pytest
-from hexawyn.adapters.secondary.openshift.openshift_adapter import (
-    OpenShiftAdapter,
-    _items,
-    _mapping,
-    _metadata,
-    _to_image_stream,
-    _to_project,
-    _to_route,
-    _to_scc,
-    _translate_error,
-)
 from hexawyn.application.ports.driven.k8s_port import (
     ClusterContext,
     ClusterMetrics,
@@ -25,6 +14,17 @@ from hexawyn.application.ports.driven.k8s_port import (
 from hexawyn.domain.errors import (
     ClusterUnreachableError,
     InsufficientPermissionsError,
+)
+from hexawyn.infrastructure.adapters.secondary.openshift.openshift_adapter import (
+    OpenShiftAdapter,
+    _items,
+    _mapping,
+    _metadata,
+    _to_image_stream,
+    _to_project,
+    _to_route,
+    _to_scc,
+    _translate_error,
 )
 
 

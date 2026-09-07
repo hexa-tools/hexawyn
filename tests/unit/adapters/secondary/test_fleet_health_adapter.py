@@ -3,15 +3,15 @@ from __future__ import annotations
 from unittest.mock import Mock, patch
 
 import pytest
-from hexawyn.adapters.secondary.fleet_health_adapter import FleetHealthAdapter
 from hexawyn.domain.errors import ClusterUnreachableError
 from hexawyn.domain.models.fleet_health import ClusterRawMetrics
+from hexawyn.infrastructure.adapters.secondary.fleet_health_adapter import FleetHealthAdapter
 
 
 class TestFleetHealthAdapter:
     def test_list_contexts(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.fleet_health_adapter.list_available_contexts",
+            "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter.list_available_contexts",
             return_value=[{"name": "ctx1"}, {"name": "ctx2"}],
         ):
             adapter = FleetHealthAdapter()
@@ -20,7 +20,7 @@ class TestFleetHealthAdapter:
 
     def test_list_contexts_empty(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.fleet_health_adapter.list_available_contexts",
+            "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter.list_available_contexts",
             return_value=[],
         ):
             adapter = FleetHealthAdapter()
@@ -28,7 +28,7 @@ class TestFleetHealthAdapter:
 
     def test_get_cluster_raw_metrics_unreachable_kubeconfig(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.fleet_health_adapter.load_kubeconfig",
+            "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter.load_kubeconfig",
             side_effect=Exception("no such context"),
         ):
             adapter = FleetHealthAdapter()
@@ -39,11 +39,11 @@ class TestFleetHealthAdapter:
         mock_api = Mock()
         with (
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter.load_kubeconfig",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter.load_kubeconfig",
                 return_value=mock_api,
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter.validate_connection",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter.validate_connection",
                 return_value={"status": "disconnected", "error": "timeout"},
             ),
         ):
@@ -55,35 +55,35 @@ class TestFleetHealthAdapter:
         mock_api = Mock()
         with (
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter.load_kubeconfig",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter.load_kubeconfig",
                 return_value=mock_api,
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter.validate_connection",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter.validate_connection",
                 return_value={"status": "connected"},
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter._get_node_counts",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._get_node_counts",
                 return_value=(10, 0),
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter._get_pod_counts",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._get_pod_counts",
                 return_value=(100, 99, 1),
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter._get_resource_utilization",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._get_resource_utilization",
                 return_value=(0.5, 0.5),
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter._get_cert_counts",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._get_cert_counts",
                 return_value=(0, 0),
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter._get_security_violations",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._get_security_violations",
                 return_value=0,
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter._get_failing_pipelines",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._get_failing_pipelines",
                 return_value=0,
             ),
         ):
@@ -101,35 +101,35 @@ class TestFleetHealthAdapter:
         mock_api = Mock()
         with (
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter.load_kubeconfig",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter.load_kubeconfig",
                 return_value=mock_api,
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter.validate_connection",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter.validate_connection",
                 return_value={"status": "connected"},
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter._get_node_counts",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._get_node_counts",
                 return_value=(5, 1),
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter._get_pod_counts",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._get_pod_counts",
                 return_value=(50, 45, 5),
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter._get_resource_utilization",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._get_resource_utilization",
                 return_value=(0.8, 0.6),
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter._get_cert_counts",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._get_cert_counts",
                 return_value=(2, 3),
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter._get_security_violations",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._get_security_violations",
                 return_value=2,
             ),
             patch(
-                "hexawyn.adapters.secondary.fleet_health_adapter._get_failing_pipelines",
+                "hexawyn.infrastructure.adapters.secondary.fleet_health_adapter._get_failing_pipelines",
                 return_value=0,
             ),
         ):

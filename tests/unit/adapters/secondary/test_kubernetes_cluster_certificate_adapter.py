@@ -4,17 +4,17 @@ import base64
 from unittest.mock import MagicMock, patch
 
 import pytest
-from hexawyn.adapters.secondary.kubernetes_cluster_certificate_adapter import (
+from hexawyn.application.ports.driven.cluster_certificate_health_port import (
+    ClusterCertificateHealthPort,
+)
+from hexawyn.domain.errors import AdapterTimeoutError, InsufficientPermissionsError
+from hexawyn.infrastructure.adapters.secondary.kubernetes_cluster_certificate_adapter import (
     KubernetesClusterCertificateAdapter,
     _extract_cert_pem,
     _get_annotations,
     _is_auto_renewing,
     _raise_on_rbac,
 )
-from hexawyn.application.ports.driven.cluster_certificate_health_port import (
-    ClusterCertificateHealthPort,
-)
-from hexawyn.domain.errors import AdapterTimeoutError, InsufficientPermissionsError
 
 
 def _make_namespace(name: str) -> MagicMock:

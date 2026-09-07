@@ -76,13 +76,9 @@ def _is_zero_traffic(pod: dict[str, object]) -> bool:
 
 def _classify_risk(pod: dict[str, object]) -> tuple[str, str]:
     has_service = _as_bool(pod.get("has_service"))
-    is_cronjob = _as_bool(pod.get("is_cronjob"))
 
     if has_service:
         return "review_needed", "No traffic but has service pointing to it"
-
-    if is_cronjob:
-        return "safe_to_remove", "No traffic for 24h, no deps"
 
     return "safe_to_remove", "No traffic for 24h, no deps"
 

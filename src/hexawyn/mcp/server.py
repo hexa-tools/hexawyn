@@ -318,8 +318,8 @@ except ClusterUnreachableError as e:
 
 
 def build_gitops_adapter() -> GitOpsPort:
-    from hexawyn.adapters.secondary.gitops.gitops_adapter import GitOpsAdapter
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.gitops.gitops_adapter import GitOpsAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     return GitOpsAdapter(VanillaAdapter(cluster_name="default"))
 
@@ -333,10 +333,10 @@ def build_incident_memory_adapter() -> IncidentMemoryPort:
 
 
 def build_cross_cluster_incident_adapter() -> CrossClusterIncidentPort:
-    from hexawyn.adapters.secondary.gitops.cross_cluster_incident_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.cross_cluster_incident_adapter import (
         CrossClusterIncidentAdapter,
     )
-    from hexawyn.adapters.secondary.gitops.cross_cluster_incident_source import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.cross_cluster_incident_source import (
         EmptyFailureSignatureSource,
     )
 
@@ -344,13 +344,13 @@ def build_cross_cluster_incident_adapter() -> CrossClusterIncidentPort:
 
 
 def build_helm_drift_adapter() -> DriftDetectionPort:
-    from hexawyn.adapters.secondary.gitops.helm_drift_adapter import HelmDriftAdapter
+    from hexawyn.infrastructure.adapters.secondary.gitops.helm_drift_adapter import HelmDriftAdapter
 
     return HelmDriftAdapter()
 
 
 def build_kustomize_drift_adapter() -> DriftDetectionPort:
-    from hexawyn.adapters.secondary.gitops.kustomize_drift_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kustomize_drift_adapter import (
         KustomizeDriftAdapter,
     )
 
@@ -358,7 +358,7 @@ def build_kustomize_drift_adapter() -> DriftDetectionPort:
 
 
 def build_certificate_investigation_adapter() -> CertificateInvestigationPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_certificate_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_certificate_adapter import (
         KubernetesCertificateAdapter,
     )
 
@@ -366,7 +366,7 @@ def build_certificate_investigation_adapter() -> CertificateInvestigationPort:
 
 
 def build_resource_yaml_adapter() -> ResourceYAMLPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_resource_yaml_adapter import (
         KubernetesResourceYAMLAdapter,
     )
 
@@ -374,7 +374,7 @@ def build_resource_yaml_adapter() -> ResourceYAMLPort:
 
 
 def build_pipeline_run_logs_adapter() -> PipelineRunLogsPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_run_logs_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pipeline_run_logs_adapter import (  # noqa: E501
         KubernetesPipelineRunLogsAdapter,
     )
 
@@ -382,7 +382,7 @@ def build_pipeline_run_logs_adapter() -> PipelineRunLogsPort:
 
 
 def build_etcd_logs_adapter() -> ETCDLogsPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_etcd_logs_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_etcd_logs_adapter import (
         KubernetesETCDLogsAdapter,
     )
 
@@ -390,7 +390,7 @@ def build_etcd_logs_adapter() -> ETCDLogsPort:
 
 
 def build_resource_search_adapter() -> ResourceSearchPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_label_search_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_label_search_adapter import (
         KubernetesLabelSearchAdapter,
     )
 
@@ -398,7 +398,7 @@ def build_resource_search_adapter() -> ResourceSearchPort:
 
 
 def build_adaptive_investigation_adapter() -> AdaptiveInvestigationPort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_adaptive_investigation_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_adaptive_investigation_adapter import (  # noqa: E501
         KubernetesAdaptiveInvestigationAdapter,
     )
 
@@ -406,13 +406,15 @@ def build_adaptive_investigation_adapter() -> AdaptiveInvestigationPort:
 
 
 def build_alert_notification_adapter() -> AlertNotificationPort:
-    from hexawyn.adapters.secondary.slack.slack_alert_adapter import SlackAlertAdapter
+    from hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter import (
+        SlackAlertAdapter,
+    )
 
     return SlackAlertAdapter()
 
 
 def build_pipeline_baseline_adapter() -> PipelineBaselinePort:
-    from hexawyn.adapters.secondary.tekton_pipeline_baseline_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.tekton_pipeline_baseline_adapter import (
         TektonPipelineBaselineAdapter,
     )
 
@@ -420,7 +422,7 @@ def build_pipeline_baseline_adapter() -> PipelineBaselinePort:
 
 
 def build_pipeline_for_service_adapter() -> PipelineForServicePort:
-    from hexawyn.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pipeline_for_service_adapter import (  # noqa: E501
         KubernetesPipelineForServiceAdapter,
     )
 
@@ -428,7 +430,7 @@ def build_pipeline_for_service_adapter() -> PipelineForServicePort:
 
 
 def build_reliability_report_adapter() -> WeeklyReliabilityReportPort:
-    from hexawyn.adapters.secondary.gitops.prometheus_reliability_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.prometheus_reliability_adapter import (
         PrometheusReliabilityAdapter,
     )
 
@@ -436,7 +438,7 @@ def build_reliability_report_adapter() -> WeeklyReliabilityReportPort:
 
 
 def build_helm_release_version_adapter() -> HelmReleaseVersionPort:
-    from hexawyn.adapters.secondary.gitops.helm_release_version_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.helm_release_version_adapter import (
         HelmReleaseVersionAdapter,
     )
 
@@ -444,7 +446,7 @@ def build_helm_release_version_adapter() -> HelmReleaseVersionPort:
 
 
 def build_helm_values_diff_adapter() -> HelmValuesDiffPort:
-    from hexawyn.adapters.secondary.gitops.helm_values_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.helm_values_adapter import (
         HelmValuesAdapter,
     )
 
@@ -452,7 +454,7 @@ def build_helm_values_diff_adapter() -> HelmValuesDiffPort:
 
 
 def build_kustomize_patch_analysis_adapter() -> KustomizePatchAnalysisPort:
-    from hexawyn.adapters.secondary.gitops.kustomize_patch_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.kustomize_patch_adapter import (
         KustomizeCLIPatchAdapter,
     )
 
@@ -460,7 +462,7 @@ def build_kustomize_patch_analysis_adapter() -> KustomizePatchAnalysisPort:
 
 
 def build_recurring_incident_adapter() -> RecurringIncidentPort:
-    from hexawyn.adapters.secondary.gitops.recurring_incident_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.gitops.recurring_incident_adapter import (
         RecurringIncidentAdapter,
     )
 
@@ -468,7 +470,7 @@ def build_recurring_incident_adapter() -> RecurringIncidentPort:
 
 
 def build_openshift_resource_adapter() -> OpenShiftResourcePort:
-    from hexawyn.adapters.secondary.openshift.openshift_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.openshift.openshift_adapter import (
         OpenShiftAdapter,
     )
 
@@ -476,7 +478,7 @@ def build_openshift_resource_adapter() -> OpenShiftResourcePort:
 
 
 def build_cluster_operator_status_adapter() -> ClusterOperatorStatusPort:
-    from hexawyn.adapters.secondary.openshift.openshift_cluster_operator_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.openshift.openshift_cluster_operator_adapter import (  # noqa: E501
         OpenShiftClusterOperatorAdapter,
     )
 
@@ -484,7 +486,7 @@ def build_cluster_operator_status_adapter() -> ClusterOperatorStatusPort:
 
 
 def build_machine_config_pool_adapter() -> MachineConfigPoolPort:
-    from hexawyn.adapters.secondary.openshift.openshift_machine_config_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.openshift.openshift_machine_config_adapter import (  # noqa: E501
         OpenShiftMachineConfigAdapter,
     )
 
@@ -492,13 +494,13 @@ def build_machine_config_pool_adapter() -> MachineConfigPoolPort:
 
 
 def build_pricing_plan_adapter() -> PlanPort:
-    from hexawyn.adapters.secondary.pricing_plan_adapter import PricingPlanAdapter
+    from hexawyn.infrastructure.adapters.secondary.pricing_plan_adapter import PricingPlanAdapter
 
     return PricingPlanAdapter()
 
 
 def build_usage_meter_adapter() -> UsageMeterPort:
-    from hexawyn.adapters.secondary.usage_meter_adapter import UsageMeterAdapter
+    from hexawyn.infrastructure.adapters.secondary.usage_meter_adapter import UsageMeterAdapter
 
     return UsageMeterAdapter()
 

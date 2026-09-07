@@ -4,18 +4,18 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.kubernetes_namespace_adapter import (
+from hexawyn.domain.errors import (
+    ClusterUnreachableError,
+    InsufficientPermissionsError,
+    ResourceNotFoundError,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_namespace_adapter import (
     _pod_status,
     _to_deployment_status,
     _to_hpa_status,
     _to_pod_status,
     _translate_namespace_error,
     _waiting_reason,
-)
-from hexawyn.domain.errors import (
-    ClusterUnreachableError,
-    InsufficientPermissionsError,
-    ResourceNotFoundError,
 )
 
 

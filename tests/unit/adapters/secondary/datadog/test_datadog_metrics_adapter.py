@@ -4,15 +4,6 @@ from datetime import UTC, datetime
 from unittest.mock import Mock, patch
 
 import pytest
-from hexawyn.adapters.secondary.datadog.datadog_metrics_adapter import (
-    DatadogClusterResourceMetricsAdapter,
-    _host_from_scope,
-    _latest_value,
-    _series_by_host,
-    _translate_error,
-    _ts_to_iso,
-    _values,
-)
 from hexawyn.application.ports.driven.cluster_resource_metrics_port import (
     ClusterResourceMetricsPort,
 )
@@ -20,6 +11,15 @@ from hexawyn.domain.errors import (
     AdapterTimeoutError,
     InsufficientPermissionsError,
     MetricsUnavailableError,
+)
+from hexawyn.infrastructure.adapters.secondary.datadog.datadog_metrics_adapter import (
+    DatadogClusterResourceMetricsAdapter,
+    _host_from_scope,
+    _latest_value,
+    _series_by_host,
+    _translate_error,
+    _ts_to_iso,
+    _values,
 )
 
 
@@ -194,7 +194,7 @@ class TestDatadogClusterResourceMetricsAdapter:
 
     def test_lazy_api_construction_when_metrics_api_is_none(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.datadog.datadog_metrics_adapter._build_metrics_api"
+            "hexawyn.infrastructure.adapters.secondary.datadog.datadog_metrics_adapter._build_metrics_api"
         ) as mock_build:
             mock_build.return_value = _api_mock([_series_mock("", [])])
             adapter = DatadogClusterResourceMetricsAdapter(key="k", app_key="a", site="s")

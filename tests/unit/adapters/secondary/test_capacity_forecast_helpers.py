@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from hexawyn.adapters.secondary.gitops.kubernetes_capacity_forecast_adapter import (
+from hexawyn.application.ports.driven.capacity_forecast_port import (
+    CapacityForecastPort,
+)
+from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_capacity_forecast_adapter import (
     KubernetesCapacityForecastAdapter,
     _cpu_to_cores,
     _float_prefix,
@@ -13,10 +17,6 @@ from hexawyn.adapters.secondary.gitops.kubernetes_capacity_forecast_adapter impo
     _safe_float,
     _translate_error,
 )
-from hexawyn.application.ports.driven.capacity_forecast_port import (
-    CapacityForecastPort,
-)
-from hexawyn.domain.errors import ClusterUnreachableError, InsufficientPermissionsError
 
 
 def _mk(**attrs: object) -> Mock:

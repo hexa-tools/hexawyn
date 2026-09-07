@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from hexawyn.adapters.secondary.vanilla.adapters.k8s_adapter import VanillaK8sAdapter
+from hexawyn.infrastructure.adapters.secondary.vanilla.adapters.k8s_adapter import VanillaK8sAdapter
 
 
 def _rule(host: str, services: list[str]) -> MagicMock:

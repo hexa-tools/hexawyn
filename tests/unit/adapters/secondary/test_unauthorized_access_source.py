@@ -1,4 +1,4 @@
-from hexawyn.adapters.secondary.gitops.unauthorized_access_source import (
+from hexawyn.infrastructure.adapters.secondary.gitops.unauthorized_access_source import (
     EmptyUnauthorizedAccessSource,
 )
 

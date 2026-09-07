@@ -4,17 +4,21 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, Mock, patch
 
-from hexawyn.adapters.secondary.gitops.budget_projection_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.budget_projection_adapter import (
     BudgetProjectionAdapter,
     _month_of,
     _to_monthly_raw,
 )
-from hexawyn.adapters.secondary.gitops.helm_release_version_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.helm_release_version_adapter import (
     HelmReleaseVersionAdapter,
 )
-from hexawyn.adapters.secondary.gitops.prediction_roi_adapter import PredictionRoiAdapter
-from hexawyn.adapters.secondary.gitops.stale_credentials_adapter import StaleCredentialsAdapter
-from hexawyn.adapters.secondary.gitops.unauthorized_access_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.prediction_roi_adapter import (
+    PredictionRoiAdapter,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.stale_credentials_adapter import (
+    StaleCredentialsAdapter,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.unauthorized_access_adapter import (
     UnauthorizedAccessAdapter,
 )
 

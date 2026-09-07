@@ -28,35 +28,45 @@ def _runtime_with_quota(used: int, limit: int) -> MagicMock:
 
 class TestImplementsPorts:
     def test_implements_usage_meter_port(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         assert isinstance(RuntimeQuotaSource(runtime=MagicMock()), UsageMeterPort)
 
     def test_implements_plan_port(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         assert isinstance(RuntimeQuotaSource(runtime=MagicMock()), PlanPort)
 
 
 class TestRowOneControlPlaneReachable:
     def test_get_usage_from_cp(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         source = RuntimeQuotaSource(runtime=_runtime_with_quota(used=42, limit=500))
         assert source.get_usage("investigations") == 42  # noqa: PLR2004
 
     def test_get_limit_from_cp(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         source = RuntimeQuotaSource(runtime=_runtime_with_quota(used=42, limit=500))
         assert source.get_limit("investigations") == 500  # noqa: PLR2004
 
     def test_quota_is_cached_when_cp_reachable(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         source = RuntimeQuotaSource(runtime=_runtime_with_quota(used=7, limit=300))
         with patch(
-            "hexawyn.adapters.secondary.runtime_quota_source.quota_cache.save_quota"
+            "hexawyn.infrastructure.adapters.secondary.runtime_quota_source.quota_cache.save_quota"
         ) as save:
             source.get_limit("investigations")
             save.assert_called_once()
@@ -66,13 +76,15 @@ class TestRowOneControlPlaneReachable:
 
 class TestRowTwoCpDownWithCache:
     def test_uses_cached_quota_when_cp_unreachable_and_cache_present(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         runtime = MagicMock()
         runtime.check_quota.side_effect = RuntimeError("cp down")
 
         with patch(
-            "hexawyn.adapters.secondary.runtime_quota_source.quota_cache.load_quota",
+            "hexawyn.infrastructure.adapters.secondary.runtime_quota_source.quota_cache.load_quota",
             return_value={"allowed": True, "used": 11, "limit": 200, "remaining": 189},
         ):
             source = RuntimeQuotaSource(runtime=runtime)
@@ -82,39 +94,45 @@ class TestRowTwoCpDownWithCache:
 
 class TestRowThreeCpDownNoCache:
     def test_get_limit_returns_none_when_cp_down_and_no_cache(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         runtime = MagicMock()
         runtime.check_quota.side_effect = RuntimeError("cp down")
 
         with patch(
-            "hexawyn.adapters.secondary.runtime_quota_source.quota_cache.load_quota",
+            "hexawyn.infrastructure.adapters.secondary.runtime_quota_source.quota_cache.load_quota",
             return_value=None,
         ):
             source = RuntimeQuotaSource(runtime=runtime)
             assert source.get_limit("investigations") is None
 
     def test_get_usage_returns_zero_when_neutral(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         runtime = MagicMock()
         runtime.check_quota.side_effect = RuntimeError("cp down")
 
         with patch(
-            "hexawyn.adapters.secondary.runtime_quota_source.quota_cache.load_quota",
+            "hexawyn.infrastructure.adapters.secondary.runtime_quota_source.quota_cache.load_quota",
             return_value=None,
         ):
             source = RuntimeQuotaSource(runtime=runtime)
             assert source.get_usage("investigations") == 0
 
     def test_neutral_does_not_block_availability(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         runtime = MagicMock()
         runtime.check_quota.side_effect = RuntimeError("cp down")
 
         with patch(
-            "hexawyn.adapters.secondary.runtime_quota_source.quota_cache.load_quota",
+            "hexawyn.infrastructure.adapters.secondary.runtime_quota_source.quota_cache.load_quota",
             return_value=None,
         ):
             source = RuntimeQuotaSource(runtime=runtime)
@@ -122,7 +140,9 @@ class TestRowThreeCpDownNoCache:
             assert source.is_available("investigations") is True
 
     def test_cp_with_unverifiable_limit_is_treated_as_neutral(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         runtime = MagicMock()
         runtime.check_quota.return_value = {
@@ -133,7 +153,7 @@ class TestRowThreeCpDownNoCache:
         }
 
         with patch(
-            "hexawyn.adapters.secondary.runtime_quota_source.quota_cache.load_quota",
+            "hexawyn.infrastructure.adapters.secondary.runtime_quota_source.quota_cache.load_quota",
             return_value=None,
         ):
             source = RuntimeQuotaSource(runtime=runtime)
@@ -142,21 +162,25 @@ class TestRowThreeCpDownNoCache:
 
 class TestSlackCountedButUnlimited:
     def test_slack_usage_from_local_store(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         source = RuntimeQuotaSource(runtime=MagicMock())
         with patch(
-            "hexawyn.adapters.secondary.runtime_quota_source._get_current_slack_quota",
+            "hexawyn.infrastructure.adapters.secondary.runtime_quota_source._get_current_slack_quota",
             return_value=MagicMock(count=4, limit=50),
         ):
             assert source.get_usage("slack_alerts") == 4  # noqa: PLR2004
 
     def test_slack_limit_is_unlimited_locally(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         source = RuntimeQuotaSource(runtime=MagicMock())
         with patch(
-            "hexawyn.adapters.secondary.runtime_quota_source._get_current_slack_quota",
+            "hexawyn.infrastructure.adapters.secondary.runtime_quota_source._get_current_slack_quota",
             return_value=MagicMock(count=4, limit=50),
         ):
             # (ii) counted-but-unlimited: no hardcoded number, -1 == unlimited.
@@ -165,7 +189,9 @@ class TestSlackCountedButUnlimited:
 
 class TestPlanDelegation:
     def test_is_available_delegates_to_local_plan(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         source = RuntimeQuotaSource(runtime=MagicMock())
         source._plan = MagicMock()
@@ -174,7 +200,9 @@ class TestPlanDelegation:
         source._plan.is_available.assert_called_once_with("investigations")
 
     def test_tier_required_for_delegates_to_local_plan(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         source = RuntimeQuotaSource(runtime=MagicMock())
         source._plan = MagicMock()
@@ -183,7 +211,9 @@ class TestPlanDelegation:
         source._plan.tier_required_for.assert_called_once_with("clusters")
 
     def test_other_resource_limit_uses_local_plan(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         source = RuntimeQuotaSource(runtime=MagicMock())
         source._plan = MagicMock()
@@ -192,7 +222,9 @@ class TestPlanDelegation:
         source._plan.get_limit.assert_called_once_with("clusters")
 
     def test_usage_of_unknown_resource_is_zero(self) -> None:
-        from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
+        from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import (
+            RuntimeQuotaSource,
+        )
 
         # Category: absence / unknown resource — no fabricated usage figure.
         source = RuntimeQuotaSource(runtime=MagicMock())

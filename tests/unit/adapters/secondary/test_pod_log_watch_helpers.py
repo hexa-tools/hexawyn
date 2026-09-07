@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.gitops.kubernetes_pod_log_watch_adapter import (
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_pod_log_watch_adapter import (
     _detect_level,
     _parse_line,
     _parse_message,

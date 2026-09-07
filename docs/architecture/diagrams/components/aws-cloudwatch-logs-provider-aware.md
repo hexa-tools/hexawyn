@@ -21,11 +21,11 @@ flowchart TB
         BUILD --> ISAWS
     end
 
-    subgraph K8s["adapters/secondary/gitops"]
+    subgraph K8s["infrastructure/adapters/secondary/gitops"]
         KUBE["KubernetesPodLogSearchAdapter<br/>read_namespaced_pod_log"]
     end
 
-    subgraph AWS["adapters/secondary/aws"]
+    subgraph AWS["infrastructure/adapters/secondary/aws"]
         CWL["CloudWatchLogsAdapter<br/>filter_log_events on<br/>/aws/containerinsights/&lt;cluster&gt;/application"]
     end
 
@@ -75,7 +75,7 @@ flowchart TB
 ## Related Files
 
 - `src/hexawyn/application/ports/driven/log_search_port.py` — the port
-- `src/hexawyn/adapters/secondary/aws/cloudwatch_logs_adapter.py` — CloudWatch impl
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_pod_log_search_adapter.py` — k8s fallback
+- `src/hexawyn/infrastructure/adapters/secondary/aws/cloudwatch_logs_adapter.py` — CloudWatch impl
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_pod_log_search_adapter.py` — k8s fallback
 - `src/hexawyn/application/service/semantic_log_search_service.py` — consumer
 - `src/hexawyn/mcp/server.py` — `build_log_search_adapter()` provider-aware

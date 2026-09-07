@@ -1,9 +1,9 @@
 from unittest.mock import patch
 
 import pytest
-from hexawyn.adapters.secondary.slack.slack_alert_adapter import SlackAlertAdapter
 from hexawyn.application.ports.driven.alert_notification_port import AlertMessage
 from hexawyn.domain.errors import SlackQuotaExceededError
+from hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter import SlackAlertAdapter
 
 
 def _make_alert(text: str = "test alert", is_pro: bool = False) -> AlertMessage:
@@ -26,9 +26,11 @@ class TestSlackAlertAdapter:
         with patch("httpx.post") as mock_post:
             mock_post.return_value.status_code = 200
             mock_post.return_value.text = "ok"
-            with patch("hexawyn.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"):
+            with patch(
+                "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"
+            ):
                 with patch(
-                    "hexawyn.adapters.secondary.slack.slack_alert_adapter.increment_slack_quota"
+                    "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.increment_slack_quota"
                 ):
                     result = self.adapter.send_alert(_make_alert())
         assert result is True
@@ -37,13 +39,15 @@ class TestSlackAlertAdapter:
         with patch("httpx.post") as mock_post:
             mock_post.return_value.status_code = 500
             mock_post.return_value.text = "error"
-            with patch("hexawyn.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"):
+            with patch(
+                "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"
+            ):
                 result = self.adapter.send_alert(_make_alert())
         assert result is False
 
     def test_send_alert_raises_quota_exceeded(self) -> None:
         with patch(
-            "hexawyn.adapters.secondary.slack.slack_alert_adapter.check_slack_quota",
+            "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.check_slack_quota",
             side_effect=SlackQuotaExceededError(used=5, limit=5),
         ):
             with pytest.raises(SlackQuotaExceededError):
@@ -53,11 +57,11 @@ class TestSlackAlertAdapter:
         with patch.dict("os.environ", {"HEXAWYN_SLACK_WEBHOOK_URL": ""}, clear=False):
             adapter = SlackAlertAdapter(webhook_url=None)
             with patch(
-                "hexawyn.adapters.secondary.slack.slack_alert_adapter.os.environ.get",
+                "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.os.environ.get",
                 return_value="",
             ):
                 with patch(
-                    "hexawyn.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"
+                    "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"
                 ):
                     result = adapter.send_alert(_make_alert())
         assert result is False
@@ -92,7 +96,9 @@ class TestSlackAlertAdapter:
 
     def test_never_raises_on_network_error(self) -> None:
         with patch("httpx.post", side_effect=Exception("network error")):
-            with patch("hexawyn.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"):
+            with patch(
+                "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"
+            ):
                 result = self.adapter.send_alert(_make_alert())
         assert result is False
 
@@ -120,7 +126,9 @@ class TestSlackAlertAdapter:
         assert "512Mi" in msg["remediation"]
 
     def test_uses_env_webhook_url_when_none_passed(self) -> None:
-        with patch("hexawyn.adapters.secondary.slack.slack_alert_adapter.os") as mock_os:
+        with patch(
+            "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.os"
+        ) as mock_os:
             mock_os.environ.get.return_value = "https://hooks.slack.com/env"
             adapter = SlackAlertAdapter()
             assert adapter._webhook_url == "https://hooks.slack.com/env"
@@ -137,9 +145,11 @@ class TestSlackAlertAdapter:
             return Resp()
 
         with patch("httpx.post", side_effect=fake_post):
-            with patch("hexawyn.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"):
+            with patch(
+                "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.check_slack_quota"
+            ):
                 with patch(
-                    "hexawyn.adapters.secondary.slack.slack_alert_adapter.increment_slack_quota"
+                    "hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter.increment_slack_quota"
                 ):
                     self.adapter.send_alert(_make_alert(is_pro=True))
 

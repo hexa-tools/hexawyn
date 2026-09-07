@@ -119,12 +119,12 @@ class TestBuildDetectionResult:
             CalicoDetectionSignals(
                 installed=False,
                 version=None,
-                namespace=None,
+                namespace="calico-system",
                 mode_signals=set(),
                 tigera_operator=False,
                 enterprise=False,
                 agents=[],
-                error=None,
+                error="no calico artefacts",
             )
         )
         assert result.installed is False
@@ -132,6 +132,9 @@ class TestBuildDetectionResult:
         assert result.not_installed_marker == NOT_INSTALLED_MARKER
         assert result.mode == DataplaneMode.UNKNOWN
         assert result.version is None
+        assert result.namespace == "calico-system"
+        assert result.degraded_summary is None
+        assert result.error == "no calico artefacts"
 
     def test_installed_healthy(self) -> None:
         result = build_detection_result(self._signals())
@@ -141,20 +144,30 @@ class TestBuildDetectionResult:
         assert result.ready_agents == 2  # noqa: PLR2004
         assert result.degraded_agents == 0
         assert result.degraded_summary is None
+        assert result.not_installed_marker is None
+        assert result.namespace == "calico-system"
+        assert result.error is None
+
+    def test_installed_forwards_namespace_and_error(self) -> None:
+        result = build_detection_result(
+            self._signals(namespace="tigera-operator", error="partial watch")
+        )
+        assert result.installed is True
+        assert result.namespace == "tigera-operator"
+        assert result.error == "partial watch"
 
     def test_installed_degraded(self) -> None:
         signals = self._signals(agents=[self._agent("a"), self._agent("b", "False")])
         result = build_detection_result(signals)
         assert result.status == CalicoDetectionStatus.DEGRADED
         assert result.degraded_agents == 1
-        assert result.degraded_summary is not None
-        assert "1/2" in result.degraded_summary
+        assert result.degraded_summary == "1/2 calico-node agents ready (1 degraded)"
 
     def test_empty_agents_when_installed_is_degraded(self) -> None:
         result = build_detection_result(self._signals(agents=[]))
         assert result.status == CalicoDetectionStatus.DEGRADED
         assert result.total_nodes == 0
-        assert result.degraded_summary is not None
+        assert result.degraded_summary == "0 calico-node agents detected"
 
     def test_version_raw_preserved(self) -> None:
         result = build_detection_result(self._signals(version="v3.28.0-rc.1"))

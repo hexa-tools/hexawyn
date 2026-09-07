@@ -2,13 +2,13 @@
 
 from unittest.mock import MagicMock
 
-from hexawyn.adapters.secondary.gitops.prometheus_reliability_adapter import (
-    PrometheusReliabilityAdapter,
-    _build_uptime_query,
-)
 from hexawyn.application.ports.driven.metrics_query_port import PrometheusInstantSample
 from hexawyn.application.ports.driven.weekly_reliability_report_port import (
     WeeklyReliabilityReportPort,
+)
+from hexawyn.infrastructure.adapters.secondary.gitops.prometheus_reliability_adapter import (
+    PrometheusReliabilityAdapter,
+    _build_uptime_query,
 )
 
 

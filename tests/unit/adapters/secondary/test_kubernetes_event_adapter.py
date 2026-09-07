@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.gitops.kubernetes_event_adapter import (
-    KubernetesEventAdapter,
-)
 from hexawyn.application.ports.driven.trace_event_correlation_port import (
     TraceEventCorrelationPort,
 )
 from hexawyn.domain.models.trace_k8s_events import TraceEventCorrelationRequest
+from hexawyn.infrastructure.adapters.secondary.gitops.kubernetes_event_adapter import (
+    KubernetesEventAdapter,
+)
 
 
 class TestKubernetesEventAdapter:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from hexawyn.adapters.secondary.usage_meter_adapter import UsageMeterAdapter
 from hexawyn.application.ports.driven.usage_meter_port import UsageMeterPort
+from hexawyn.infrastructure.adapters.secondary.usage_meter_adapter import UsageMeterAdapter
 
 
 class TestUsageMeterAdapter:

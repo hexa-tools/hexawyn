@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from hexawyn.adapters.secondary.gitops.otel_http_client import (
+from hexawyn.infrastructure.adapters.secondary.gitops.otel_http_client import (
     get_jaeger_dependencies,
     get_jaeger_trace,
     list_jaeger_operations,

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass, field
+from datetime import datetime
 
 from hexawyn.domain.models.team_cost import TeamCost, TeamCostReport
 
@@ -16,9 +18,15 @@ class TeamCostAggregationEngine:
         storage_price_per_gb_month: float,
         previous_namespaces: list[dict[str, object]] | None = None,
     ) -> TeamCostReport:
+        current_totals = _team_totals(
+            namespaces,
+            days_in_month,
+            cpu_price_per_core_hour,
+            memory_price_per_gb_hour,
+            storage_price_per_gb_month,
+        )
         current_teams = _aggregate_team_costs(
             namespaces,
-            month,
             days_in_month,
             cpu_price_per_core_hour,
             memory_price_per_gb_hour,
@@ -30,7 +38,6 @@ class TeamCostAggregationEngine:
         if previous_namespaces:
             prev_teams = _aggregate_team_costs(
                 previous_namespaces,
-                month,
                 days_in_month,
                 cpu_price_per_core_hour,
                 memory_price_per_gb_hour,
@@ -38,9 +45,14 @@ class TeamCostAggregationEngine:
             )
             prev_teams.sort(key=lambda t: t.total_cost, reverse=True)
 
-        total = sum(t.total_cost for t in current_teams)
+        total = sum(data["cpu"] + data["mem"] + data["storage"] for data in current_totals.values())
         unattributed = next(
-            (t.total_cost for t in current_teams if t.team_name == "unattributed"), 0.0
+            (
+                data["cpu"] + data["mem"] + data["storage"]
+                for team, data in current_totals.items()
+                if team == "unattributed"
+            ),
+            0.0,
         )
 
         return TeamCostReport(
@@ -48,19 +60,19 @@ class TeamCostAggregationEngine:
             teams=current_teams,
             previous_month_teams=prev_teams,
             total_cost=round(total, 2),
-            unattributed_cost=round(unattributed, 2),
+            unattributed_cost=round(float(unattributed), 2),
         )
 
 
-def _aggregate_team_costs(  # noqa: PLR0913
+def _team_totals(  # noqa: PLR0913
     namespaces: list[dict[str, object]],
-    month: str,
     days_in_month: int,
     cpu_price: float,
     mem_price: float,
     storage_price: float,
-) -> list[TeamCost]:
-    team_map: dict[str, dict[str, float]] = {}
+) -> dict[str, dict[str, float | int]]:
+    """Aggregate raw costs per team without rounding (single source of truth)."""
+    team_map: dict[str, dict[str, float | int]] = {}
 
     for ns in namespaces:
         team = str(ns.get("team_label", ""))
@@ -75,9 +87,9 @@ def _aggregate_team_costs(  # noqa: PLR0913
             days_active = days_in_month
 
         hours = days_active * 24
-        cpu_cost = round(cpu * cpu_price * hours, 2)
-        mem_cost = round(mem * mem_price * hours, 2)
-        storage_cost = round(storage * storage_price, 2)
+        cpu_cost = cpu * cpu_price * hours
+        mem_cost = mem * mem_price * hours
+        storage_cost = storage * storage_price
 
         if team not in team_map:
             team_map[team] = {
@@ -94,6 +106,17 @@ def _aggregate_team_costs(  # noqa: PLR0913
         team_map[team]["ns_count"] += 1
         team_map[team]["min_days"] = min(team_map[team]["min_days"], days_active)
 
+    return team_map
+
+
+def _aggregate_team_costs(  # noqa: PLR0913
+    namespaces: list[dict[str, object]],
+    days_in_month: int,
+    cpu_price: float,
+    mem_price: float,
+    storage_price: float,
+) -> list[TeamCost]:
+    team_map = _team_totals(namespaces, days_in_month, cpu_price, mem_price, storage_price)
     result: list[TeamCost] = []
     for team_name, data in team_map.items():
         total = data["cpu"] + data["mem"] + data["storage"]
@@ -101,9 +124,9 @@ def _aggregate_team_costs(  # noqa: PLR0913
             TeamCost(
                 team_name=team_name,
                 total_cost=round(total, 2),
-                cpu_cost=round(data["cpu"], 2),
-                memory_cost=round(data["mem"], 2),
-                storage_cost=round(data["storage"], 2),
+                cpu_cost=round(float(data["cpu"]), 2),
+                memory_cost=round(float(data["mem"]), 2),
+                storage_cost=round(float(data["storage"]), 2),
                 namespace_count=int(data["ns_count"]),
                 days_active=int(data["min_days"]),
                 is_prorated=int(data["min_days"]) < days_in_month,
@@ -142,15 +165,11 @@ class TeamAggregationData:
 
 
 def current_month_str() -> str:
-    from datetime import datetime
-
     now = datetime.now()
     return f"{now.year}-{now.month:02d}"
 
 
 def previous_month_str() -> str:
-    from datetime import datetime
-
     now = datetime.now()
     if now.month == 1:
         return f"{now.year - 1}-12"
@@ -164,8 +183,6 @@ def compute_team_cost_entries(
     storage_price: float,
     hours_per_month: int,
 ) -> list[TeamCost]:
-    from collections import defaultdict
-
     teams: dict[str, TeamAggregationData] = defaultdict(TeamAggregationData)
     for r in resources:
         team = str(r.get("team_label", "")) or "unattributed"

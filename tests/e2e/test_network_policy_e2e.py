@@ -10,7 +10,7 @@ Usage:
 from __future__ import annotations
 
 import pytest
-from hexawyn.adapters.secondary.kubernetes_network_policy_adapter import (
+from hexawyn.infrastructure.adapters.secondary.kubernetes_network_policy_adapter import (
     KubernetesNetworkPolicyAdapter,
 )
 

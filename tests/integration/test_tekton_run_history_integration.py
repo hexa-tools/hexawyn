@@ -28,7 +28,7 @@ def tekton_conn() -> duckdb.DuckDBPyConnection:
 @pytest.mark.integration
 class TestTektonRunHistoryIntegration:
     def test_write_then_read_pipeline_runs(self, tekton_conn: duckdb.DuckDBPyConnection) -> None:
-        from hexawyn.adapters.secondary.tekton_pipeline_baseline_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.tekton_pipeline_baseline_adapter import (
             TektonPipelineBaselineAdapter,
         )
         from hexawyn.infrastructure.memory.pipeline_run_history_repository import (
@@ -96,7 +96,7 @@ class TestTektonRunHistoryIntegration:
     def test_write_task_runs_and_read_for_pipeline(
         self, tekton_conn: duckdb.DuckDBPyConnection
     ) -> None:
-        from hexawyn.adapters.secondary.tekton_pipeline_baseline_adapter import (
+        from hexawyn.infrastructure.adapters.secondary.tekton_pipeline_baseline_adapter import (
             TektonPipelineBaselineAdapter,
         )
         from hexawyn.infrastructure.memory.pipeline_run_history_repository import (
