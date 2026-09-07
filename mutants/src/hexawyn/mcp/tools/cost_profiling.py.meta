@@ -1,0 +1,37 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_1": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_2": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_3": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_4": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_5": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_6": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_7": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_8": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_9": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_10": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_11": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_12": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_13": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_14": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_15": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_16": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_17": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_18": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_19": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_20": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_21": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_22": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_23": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_24": null,
+        "hexawyn.mcp.tools.cost_profiling.x_cost_profiling__mutmut_25": null,
+        "hexawyn.mcp.tools.cost_profiling.x_register__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_cost_profiling": "f928c6906f01",
+        "x_register": "cec83808d60e"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

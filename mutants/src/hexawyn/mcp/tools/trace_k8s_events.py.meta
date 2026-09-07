@@ -1,0 +1,32 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_1": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_2": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_3": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_4": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_5": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_6": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_7": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_8": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_9": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_10": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_11": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_12": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_13": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_14": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_15": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_16": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_17": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_18": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_19": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_trace_k8s_events__mutmut_20": null,
+        "hexawyn.mcp.tools.trace_k8s_events.x_register__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_trace_k8s_events": "37c91196ceb4",
+        "x_register": "a066f07fc3fb"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

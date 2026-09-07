@@ -9,7 +9,7 @@ layer is untouched — only a driven adapter is swapped.
 
 ```mermaid
 flowchart LR
-    subgraph Factory["adapters/secondary/adapter_factory.py"]
+    subgraph Factory["infrastructure/adapters/secondary/adapter_factory.py"]
         BA["build_adapters(cluster_name)"]
         EP["entry_points('hexawyn.providers')"]
         BA --> EP
@@ -19,12 +19,12 @@ flowchart LR
         CP["CloudProvider (ABC)<br/>supports / build /<br/>provider_name / provider_badge"]
     end
 
-    subgraph AWS["adapters/secondary/aws/"]
+    subgraph AWS["infrastructure/adapters/secondary/aws/"]
         PROV["AWSEKSProvider<br/>supports(): boto3 installed<br/>+ eks/arn/provider==aws"]
         ADAPTER["AWSEKSAdapter (K8sPort)<br/>region detection<br/>describe_cluster_status()"]
     end
 
-    subgraph Vanilla["adapters/secondary/vanilla/"]
+    subgraph Vanilla["infrastructure/adapters/secondary/vanilla/"]
         VAN["VanillaAdapter (K8sPort)<br/>list_pods / list_namespaces /<br/>get_cluster_metrics"]
     end
 
@@ -80,9 +80,9 @@ flowchart LR
 
 ## Related Files
 
-- `src/hexawyn/adapters/secondary/aws/eks_adapter.py` — `AWSEKSAdapter` (K8sPort)
-- `src/hexawyn/adapters/secondary/aws/aws_eks_provider.py` — `AWSEKSProvider` plugin
-- `src/hexawyn/adapters/provider_registry.py` — `CloudProvider` contract
-- `src/hexawyn/adapters/secondary/adapter_factory.py` — entry-point discovery
+- `src/hexawyn/infrastructure/adapters/secondary/aws/eks_adapter.py` — `AWSEKSAdapter` (K8sPort)
+- `src/hexawyn/infrastructure/adapters/secondary/aws/aws_eks_provider.py` — `AWSEKSProvider` plugin
+- `src/hexawyn/infrastructure/adapters/provider_registry.py` — `CloudProvider` contract
+- `src/hexawyn/infrastructure/adapters/secondary/adapter_factory.py` — entry-point discovery
 - `src/hexawyn/infrastructure/config/provider_detector.py` — boto3 availability
 - `pyproject.toml` — `[tool.poetry.plugins."hexawyn.providers"]` registration

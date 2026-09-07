@@ -41,18 +41,8 @@ def compare(
     delta_cpu = cluster_a.cpu_utilization_pct - cluster_b.cpu_utilization_pct
     delta_incidents = cluster_a.active_incidents - cluster_b.active_incidents
 
-    score_a = (
-        normalized_a * 2
-        + cluster_a.cpu_utilization_pct * 0.01
-        + cluster_a.active_incidents * 5
-        + cluster_a.nodes_not_ready * 10
-    )
-    score_b = (
-        normalized_b * 2
-        + cluster_b.cpu_utilization_pct * 0.01
-        + cluster_b.active_incidents * 5
-        + cluster_b.nodes_not_ready * 10
-    )
+    score_a = score(cluster_a)
+    score_b = score(cluster_b)
 
     if abs(score_a - score_b) < 0.5 and delta_failing == 0 and delta_incidents == 0:  # noqa: PLR2004
         return HealthComparisonResult(
@@ -90,6 +80,16 @@ def _failing_per_100(snap: ClusterHealthSnapshot) -> float:
     if snap.total_pods <= 0:
         return 0.0
     return snap.failing_pods / snap.total_pods * 100
+
+
+def score(snap: ClusterHealthSnapshot) -> float:
+    normalized = _failing_per_100(snap)
+    return (
+        normalized * 2
+        + snap.cpu_utilization_pct * 0.01
+        + snap.active_incidents * 5
+        + snap.nodes_not_ready * 10
+    )
 
 
 def _unreachable_result(

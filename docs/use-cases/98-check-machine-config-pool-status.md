@@ -205,6 +205,6 @@ def test_single_node_cluster_master_one_machine():
 - `src/hexawyn/application/ports/driving/check_machine_config_pool_status/`
 - `src/hexawyn/application/service/check_machine_config_pool_status_service.py`
 - `src/hexawyn/application/use_case/check_machine_config_pool_status/check_machine_config_pool_status_use_case.py`
-- `src/hexawyn/adapters/secondary/openshift/openshift_machine_config_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/openshift/openshift_machine_config_adapter.py`
 - `src/hexawyn/mcp/tools/check_machine_config_pool_status.py`
 - `src/hexawyn/mcp/server.py` (`build_machine_config_pool_adapter`)

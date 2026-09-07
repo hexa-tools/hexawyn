@@ -1,0 +1,39 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1__init____mutmut_1": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1__init____mutmut_2": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1__init____mutmut_3": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1__init____mutmut_4": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1__init____mutmut_5": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1__init____mutmut_6": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1__init____mutmut_7": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1__init____mutmut_8": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1__init____mutmut_9": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_1": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_2": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_3": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_4": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_5": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_6": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_7": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_8": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_9": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_10": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_11": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_12": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_13": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_14": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_15": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_16": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_17": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_18": null,
+        "hexawyn.infrastructure.adapters.secondary.slack.slack_http_client.x\u01c1SlackHttpClient\u01c1post__mutmut_19": null
+    },
+    "hash_by_function_name": {
+        "x\u01c1SlackHttpClient\u01c1__init__": "9b282a7f9b55",
+        "x\u01c1SlackHttpClient\u01c1post": "e19285197ee6"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

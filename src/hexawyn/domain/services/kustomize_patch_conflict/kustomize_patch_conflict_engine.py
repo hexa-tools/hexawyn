@@ -30,14 +30,11 @@ class KustomizePatchConflictEngine:
         for key, group in conflict_map.items():
             group.sort(key=lambda x: _as_int_for_sort(x.get("order")))
 
-            values_seen: dict[str, list[dict[str, object]]] = {}
+            seen_values: set[str] = set()
             for p in group:
-                v = str(p.get("value", ""))
-                if v not in values_seen:
-                    values_seen[v] = []
-                values_seen[v].append(p)
+                seen_values.add(str(p.get("value", "")))
 
-            unique_values = list(values_seen.keys())
+            unique_values = seen_values
             if len(unique_values) > 1:
                 last_patch = group[-1]
                 effective = str(last_patch.get("value", ""))

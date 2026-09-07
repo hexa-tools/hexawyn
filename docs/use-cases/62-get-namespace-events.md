@@ -130,6 +130,6 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/get_namespace_events/` — command, response, service_port
 - `src/hexawyn/application/service/get_namespace_events_service.py` — `GetNamespaceEventsService` (ECA-5 validation + orchestration)
 - `src/hexawyn/application/use_case/get_namespace_events/get_namespace_events_use_case.py` — `GetNamespaceEventsUseCase`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_namespace_events_adapter.py` — `KubernetesNamespaceEventsAdapter` (`core_v1.list_namespaced_event`)
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_namespace_events_adapter.py` — `KubernetesNamespaceEventsAdapter` (`core_v1.list_namespaced_event`)
 - `src/hexawyn/mcp/tools/get_namespace_events.py` — MCP tool (auto-registered by `mcp/server.py::register_tools`)
 - `src/hexawyn/mcp/server.py` — `build_namespace_events_adapter` (new), reuses existing `build_k8s_adapter` for ECA-5

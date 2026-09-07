@@ -1,0 +1,17 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.domain.services.log_analysis.line_sampler.x_should_keep_line__mutmut_1": 33,
+        "hexawyn.domain.services.log_analysis.line_sampler.x_should_keep_line__mutmut_2": 33,
+        "hexawyn.domain.services.log_analysis.line_sampler.x_should_keep_line__mutmut_3": 33
+    },
+    "hash_by_function_name": {
+        "x_should_keep_line": "47e0c9b5d6e3"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {
+        "hexawyn.domain.services.log_analysis.line_sampler.x_should_keep_line__mutmut_1": 0,
+        "hexawyn.domain.services.log_analysis.line_sampler.x_should_keep_line__mutmut_2": 0,
+        "hexawyn.domain.services.log_analysis.line_sampler.x_should_keep_line__mutmut_3": 0
+    }
+}

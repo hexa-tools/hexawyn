@@ -196,6 +196,6 @@ def test_missing_or_malformed_degraded_since_is_not_chronic():
 - `src/hexawyn/application/ports/driving/check_cluster_operator_health/`
 - `src/hexawyn/application/service/check_cluster_operator_health_service.py`
 - `src/hexawyn/application/use_case/check_cluster_operator_health/check_cluster_operator_health_use_case.py`
-- `src/hexawyn/adapters/secondary/openshift/openshift_cluster_operator_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/openshift/openshift_cluster_operator_adapter.py`
 - `src/hexawyn/mcp/tools/check_cluster_operator_health.py`
 - `src/hexawyn/mcp/server.py` (`build_cluster_operator_status_adapter`)

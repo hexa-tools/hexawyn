@@ -1,0 +1,38 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.cli.presentation.feedback.x_header__mutmut_1": null,
+        "hexawyn.cli.presentation.feedback.x_header__mutmut_2": null,
+        "hexawyn.cli.presentation.feedback.x_header__mutmut_3": null,
+        "hexawyn.cli.presentation.feedback.x_header__mutmut_4": null,
+        "hexawyn.cli.presentation.feedback.x_header__mutmut_5": null,
+        "hexawyn.cli.presentation.feedback.x_step__mutmut_1": null,
+        "hexawyn.cli.presentation.feedback.x_step__mutmut_2": null,
+        "hexawyn.cli.presentation.feedback.x_step__mutmut_3": null,
+        "hexawyn.cli.presentation.feedback.x_step__mutmut_4": null,
+        "hexawyn.cli.presentation.feedback.x_step__mutmut_5": null,
+        "hexawyn.cli.presentation.feedback.x_ok__mutmut_1": null,
+        "hexawyn.cli.presentation.feedback.x_success__mutmut_1": null,
+        "hexawyn.cli.presentation.feedback.x_fail__mutmut_1": null,
+        "hexawyn.cli.presentation.feedback.x_fail__mutmut_2": null,
+        "hexawyn.cli.presentation.feedback.x_fail__mutmut_3": null,
+        "hexawyn.cli.presentation.feedback.x_fail__mutmut_4": null,
+        "hexawyn.cli.presentation.feedback.x_fail__mutmut_5": null,
+        "hexawyn.cli.presentation.feedback.x_spinner__mutmut_1": null,
+        "hexawyn.cli.presentation.feedback.x_spinner__mutmut_2": null,
+        "hexawyn.cli.presentation.feedback.x_spinner__mutmut_3": null,
+        "hexawyn.cli.presentation.feedback.x_spinner__mutmut_4": null,
+        "hexawyn.cli.presentation.feedback.x_spinner__mutmut_5": null,
+        "hexawyn.cli.presentation.feedback.x_spinner__mutmut_6": null
+    },
+    "hash_by_function_name": {
+        "x_header": "c6f9b047ade8",
+        "x_step": "5bf6ee626a47",
+        "x_ok": "207356df458b",
+        "x_success": "c0869ae51287",
+        "x_fail": "caa8c3df507d",
+        "x_spinner": "02534a89a648"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

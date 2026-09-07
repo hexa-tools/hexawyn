@@ -1,0 +1,12 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.cli.integrations.mcp.command.x_mcp_stdio_command__mutmut_1": null,
+        "hexawyn.cli.integrations.mcp.command.x_mcp_stdio_command__mutmut_2": null
+    },
+    "hash_by_function_name": {
+        "x_mcp_stdio_command": "d7d312a73ef6"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

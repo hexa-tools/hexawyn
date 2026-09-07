@@ -1,0 +1,15 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.domain.services.log_analysis.volume_selector.x_select_strategy_by_volume__mutmut_1": 33,
+        "hexawyn.domain.services.log_analysis.volume_selector.x_select_strategy_by_volume__mutmut_2": 33
+    },
+    "hash_by_function_name": {
+        "x_select_strategy_by_volume": "552c5bb77f27"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {
+        "hexawyn.domain.services.log_analysis.volume_selector.x_select_strategy_by_volume__mutmut_1": 0,
+        "hexawyn.domain.services.log_analysis.volume_selector.x_select_strategy_by_volume__mutmut_2": 0
+    }
+}

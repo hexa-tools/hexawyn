@@ -128,4 +128,4 @@ sequenceDiagram
 - `src/hexawyn/application/service/estimate_rightsizing_savings_service.py`
 - `src/hexawyn/application/use_case/estimate_rightsizing_savings/estimate_rightsizing_savings_use_case.py`
 - `src/hexawyn/mcp/tools/estimate_rightsizing_savings.py`
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py`

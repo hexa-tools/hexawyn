@@ -150,9 +150,9 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driven/k8s_port.py` — NamespaceInfo TypedDict + K8sPort ABC
 - `src/hexawyn/application/use_case/list_namespaces/` — ListNamespacesUseCase (ABC)
 - `src/hexawyn/application/service/list_namespaces_service.py` — ListNamespacesService (impl)
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py` — VanillaAdapter
-- `src/hexawyn/adapters/secondary/mock/demo_adapter.py` — DemoAdapter
-- `src/hexawyn/adapters/secondary/mcp/mcp_discovery_adapter.py` — Tool discovery at startup
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py` — VanillaAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/mock/demo_adapter.py` — DemoAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/mcp/mcp_discovery_adapter.py` — Tool discovery at startup
 - `src/hexawyn/mcp/server.py` — MCP tool registration + build_k8s_adapter()
 - `src/hexawyn/mcp/tools/list_namespaces.py` — MCP tool
 - `src/hexawyn/cli/app.py` — syncs discovered tools to the runtime backend

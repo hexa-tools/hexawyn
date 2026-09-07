@@ -1,0 +1,19 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.cli.integrations.mcp.registry.x_list_clients__mutmut_1": null,
+        "hexawyn.cli.integrations.mcp.registry.x_get_integration__mutmut_1": null,
+        "hexawyn.cli.integrations.mcp.registry.x_get_integration__mutmut_2": null,
+        "hexawyn.cli.integrations.mcp.registry.x_get_integration__mutmut_3": null,
+        "hexawyn.cli.integrations.mcp.registry.x_get_integration__mutmut_4": null,
+        "hexawyn.cli.integrations.mcp.registry.x_get_integration__mutmut_5": null,
+        "hexawyn.cli.integrations.mcp.registry.x_get_integration__mutmut_6": null,
+        "hexawyn.cli.integrations.mcp.registry.x_get_integration__mutmut_7": null
+    },
+    "hash_by_function_name": {
+        "x_list_clients": "6109417b9961",
+        "x_get_integration": "cb63b112ce1f"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

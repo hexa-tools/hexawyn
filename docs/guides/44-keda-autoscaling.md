@@ -197,8 +197,8 @@ sequenceDiagram
 - `src/hexawyn/domain/models/keda.py` — KedaScaledObject, KedaTrigger, KedaTriggerAuth, KedaScaledJob, KedaDetectionResult
 - `src/hexawyn/domain/errors.py` — ComponentNotInstalledError
 - `src/hexawyn/application/ports/driven/keda_port.py` — KedaPort ABC
-- `src/hexawyn/adapters/secondary/keda/keda_adapter.py` — KedaAdapter (reads KEDA CRDs)
-- `src/hexawyn/adapters/secondary/keda/keda_detector.py` — KedaDetector (auto-detect CRDs)
+- `src/hexawyn/infrastructure/adapters/secondary/keda/keda_adapter.py` — KedaAdapter (reads KEDA CRDs)
+- `src/hexawyn/infrastructure/adapters/secondary/keda/keda_detector.py` — KedaDetector (auto-detect CRDs)
 - `src/hexawyn/mcp/tools/keda_detect.py` — detect tool
 - `src/hexawyn/mcp/tools/keda_scaledobjects_list.py` — list tool
 - `src/hexawyn/mcp/tools/keda_scaledobject_get.py` — get tool

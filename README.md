@@ -2,7 +2,7 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2.svg?logo=discord&logoColor=white)](https://discord.gg/HH3WsrnNw)
-[![Tests](https://img.shields.io/badge/tests-9462_passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-10802_passed-brightgreen.svg)]()
 [![Speed](https://img.shields.io/badge/suite-%3C90s-3B82F6.svg)]()
 [![codecov](https://codecov.io/gh/hexa-tools/hexawyn/branch/main/graph/badge.svg?token=E6PJX17GA8)](https://codecov.io/gh/hexa-tools/hexawyn)
 [![CI](https://github.com/hexa-tools/hexawyn/actions/workflows/ci.yml/badge.svg)](https://github.com/hexa-tools/hexawyn/actions/workflows/ci.yml)
@@ -43,6 +43,47 @@ The Cloud offering is continuously evaluated against a dedicated benchmark
 covering real-world Kubernetes troubleshooting scenarios.
 
 📊 [View the Cloud benchmark](docs/benchmark/README.md)
+
+
+## Quick Install
+
+**Supported platforms: Linux and macOS** (Python 3.12+ required). WSL2 has not
+been exercised by the installer yet.
+
+```bash
+curl -fsSL https://github.com/hexa-tools/hexawyn/releases/latest/download/install.sh | bash
+```
+
+> `curl | bash` executes remote code. If you'd rather read it first, download and
+> verify before running — see [Without piping into bash](#without-piping-into-bash) below.
+
+### Without piping into bash
+
+1. Download the script and its checksum:
+   ```bash
+   curl -fsSL -o install.sh \
+     https://github.com/hexa-tools/hexawyn/releases/latest/download/install.sh
+   curl -fsSL \
+     https://github.com/hexa-tools/hexawyn/releases/latest/download/install.sh.sha256 \
+     -o install.sh.sha256
+   ```
+2. Verify it matches the published checksum:
+   ```bash
+   sha256sum -c install.sh.sha256
+   ```
+3. Read it, then run it:
+   ```bash
+   bash install.sh
+   ```
+
+### Alternatives
+
+- **pipx (direct, recommended):** `pipx install hexawyn`
+- **pip:** `pip install hexawyn` (use a venv; Linux enforces [PEP 668](https://peps.python.org/pep-0668/))
+- Homebrew / native Windows (PowerShell) are future tracks — not shipped yet.
+
+The installer is idempotent: re-running it upgrades an existing install instead
+of failing or creating a second venv.
 
 
 ## Quick start

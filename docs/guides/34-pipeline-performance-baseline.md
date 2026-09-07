@@ -212,8 +212,8 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/pipeline_performance_baseline/` — Command, Response, ServicePort
 - `src/hexawyn/application/use_case/pipeline_performance_baseline/` — UseCase
 - `src/hexawyn/application/service/pipeline_performance_baseline_service.py` — Application service
-- `src/hexawyn/adapters/secondary/tekton_pipeline_baseline_adapter.py` — DuckDB read adapter (baseline input)
-- `src/hexawyn/adapters/secondary/vanilla/adapters/tekton_history_writer.py` — CRD → DuckDB ingestion wrapper
+- `src/hexawyn/infrastructure/adapters/secondary/tekton_pipeline_baseline_adapter.py` — DuckDB read adapter (baseline input)
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/adapters/tekton_history_writer.py` — CRD → DuckDB ingestion wrapper
 - `src/hexawyn/infrastructure/memory/pipeline_run_history_repository.py` — DuckDB persistence (upsert)
 - `src/hexawyn/infrastructure/memory/sql/schema.sql` — `tekton_pipeline_runs` / `tekton_task_runs` tables
 - `src/hexawyn/mcp/tools/pipeline_performance_baseline.py` — MCP entry point

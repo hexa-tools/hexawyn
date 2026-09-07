@@ -228,7 +228,9 @@ def run(name: str) -> None:
     conn = get_connection()
     store = DuckDBScheduleStore(connection=conn)
 
-    from hexawyn.adapters.secondary.slack.slack_alert_adapter import SlackAlertAdapter
+    from hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter import (
+        SlackAlertAdapter,
+    )
 
     alert_port = AlertHistoryDecorator(SlackAlertAdapter(), connection=conn)
 
@@ -279,8 +281,10 @@ def start(dry_run: bool) -> None:  # noqa: C901
         return
 
     store = DuckDBScheduleStore(connection=get_connection())
-    from hexawyn.adapters.secondary.slack.slack_alert_adapter import SlackAlertAdapter
     from hexawyn.domain.services.schedule.alert_history import AlertHistoryDecorator
+    from hexawyn.infrastructure.adapters.secondary.slack.slack_alert_adapter import (
+        SlackAlertAdapter,
+    )
 
     alert_port = AlertHistoryDecorator(SlackAlertAdapter(), connection=get_connection())
 

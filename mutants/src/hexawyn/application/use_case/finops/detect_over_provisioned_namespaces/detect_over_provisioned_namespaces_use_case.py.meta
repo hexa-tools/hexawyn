@@ -1,0 +1,37 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1__init____mutmut_1": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1__init____mutmut_2": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_1": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_2": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_3": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_4": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_5": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_6": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_7": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_8": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_9": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_10": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_11": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_12": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_13": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_14": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces__mutmut_15": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x__any_actual_usage_present__mutmut_1": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x__any_actual_usage_present__mutmut_2": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x__any_actual_usage_present__mutmut_3": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x__any_actual_usage_present__mutmut_4": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x__any_actual_usage_present__mutmut_5": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x__any_actual_usage_present__mutmut_6": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x__any_actual_usage_present__mutmut_7": null,
+        "hexawyn.application.use_case.finops.detect_over_provisioned_namespaces.detect_over_provisioned_namespaces_use_case.x__any_actual_usage_present__mutmut_8": null
+    },
+    "hash_by_function_name": {
+        "x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1__init__": "4a5483c4699b",
+        "x\u01c1DetectOverProvisionedNamespacesUseCase\u01c1detect_over_provisioned_namespaces": "6d0fa8fb94d3",
+        "x__any_actual_usage_present": "e93243e032ab"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

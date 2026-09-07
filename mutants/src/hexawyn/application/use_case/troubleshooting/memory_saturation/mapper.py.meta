@@ -1,0 +1,28 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_predictions_to_dicts__mutmut_1": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_1": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_2": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_3": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_4": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_5": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_6": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_7": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_8": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_9": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_10": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_11": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_12": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_13": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_14": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_15": null,
+        "hexawyn.application.use_case.troubleshooting.memory_saturation.mapper.x_attach_otel_root_cause__mutmut_16": null
+    },
+    "hash_by_function_name": {
+        "x_predictions_to_dicts": "d246e4fa7f1a",
+        "x_attach_otel_root_cause": "4976aa5316d4"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

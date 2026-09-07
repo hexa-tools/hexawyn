@@ -1,0 +1,23 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.tools.report_platform_reliability.x_report_platform_reliability__mutmut_1": null,
+        "hexawyn.mcp.tools.report_platform_reliability.x_report_platform_reliability__mutmut_2": null,
+        "hexawyn.mcp.tools.report_platform_reliability.x_report_platform_reliability__mutmut_3": null,
+        "hexawyn.mcp.tools.report_platform_reliability.x_report_platform_reliability__mutmut_4": null,
+        "hexawyn.mcp.tools.report_platform_reliability.x_report_platform_reliability__mutmut_5": null,
+        "hexawyn.mcp.tools.report_platform_reliability.x_report_platform_reliability__mutmut_6": null,
+        "hexawyn.mcp.tools.report_platform_reliability.x_report_platform_reliability__mutmut_7": null,
+        "hexawyn.mcp.tools.report_platform_reliability.x_report_platform_reliability__mutmut_8": null,
+        "hexawyn.mcp.tools.report_platform_reliability.x_report_platform_reliability__mutmut_9": null,
+        "hexawyn.mcp.tools.report_platform_reliability.x_report_platform_reliability__mutmut_10": null,
+        "hexawyn.mcp.tools.report_platform_reliability.x_report_platform_reliability__mutmut_11": null,
+        "hexawyn.mcp.tools.report_platform_reliability.x_register__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_report_platform_reliability": "e282a061a653",
+        "x_register": "31e789f4e28d"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

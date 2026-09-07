@@ -1,0 +1,1009 @@
+"""MCP tool: list_cilium_identities — Cilium security identity list."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from hexawyn.application.use_case.cilium.list_cilium_identities.command import (
+    ListCiliumIdentitiesCommand,
+)
+from hexawyn.application.use_case.cilium.list_cilium_identities.list_cilium_identities_use_case import (  # noqa: E501
+    ListCiliumIdentitiesUseCase,
+)
+
+if TYPE_CHECKING:
+    from fastmcp import FastMCP
+
+
+from mutmut.mutation.trampoline import wrap_in_trampoline as _mutmut_mutated, MutantDict
+mutants_x_list_cilium_identities__mutmut: MutantDict = {}  # type: ignore
+
+
+@_mutmut_mutated(mutants_x_list_cilium_identities__mutmut)
+def list_cilium_identities() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_orig() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_1() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = None
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_2() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = None
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_3() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=None)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_4() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = None
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_5() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(None)
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_6() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "XXinstalledXX": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_7() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "INSTALLED": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_8() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "XXstatusXX": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_9() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "STATUS": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_10() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "XXtotal_identitiesXX": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_11() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "TOTAL_IDENTITIES": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_12() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "XXidentitiesXX": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_13() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "IDENTITIES": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_14() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "XXnoteXX": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_15() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "NOTE": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_16() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "XXerrorXX": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_17() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "ERROR": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_18() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "XXinstalledXX": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_19() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "INSTALLED": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_20() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": True,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_21() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "XXstatusXX": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_22() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "STATUS": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_23() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "XXunknownXX",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_24() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "UNKNOWN",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_25() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "XXtotal_identitiesXX": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_26() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "TOTAL_IDENTITIES": 0,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_27() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 1,
+            "identities": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_28() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "XXidentitiesXX": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_29() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "IDENTITIES": [],
+            "note": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_30() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "XXnoteXX": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_31() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "NOTE": None,
+            "error": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_32() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "XXerrorXX": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_33() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "ERROR": str(exc),
+        }
+
+
+def x_list_cilium_identities__mutmut_34() -> dict[str, object]:
+    from hexawyn.mcp.server import build_cilium_adapter
+
+    try:
+        adapter = build_cilium_adapter()
+        use_case = ListCiliumIdentitiesUseCase(port=adapter)
+        result = use_case.execute(ListCiliumIdentitiesCommand())
+        return {
+            "installed": result.installed,
+            "status": result.status,
+            "total_identities": result.total_identities,
+            "identities": result.identities,
+            "note": result.note,
+            "error": result.error,
+        }
+    except Exception as exc:
+        return {
+            "installed": False,
+            "status": "unknown",
+            "total_identities": 0,
+            "identities": [],
+            "note": None,
+            "error": str(None),
+        }
+
+mutants_x_list_cilium_identities__mutmut['_mutmut_orig'] = x_list_cilium_identities__mutmut_orig # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_1'] = x_list_cilium_identities__mutmut_1 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_2'] = x_list_cilium_identities__mutmut_2 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_3'] = x_list_cilium_identities__mutmut_3 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_4'] = x_list_cilium_identities__mutmut_4 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_5'] = x_list_cilium_identities__mutmut_5 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_6'] = x_list_cilium_identities__mutmut_6 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_7'] = x_list_cilium_identities__mutmut_7 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_8'] = x_list_cilium_identities__mutmut_8 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_9'] = x_list_cilium_identities__mutmut_9 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_10'] = x_list_cilium_identities__mutmut_10 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_11'] = x_list_cilium_identities__mutmut_11 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_12'] = x_list_cilium_identities__mutmut_12 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_13'] = x_list_cilium_identities__mutmut_13 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_14'] = x_list_cilium_identities__mutmut_14 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_15'] = x_list_cilium_identities__mutmut_15 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_16'] = x_list_cilium_identities__mutmut_16 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_17'] = x_list_cilium_identities__mutmut_17 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_18'] = x_list_cilium_identities__mutmut_18 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_19'] = x_list_cilium_identities__mutmut_19 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_20'] = x_list_cilium_identities__mutmut_20 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_21'] = x_list_cilium_identities__mutmut_21 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_22'] = x_list_cilium_identities__mutmut_22 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_23'] = x_list_cilium_identities__mutmut_23 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_24'] = x_list_cilium_identities__mutmut_24 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_25'] = x_list_cilium_identities__mutmut_25 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_26'] = x_list_cilium_identities__mutmut_26 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_27'] = x_list_cilium_identities__mutmut_27 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_28'] = x_list_cilium_identities__mutmut_28 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_29'] = x_list_cilium_identities__mutmut_29 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_30'] = x_list_cilium_identities__mutmut_30 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_31'] = x_list_cilium_identities__mutmut_31 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_32'] = x_list_cilium_identities__mutmut_32 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_33'] = x_list_cilium_identities__mutmut_33 # type: ignore # mutmut generated
+mutants_x_list_cilium_identities__mutmut['x_list_cilium_identities__mutmut_34'] = x_list_cilium_identities__mutmut_34 # type: ignore # mutmut generated
+mutants_x_register__mutmut: MutantDict = {}  # type: ignore
+
+
+@_mutmut_mutated(mutants_x_register__mutmut)
+def register(mcp: FastMCP) -> None:
+    mcp.tool()(list_cilium_identities)
+
+
+def x_register__mutmut_orig(mcp: FastMCP) -> None:
+    mcp.tool()(list_cilium_identities)
+
+
+def x_register__mutmut_1(mcp: FastMCP) -> None:
+    mcp.tool()(None)
+
+mutants_x_register__mutmut['_mutmut_orig'] = x_register__mutmut_orig # type: ignore # mutmut generated
+mutants_x_register__mutmut['x_register__mutmut_1'] = x_register__mutmut_1 # type: ignore # mutmut generated

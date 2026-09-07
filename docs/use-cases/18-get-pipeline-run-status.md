@@ -164,6 +164,6 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/get_pipeline_run_status/` — command, response, service port ABC
 - `src/hexawyn/application/service/pipeline_run_status_service.py` — window filter, aggregation, most_recent_failed, slowest
 - `src/hexawyn/application/use_case/get_pipeline_run_status/get_pipeline_run_status_use_case.py` — thin use case
-- `src/hexawyn/adapters/secondary/kubernetes_tekton_adapter.py` — K8s CRD fetch, status/failure_reason/duration extraction
+- `src/hexawyn/infrastructure/adapters/secondary/kubernetes_tekton_adapter.py` — K8s CRD fetch, status/failure_reason/duration extraction
 - `src/hexawyn/mcp/tools/get_pipeline_run_status.py` — MCP tool registration + serialization
 - `tests/unit/test_get_pipeline_run_status.py` — 59 unit tests

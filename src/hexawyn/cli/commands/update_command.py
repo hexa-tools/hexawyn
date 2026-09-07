@@ -6,15 +6,15 @@ import subprocess
 
 import click
 
-from hexawyn.adapters.secondary.pypi.pypi_version_adapter import (
-    DEFAULT_PYPI_INDEX_URL,
-    PyPIVersionAdapter,
-    _resolve_index_url,
-)
 from hexawyn.application.service.version_check_service import check_for_update
 from hexawyn.cli.commands.uninstall_command import _detect_installer
 from hexawyn.cli.presentation.feedback import fail, ok, spinner, success
 from hexawyn.domain.models.constants import VERSION
+from hexawyn.infrastructure.adapters.secondary.pypi.pypi_version_adapter import (
+    DEFAULT_PYPI_INDEX_URL,
+    PyPIVersionAdapter,
+    _resolve_index_url,
+)
 
 
 def resolve_install_index() -> dict[str, list[str]]:

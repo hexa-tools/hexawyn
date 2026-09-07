@@ -118,5 +118,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/trace_k8s_events.py` — K8sEvent, TraceEventResult
 - `src/hexawyn/application/ports/driven/trace_event_correlation_port.py` — TraceEventCorrelationPort ABC
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_event_adapter.py` — KubernetesEventAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_event_adapter.py` — KubernetesEventAdapter
 - `src/hexawyn/mcp/tools/trace_k8s_events.py` — MCP tool

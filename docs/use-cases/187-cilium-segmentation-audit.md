@@ -153,5 +153,5 @@ sequenceDiagram
 - `src/hexawyn/domain/services/cilium/segmentation_audit_builder.py` — pure reachability matrix
 - `src/hexawyn/application/ports/driven/cilium_port.py` — `CiliumPort.segmentation_audit()`
 - `src/hexawyn/application/use_case/cilium/cilium_segmentation_audit/` — Command, Response, UseCase
-- `src/hexawyn/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.segmentation_audit()`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.segmentation_audit()`
 - `src/hexawyn/mcp/tools/cilium_segmentation_audit.py` — MCP tool

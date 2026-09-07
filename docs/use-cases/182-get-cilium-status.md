@@ -150,6 +150,6 @@ sequenceDiagram
 - `src/hexawyn/domain/services/cilium/status_report_builder.py` — pure status logic
 - `src/hexawyn/application/ports/driven/cilium_port.py` — `CiliumPort` (`status()`)
 - `src/hexawyn/application/use_case/cilium/get_cilium_status/` — Command, Response, UseCase
-- `src/hexawyn/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.status()`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.status()`
 - `src/hexawyn/mcp/tools/get_cilium_status.py` — MCP tool
 - `src/hexawyn/mcp/adapters/cilium_adapters.py` — `build_cilium_adapter()` wiring

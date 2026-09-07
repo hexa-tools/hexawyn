@@ -68,4 +68,4 @@ sequenceDiagram
 - `src/hexawyn/application/use_case/cluster/get_resource_usage/`
 - `src/hexawyn/application/ports/driven/k8s_port.py`
 - `src/hexawyn/application/ports/driven/pod_metrics_port.py`
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py`

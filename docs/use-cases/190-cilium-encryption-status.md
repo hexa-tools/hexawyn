@@ -147,5 +147,5 @@ sequenceDiagram
 - `src/hexawyn/domain/services/cilium/encryption_status_builder.py` — pure mode/coverage building
 - `src/hexawyn/application/ports/driven/cilium_port.py` — `CiliumPort.encryption_status()`
 - `src/hexawyn/application/use_case/cilium/cilium_encryption_status/` — Command, Response, UseCase
-- `src/hexawyn/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.encryption_status()`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.encryption_status()`
 - `src/hexawyn/mcp/tools/cilium_encryption_status.py` — MCP tool

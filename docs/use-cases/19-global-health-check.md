@@ -207,5 +207,5 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/global_health_check/`
 - `src/hexawyn/application/service/global_health_check_service.py`
 - `src/hexawyn/application/use_case/global_health_check/global_health_check_use_case.py`
-- `src/hexawyn/adapters/secondary/fleet_health_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/fleet_health_adapter.py`
 - `src/hexawyn/mcp/tools/global_health_check.py`

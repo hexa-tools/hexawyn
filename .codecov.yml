@@ -25,7 +25,7 @@ component_management:
     - component_id: adapters
       name: Adapters
       paths:
-        - src/hexawyn/adapters/**
+        - src/hexawyn/infrastructure/adapters/**
     - component_id: infrastructure
       name: Infrastructure
       paths:

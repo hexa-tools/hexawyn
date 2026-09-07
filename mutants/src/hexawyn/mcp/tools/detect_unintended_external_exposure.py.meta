@@ -1,0 +1,21 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.tools.detect_unintended_external_exposure.x_detect_unintended_external_exposure__mutmut_1": null,
+        "hexawyn.mcp.tools.detect_unintended_external_exposure.x_detect_unintended_external_exposure__mutmut_2": null,
+        "hexawyn.mcp.tools.detect_unintended_external_exposure.x_detect_unintended_external_exposure__mutmut_3": null,
+        "hexawyn.mcp.tools.detect_unintended_external_exposure.x_detect_unintended_external_exposure__mutmut_4": null,
+        "hexawyn.mcp.tools.detect_unintended_external_exposure.x_detect_unintended_external_exposure__mutmut_5": null,
+        "hexawyn.mcp.tools.detect_unintended_external_exposure.x_detect_unintended_external_exposure__mutmut_6": null,
+        "hexawyn.mcp.tools.detect_unintended_external_exposure.x_detect_unintended_external_exposure__mutmut_7": null,
+        "hexawyn.mcp.tools.detect_unintended_external_exposure.x_detect_unintended_external_exposure__mutmut_8": null,
+        "hexawyn.mcp.tools.detect_unintended_external_exposure.x_detect_unintended_external_exposure__mutmut_9": null,
+        "hexawyn.mcp.tools.detect_unintended_external_exposure.x_register__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_detect_unintended_external_exposure": "d5990c5c4ad1",
+        "x_register": "d9e98d936511"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

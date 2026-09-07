@@ -1,0 +1,21 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.tools.policy_violations_list.x_policy_violations_list__mutmut_1": null,
+        "hexawyn.mcp.tools.policy_violations_list.x_policy_violations_list__mutmut_2": null,
+        "hexawyn.mcp.tools.policy_violations_list.x_policy_violations_list__mutmut_3": null,
+        "hexawyn.mcp.tools.policy_violations_list.x_policy_violations_list__mutmut_4": null,
+        "hexawyn.mcp.tools.policy_violations_list.x_policy_violations_list__mutmut_5": null,
+        "hexawyn.mcp.tools.policy_violations_list.x_policy_violations_list__mutmut_6": null,
+        "hexawyn.mcp.tools.policy_violations_list.x_policy_violations_list__mutmut_7": null,
+        "hexawyn.mcp.tools.policy_violations_list.x_policy_violations_list__mutmut_8": null,
+        "hexawyn.mcp.tools.policy_violations_list.x_policy_violations_list__mutmut_9": null,
+        "hexawyn.mcp.tools.policy_violations_list.x_register__mutmut_1": null
+    },
+    "hash_by_function_name": {
+        "x_policy_violations_list": "68d7a72e412e",
+        "x_register": "b1f778fe5a41"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

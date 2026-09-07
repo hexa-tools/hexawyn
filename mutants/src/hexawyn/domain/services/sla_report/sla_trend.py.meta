@@ -1,0 +1,54 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_1": 1,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_2": 1,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_3": 1,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_4": 1,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_5": 1,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_6": 0,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_7": 1,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_8": 1,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_9": 0,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_10": 1,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_11": 1,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_12": 1,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_13": 1,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_14": 1
+    },
+    "hash_by_function_name": {
+        "x_classify_trend": "dd0efce3cc77"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_1": 0.175851,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_2": 0.180514,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_3": 0.179358,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_4": 0.191279,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_5": 0.188722,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_6": 0.180274,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_7": 0.200219,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_8": 0.152223,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_9": 0.183384,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_10": 0.18776,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_11": 0.199829,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_12": 0.197813,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_13": 0.182746,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_14": 0.17966
+    },
+    "estimated_durations_by_key": {
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_1": 0.004731114051537588,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_2": 0.004731114051537588,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_3": 0.004731114051537588,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_4": 0.004731114051537588,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_5": 0.004731114051537588,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_6": 0.004731114051537588,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_7": 0.004731114051537588,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_8": 0.004731114051537588,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_9": 0.004731114051537588,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_10": 0.004731114051537588,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_11": 0.004731114051537588,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_12": 0.004731114051537588,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_13": 0.004731114051537588,
+        "hexawyn.domain.services.sla_report.sla_trend.x_classify_trend__mutmut_14": 0.004731114051537588
+    }
+}

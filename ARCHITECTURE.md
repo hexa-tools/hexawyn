@@ -32,10 +32,10 @@ flowchart TD
     end
 
     subgraph Secondary["Adaptateurs secondaires (sorties)"]
-        K8SSEC["adapters/secondary — vanilla, aws, azure, gcp,<br/>openshift, istio_topology, gitops, tekton, ..."]
+        K8SSEC["infrastructure/adapters/secondary — vanilla, aws, azure, gcp,<br/>openshift, istio_topology, gitops, tekton, ..."]
         STORE["infrastructure/memory — DuckDB + cache L1/L2"]
-        OBS["adapters/secondary — datadog, slack, pypi, ..."]
-        MOCK["adapters/secondary/mock — DemoAdapter"]
+        OBS["infrastructure/adapters/secondary — datadog, slack, pypi, ..."]
+        MOCK["infrastructure/adapters/secondary/mock — DemoAdapter"]
     end
 
     CLI --> UC
@@ -74,8 +74,9 @@ Le **noyau applicatif** — orchestration, aucun adapter.
   `response.py`, `<use_case>_use_case.py` ; ~138 use cases répartis par domaine
   (`cluster`, `observability`, `keda`, `gitops`, `governance`, `finops`…).
 
-### `src/hexawyn/adapters/`
-Le **monde extérieur** — implémente les ports.
+### `src/hexawyn/infrastructure/adapters/`
+Le **monde extérieur** — implémente les ports. (Couche conceptuelle « adapters »,
+déplacée sous `infrastructure/adapters/`.)
 - `primary/` — `cli`, `mcp`, `gateway` (entrées).
 - `secondary/` — fournisseurs concrets : `vanilla`, `aws`, `azure`, `gcp`,
   `openshift`, `datadog`, `istio_topology`, `gitops`, `tekton_*`,
@@ -95,6 +96,7 @@ Le serveur MCP (consommé par les agents de code).
 
 ### `src/hexawyn/infrastructure/`
 Le **socle technique** (jamais dans `domain/`).
+- `adapters/` — le monde extérieur (implémente les ports), voir ci-dessus.
 - `config/` — `config_manager.py`, `llm_providers.py`.
 - `logging/` — `setup.py` + `RedactingFormatter` (jamais de secret sur disque).
 - `memory/` — **DuckDB** (`duckdb_client.py`, `sql/`, `migrations.py`),
@@ -119,9 +121,9 @@ Utilitaires transverses (`logger.py`).
 
 | Dans | Ne jamais importer |
 |---|---|
-| `domain/`      | `kubernetes`, `click`, `boto3`, `httpx`, `fastapi`, et tout `application`/`adapters`/`infrastructure` |
-| `application/use_case/` | `adapters/`, `infrastructure/` — **uniquement des ports (ABC)** |
-| `adapters/`    | `domain/` directement — toujours via `application/ports/` |
+| `domain/`      | `kubernetes`, `click`, `boto3`, `httpx`, `fastapi`, et tout `application`/`infrastructure` |
+| `application/use_case/` | `infrastructure/` — **uniquement des ports (ABC)** |
+| `infrastructure/adapters/`    | `domain/` directement — toujours via `application/ports/` |
 | `runtime/`     | SDK LLM directement — uniquement via le port LLM |
 
 Enforcement déterministe : `make guard` (via `hexa_guard.py`, règles R1–R15).
@@ -140,9 +142,9 @@ avec un `context: dict[str, str]` optionnel. Sous-classes notables :
 
 | Couche | Comportement |
 |---|---|
-| `adapters/secondary/` | attrape `ApiException`/`HTTPError`/`TimeoutError` → `HexawynError` |
+| `infrastructure/adapters/secondary/` | attrape `ApiException`/`HTTPError`/`TimeoutError` → `HexawynError` |
 | `application/service/`, `domain/services/` | **jamais** de try/catch — laisse propager |
-| `adapters/primary/` | catch final pour l'affichage utilisateur |
+| `infrastructure/adapters/primary/` | catch final pour l'affichage utilisateur |
 
 ---
 
@@ -161,7 +163,7 @@ Agent/CLI ──> MCP Tool ──> UseCase.execute(Command) ──> ServicePort 
                               Response ──> Agent/CLI
 ```
 
-Sélection de l'adapter : `adapters/secondary/adapter_factory.py`
+Sélection de l'adapter : `infrastructure/adapters/secondary/adapter_factory.py`
 (`DEMO_MODE` → `DemoAdapter`, sinon détection `eks`/`aks`/`gke`/`vanilla`) —
 **jamais** instancié directement dans le code applicatif.
 
@@ -179,7 +181,7 @@ Sélection de l'adapter : `adapters/secondary/adapter_factory.py`
 | **Composition root** | `mcp/server.py` — wiring ports → adapters (`build_*_adapter()`). |
 | **DuckDB** | Store mémoire pour historique, search, cache L2 (VSS). |
 | **Cache** | L1 en-mémoire (`cache_l1_repository.py`) ; L2 DuckDB (VSS). |
-| **DemoAdapter** | Adapter simulé (`adapters/secondary/mock/`), activé en mode démo. |
+| **DemoAdapter** | Adapter simulé (`infrastructure/adapters/secondary/mock/`), activé en mode démo. |
 
 ---
 

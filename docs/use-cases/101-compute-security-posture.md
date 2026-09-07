@@ -194,7 +194,7 @@ def test_partial_sets_warning():
 - `src/hexawyn/application/ports/driving/compute_security_posture/`
 - `src/hexawyn/application/service/compute_security_posture_service.py`
 - `src/hexawyn/application/use_case/compute_security_posture/compute_security_posture_use_case.py`
-- `src/hexawyn/adapters/secondary/security_posture/security_posture_adapter.py`
-- `src/hexawyn/adapters/secondary/security_posture/category_providers.py`
+- `src/hexawyn/infrastructure/adapters/secondary/security_posture/security_posture_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/security_posture/category_providers.py`
 - `src/hexawyn/mcp/tools/compute_security_posture.py`
 - `src/hexawyn/mcp/server.py` (`build_security_posture_adapter`)

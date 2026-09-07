@@ -178,6 +178,6 @@ stack:
 - `src/hexawyn/application/ports/driving/conservative_namespace_overview/` — command, response, service_port
 - `src/hexawyn/application/service/conservative_namespace_overview_service.py` — `ConservativeNamespaceOverviewService`
 - `src/hexawyn/application/use_case/conservative_namespace_overview/conservative_namespace_overview_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_namespace_adapter.py` — `KubernetesNamespaceAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_namespace_adapter.py` — `KubernetesNamespaceAdapter`
 - `src/hexawyn/mcp/tools/conservative_namespace_overview.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_namespace_overview_adapter` (new)

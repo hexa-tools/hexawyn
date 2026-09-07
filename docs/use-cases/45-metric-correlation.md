@@ -112,5 +112,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/metric_correlation.py` — CorrelationResult
 - `src/hexawyn/application/ports/driven/metric_correlation_port.py` — MetricCorrelationPort ABC
-- `src/hexawyn/adapters/secondary/gitops/otel_correlation_adapter.py` — OTel adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_correlation_adapter.py` — OTel adapter
 - `src/hexawyn/mcp/tools/metric_correlation.py` — MCP tool

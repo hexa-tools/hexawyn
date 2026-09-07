@@ -117,5 +117,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/trace_log_correlation.py` — TraceLogSpan, CorrelatedLog, TraceLogResult
 - `src/hexawyn/application/ports/driven/trace_log_correlation_port.py` — TraceLogCorrelationPort ABC
-- `src/hexawyn/adapters/secondary/gitops/otel_trace_log_adapter.py` — OTelTraceLogAdapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_trace_log_adapter.py` — OTelTraceLogAdapter
 - `src/hexawyn/mcp/tools/trace_log_correlation.py` — MCP tool

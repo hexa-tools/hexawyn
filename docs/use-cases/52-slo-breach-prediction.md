@@ -110,5 +110,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/slo_breach_prediction.py` — ServiceRisk, SLOBreachPredictionResult
 - `src/hexawyn/application/ports/driven/slo_breach_prediction_port.py` — SLOBreachPredictionPort ABC
-- `src/hexawyn/adapters/secondary/gitops/otel_slo_prediction_adapter.py` — adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_slo_prediction_adapter.py` — adapter
 - `src/hexawyn/mcp/tools/slo_breach_prediction.py` — MCP tool

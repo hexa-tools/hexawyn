@@ -12,7 +12,7 @@ def custom_tool_run(name: str, params: str = "{}") -> dict[str, object]:
     """Run a custom tool by name with JSON-encoded params. Returns findings, success, provenance."""
     import json
 
-    from hexawyn.adapters.secondary.runtime_client import RuntimeClient
+    from hexawyn.infrastructure.adapters.secondary.runtime_client import RuntimeClient
     from hexawyn.infrastructure.config.config_manager import get_runtime_endpoint
 
     try:

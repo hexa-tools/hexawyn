@@ -63,6 +63,6 @@ flowchart TB
 
 ## Related Files
 
-- `src/hexawyn/adapters/secondary/azure/monitor_metrics_adapter.py` — Azure metrics adapter
-- `src/hexawyn/adapters/secondary/gitops/prometheus_http_adapter.py` — shared helpers
+- `src/hexawyn/infrastructure/adapters/secondary/azure/monitor_metrics_adapter.py` — Azure metrics adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/prometheus_http_adapter.py` — shared helpers
 - `src/hexawyn/mcp/server.py` — `build_metrics_query_adapter()` + `_detect_provider()`

@@ -1,0 +1,31 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.mcp.adapters.security_adapters.x_build_security_posture_adapter__mutmut_1": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_security_posture_adapter__mutmut_2": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_security_posture_adapter__mutmut_3": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_security_posture_adapter__mutmut_4": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_security_posture_adapter__mutmut_5": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_security_posture_adapter__mutmut_6": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_critical_cve_adapter__mutmut_1": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_stale_credentials_adapter__mutmut_1": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_unauthorized_access_adapter__mutmut_1": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_probe_audit_adapter__mutmut_1": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_probe_audit_adapter__mutmut_2": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_probe_audit_adapter__mutmut_3": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_probe_audit_adapter__mutmut_4": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_probe_audit_adapter__mutmut_5": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_probe_audit_adapter__mutmut_6": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_probe_audit_adapter__mutmut_7": null,
+        "hexawyn.mcp.adapters.security_adapters.x_build_probe_audit_adapter__mutmut_8": null
+    },
+    "hash_by_function_name": {
+        "x_build_security_posture_adapter": "ad044c61564b",
+        "x_build_critical_cve_adapter": "7523e15496a7",
+        "x_build_stale_credentials_adapter": "6eb4bb233e12",
+        "x_build_unauthorized_access_adapter": "17ca93ce07bc",
+        "x_build_probe_audit_adapter": "fca64a379ef8"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

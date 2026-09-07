@@ -116,5 +116,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/version_regression.py` — VersionMetrics, RegressionFlag, VersionComparisonResult
 - `src/hexawyn/application/ports/driven/version_regression_port.py` — VersionRegressionPort ABC
-- `src/hexawyn/adapters/secondary/gitops/otel_version_regression_adapter.py` — adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_version_regression_adapter.py` — adapter
 - `src/hexawyn/mcp/tools/version_regression.py` — MCP tool

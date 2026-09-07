@@ -9,7 +9,7 @@ untouched — only a driven adapter is swapped.
 
 ```mermaid
 flowchart LR
-    subgraph Factory["adapters/secondary/adapter_factory.py"]
+    subgraph Factory["infrastructure/adapters/secondary/adapter_factory.py"]
         BA["build_adapters(cluster_name)"]
         EP["entry_points('hexawyn.providers')"]
         BA --> EP
@@ -19,12 +19,12 @@ flowchart LR
         CP["CloudProvider (ABC)"]
     end
 
-    subgraph Azure["adapters/secondary/azure/"]
+    subgraph Azure["infrastructure/adapters/secondary/azure/"]
         PROV["AzureAKSProvider<br/>supports(): azure installed<br/>+ aks/provider==azure"]
         ADAPTER["AzureAKSAdapter (K8sPort)<br/>subscription/resource-group (env)<br/>describe_cluster_status()"]
     end
 
-    subgraph Vanilla["adapters/secondary/vanilla/"]
+    subgraph Vanilla["infrastructure/adapters/secondary/vanilla/"]
         VAN["VanillaAdapter (K8sPort)"]
     end
 
@@ -81,8 +81,8 @@ flowchart LR
 
 ## Related Files
 
-- `src/hexawyn/adapters/secondary/azure/aks_adapter.py` — `AzureAKSAdapter` (K8sPort)
-- `src/hexawyn/adapters/secondary/azure/azure_aks_provider.py` — `AzureAKSProvider` plugin
-- `src/hexawyn/adapters/provider_registry.py` — `CloudProvider` contract
-- `src/hexawyn/adapters/secondary/adapter_factory.py` — entry-point discovery
+- `src/hexawyn/infrastructure/adapters/secondary/azure/aks_adapter.py` — `AzureAKSAdapter` (K8sPort)
+- `src/hexawyn/infrastructure/adapters/secondary/azure/azure_aks_provider.py` — `AzureAKSProvider` plugin
+- `src/hexawyn/infrastructure/adapters/provider_registry.py` — `CloudProvider` contract
+- `src/hexawyn/infrastructure/adapters/secondary/adapter_factory.py` — entry-point discovery
 - `pyproject.toml` — `[tool.poetry.plugins."hexawyn.providers"]` registration

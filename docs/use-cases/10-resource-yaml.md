@@ -120,5 +120,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/resource_yaml.py` — ResourceYAMLResult, secret redaction
 - `src/hexawyn/application/ports/driven/resource_yaml_port.py` — ResourceYAMLPort ABC
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_resource_yaml_adapter.py` — adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_resource_yaml_adapter.py` — adapter
 - `src/hexawyn/mcp/tools/resource_yaml.py` — MCP tool

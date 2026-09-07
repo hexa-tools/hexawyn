@@ -87,5 +87,5 @@ sequenceDiagram
 - `src/hexawyn/application/ports/driving/detect_kustomize_patch_conflicts/`
 - `src/hexawyn/application/service/detect_kustomize_patch_conflicts_service.py`
 - `src/hexawyn/application/use_case/detect_kustomize_patch_conflicts/`
-- `src/hexawyn/adapters/secondary/gitops/kustomize_patch_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kustomize_patch_adapter.py`
 - `src/hexawyn/mcp/tools/detect_kustomize_patch_conflicts.py`

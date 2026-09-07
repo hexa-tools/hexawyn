@@ -153,5 +153,5 @@ sequenceDiagram
 - `src/hexawyn/domain/services/cilium/policy_audit.py` — pure coverage matching + risk
 - `src/hexawyn/application/ports/driven/cilium_port.py` — `CiliumPort.audit_policies()`
 - `src/hexawyn/application/use_case/cilium/cilium_policy_audit/` — Command, Response, UseCase
-- `src/hexawyn/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.audit_policies()`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/cilium_adapter.py` — `CiliumAdapter.audit_policies()`
 - `src/hexawyn/mcp/tools/cilium_policy_audit.py` — MCP tool

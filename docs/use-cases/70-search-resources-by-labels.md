@@ -168,6 +168,6 @@ grouping, status formatting — plus the full port/service/use-case/tool/adapter
 - `src/hexawyn/application/ports/driving/search_resources_by_labels/` — command, response, service_port
 - `src/hexawyn/application/service/search_resources_by_labels_service.py` — `SearchResourcesByLabelsService`
 - `src/hexawyn/application/use_case/search_resources_by_labels/search_resources_by_labels_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_label_search_adapter.py` — `KubernetesLabelSearchAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_label_search_adapter.py` — `KubernetesLabelSearchAdapter`
 - `src/hexawyn/mcp/tools/search_resources_by_labels.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_resource_search_adapter` (new)

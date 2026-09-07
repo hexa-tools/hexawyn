@@ -24,11 +24,11 @@ flowchart TB
         BUILD --> ISGKE
     end
 
-    subgraph Vanilla["adapters/secondary/gitops"]
+    subgraph Vanilla["infrastructure/adapters/secondary/gitops"]
         PROM["PrometheusHTTPAdapter"]
     end
 
-    subgraph GCP["adapters/secondary/gcp"]
+    subgraph GCP["infrastructure/adapters/secondary/gcp"]
         GMP["GCPManagedPrometheusAdapter<br/>GMP endpoint + google bearer token"]
     end
 
@@ -75,7 +75,7 @@ flowchart TB
 
 ## Related Files
 
-- `src/hexawyn/adapters/secondary/gcp/managed_prometheus_adapter.py` — GMP adapter
-- `src/hexawyn/adapters/secondary/gitops/prometheus_http_adapter.py` — shared helpers
-- `src/hexawyn/adapters/secondary/gitops/prometheus_cluster_resource_metrics_adapter.py` — wrapper
+- `src/hexawyn/infrastructure/adapters/secondary/gcp/managed_prometheus_adapter.py` — GMP adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/prometheus_http_adapter.py` — shared helpers
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/prometheus_cluster_resource_metrics_adapter.py` — wrapper
 - `src/hexawyn/mcp/server.py` — `build_metrics_query_adapter()` + `_is_gcp_gke_context()`

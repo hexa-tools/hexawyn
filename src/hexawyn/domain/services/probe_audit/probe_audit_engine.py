@@ -1,8 +1,29 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from hexawyn.domain.models.probe_audit import MissingProbe, ProbeAuditResult
 
 _HTTP_PORTS = frozenset({80, 443, 3000, 8000, 8080, 8081, 8443, 9090})
+
+
+@dataclass(frozen=True)
+class _DeploymentInfo:
+    deployment_name: str
+    namespace: str
+    has_service: bool
+    is_exposed: bool
+    workload_type: str
+
+
+def _deployment_info(dep: dict[str, object]) -> _DeploymentInfo:
+    return _DeploymentInfo(
+        deployment_name=str(dep.get("deployment_name", "")),
+        namespace=str(dep.get("namespace", "")),
+        has_service=_as_bool(dep.get("has_service")),
+        is_exposed=_as_bool(dep.get("is_exposed_externally")),
+        workload_type=str(dep.get("workload_type", "Deployment")),
+    )
 
 
 class ProbeAuditEngine:
@@ -10,37 +31,25 @@ class ProbeAuditEngine:
         result = ProbeAuditResult()
 
         for dep in deployments:
-            containers_raw = dep.get("containers", [])
+            containers_raw = dep.get("containers")
             containers: list[dict[str, object]] = (
                 list(containers_raw) if isinstance(containers_raw, list) else []
             )
 
             missing_probes, exposed_ports = _find_missing_probes(containers)
             misconfigurations = _find_misconfigurations(containers)
+            info = _deployment_info(dep)
 
             if missing_probes:
                 severity = _classify_severity(
-                    str(dep.get("namespace", "")),
-                    _as_bool(dep.get("has_service")),
-                    _as_bool(dep.get("is_exposed_externally")),
-                    str(dep.get("workload_type", "Deployment")),
+                    info.namespace, info.has_service, info.is_exposed, info.workload_type
                 )
                 primary_port = exposed_ports[0] if exposed_ports else 0
-                readiness_suggestion = _suggest_readiness_probe(primary_port)
-                liveness_suggestion = _suggest_liveness_probe(primary_port)
-
-                probe = MissingProbe(
-                    deployment_name=str(dep.get("deployment_name", "")),
-                    namespace=str(dep.get("namespace", "")),
-                    missing=missing_probes,
-                    severity=severity,
-                    exposed_port=primary_port,
-                    readiness_suggestion=readiness_suggestion,
-                    liveness_suggestion=liveness_suggestion,
-                    has_service=_as_bool(dep.get("has_service")),
-                    workload_type=str(dep.get("workload_type", "Deployment")),
-                    is_exposed_externally=_as_bool(dep.get("is_exposed_externally")),
+                suggestions = (
+                    _suggest_readiness_probe(primary_port),
+                    _suggest_liveness_probe(primary_port),
                 )
+                probe = _build_probe(info, missing_probes, severity, primary_port, suggestions)
                 result.missing_probes.append(probe)
 
                 if severity == "critical":
@@ -54,21 +63,40 @@ class ProbeAuditEngine:
 
             elif misconfigurations:
                 primary_port = _first_port(containers)
-                probe = MissingProbe(
-                    deployment_name=str(dep.get("deployment_name", "")),
-                    namespace=str(dep.get("namespace", "")),
-                    missing=misconfigurations,
-                    severity="warning",
-                    exposed_port=primary_port,
-                    readiness_suggestion="",
-                    liveness_suggestion="",
-                    has_service=_as_bool(dep.get("has_service")),
-                    workload_type=str(dep.get("workload_type", "Deployment")),
-                    is_exposed_externally=_as_bool(dep.get("is_exposed_externally")),
-                )
+                probe = _build_probe(info, misconfigurations, "warning", primary_port, ("", ""))
                 result.misconfigured_probes.append(probe)
 
         return result
+
+
+def _build_probe(
+    info: _DeploymentInfo,
+    missing: list[str],
+    severity: str,
+    exposed_port: int,
+    suggestions: tuple[str, str],
+) -> MissingProbe:
+    readiness_suggestion, liveness_suggestion = suggestions
+    return MissingProbe(
+        deployment_name=info.deployment_name,
+        namespace=info.namespace,
+        missing=missing,
+        severity=severity,
+        exposed_port=exposed_port,
+        readiness_suggestion=readiness_suggestion,
+        liveness_suggestion=liveness_suggestion,
+        has_service=info.has_service,
+        workload_type=info.workload_type,
+        is_exposed_externally=info.is_exposed,
+    )
+
+
+def _exposed_port_ints(c: dict[str, object]) -> list[int]:
+    """Extract the valid (>0) integer ports exposed by a container."""
+    raw = c.get("exposed_ports")
+    if not isinstance(raw, list):
+        return []
+    return [_as_int(x) for x in raw if _as_int(x) > 0]
 
 
 def _find_missing_probes(
@@ -76,27 +104,16 @@ def _find_missing_probes(
 ) -> tuple[list[str], list[int]]:
     all_exposed_ports: list[int] = []
     missing: set[str] = set()
-    has_relevant_container = False
 
     for c in containers:
         if _as_bool(c.get("is_init_container")):
             continue
-        has_relevant_container = True
-
-        ports_raw = c.get("exposed_ports", [])
-        if isinstance(ports_raw, list):
-            for p in ports_raw:
-                port = _as_int(p)
-                if port > 0:
-                    all_exposed_ports.append(port)
+        all_exposed_ports.extend(_exposed_port_ints(c))
 
         if not _as_bool(c.get("has_liveness_probe")):
             missing.add("livenessProbe")
         if not _as_bool(c.get("has_readiness_probe")):
             missing.add("readinessProbe")
-
-    if not has_relevant_container:
-        return ([], all_exposed_ports)
 
     return (sorted(missing), all_exposed_ports)
 
@@ -106,10 +123,7 @@ def _find_misconfigurations(containers: list[dict[str, object]]) -> list[str]:
     for c in containers:
         if _as_bool(c.get("is_init_container")):
             continue
-        exposed_raw = c.get("exposed_ports", [])
-        exposed_ints: list[int] = []
-        if isinstance(exposed_raw, list):
-            exposed_ints = [_as_int(x) for x in exposed_raw if _as_int(x) > 0]
+        exposed_ints = _exposed_port_ints(c)
 
         if _as_bool(c.get("has_readiness_probe")):
             rp = _as_int(c.get("readiness_port"))
@@ -170,12 +184,9 @@ def _first_port(containers: list[dict[str, object]]) -> int:
     for c in containers:
         if _as_bool(c.get("is_init_container")):
             continue
-        ports_raw = c.get("exposed_ports", [])
-        if isinstance(ports_raw, list):
-            for p in ports_raw:
-                port = _as_int(p)
-                if port > 0:
-                    return port
+        ports = _exposed_port_ints(c)
+        if ports:
+            return ports[0]
     return 0
 
 

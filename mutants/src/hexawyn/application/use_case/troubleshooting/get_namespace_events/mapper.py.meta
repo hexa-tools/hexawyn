@@ -1,0 +1,42 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_1": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_2": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_3": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_4": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_5": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_6": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_7": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_8": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_9": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_10": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_11": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_12": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_13": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_14": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_15": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_16": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_17": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_18": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_19": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_20": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_21": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_22": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_23": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_24": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_25": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_26": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_27": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_28": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_29": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_30": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_31": null,
+        "hexawyn.application.use_case.troubleshooting.get_namespace_events.mapper.x_to_response__mutmut_32": null
+    },
+    "hash_by_function_name": {
+        "x_to_response": "d4f2025cf78b"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

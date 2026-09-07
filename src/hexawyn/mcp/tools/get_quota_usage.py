@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 
 
 def get_quota_usage() -> dict[str, object]:
-    from hexawyn.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
     from hexawyn.application.service.runtime_adapter import get_runtime
+    from hexawyn.infrastructure.adapters.secondary.runtime_quota_source import RuntimeQuotaSource
 
     try:
         quota_source = RuntimeQuotaSource(runtime=get_runtime())

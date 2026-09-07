@@ -186,6 +186,6 @@ the full port/service/use-case/tool/adapter stack:
 - `src/hexawyn/application/ports/driving/detect_privileged_pods/` — command, response, service_port
 - `src/hexawyn/application/service/pod_security_standards_audit_service.py` — `PodSecurityStandardsAuditService`
 - `src/hexawyn/application/use_case/detect_privileged_pods/detect_privileged_pods_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_pod_security_adapter.py` — `KubernetesPodSecurityAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_pod_security_adapter.py` — `KubernetesPodSecurityAdapter`
 - `src/hexawyn/mcp/tools/detect_privileged_pods.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_pod_security_adapter`

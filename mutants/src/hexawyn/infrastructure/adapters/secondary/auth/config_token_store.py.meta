@@ -1,0 +1,20 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.infrastructure.adapters.secondary.auth.config_token_store.x\u01c1ConfigTokenStore\u01c1get_token__mutmut_1": null,
+        "hexawyn.infrastructure.adapters.secondary.auth.config_token_store.x\u01c1ConfigTokenStore\u01c1get_token__mutmut_2": null,
+        "hexawyn.infrastructure.adapters.secondary.auth.config_token_store.x\u01c1ConfigTokenStore\u01c1get_token__mutmut_3": null,
+        "hexawyn.infrastructure.adapters.secondary.auth.config_token_store.x\u01c1ConfigTokenStore\u01c1get_token__mutmut_4": null,
+        "hexawyn.infrastructure.adapters.secondary.auth.config_token_store.x\u01c1ConfigTokenStore\u01c1get_token__mutmut_5": null,
+        "hexawyn.infrastructure.adapters.secondary.auth.config_token_store.x\u01c1ConfigTokenStore\u01c1get_token__mutmut_6": null,
+        "hexawyn.infrastructure.adapters.secondary.auth.config_token_store.x\u01c1ConfigTokenStore\u01c1save_token__mutmut_1": null,
+        "hexawyn.infrastructure.adapters.secondary.auth.config_token_store.x\u01c1ConfigTokenStore\u01c1save_token__mutmut_2": null,
+        "hexawyn.infrastructure.adapters.secondary.auth.config_token_store.x\u01c1ConfigTokenStore\u01c1save_token__mutmut_3": null
+    },
+    "hash_by_function_name": {
+        "x\u01c1ConfigTokenStore\u01c1get_token": "e8652d17ddf9",
+        "x\u01c1ConfigTokenStore\u01c1save_token": "beb8c24dbc2d"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

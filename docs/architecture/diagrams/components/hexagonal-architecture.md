@@ -108,7 +108,7 @@ flowchart LR
 | R4 | Domain imports nothing external | ✅ `hexa_guard.py` lines 154-162 |
 | R5 | Adapters go through ports only (never import domain directly) | ✅ `hexa_guard.py` lines 175-183 |
 | R6 | No try/catch in application/service/ or domain/services/ | ✅ `hexa_guard.py` lines 190-201 |
-| R10 | DemoAdapter only in adapters/secondary/mock/ | ✅ `hexa_guard.py` lines 283-289 |
+| R10 | DemoAdapter only in infrastructure/adapters/secondary/mock/ | ✅ `hexa_guard.py` lines 283-289 |
 | R11 | DEMO_MODE never hardcoded — read from env | ✅ `hexa_guard.py` lines 295-307 |
 
 ## Key Points
@@ -144,8 +144,8 @@ flowchart LR
 - `src/hexawyn/domain/services/anomaly_detection/` — Z-score anomaly detection
 - `src/hexawyn/domain/services/certificate/` — Certificate health checker
 - `src/hexawyn/application/ports/driven/` — K8sPort, MetricsPort, TracesPort, LogsPort, RuntimePort...
-- `src/hexawyn/adapters/secondary/adapter_factory.py` — build_adapters()
-- `src/hexawyn/adapters/secondary/mock/demo_adapter.py` — DemoAdapter (mock/)
-- `src/hexawyn/adapters/secondary/vanilla/vanilla_adapter.py` — VanillaAdapter fallback
+- `src/hexawyn/infrastructure/adapters/secondary/adapter_factory.py` — build_adapters()
+- `src/hexawyn/infrastructure/adapters/secondary/mock/demo_adapter.py` — DemoAdapter (mock/)
+- `src/hexawyn/infrastructure/adapters/secondary/vanilla/vanilla_adapter.py` — VanillaAdapter fallback
 - `src/hexawyn/infrastructure/logging/tool_decorator.py` — log_tool_execution + RotatingFileHandler
 - `hexa_guard.py` — 11 rules auto-enforced at every file write

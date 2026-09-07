@@ -101,5 +101,5 @@ sequenceDiagram
 - `src/hexawyn/domain/models/canary_comparison.py` — VersionMetrics, ComparisonResult, CanaryComparisonRequest
 - `src/hexawyn/application/ports/driven/canary_comparison_port.py` — CanaryComparisonPort ABC
 - `src/hexawyn/application/service/canary_comparison_service.py` — service
-- `src/hexawyn/adapters/secondary/gitops/otel_canary_comparison_adapter.py` — OTel adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_canary_comparison_adapter.py` — OTel adapter
 - `src/hexawyn/mcp/tools/canary_comparison.py` — MCP tool

@@ -29,7 +29,7 @@ def _parse_stage_name(task_name: str) -> str:
     lower = task_name.lower()
     if "build" in lower:
         return "build"
-    if "test" in lower or "test-" in lower or "-test" in lower:
+    if "test" in lower:
         return "test"
     if "deploy" in lower:
         return "deploy"
@@ -48,7 +48,6 @@ def _compute_stats(durations: list[float]) -> StageStats:
         p50=round(statistics.median(durations), 1),
         p95=round(_percentile(durations, 95), 1) if len(durations) >= 2 else round(durations[0], 1),  # noqa: PLR2004
         max=round(max(durations), 1),
-        unit="seconds",
     )
 
 
@@ -64,13 +63,13 @@ def _percentile(data: list[float], pct: float) -> float:
     return sorted_data[f]
 
 
-def _detect_outliers(runs: list[PipelineRunRecord], stage_avgs: dict[str, float]) -> list[str]:
+def _detect_outliers(runs: list[PipelineRunRecord], avgs: list[float]) -> list[str]:
     outliers: list[str] = []
     for run in runs:
         dur = run.get("duration_seconds") or 0
         if dur <= 0:
             continue
-        for stage, avg in stage_avgs.items():
+        for avg in avgs:
             if avg > 0 and dur > _OUTLIER_MULTIPLIER * avg:
                 if run["name"] not in outliers:
                     outliers.append(run["name"])
@@ -87,8 +86,6 @@ def _compute_trend(runs: list[PipelineRunRecord]) -> tuple[str, float | None]:
         return "insufficient_data", None
     first_avg = statistics.mean([r.get("duration_seconds") or 0 for r in first_5])
     last_avg = statistics.mean([r.get("duration_seconds") or 0 for r in last_5])
-    if first_avg == 0:
-        return "insufficient_data", None
     delta = (last_avg - first_avg) / first_avg
     pct = round(delta * 100, 1)
     if delta < -_SIGNIFICANT_TREND_PCT:
@@ -188,18 +185,17 @@ def compute_baseline(  # noqa: C901
     if not succeeded:
         return PipelineBaselineResult(
             pipeline=pipeline_name,
-            runs_analyzed=0,
             requested_limit=requested_limit,
             excluded_running=excluded_running,
             excluded_failed=excluded_failed,
-            trend="insufficient_data",
             note="No succeeded runs with completionTime available",
         )
 
     task_runs_by_pipeline: dict[str, list[TaskRunRecord]] = {}
     for tr in task_runs:
-        pr_name = tr.get("pipeline_run_name", "")
-        task_runs_by_pipeline.setdefault(pr_name, []).append(tr)
+        pr_name = tr.get("pipeline_run_name")
+        if pr_name:
+            task_runs_by_pipeline.setdefault(pr_name, []).append(tr)
 
     stage_durations: dict[str, list[float]] = {}
     total_durations: list[float] = []
@@ -224,9 +220,9 @@ def compute_baseline(  # noqa: C901
 
     total_stats = _compute_stats(total_durations) if total_durations else None
 
-    stage_avgs = {name: s.avg for name, s in stages.items()}
+    stage_avgs = [s.avg for s in stages.values()]
     if total_stats:
-        stage_avgs["_total"] = total_stats.avg
+        stage_avgs.append(total_stats.avg)
     outliers = _detect_outliers(succeeded, stage_avgs)
 
     trend, trend_pct = _compute_trend(succeeded)

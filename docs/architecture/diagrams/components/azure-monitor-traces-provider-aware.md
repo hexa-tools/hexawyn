@@ -57,7 +57,7 @@ flowchart TB
 
 ## Related Files
 
-- `src/hexawyn/adapters/secondary/azure/monitor_traces_adapter.py` — Azure traces adapter
-- `src/hexawyn/adapters/secondary/aws/xray_trace_adapter.py` — AWS peer
-- `src/hexawyn/adapters/secondary/gcp/cloud_trace_adapter.py` — GCP peer
+- `src/hexawyn/infrastructure/adapters/secondary/azure/monitor_traces_adapter.py` — Azure traces adapter
+- `src/hexawyn/infrastructure/adapters/secondary/aws/xray_trace_adapter.py` — AWS peer
+- `src/hexawyn/infrastructure/adapters/secondary/gcp/cloud_trace_adapter.py` — GCP peer
 - `src/hexawyn/mcp/server.py` — `build_trace_query_adapter()` multi-provider

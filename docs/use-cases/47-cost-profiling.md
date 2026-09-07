@@ -77,5 +77,5 @@ sequenceDiagram
 - `src/hexawyn/domain/models/cost_profiling.py` — EndpointCPUProfile, CostProfilingResult, OptimisationCandidate
 - `src/hexawyn/application/ports/driven/cost_profiling_port.py` — CostProfilingPort ABC
 - `src/hexawyn/application/service/cost_profiling_service.py` — service
-- `src/hexawyn/adapters/secondary/gitops/otel_cost_profiling_adapter.py` — OTel adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_cost_profiling_adapter.py` — OTel adapter
 - `src/hexawyn/mcp/tools/cost_profiling.py` — MCP tool

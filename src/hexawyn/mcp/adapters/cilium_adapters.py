@@ -8,14 +8,14 @@ from hexawyn.application.ports.driven.service_dependency_graph_port import (
 
 
 def build_cilium_adapter() -> CiliumPort:
-    from hexawyn.adapters.secondary.gitops.cilium_adapter import CiliumAdapter
-    from hexawyn.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
+    from hexawyn.infrastructure.adapters.secondary.gitops.cilium_adapter import CiliumAdapter
+    from hexawyn.infrastructure.adapters.secondary.vanilla.vanilla_adapter import VanillaAdapter
 
     return CiliumAdapter(VanillaAdapter(cluster_name="default"))
 
 
 def build_cilium_hubble_adapter() -> CiliumHubblePort:
-    from hexawyn.adapters.secondary.cilium.cilium_hubble_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.cilium.cilium_hubble_adapter import (
         CiliumHubbleAdapter,
     )
 
@@ -23,7 +23,7 @@ def build_cilium_hubble_adapter() -> CiliumHubblePort:
 
 
 def build_cilium_service_graph_adapter() -> ServiceDependencyGraphPort:
-    from hexawyn.adapters.secondary.cilium.cilium_hubble_graph_adapter import (
+    from hexawyn.infrastructure.adapters.secondary.cilium.cilium_hubble_graph_adapter import (
         HubbleDependencyGraphAdapter,
     )
 

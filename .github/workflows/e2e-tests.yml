@@ -4,7 +4,7 @@ on:
   push:
     branches: [dev]
     paths:
-      - 'src/hexawyn/adapters/**'
+      - 'src/hexawyn/infrastructure/adapters/**'
       - 'tests/e2e/**'
       - 'Makefile'
   schedule:

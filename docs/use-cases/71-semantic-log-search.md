@@ -198,6 +198,6 @@ extraction, service grouping — plus the full port/service/use-case/tool/adapte
 - `src/hexawyn/application/ports/driving/semantic_log_search/` — command, response, service_port
 - `src/hexawyn/application/service/semantic_log_search_service.py` — `SemanticLogSearchService`
 - `src/hexawyn/application/use_case/semantic_log_search/semantic_log_search_use_case.py`
-- `src/hexawyn/adapters/secondary/gitops/kubernetes_pod_log_search_adapter.py` — `KubernetesPodLogSearchAdapter`
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/kubernetes_pod_log_search_adapter.py` — `KubernetesPodLogSearchAdapter`
 - `src/hexawyn/mcp/tools/semantic_log_search.py` — MCP tool (auto-registered)
 - `src/hexawyn/mcp/server.py` — `build_log_search_adapter` (new)

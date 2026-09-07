@@ -43,6 +43,6 @@ sequenceDiagram
 - `src/hexawyn/domain/models/calico.py`
 - `src/hexawyn/application/ports/driven/calico_port.py`
 - `src/hexawyn/application/use_case/calico/get_calico_host_endpoints/get_calico_host_endpoints_use_case.py`
-- `src/hexawyn/adapters/secondary/calico/calico_k8s_adapter.py`
+- `src/hexawyn/infrastructure/adapters/secondary/calico/calico_k8s_adapter.py`
 - `src/hexawyn/mcp/adapters/calico_adapters.py`
 - `src/hexawyn/mcp/tools/get_calico_host_endpoints.py`

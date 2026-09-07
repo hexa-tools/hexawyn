@@ -1,0 +1,25 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1__init____mutmut_1": null,
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute__mutmut_1": null,
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute__mutmut_2": null,
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute__mutmut_3": null,
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute__mutmut_4": null,
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute__mutmut_5": null,
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute__mutmut_6": null,
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute__mutmut_7": null,
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute__mutmut_8": null,
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute__mutmut_9": null,
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute__mutmut_10": null,
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute__mutmut_11": null,
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute__mutmut_12": null,
+        "hexawyn.application.use_case.security.report_unauthorized_access.report_unauthorized_access_use_case.x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute__mutmut_13": null
+    },
+    "hash_by_function_name": {
+        "x\u01c1ReportUnauthorizedAccessUseCase\u01c1__init__": "b86cee52fbb2",
+        "x\u01c1ReportUnauthorizedAccessUseCase\u01c1execute": "b950c3854d80"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

@@ -111,5 +111,5 @@ sequenceDiagram
 
 - `src/hexawyn/domain/models/sensitive_data_audit.py` — AccessMatch, SensitiveAuditResult
 - `src/hexawyn/application/ports/driven/compliance_audit_port.py` — ComplianceAuditPort ABC
-- `src/hexawyn/adapters/secondary/gitops/otel_compliance_audit_adapter.py` — adapter
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/otel_compliance_audit_adapter.py` — adapter
 - `src/hexawyn/mcp/tools/sensitive_data_audit.py` — MCP tool

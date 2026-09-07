@@ -1,0 +1,35 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1__init____mutmut_1": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1__init____mutmut_2": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings__mutmut_1": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings__mutmut_2": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings__mutmut_3": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings__mutmut_4": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings__mutmut_5": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings__mutmut_6": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings__mutmut_7": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings__mutmut_8": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings__mutmut_9": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings__mutmut_10": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings__mutmut_11": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings__mutmut_12": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings__mutmut_13": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x__any_actual_present__mutmut_1": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x__any_actual_present__mutmut_2": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x__any_actual_present__mutmut_3": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x__any_actual_present__mutmut_4": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x__any_actual_present__mutmut_5": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x__any_actual_present__mutmut_6": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x__any_actual_present__mutmut_7": null,
+        "hexawyn.application.use_case.finops.estimate_rightsizing_savings.estimate_rightsizing_savings_use_case.x__any_actual_present__mutmut_8": null
+    },
+    "hash_by_function_name": {
+        "x\u01c1EstimateRightsizingSavingsUseCase\u01c1__init__": "26c297b638be",
+        "x\u01c1EstimateRightsizingSavingsUseCase\u01c1estimate_rightsizing_savings": "df602f0e5c63",
+        "x__any_actual_present": "17cd71ea0e40"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

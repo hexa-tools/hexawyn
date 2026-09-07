@@ -27,13 +27,13 @@ flowchart TB
         BUILD --> ISAWS
     end
 
-    subgraph Prom["adapters/secondary/gitops"]
+    subgraph Prom["infrastructure/adapters/secondary/gitops"]
         PROM["PrometheusClusterResourceMetricsAdapter<br/>(owns the PromQL)"]
         PHTTP["PrometheusHTTPAdapter (MetricsQueryPort)"]
         PROM --> PHTTP
     end
 
-    subgraph AWS["adapters/secondary/aws"]
+    subgraph AWS["infrastructure/adapters/secondary/aws"]
         CW["CloudWatchClusterResourceMetricsAdapter<br/>GetMetricData / Metrics Insights"]
     end
 
@@ -85,8 +85,8 @@ flowchart TB
 ## Related Files
 
 - `src/hexawyn/application/ports/driven/cluster_resource_metrics_port.py` — the port
-- `src/hexawyn/adapters/secondary/gitops/prometheus_cluster_resource_metrics_adapter.py` — Prometheus impl
-- `src/hexawyn/adapters/secondary/aws/cloudwatch_metrics_adapter.py` — CloudWatch impl
+- `src/hexawyn/infrastructure/adapters/secondary/gitops/prometheus_cluster_resource_metrics_adapter.py` — Prometheus impl
+- `src/hexawyn/infrastructure/adapters/secondary/aws/cloudwatch_metrics_adapter.py` — CloudWatch impl
 - `src/hexawyn/application/service/cluster_capacity_ceiling_forecast_service.py`
 - `src/hexawyn/application/service/cluster_headroom_simulation_service.py`
 - `src/hexawyn/application/service/hot_node_analysis_service.py`

@@ -1,0 +1,20 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.domain.services.network_policy.policy_coverage_analyzer.x_provides_ingress_restriction__mutmut_1": 33,
+        "hexawyn.domain.services.network_policy.policy_coverage_analyzer.x_provides_ingress_restriction__mutmut_2": 33,
+        "hexawyn.domain.services.network_policy.policy_coverage_analyzer.x_provides_egress_restriction__mutmut_1": 33,
+        "hexawyn.domain.services.network_policy.policy_coverage_analyzer.x_provides_egress_restriction__mutmut_2": 33
+    },
+    "hash_by_function_name": {
+        "x_provides_ingress_restriction": "7a2291fec78e",
+        "x_provides_egress_restriction": "45f645631e1d"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {
+        "hexawyn.domain.services.network_policy.policy_coverage_analyzer.x_provides_ingress_restriction__mutmut_1": 0,
+        "hexawyn.domain.services.network_policy.policy_coverage_analyzer.x_provides_ingress_restriction__mutmut_2": 0,
+        "hexawyn.domain.services.network_policy.policy_coverage_analyzer.x_provides_egress_restriction__mutmut_1": 0,
+        "hexawyn.domain.services.network_policy.policy_coverage_analyzer.x_provides_egress_restriction__mutmut_2": 0
+    }
+}

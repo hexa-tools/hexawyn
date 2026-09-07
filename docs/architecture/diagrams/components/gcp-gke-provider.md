@@ -9,7 +9,7 @@ API). The domain layer is untouched — only a driven adapter is swapped.
 
 ```mermaid
 flowchart LR
-    subgraph Factory["adapters/secondary/adapter_factory.py"]
+    subgraph Factory["infrastructure/adapters/secondary/adapter_factory.py"]
         BA["build_adapters(cluster_name)"]
         EP["entry_points('hexawyn.providers')"]
         BA --> EP
@@ -19,13 +19,13 @@ flowchart LR
         CP["CloudProvider (ABC)"]
     end
 
-    subgraph GCP["adapters/secondary/gcp/"]
+    subgraph GCP["infrastructure/adapters/secondary/gcp/"]
         PROV["GCPGKEProvider<br/>supports(): gcp installed<br/>+ gke/provider==gcp"]
         ADAPTER["GCPGKEAdapter (K8sPort)<br/>parse gke_PROJECT_REGION_CLUSTER<br/>describe_cluster_status()"]
         PARSER["gke_context_parser"]
     end
 
-    subgraph Vanilla["adapters/secondary/vanilla/"]
+    subgraph Vanilla["infrastructure/adapters/secondary/vanilla/"]
         VAN["VanillaAdapter (K8sPort)"]
     end
 
@@ -83,9 +83,9 @@ flowchart LR
 
 ## Related Files
 
-- `src/hexawyn/adapters/secondary/gcp/gke_adapter.py` — `GCPGKEAdapter` (K8sPort)
-- `src/hexawyn/adapters/secondary/gcp/gcp_gke_provider.py` — `GCPGKEProvider` plugin
-- `src/hexawyn/adapters/secondary/gcp/gke_context_parser.py` — context parsing
-- `src/hexawyn/adapters/provider_registry.py` — `CloudProvider` contract
-- `src/hexawyn/adapters/secondary/adapter_factory.py` — entry-point discovery
+- `src/hexawyn/infrastructure/adapters/secondary/gcp/gke_adapter.py` — `GCPGKEAdapter` (K8sPort)
+- `src/hexawyn/infrastructure/adapters/secondary/gcp/gcp_gke_provider.py` — `GCPGKEProvider` plugin
+- `src/hexawyn/infrastructure/adapters/secondary/gcp/gke_context_parser.py` — context parsing
+- `src/hexawyn/infrastructure/adapters/provider_registry.py` — `CloudProvider` contract
+- `src/hexawyn/infrastructure/adapters/secondary/adapter_factory.py` — entry-point discovery
 - `pyproject.toml` — `[tool.poetry.plugins."hexawyn.providers"]` registration

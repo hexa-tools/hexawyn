@@ -12,9 +12,9 @@ code would make the demo path non-testable and the providers non-ignorable.
 ## Decision
 
 Provide a **DemoAdapter** and drive **all** adapter selection through
-`adapters/secondary/adapter_factory.py`:
+`infrastructure/adapters/secondary/adapter_factory.py`:
 
-- `DEMO_MODE` → `DemoAdapter` (in `adapters/secondary/mock/`).
+- `DEMO_MODE` → `DemoAdapter` (in `infrastructure/adapters/secondary/mock/`).
 - Otherwise → detect the provider (`aws`/`gcp`/`azure`/`openshift`) or fall
   back to the `VanillaAdapter`.
 - Adapters are **never instantiated** directly in application/use-case code.
@@ -31,6 +31,6 @@ Provide a **DemoAdapter** and drive **all** adapter selection through
 
 - Integration tests and demos run without Kubernetes.
 - Adding a provider = extending `adapter_factory`, not touching use cases.
-- **Forbidden**: `DemoAdapter` outside `adapters/secondary/mock/`; hardcoded
+- **Forbidden**: `DemoAdapter` outside `infrastructure/adapters/secondary/mock/`; hardcoded
   adapter selection in application code (hexa_guard R10/R11).
 - Reversible: the factory is a single point of truth.

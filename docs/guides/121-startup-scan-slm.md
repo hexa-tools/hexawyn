@@ -104,7 +104,7 @@ sequenceDiagram
 ## Related Files
 
 - `src/hexawyn/cli/tui.py` — _generate_ai_suggestion, _fallback_suggestion
-- `src/hexawyn/adapters/secondary/runtime_client.py` — startup_scan(pods)
+- `src/hexawyn/infrastructure/adapters/secondary/runtime_client.py` — startup_scan(pods)
 - `src/hexawyn/application/service/http_runtime_adapter.py` — run_startup_scan
 - `src/hexawyn/infrastructure/config/machine_id.py` — Hardware fingerprint
 - hexa-control-plane: `api/routers/startup.py`, `load_pods.py`, `runtime_adapter.py`

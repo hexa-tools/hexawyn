@@ -1,0 +1,20 @@
+{
+    "exit_code_by_key": {
+        "hexawyn.application.use_case.troubleshooting.detect_recurring_incidents.detect_recurring_incidents_use_case.x\u01c1DetectRecurringIncidentsUseCase\u01c1__init____mutmut_1": null,
+        "hexawyn.application.use_case.troubleshooting.detect_recurring_incidents.detect_recurring_incidents_use_case.x\u01c1DetectRecurringIncidentsUseCase\u01c1__init____mutmut_2": null,
+        "hexawyn.application.use_case.troubleshooting.detect_recurring_incidents.detect_recurring_incidents_use_case.x\u01c1DetectRecurringIncidentsUseCase\u01c1execute__mutmut_1": null,
+        "hexawyn.application.use_case.troubleshooting.detect_recurring_incidents.detect_recurring_incidents_use_case.x\u01c1DetectRecurringIncidentsUseCase\u01c1execute__mutmut_2": null,
+        "hexawyn.application.use_case.troubleshooting.detect_recurring_incidents.detect_recurring_incidents_use_case.x\u01c1DetectRecurringIncidentsUseCase\u01c1execute__mutmut_3": null,
+        "hexawyn.application.use_case.troubleshooting.detect_recurring_incidents.detect_recurring_incidents_use_case.x\u01c1DetectRecurringIncidentsUseCase\u01c1execute__mutmut_4": null,
+        "hexawyn.application.use_case.troubleshooting.detect_recurring_incidents.detect_recurring_incidents_use_case.x\u01c1DetectRecurringIncidentsUseCase\u01c1execute__mutmut_5": null,
+        "hexawyn.application.use_case.troubleshooting.detect_recurring_incidents.detect_recurring_incidents_use_case.x\u01c1DetectRecurringIncidentsUseCase\u01c1execute__mutmut_6": null,
+        "hexawyn.application.use_case.troubleshooting.detect_recurring_incidents.detect_recurring_incidents_use_case.x\u01c1DetectRecurringIncidentsUseCase\u01c1execute__mutmut_7": null
+    },
+    "hash_by_function_name": {
+        "x\u01c1DetectRecurringIncidentsUseCase\u01c1__init__": "87d9a8b60254",
+        "x\u01c1DetectRecurringIncidentsUseCase\u01c1execute": "415ad9a3829f"
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}
