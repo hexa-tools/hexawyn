@@ -2,7 +2,7 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2.svg?logo=discord&logoColor=white)](https://discord.gg/HH3WsrnNw)
-[![Tests](https://img.shields.io/badge/tests-10802_passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-10840_passed-brightgreen.svg)]()
 [![Speed](https://img.shields.io/badge/suite-%3C90s-3B82F6.svg)]()
 [![codecov](https://codecov.io/gh/hexa-tools/hexawyn/branch/main/graph/badge.svg?token=E6PJX17GA8)](https://codecov.io/gh/hexa-tools/hexawyn)
 [![CI](https://github.com/hexa-tools/hexawyn/actions/workflows/ci.yml/badge.svg)](https://github.com/hexa-tools/hexawyn/actions/workflows/ci.yml)
@@ -10,6 +10,7 @@
 [![Docker Hub](https://img.shields.io/docker/pulls/hexatools/hexawyn.svg)](https://hub.docker.com/r/hexatools/hexawyn)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
 [![Benchmark](https://img.shields.io/badge/benchmark-81.6%2F100-yellow.svg)](docs/benchmark/README.md)
+[![Mutation Python](https://img.shields.io/badge/mutation--python-96.9%25-brightgreen.svg)](docs/mutation/PROGRES.md)
 
 </p>
 

@@ -15,6 +15,25 @@ pytest_add_cli_args_test_selection = ["tests/unit/domain"]
 > car certains tests du domaine importent `hexawyn.infrastructure.*`, qui vit hors du
 > périmètre `domain/` → `ModuleNotFoundError` dans le sandbox `mutants/` sinon.
 
+## Périmètre du badge mutation (scope `[tool.mutmut]`)
+
+Le badge README **mutation-python** reflète le score mutmut sur le **cœur déterministe
+uniquement** : `only_mutate = ["src/hexawyn/domain/*"]`, tests exécutés `tests/unit/domain`,
+`mutate_only_covered_lines = true`. Les couches externes — adapters (k8s/cloud), `cli/`,
+`lang_graph/`, `mcp/`, `infrastructure/memory` — ne sont **pas** passées au mutmut (mutants
+sans signification avec la sélection domain) : elles restent sous *branch coverage* (97 % projet).
+
+Commandes Make (modèle hexa-sec) :
+```bash
+make mutation                                 # run complet frais + export + report + badge
+make mutation-python-module MODULE="hexawyn.domain.services.<pkg>.<mod>"   # un module
+make mutation-badge                           # report + badge depuis le dernier export
+```
+> Après une purge (`rm -rf mutants`), rejouer
+> `poetry run python tool/mark_equivalent_mutants.py --list docs/mutation/equivalent_mutants.txt`
+> avant `mutmut export-cicd-stats`, sinon les équivalents structurels repassent en `survived`.
+
+
 ## Commandes utiles
 
 ```bash

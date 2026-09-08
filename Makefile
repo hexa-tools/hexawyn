@@ -154,6 +154,57 @@ mutmut-purge:
 	rm -rf mutants/tests mutants/src
 	@echo "✅ Purged — re-run make mutmut-run to rebuild"
 
+# ── Commandes (modèle hexa-sec) ──────────────────────────────────
+#   make mutation                       → run complet frais + export + report + badge
+#   make mutation-python-module MODULE="hexawyn.domain.services.<pkg>.<mod>"
+#                                       → un module (cache conservé)
+#   make mutation-results / mutation-show → inspecter le dernier run.
+
+.PHONY: mutation mutation-python mutation-python-module mutation-results mutation-show \
+	mutation-report mutation-badge mutation-clean
+
+# mutation-python : run COMPLET frais (sandbox purgé) — chiffres officiels.
+# run_mutmut.py neutralise beartype.claw (dép. py-key-value, absente chez
+# hexa-sec) sinon mutmut segfault à la génération des mutants.
+mutation-python:
+	@echo "🧬 Running Python mutation testing (fresh full run, mutmut)..."
+	rm -rf mutants
+	$(PYTHON) scripts/run_mutmut.py run --max-children 8
+	$(POETRY) run mutmut export-cicd-stats
+	@echo "✅ Python mutation stats exported — see mutants/mutmut-cicd-stats.json"
+
+mutation-python-module:
+	@test -n "$(MODULE)" || (echo 'Usage: make mutation-python-module MODULE="hexawyn.domain.services.<pkg>.<mod>"'; exit 1)
+	@echo "🧬 Running Python mutation on module: $(MODULE)..."
+	$(PYTHON) scripts/run_mutmut.py run "$(MODULE)" --max-children 8
+	@echo "✅ Module mutation done"
+
+mutation-results:
+	@echo "🧬 Surviving mutants of the last run:"
+	$(POETRY) run mutmut results
+
+mutation-show:
+	@test -n "$(MUTMUT_MUTANT)" || (echo "Usage: make mutation-show MUTMUT_MUTANT=<full_mutant_id>"; exit 1)
+	$(POETRY) run mutmut show "$(MUTMUT_MUTANT)"
+
+mutation-report:
+	@echo "📊 Aggregating mutation results..."
+	$(PYTHON) scripts/mutation_report.py
+	@echo "✅ Mutation report written to docs/mutation/report.json"
+
+mutation-badge:
+	@echo "🏷️  Updating mutation badge in README.md..."
+	$(PYTHON) scripts/mutation_report.py --badge
+	@echo "✅ Mutation badge updated"
+
+mutation: mutation-python mutation-report mutation-badge
+	@echo "✅ Mutation testing complete"
+
+mutation-clean:
+	@echo "🧹 Cleaning mutation sandbox and reports..."
+	rm -rf mutants
+	@echo "✅ Cleanup complete"
+
 # ─────────────────────────────────────
 #  k3d E2E Cluster
 # ─────────────────────────────────────
@@ -423,6 +474,10 @@ help:
 	@echo "  make mutmut-results        → List surviving mutants (filter: MUTMUT_MODULE)"
 	@echo "  make mutmut-show MUTMUT_MUTANT=<id> → Show one mutant diff"
 	@echo "  make mutmut-purge          → Purge mutmut sandbox"
+	@echo "  make mutation              → Run complet frais + export + report + badge"
+	@echo "  make mutation-python-module MODULE=\"hexawyn.domain.services.<pkg>.<mod>\" → Un module"
+	@echo "  make mutation-report       → Aggregate results into docs/mutation/report.json"
+	@echo "  make mutation-badge        → Update README badge from exported stats"
 	@echo ""
 	@echo "🚀 K3D CLUSTER (E2E)"
 	@echo "  make cluster-up            → Create k3d test cluster"
