@@ -6,6 +6,7 @@ from hexawyn.application.ports.driven.cluster_diff_port import (
 )
 from hexawyn.domain.models.cluster_diff import ResourceDiff
 from hexawyn.domain.services.cluster_diff.cluster_diff_service import (
+    _is_secret,
     _missing,
     compute_diff,
 )
@@ -444,6 +445,68 @@ class TestVersionMismatchExact:
 
         assert len(result.version_mismatches) == 1
         assert result.version_mismatches[0].resource == "Deployment/api"
+
+
+class TestSecretWithoutFlag:
+    """Category: absence/vide × invariant — a Secret resource whose ``is_secret``
+    flag is absent must never be auto-promotable."""
+
+    def test_secret_kind_without_flag_marked_manual(self) -> None:
+        staging = _make_inventory(
+            cluster_name="staging",
+            resources=[{"kind": "Secret", "name": "db-pass", "namespace": "ns1"}],
+        )
+        prod = _make_inventory(cluster_name="prod")
+
+        result = compute_diff(staging, prod)
+
+        assert result.in_staging_not_prod[0].reason == "secret_manual"
+        assert result.in_staging_not_prod[0].detail == "Secret requires manual promotion"
+
+    def test_secret_kind_without_flag_not_ready_to_promote(self) -> None:
+        staging = _make_inventory(
+            cluster_name="staging",
+            resources=[{"kind": "Secret", "name": "db-pass", "namespace": "ns1"}],
+        )
+        prod = _make_inventory(cluster_name="prod")
+
+        result = compute_diff(staging, prod)
+
+        assert result.promotion_checklist.ready_to_promote == []
+        assert result.in_staging_not_prod[0].reason == "secret_manual"
+
+    def test_secret_kind_with_false_flag_still_manual(self) -> None:
+        staging = _make_inventory(
+            cluster_name="staging",
+            resources=[
+                _make_resource(kind="Secret", name="db-pass", namespace="ns1", is_secret=False),
+            ],
+        )
+        prod = _make_inventory(cluster_name="prod")
+
+        result = compute_diff(staging, prod)
+
+        assert result.in_staging_not_prod[0].reason == "secret_manual"
+
+
+class TestIsSecretHelper:
+    def test_flag_true_wins_for_any_kind(self) -> None:
+        resource = {"kind": "Deployment", "name": "api", "namespace": "ns1", "is_secret": True}
+        assert _is_secret(resource)
+
+    def test_secret_kind_without_flag_is_secret(self) -> None:
+        assert _is_secret({"kind": "Secret", "name": "db-pass", "namespace": "ns1"})
+
+    def test_secret_kind_with_false_flag_is_secret(self) -> None:
+        resource = _make_resource(kind="Secret", name="db-pass", namespace="ns1", is_secret=False)
+        assert _is_secret(resource)
+
+    def test_regular_kind_without_flag_is_not_secret(self) -> None:
+        assert not _is_secret({"kind": "ConfigMap", "name": "cfg", "namespace": "ns1"})
+
+    def test_regular_kind_with_false_flag_is_not_secret(self) -> None:
+        resource = _make_resource(kind="Deployment", name="api", namespace="ns1", is_secret=False)
+        assert not _is_secret(resource)
 
 
 class TestReportAggregation:

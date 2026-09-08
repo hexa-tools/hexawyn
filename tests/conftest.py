@@ -2,15 +2,22 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-import duckdb
 import pytest
+
+if TYPE_CHECKING:
+    import duckdb
 
 _SQL_DIR = Path(__file__).parent.parent / "src" / "hexawyn" / "infrastructure" / "memory" / "sql"
 
 
 @pytest.fixture
 def in_memory_db() -> duckdb.DuckDBPyConnection:
+    # Import paresseux : nécessaire pour que mutmut (sandbox, sessions pytest
+    # in-process) puisse collecter les tests sans recharger l'extension C duckdb.
+    import duckdb
+
     conn = duckdb.connect(":memory:")
     try:
         conn.execute("INSTALL vss;")

@@ -127,5 +127,39 @@ markers = [
 ]
 
 [tool.mutmut]
+# Mutation testing — deterministic core (hexagonal inner layers only).
+# source_paths stays broad so the mutation sandbox can import the whole project
+# (domain tests reach some hexawyn.infrastructure.*), but only_mutate scopes the
+# mutants to the pure business logic that the tests/unit/domain selection really
+# exercises. The outer layers — adapters (k8s/cloud), cli/, lang_graph/, mcp/,
+# infrastructure/memory — stay under branch coverage (97 % project), not mutation:
+# mutating them against domain-only tests would produce meaningless survivors.
 source_paths = ["src/hexawyn"]
-pytest_add_cli_args_test_selection = ["tests/unit/domain"]
+only_mutate = ["src/hexawyn/domain/*"]
+do_not_mutate = ["src/hexawyn/domain/*/__init__.py"]
+mutate_only_covered_lines = true
+# The test files below import C-extension / compiled deps (duckdb via
+# infrastructure/memory, numpy/sklearn, cryptography/jwt) at module scope, which
+# mutmut's in-process stats pytest cannot reload — excluded from the mutation
+# selection like hexa-sec scopes its own. pytest-asyncio crashes on Package
+# collectors inside the mutmut sandbox (no async test in tests/unit/domain) —
+# disabled for mutation pytest runs.
+pytest_add_cli_args = ["-p", "no:asyncio"]
+pytest_add_cli_args_test_selection = [
+    "tests/unit/domain",
+    "--ignore=tests/unit/domain/errors/test_duckdb_client.py",
+    "--ignore=tests/unit/domain/errors/test_encryption.py",
+    "--ignore=tests/unit/domain/errors/test_license_manager_jwt.py",
+    "--ignore=tests/unit/domain/errors/test_mcp_server_startup.py",
+    "--ignore=tests/unit/domain/models/test_cache_repository.py",
+    "--ignore=tests/unit/domain/models/test_duckdb_cache_adapter.py",
+    "--ignore=tests/unit/domain/models/test_duckdb_search.py",
+    "--ignore=tests/unit/domain/models/test_generate_incident_triage_report_tool.py",
+    "--ignore=tests/unit/domain/models/test_incident_memory_repository.py",
+    "--ignore=tests/unit/domain/models/test_license_manager.py",
+    "--ignore=tests/unit/domain/models/test_quota_repository.py",
+    "--ignore=tests/unit/domain/models/test_tls_certificate_diagnosis.py",
+    "--ignore=tests/unit/domain/services/test_cert_parser.py",
+    "--ignore=tests/unit/domain/services/test_topology_snapshot_repository.py",
+    "--ignore=tests/unit/domain/services/test_ml.py",
+]
