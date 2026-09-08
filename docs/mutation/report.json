@@ -1,0 +1,16 @@
+{
+  "overall": {
+    "killed": 13971,
+    "score": 96.9,
+    "total": 14417
+  },
+  "python": {
+    "enabled": true,
+    "killed": 13971,
+    "no_tests": 0,
+    "score": 96.9,
+    "survived": 442,
+    "timeout": 4,
+    "total": 14417
+  }
+}

@@ -43,6 +43,16 @@ def _key(resource: ResourceInventoryRaw) -> str:
     return f"{resource['kind']}/{resource['name']}/{resource['namespace']}"
 
 
+def _is_secret(resource: ResourceInventoryRaw) -> bool:
+    """A resource is secret when flagged, or when its kind is ``Secret``.
+
+    The explicit flag is the primary signal; the kind check is a safety net so a
+    Kubernetes ``Secret`` whose flag was never set (malformed/absent field) is
+    never treated as an auto-promotable resource.
+    """
+    return bool(resource.get("is_secret", False)) or resource["kind"] == "Secret"
+
+
 def _spec(resource: ResourceInventoryRaw) -> str:
     return f"{resource['kind']}/{resource['name']}"
 
@@ -62,7 +72,7 @@ def _missing(
     for resource in resources:
         key = _key(resource)
         if key not in target_map:
-            is_secret = resource.get("is_secret", False)
+            is_secret = _is_secret(resource)
             diffs.append(
                 ResourceDiff(
                     resource=_spec(resource),
